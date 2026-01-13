@@ -1,0 +1,475 @@
+{% extends "base.html" %}
+<!--
+    File: register.html
+    Purpose: User registration page with role selection tabs
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Feature: Authentication with Senior/Youth tabs
+-->
+
+{% block title %}Sign Up - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Registration page styling */
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-attachment: fixed;
+    }
+
+    .main-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+        min-height: 100vh;
+    }
+
+    .register-container {
+        max-width: 700px;
+        width: 100%;
+        margin: auto;
+    }
+
+    .register-card {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 0;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        overflow: hidden;
+    }
+
+    .register-header {
+        text-align: center;
+        padding: 2.5rem 2rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .register-header .icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .register-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .register-header p {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    /* Role Selection Tabs */
+    .role-tabs {
+        display: flex;
+        border-bottom: 2px solid #E9ECEF;
+        background: #F8F9FA;
+    }
+
+    .role-tab {
+        flex: 1;
+        padding: 1.25rem;
+        text-align: center;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.125rem;
+        transition: all 0.3s ease;
+        border: none;
+        background: transparent;
+        color: #6C757D;
+        position: relative;
+    }
+
+    .role-tab:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+
+    .role-tab.active {
+        color: #667eea;
+        background: white;
+    }
+
+    .role-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #667eea;
+    }
+
+    .role-tab i {
+        margin-right: 0.5rem;
+        font-size: 1.25rem;
+    }
+
+    .role-tab.senior-tab.active {
+        color: #E67E22;
+    }
+
+    .role-tab.senior-tab.active::after {
+        background: #E67E22;
+    }
+
+    .role-tab.youth-tab.active {
+        color: #9B59B6;
+    }
+
+    .role-tab.youth-tab.active::after {
+        background: #9B59B6;
+    }
+
+    /* Tab Content */
+    .tab-content-area {
+        padding: 2.5rem;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Form Styling */
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2C3E50;
+    }
+
+    .form-control {
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .senior-form .form-control:focus {
+        border-color: #E67E22;
+        box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.25);
+    }
+
+    .youth-form .form-control:focus {
+        border-color: #9B59B6;
+        box-shadow: 0 0 0 0.2rem rgba(155, 89, 182, 0.25);
+    }
+
+    .btn-register {
+        padding: 1rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .btn-register-senior {
+        background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-register-senior:hover {
+        background: linear-gradient(135deg, #D35400 0%, #E67E22 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(230, 126, 34, 0.3);
+    }
+
+    .btn-register-youth {
+        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-register-youth:hover {
+        background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(155, 89, 182, 0.3);
+    }
+
+    /* Role Info Box */
+    .role-info {
+        background: #F8F9FA;
+        border-left: 4px solid #667eea;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .role-info.senior {
+        border-left-color: #E67E22;
+    }
+
+    .role-info.youth {
+        border-left-color: #9B59B6;
+    }
+
+    .role-info i {
+        margin-right: 0.5rem;
+    }
+
+    /* Login Link */
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #E9ECEF;
+    }
+
+    @media (max-width: 576px) {
+        .register-card {
+            border-radius: 1rem;
+        }
+
+        .tab-content-area {
+            padding: 1.5rem;
+        }
+
+        .role-tab {
+            font-size: 1rem;
+            padding: 1rem 0.5rem;
+        }
+
+        .role-tab i {
+            display: block;
+            margin-bottom: 0.25rem;
+            margin-right: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card">
+        <!-- Header -->
+        <div class="register-header">
+            <div class="icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h2>Create Your Account</h2>
+            <p>Join GenCon SG and start bridging generations</p>
+        </div>
+
+        <!-- Role Selection Tabs -->
+        <div class="role-tabs">
+            <button class="role-tab senior-tab active" onclick="switchTab('senior')" id="seniorTab">
+                <i class="fas fa-user-friends"></i>
+                <span>Senior (60+)</span>
+            </button>
+            <button class="role-tab youth-tab" onclick="switchTab('youth')" id="youthTab">
+                <i class="fas fa-heart"></i>
+                <span>Youth Volunteer (13+)</span>
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content-area">
+            <!-- Senior Registration Form -->
+            <div class="tab-pane active" id="seniorContent">
+                <div class="role-info senior">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>For Seniors:</strong> Share your life stories, connect with youth volunteers, and participate in engaging activities.
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.register') }}" class="senior-form" id="seniorForm">
+                    <input type="hidden" name="role" value="senior">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-control" name="age" min="60" required>
+                            <small class="text-muted">Must be 60 or older</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" id="seniorPassword" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" name="confirm_password" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-register btn-register-senior">
+                        <i class="fas fa-user-check me-2"></i>Register as Senior
+                    </button>
+                </form>
+            </div>
+
+            <!-- Youth Registration Form -->
+            <div class="tab-pane" id="youthContent">
+                <div class="role-info youth">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>For Youth:</strong> Make a difference by connecting with seniors and building meaningful intergenerational relationships.
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.register') }}" class="youth-form" id="youthForm">
+                    <input type="hidden" name="role" value="youth">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-control" name="age" min="13" max="59" required>
+                            <small class="text-muted">Ages 13-59</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" id="youthPassword" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" name="confirm_password" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-register btn-register-youth">
+                        <i class="fas fa-heart me-2"></i>Register as Youth
+                    </button>
+                </form>
+            </div>
+
+            <!-- Login Link -->
+            <div class="login-link">
+                <p class="text-muted mb-0">
+                    Already have an account?
+                    <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-bold">Login here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Switch between Senior and Youth tabs
+    function switchTab(role) {
+        // Update tab buttons
+        document.getElementById('seniorTab').classList.remove('active');
+        document.getElementById('youthTab').classList.remove('active');
+
+        // Update tab content
+        document.getElementById('seniorContent').classList.remove('active');
+        document.getElementById('youthContent').classList.remove('active');
+
+        if (role === 'senior') {
+            document.getElementById('seniorTab').classList.add('active');
+            document.getElementById('seniorContent').classList.add('active');
+        } else {
+            document.getElementById('youthTab').classList.add('active');
+            document.getElementById('youthContent').classList.add('active');
+        }
+    }
+
+    // Form validation
+    document.getElementById('seniorForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('seniorPassword').value;
+        const age = parseInt(this.querySelector('input[name="age"]').value);
+
+        if (age < 60) {
+            e.preventDefault();
+            alert('Seniors must be 60 years or older');
+            return false;
+        }
+
+        if (password.length < 6) {
+            e.preventDefault();
+            alert('Password must be at least 6 characters long');
+            return false;
+        }
+    });
+
+    document.getElementById('youthForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('youthPassword').value;
+        const age = parseInt(this.querySelector('input[name="age"]').value);
+
+        if (age < 13) {
+            e.preventDefault();
+            alert('Youth volunteers must be 13 years or older');
+            return false;
+        }
+
+        if (age >= 60) {
+            e.preventDefault();
+            alert('Please register as a Senior instead');
+            return false;
+        }
+
+        if (password.length < 6) {
+            e.preventDefault();
+            alert('Password must be at least 6 characters long');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

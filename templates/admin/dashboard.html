@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+<!--
+    File: dashboard.html
+    Purpose: Admin dashboard with statistics and alerts
+    Author: Asher
+    Date: December 2025
+    Feature: System overview, user management, monitoring
+-->
+
+{% block title %}Admin Dashboard - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #3498DB 0%, #2C3E50 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid #3498DB;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .stat-card.seniors {
+        border-left-color: #E67E22;
+    }
+
+    .stat-card.youth {
+        border-left-color: #9B59B6;
+    }
+
+    .stat-card.pairs {
+        border-left-color: #27AE60;
+    }
+
+    .stat-card.reports {
+        border-left-color: #E74C3C;
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.8;
+    }
+
+    .stat-value {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        color: #6C757D;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .alert-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-card.warning {
+        border-left: 4px solid #F39C12;
+    }
+
+    .alert-card.danger {
+        border-left: 4px solid #E74C3C;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 1.5rem;
+    }
+
+    .activity-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .activity-item {
+        padding: 1rem;
+        border-bottom: 1px solid #E9ECEF;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #F8F9FA;
+        color: #3498DB;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        color: #2C3E50;
+    }
+
+    .activity-time {
+        font-size: 0.875rem;
+        color: #6C757D;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .action-btn {
+        padding: 1rem;
+        text-align: center;
+        background: white;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        text-decoration: none;
+        color: #2C3E50;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+        border-color: #3498DB;
+        background: #EBF5FB;
+        color: #3498DB;
+        transform: translateY(-2px);
+    }
+
+    .action-btn i {
+        display: block;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="admin-header text-center">
+        <h1><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h1>
+        <p class="mb-0">System Overview & Management</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card seniors">
+            <div class="stat-icon">👴</div>
+            <div class="stat-value">{{ total_seniors }}</div>
+            <div class="stat-label">Active Seniors</div>
+        </div>
+
+        <div class="stat-card youth">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">{{ total_youth }}</div>
+            <div class="stat-label">Youth Volunteers</div>
+        </div>
+
+        <div class="stat-card pairs">
+            <div class="stat-icon">🤝</div>
+            <div class="stat-value">{{ active_pairs }}</div>
+            <div class="stat-label">Active Pairs</div>
+        </div>
+
+        <div class="stat-card reports">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-value">{{ pending_reports }}</div>
+            <div class="stat-label">Pending Reports</div>
+        </div>
+    </div>
+
+    <!-- Alerts Section -->
+    {% if inactive_pairs > 0 or pending_reports > 0 %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="section-title"><i class="fas fa-exclamation-triangle me-2"></i>Alerts</h2>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        {% if inactive_pairs > 0 %}
+        <div class="col-md-6">
+            <div class="alert-card warning">
+                <h5><i class="fas fa-user-friends me-2"></i>Inactive Pairs</h5>
+                <p class="mb-2">{{ inactive_pairs }} buddy pairs haven't interacted in over 7 days.</p>
+                <a href="{{ url_for('admin.pairs') }}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-eye me-2"></i>View Pairs
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if pending_reports > 0 %}
+        <div class="col-md-6">
+            <div class="alert-card danger">
+                <h5><i class="fas fa-flag me-2"></i>Pending Reports</h5>
+                <p class="mb-2">{{ pending_reports }} chat reports require review.</p>
+                <a href="{{ url_for('admin.reports') }}" class="btn btn-danger btn-sm">
+                    <i class="fas fa-clipboard-list me-2"></i>Review Reports
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="section-title"><i class="fas fa-bolt me-2"></i>Quick Actions</h2>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <a href="{{ url_for('admin.users') }}" class="action-btn">
+            <i class="fas fa-users"></i>
+            Manage Users
+        </a>
+        <a href="{{ url_for('admin.pairs') }}" class="action-btn">
+            <i class="fas fa-user-friends"></i>
+            Buddy Pairs
+        </a>
+        <a href="{{ url_for('admin.events') }}" class="action-btn">
+            <i class="fas fa-calendar"></i>
+            Events
+        </a>
+        <a href="{{ url_for('admin.communities') }}" class="action-btn">
+            <i class="fas fa-comments"></i>
+            Communities
+        </a>
+        <a href="{{ url_for('admin.reports') }}" class="action-btn">
+            <i class="fas fa-flag"></i>
+            Reports
+        </a>
+        <a href="{{ url_for('admin.analytics') }}" class="action-btn">
+            <i class="fas fa-chart-line"></i>
+            Analytics
+        </a>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="alert-card">
+                <h3 class="section-title"><i class="fas fa-book me-2"></i>Recent Stories</h3>
+                <ul class="activity-list">
+                    {% for story in recent_stories %}
+                    <li class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">{{ story.title }}</div>
+                            <div class="activity-time">
+                                by {{ story.user.full_name }} • {{ story.created_at.strftime('%b %d, %Y') }}
+                            </div>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="activity-item">
+                        <div class="text-muted">No stories yet</div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="alert-card">
+                <h3 class="section-title"><i class="fas fa-user-plus me-2"></i>New Users</h3>
+                <ul class="activity-list">
+                    {% for user in recent_users %}
+                    <li class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">{{ user.full_name }}</div>
+                            <div class="activity-time">
+                                {{ user.role|capitalize }} • Joined {{ user.created_at.strftime('%b %d, %Y') }}
+                            </div>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="activity-item">
+                        <div class="text-muted">No recent users</div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    console.log('Admin dashboard loaded');
+</script>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+<!-- File: 500.html - Internal Server Error page -->
+
+{% block title %}500 - Server Error{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="padding: 5rem 0;">
+    <div style="font-size: 8rem; color: #FFC107;">
+        <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h1 style="font-size: 4rem; font-weight: 700; color: #2C3E50;">500</h1>
+    <h2 class="mb-4">Internal Server Error</h2>
+    <p class="lead mb-4">Something went wrong on our end. Please try again later.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+        <i class="fas fa-home me-2"></i>Back to Home
+    </a>
+</div>
+{% endblock %}

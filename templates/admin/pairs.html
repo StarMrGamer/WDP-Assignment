@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+<!--
+    File: pairs.html
+    Purpose: Admin buddy pair management page
+    Author: Asher
+    Date: December 2025
+    Feature: View and monitor buddy pairs with health indicators
+-->
+
+{% block title %}Buddy Pairs - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-user-friends me-2"></i>Buddy Pairs</h1>
+                <p class="mb-0">Monitor and manage senior-youth buddy pairs</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('admin.create_pair') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Create New Pair
+                </a>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card pairs">
+                <div class="stat-icon"><i class="fas fa-handshake"></i></div>
+                <div class="stat-value">{{ pairs_data|length }}</div>
+                <div class="stat-label">Total Pairs</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #27AE60;">
+                <div class="stat-icon" style="color: #27AE60;"><i class="fas fa-heart"></i></div>
+                <div class="stat-value">{{ pairs_data|selectattr('health', 'equalto', 'good')|list|length }}</div>
+                <div class="stat-label">Healthy Pairs</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #F39C12;">
+                <div class="stat-icon" style="color: #F39C12;"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-value">{{ pairs_data|selectattr('health', 'equalto', 'warning')|list|length }}</div>
+                <div class="stat-label">Needs Attention</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #E74C3C;">
+                <div class="stat-icon" style="color: #E74C3C;"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-value">{{ pairs_data|selectattr('health', 'equalto', 'critical')|list|length }}</div>
+                <div class="stat-label">Critical</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pairs List -->
+    {% if pairs_data %}
+    <div class="row">
+        {% for item in pairs_data %}
+        <div class="col-lg-6 mb-4">
+            <div class="pair-card {% if item.health == 'warning' %}warning{% elif item.health == 'critical' %}critical{% endif %}">
+                <!-- Pair Header -->
+                <div class="pair-header">
+                    <div>
+                        <span class="badge bg-secondary">Pair #{{ item.pair.id }}</span>
+                        {% if item.pair.program %}
+                        <span class="badge bg-primary ms-2">{{ item.pair.program }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="status-badge {{ item.pair.status }}">{{ item.pair.status|capitalize }}</span>
+                </div>
+
+                <!-- Pair Users -->
+                <div class="pair-users">
+                    <!-- Senior -->
+                    <div class="pair-user">
+                        <img src="{{ url_for('static', filename='images/' + (item.pair.senior.profile_picture or 'default-avatar.png')) }}"
+                             alt="Senior Avatar"
+                             onerror="this.src='https://ui-avatars.com/api/?name={{ item.pair.senior.full_name }}&background=E67E22&color=fff'">
+                        <div class="user-info">
+                            <div class="name">{{ item.pair.senior.full_name }}</div>
+                            <div class="role">Senior, {{ item.pair.senior.age }} years old</div>
+                        </div>
+                    </div>
+
+                    <!-- Connection Icon -->
+                    <div class="text-center">
+                        <i class="fas fa-link fa-2x" style="color: {% if item.health == 'good' %}#27AE60{% elif item.health == 'warning' %}#F39C12{% else %}#E74C3C{% endif %};"></i>
+                    </div>
+
+                    <!-- Youth -->
+                    <div class="pair-user">
+                        <img src="{{ url_for('static', filename='images/' + (item.pair.youth.profile_picture or 'default-avatar.png')) }}"
+                             alt="Youth Avatar"
+                             onerror="this.src='https://ui-avatars.com/api/?name={{ item.pair.youth.full_name }}&background=9B59B6&color=fff'">
+                        <div class="user-info">
+                            <div class="name">{{ item.pair.youth.full_name }}</div>
+                            <div class="role">Youth Volunteer, {{ item.pair.youth.age }} years old</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connection Strength -->
+                <div class="connection-strength">
+                    <div class="label">Connection Health</div>
+                    <div class="strength-bar">
+                        <div class="fill {{ item.health }}" style="width: {% if item.health == 'good' %}100{% elif item.health == 'warning' %}50{% else %}20{% endif %}%;"></div>
+                    </div>
+                </div>
+
+                <!-- Pair Stats -->
+                <div class="pair-stats">
+                    <div class="pair-stat">
+                        <div class="value">{{ item.message_count }}</div>
+                        <div class="label">Messages</div>
+                    </div>
+                    <div class="pair-stat">
+                        <div class="value">{{ item.pair.paired_date.strftime('%b %d') }}</div>
+                        <div class="label">Paired Since</div>
+                    </div>
+                    <div class="pair-stat">
+                        <div class="value">{{ item.pair.last_interaction.strftime('%b %d') if item.pair.last_interaction else 'Never' }}</div>
+                        <div class="label">Last Active</div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="viewPairDetails({{ item.pair.id }})">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </button>
+                    {% if item.health != 'good' %}
+                    <button class="btn btn-sm btn-warning" onclick="sendReminder({{ item.pair.id }})">
+                        <i class="fas fa-bell me-1"></i>Send Reminder
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="data-table-container">
+        <div class="text-center py-5">
+            <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No buddy pairs yet</h5>
+            <p class="text-muted">Create a new pair to get started</p>
+            <a href="{{ url_for('admin.create_pair') }}" class="btn btn-primary mt-2">
+                <i class="fas fa-plus me-2"></i>Create First Pair
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function viewPairDetails(pairId) {
+        // TODO: Implement pair detail view
+        alert('Feature coming soon: View pair details');
+    }
+
+    function sendReminder(pairId) {
+        if (confirm('Send a reminder notification to this pair to encourage interaction?')) {
+            // TODO: Implement reminder notification
+            alert('Reminder sent successfully!');
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+<!--
+    File: senior/messages.html
+    Purpose: Messaging interface for seniors to chat with their youth buddy
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Feature: Lingo Bridge Messaging (RAI's Feature Part 2)
+    Description: Real-time messaging with translation support, safety features,
+                 and voice message capability
+-->
+
+{% block title %}Messages - GenCon SG{% endblock %}
+
+{% block body_class %}messages-page{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            {% if buddy %}
+            <!-- Chat Interface -->
+            <div class="card chat-card">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ url_for('static', filename='images/' + buddy.profile_picture) }}"
+                             alt="{{ buddy.full_name }}"
+                             class="rounded-circle me-3"
+                             style="width: 50px; height: 50px; object-fit: cover;">
+                        <div>
+                            <h5 class="mb-0">{{ buddy.full_name }}</h5>
+                            <small class="text-muted">
+                                <i class="fas fa-circle text-success"></i> Online
+                            </small>
+                        </div>
+                        <!-- Translation Settings -->
+                        <div class="ms-auto">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                        data-bs-toggle="dropdown">
+                                    <i class="fas fa-language me-2"></i>
+                                    Translation
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><h6 class="dropdown-header">Translate to:</h6></li>
+                                    <li><a class="dropdown-item" href="#" onclick="setLanguage('en')">
+                                        🇬🇧 English
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="setLanguage('zh')">
+                                        🇨🇳 Chinese
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="setLanguage('ms')">
+                                        🇲🇾 Malay
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="setLanguage('ta')">
+                                        🇮🇳 Tamil
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Area -->
+                <div class="chat-messages" id="chatMessages">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="message {% if message.sender_id == session.user_id %}message-sent{% else %}message-received{% endif %}">
+                            <div class="message-content">
+                                {% if message.is_flagged %}
+                                <div class="alert alert-warning alert-sm mb-2">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <small>This message contains potentially unkind language</small>
+                                </div>
+                                {% endif %}
+
+                                <p class="mb-1">{{ message.content }}</p>
+
+                                {% if message.translated_content and message.original_language != 'en' %}
+                                <div class="translation-box mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-language me-1"></i>
+                                        Translation:
+                                    </small>
+                                    <p class="mb-0">{{ message.translated_content }}</p>
+                                </div>
+                                {% endif %}
+
+                                <small class="message-time">
+                                    {{ message.created_at.strftime('%I:%M %p') }}
+                                    {% if message.sender_id == session.user_id %}
+                                        <i class="fas fa-check-double text-primary"></i>
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-comments fa-3x mb-3"></i>
+                            <p>No messages yet. Start a conversation!</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Message Input Area -->
+                <div class="chat-input">
+                    <form id="messageForm" method="POST" action="{{ url_for('senior.messages') }}">
+                        <div class="input-group">
+                            <!-- Sticker Button -->
+                            <button class="btn btn-outline-secondary" type="button"
+                                    data-bs-toggle="dropdown">
+                                <i class="fas fa-smile"></i>
+                            </button>
+                            <div class="dropdown-menu sticker-menu">
+                                <div class="sticker-grid">
+                                    <span class="sticker" onclick="insertSticker('👍')">👍</span>
+                                    <span class="sticker" onclick="insertSticker('❤️')">❤️</span>
+                                    <span class="sticker" onclick="insertSticker('😊')">😊</span>
+                                    <span class="sticker" onclick="insertSticker('👏')">👏</span>
+                                    <span class="sticker" onclick="insertSticker('🙏')">🙏</span>
+                                    <span class="sticker" onclick="insertSticker('🎉')">🎉</span>
+                                    <span class="sticker" onclick="insertSticker('🌟')">🌟</span>
+                                    <span class="sticker" onclick="insertSticker('💯')">💯</span>
+                                </div>
+                            </div>
+
+                            <!-- Message Input -->
+                            <input type="text"
+                                   class="form-control"
+                                   id="messageInput"
+                                   name="message"
+                                   placeholder="Type your message..."
+                                   autocomplete="off"
+                                   required>
+
+                            <!-- Send Button -->
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-paper-plane"></i>
+                                Send
+                            </button>
+                        </div>
+
+                        <!-- Smart Chat Safety Notice -->
+                        <small class="text-muted mt-2 d-block">
+                            <i class="fas fa-shield-alt text-success me-1"></i>
+                            Smart Chat Safety is active - messages are checked for kindness
+                        </small>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Report Chat Option -->
+            <div class="text-center mt-3">
+                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#reportModal">
+                    <i class="fas fa-flag me-2"></i>
+                    Report Inappropriate Content
+                </button>
+            </div>
+
+            {% else %}
+            <!-- No Buddy Assigned -->
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                    <h4>No Buddy Assigned</h4>
+                    <p class="text-muted">You need to be paired with a youth volunteer to send messages.</p>
+                    <a href="{{ url_for('senior.dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Report Inappropriate Content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="#">
+                    <div class="mb-3">
+                        <label class="form-label">Reason for Report</label>
+                        <select class="form-select" name="reason" required>
+                            <option value="">Select a reason...</option>
+                            <option value="harassment">Harassment</option>
+                            <option value="inappropriate">Inappropriate Language</option>
+                            <option value="spam">Spam</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Additional Details (Optional)</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-flag me-2"></i>Submit Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-card {
+        height: calc(100vh - 150px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header {
+        padding: 1.5rem;
+        border-bottom: 2px solid #E9ECEF;
+        background: white;
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 2rem;
+        background: #F8F9FA;
+    }
+
+    .message {
+        margin-bottom: 1.5rem;
+        display: flex;
+    }
+
+    .message-sent {
+        justify-content: flex-end;
+    }
+
+    .message-received {
+        justify-content: flex-start;
+    }
+
+    .message-content {
+        max-width: 70%;
+        padding: 1rem 1.25rem;
+        border-radius: 1.25rem;
+        position: relative;
+    }
+
+    .message-sent .message-content {
+        background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
+        color: white;
+        border-bottom-right-radius: 0.25rem;
+    }
+
+    .message-received .message-content {
+        background: white;
+        border: 1px solid #E9ECEF;
+        border-bottom-left-radius: 0.25rem;
+        color: #2C3E50;
+    }
+
+    .message-time {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        opacity: 0.8;
+    }
+
+    .translation-box {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border-left: 3px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .message-received .translation-box {
+        background: #F8F9FA;
+        border-left-color: #4A90E2;
+    }
+
+    .chat-input {
+        padding: 1.5rem;
+        background: white;
+        border-top: 2px solid #E9ECEF;
+    }
+
+    .sticker-menu {
+        padding: 1rem;
+        width: 250px;
+    }
+
+    .sticker-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+
+    .sticker {
+        font-size: 2rem;
+        cursor: pointer;
+        text-align: center;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .sticker:hover {
+        background: #F8F9FA;
+        transform: scale(1.2);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-scroll to bottom of messages
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Insert sticker into message input
+    function insertSticker(emoji) {
+        const input = document.getElementById('messageInput');
+        input.value += emoji;
+        input.focus();
+    }
+
+    // Set translation language
+    function setLanguage(lang) {
+        localStorage.setItem('translationLanguage', lang);
+        showToast('Translation language updated', 'success');
+    }
+
+    // Focus message input on page load
+    document.getElementById('messageInput')?.focus();
+</script>
+{% endblock %}

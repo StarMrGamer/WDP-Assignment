@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+<!-- File: 403.html - Access Forbidden error page -->
+
+{% block title %}403 - Access Forbidden{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="padding: 5rem 0;">
+    <div style="font-size: 8rem; color: #E74C3C;">
+        <i class="fas fa-ban"></i>
+    </div>
+    <h1 style="font-size: 4rem; font-weight: 700; color: #2C3E50;">403</h1>
+    <h2 class="mb-4">Access Forbidden</h2>
+    <p class="lead mb-4">You don't have permission to access this page.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+        <i class="fas fa-home me-2"></i>Back to Home
+    </a>
+</div>
+{% endblock %}

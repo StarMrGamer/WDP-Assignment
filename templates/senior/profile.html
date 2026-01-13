@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+<!--
+    File: senior/profile.html
+    Purpose: Senior profile management and settings page
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Feature: User Profile & Settings
+-->
+
+{% block title %}My Profile - GenCon SG{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>
+                <i class="fas fa-user-circle me-2"></i>
+                My Profile
+            </h1>
+            <p class="text-muted">Manage your account information and settings</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Profile Info -->
+        <div class="col-lg-8 mb-4">
+            <!-- Profile Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card me-2"></i>
+                        Profile Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('senior.profile') }}" enctype="multipart/form-data">
+                        <!-- Profile Picture -->
+                        <div class="text-center mb-4">
+                            <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
+                                 alt="{{ user.full_name }}"
+                                 class="rounded-circle mb-3"
+                                 id="profilePreview"
+                                 style="width: 150px; height: 150px; object-fit: cover; border: 4px solid var(--senior-primary);">
+
+                            <div>
+                                <label for="profilePicture" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-camera me-2"></i>Change Photo
+                                </label>
+                                <input type="file"
+                                       id="profilePicture"
+                                       name="profile_picture"
+                                       accept="image/*"
+                                       style="display: none;"
+                                       onchange="previewProfilePicture(this)">
+                            </div>
+                        </div>
+
+                        <!-- Full Name -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-user me-2"></i>Full Name
+                            </label>
+                            <input type="text"
+                                   class="form-control form-control-lg"
+                                   name="full_name"
+                                   value="{{ user.full_name }}"
+                                   required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email Address
+                            </label>
+                            <input type="email"
+                                   class="form-control form-control-lg"
+                                   name="email"
+                                   value="{{ user.email }}"
+                                   required>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-phone me-2"></i>Phone Number
+                            </label>
+                            <input type="tel"
+                                   class="form-control form-control-lg"
+                                   name="phone"
+                                   value="{{ user.phone }}"
+                                   required>
+                        </div>
+
+                        <!-- Age -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-birthday-cake me-2"></i>Age
+                            </label>
+                            <input type="number"
+                                   class="form-control form-control-lg"
+                                   name="age"
+                                   value="{{ user.age }}"
+                                   min="60"
+                                   required>
+                        </div>
+
+                        <!-- Interests -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-heart me-2"></i>Interests & Hobbies
+                            </label>
+                            <textarea class="form-control"
+                                      name="interests"
+                                      rows="3"
+                                      placeholder="Share your interests, hobbies, and passions...">{{ user.interests_json }}</textarea>
+                            <small class="text-muted">Help us match you with youth volunteers who share similar interests</small>
+                        </div>
+
+                        <!-- Languages -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-language me-2"></i>Languages Spoken
+                            </label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check form-check-lg mb-2">
+                                        <input class="form-check-input" type="checkbox" name="languages" value="English" id="langEnglish" checked>
+                                        <label class="form-check-label" for="langEnglish">English</label>
+                                    </div>
+                                    <div class="form-check form-check-lg mb-2">
+                                        <input class="form-check-input" type="checkbox" name="languages" value="Mandarin" id="langMandarin">
+                                        <label class="form-check-label" for="langMandarin">Mandarin</label>
+                                    </div>
+                                    <div class="form-check form-check-lg mb-2">
+                                        <input class="form-check-input" type="checkbox" name="languages" value="Malay" id="langMalay">
+                                        <label class="form-check-label" for="langMalay">Malay</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-check-lg mb-2">
+                                        <input class="form-check-input" type="checkbox" name="languages" value="Tamil" id="langTamil">
+                                        <label class="form-check-label" for="langTamil">Tamil</label>
+                                    </div>
+                                    <div class="form-check form-check-lg mb-2">
+                                        <input class="form-check-input" type="checkbox" name="languages" value="Hokkien" id="langHokkien">
+                                        <label class="form-check-label" for="langHokkien">Hokkien</label>
+                                    </div>
+                                    <div class="form-check form-check-lg mb-2">
+                                        <input class="form-check-input" type="checkbox" name="languages" value="Cantonese" id="langCantonese">
+                                        <label class="form-check-label" for="langCantonese">Cantonese</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-save me-2"></i>Save Profile Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lock me-2"></i>
+                        Change Password
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="passwordForm" onsubmit="changePassword(event)">
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control form-control-lg" id="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control form-control-lg" id="newPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control form-control-lg" id="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning btn-lg w-100">
+                            <i class="fas fa-key me-2"></i>Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Settings -->
+        <div class="col-lg-4">
+            <!-- Accessibility Settings Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-universal-access me-2"></i>
+                        Accessibility Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="accessibilityForm">
+                        <!-- Font Size -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-text-height me-2"></i>Font Size
+                            </label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="fontSize" id="fontSmall" value="normal" checked>
+                                <label class="btn btn-outline-secondary" for="fontSmall">Normal</label>
+
+                                <input type="radio" class="btn-check" name="fontSize" id="fontLarge" value="large">
+                                <label class="btn btn-outline-secondary" for="fontLarge">Large</label>
+
+                                <input type="radio" class="btn-check" name="fontSize" id="fontXLarge" value="xlarge">
+                                <label class="btn btn-outline-secondary" for="fontXLarge">X-Large</label>
+                            </div>
+                        </div>
+
+                        <!-- High Contrast Mode -->
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="highContrast" onchange="toggleHighContrast()">
+                                <label class="form-check-label" for="highContrast">
+                                    <strong>High Contrast Mode</strong>
+                                    <br>
+                                    <small class="text-muted">Easier to read text and buttons</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Color Blind Friendly -->
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="colorBlindMode">
+                                <label class="form-check-label" for="colorBlindMode">
+                                    <strong>Color Blind Friendly</strong>
+                                    <br>
+                                    <small class="text-muted">Uses patterns in addition to colors</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-success w-100" onclick="saveAccessibilitySettings()">
+                            <i class="fas fa-check me-2"></i>Apply Settings
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Stats Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Account Stats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span><i class="fas fa-book text-primary me-2"></i>Stories Shared</span>
+                        <strong>{{ user.stories.count() if user.stories else 0 }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span><i class="fas fa-comments text-success me-2"></i>Messages Sent</span>
+                        <strong>{{ user.sent_messages.count() if user.sent_messages else 0 }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span><i class="fas fa-calendar-check text-warning me-2"></i>Check-Ins</span>
+                        <strong>{{ user.checkins.count() if user.checkins else 0 }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-calendar text-muted me-2"></i>Member Since</span>
+                        <strong>{{ user.created_at.strftime("%b %Y") if user.created_at else "N/A" }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buddy Info Card -->
+            {% if buddy %}
+            <div class="card">
+                <div class="card-header" style="background: var(--youth-primary); color: white;">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-friends me-2"></i>
+                        My Buddy
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='images/' + buddy.profile_picture) }}"
+                         alt="{{ buddy.full_name }}"
+                         class="rounded-circle mb-3"
+                         style="width: 80px; height: 80px; object-fit: cover;">
+                    <h6>{{ buddy.full_name }}</h6>
+                    <p class="text-muted small mb-3">Youth Volunteer</p>
+                    <a href="{{ url_for('senior.messages') }}" class="btn btn-sm btn-primary w-100">
+                        <i class="fas fa-comment me-2"></i>Send Message
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control-lg {
+        font-size: 1.125rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .form-check-lg {
+        font-size: 1.125rem;
+    }
+
+    .form-check-lg .form-check-input {
+        width: 1.5em;
+        height: 1.5em;
+        margin-top: 0.125em;
+    }
+
+    .card-header {
+        font-weight: 600;
+    }
+
+    .btn-group .btn {
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Preview profile picture
+    function previewProfilePicture(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profilePreview').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Save accessibility settings
+    function saveAccessibilitySettings() {
+        const fontSize = document.querySelector('input[name="fontSize"]:checked').value;
+        const highContrast = document.getElementById('highContrast').checked;
+        const colorBlind = document.getElementById('colorBlindMode').checked;
+
+        // Apply font size
+        document.body.className = document.body.className.replace(/font-\w+/g, '');
+        if (fontSize !== 'normal') {
+            document.body.classList.add('font-' + fontSize);
+        }
+
+        // Save to localStorage
+        localStorage.setItem('accessibility_settings', JSON.stringify({
+            fontSize: fontSize,
+            highContrast: highContrast,
+            colorBlind: colorBlind
+        }));
+
+        // Send to server
+        fetch('/senior/accessibility-settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                font_size: fontSize,
+                high_contrast: highContrast,
+                color_blind_friendly: colorBlind
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Accessibility settings saved!', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Failed to save settings', 'danger');
+        });
+    }
+
+    // Load saved settings on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const saved = localStorage.getItem('accessibility_settings');
+        if (saved) {
+            const settings = JSON.parse(saved);
+
+            // Set font size radio
+            const fontRadio = document.querySelector(`input[name="fontSize"][value="${settings.fontSize}"]`);
+            if (fontRadio) fontRadio.checked = true;
+
+            // Set checkboxes
+            document.getElementById('highContrast').checked = settings.highContrast;
+            document.getElementById('colorBlindMode').checked = settings.colorBlind;
+
+            // Apply settings
+            if (settings.fontSize !== 'normal') {
+                document.body.classList.add('font-' + settings.fontSize);
+            }
+        }
+    });
+
+    // Toggle high contrast
+    function toggleHighContrast() {
+        document.body.classList.toggle('high-contrast');
+    }
+
+    // Change password
+    function changePassword(event) {
+        event.preventDefault();
+
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // Validate passwords match
+        if (newPassword !== confirmPassword) {
+            showToast('New passwords do not match', 'warning');
+            return;
+        }
+
+        // Validate password strength
+        if (newPassword.length < 6) {
+            showToast('Password must be at least 6 characters long', 'warning');
+            return;
+        }
+
+        // Send to server (mock for now)
+        showToast('Password change feature will be implemented in backend', 'info');
+
+        // Clear form
+        document.getElementById('passwordForm').reset();
+
+        // TODO: Implement actual password change API
+        /*
+        fetch('/api/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                current_password: currentPassword,
+                new_password: newPassword
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Password changed successfully!', 'success');
+                document.getElementById('passwordForm').reset();
+            } else {
+                showToast(data.message || 'Failed to change password', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Failed to change password', 'danger');
+        });
+        */
+    }
+</script>
+{% endblock %}

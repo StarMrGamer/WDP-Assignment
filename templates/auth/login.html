@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+<!--
+    File: login.html
+    Purpose: Unified login page for all roles
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Feature: Authentication - Works for Senior, Youth, and Admin
+-->
+
+{% block title %}Login - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Login page styling */
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-attachment: fixed;
+    }
+
+    .main-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+        min-height: calc(100vh - 80px);
+    }
+
+    .login-container {
+        max-width: 480px;
+        width: 100%;
+        margin: auto;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 3rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .login-header .icon {
+        font-size: 4.5rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .login-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+        color: #6C757D;
+        font-size: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6C757D;
+        transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+        color: #667eea;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+
+    .remember-me-check {
+        display: flex;
+        align-items: center;
+    }
+
+    .remember-me input {
+        margin-right: 0.5rem;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .remember-me label {
+        margin-bottom: 0;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .forgot-password {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        margin-top: 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    .divider {
+        text-align: center;
+        margin: 2rem 0;
+        position: relative;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #E9ECEF;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 1rem;
+        position: relative;
+        color: #6C757D;
+        font-size: 0.9rem;
+    }
+
+    .register-link {
+        text-align: center;
+    }
+
+    .register-link p {
+        color: #6C757D;
+        margin-bottom: 0.5rem;
+    }
+
+    .register-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.05rem;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+
+    .back-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    .back-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .back-link a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 576px) {
+        .login-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .login-header h2 {
+            font-size: 1.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Login Header -->
+            <div class="login-header">
+                <div class="icon">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+                <h2>Welcome Back</h2>
+                <p>Login to continue bridging generations</p>
+            </div>
+
+            <!-- Login Form -->
+            <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+                <!-- Username Field -->
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-user me-2"></i>Username
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="username"
+                           name="username"
+                           placeholder="Enter your username"
+                           required
+                           autofocus>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock me-2"></i>Password
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password"
+                               class="form-control"
+                               id="password"
+                               name="password"
+                               placeholder="Enter your password"
+                               required>
+                        <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePassword()"></i>
+                    </div>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="remember-me">
+                    <div class="remember-me-check">
+                        <input type="checkbox"
+                               id="remember"
+                               name="remember"
+                               value="1">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-password">Forgot password?</a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span>New to GenCon SG?</span>
+            </div>
+
+            <!-- Register Link -->
+            <div class="register-link">
+                <a href="{{ url_for('auth.register') }}">
+                    <i class="fas fa-user-plus me-2"></i>Create an Account
+                </a>
+            </div>
+
+            <!-- Back to Home Link -->
+            <div class="back-link">
+                <a href="{{ url_for('index') }}">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-focus username field on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('username').focus();
+    });
+
+    // Toggle password visibility
+    function togglePassword() {
+        const passwordField = document.getElementById('password');
+        const toggleIcon = document.getElementById('togglePassword');
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Form validation
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (!username) {
+            e.preventDefault();
+            alert('Please enter your username');
+            document.getElementById('username').focus();
+            return false;
+        }
+
+        if (!password) {
+            e.preventDefault();
+            alert('Please enter your password');
+            document.getElementById('password').focus();
+            return false;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+<!--
+    File: senior/dashboard.html
+    Purpose: Senior dashboard - main page after login
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Description: Displays welcome message, quick stats, recent stories,
+                 buddy information, and upcoming events for seniors
+-->
+
+{% block title %}Senior Dashboard - GenCon SG{% endblock %}
+
+{% block body_class %}senior-dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Header -->
+    <div class="dashboard-header mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-2">
+                    <i class="fas fa-sun text-warning me-2"></i>
+                    Welcome back, {{ user.full_name.split()[0] }}!
+                </h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-calendar me-2"></i>
+                    {{ "now"|date("%A, %B %d, %Y") }}
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <!-- Quick Actions -->
+                <a href="{{ url_for('senior.create_story') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>Share a Story
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Stats and Buddy Info -->
+        <div class="col-lg-8">
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <!-- Total Stories -->
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="value">{{ stories_count }}</div>
+                        <div class="label">Stories Shared</div>
+                    </div>
+                </div>
+
+                <!-- Messages Sent -->
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="value">{{ user.sent_messages.count() }}</div>
+                        <div class="label">Messages Sent</div>
+                    </div>
+                </div>
+
+                <!-- Events Attended -->
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="value">0</div>
+                        <div class="label">Events Joined</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Youth Buddy Card -->
+            {% if buddy %}
+            <div class="card buddy-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-friends me-2"></i>
+                        My Youth Buddy
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <img src="{{ url_for('static', filename='images/' + buddy.profile_picture) }}"
+                                 alt="{{ buddy.full_name }}"
+                                 class="rounded-circle"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                        </div>
+                        <div class="col">
+                            <h4 class="mb-2">{{ buddy.full_name }}</h4>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-heart text-danger me-2"></i>
+                                Your volunteer buddy
+                            </p>
+                            {% if buddy.interests %}
+                            <div class="mb-3">
+                                <strong>Interests:</strong>
+                                <div class="mt-2">
+                                    {% for interest in buddy.interests[:3] %}
+                                    <span class="badge bg-primary me-1">{{ interest }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('senior.messages') }}" class="btn btn-primary">
+                                    <i class="fas fa-comment me-2"></i>Send Message
+                                </a>
+                                <a href="{{ url_for('senior.games') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-gamepad me-2"></i>Play Games
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- No Buddy Assigned -->
+            <div class="card mb-4">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                    <h4>No Buddy Assigned Yet</h4>
+                    <p class="text-muted">You will be paired with a youth volunteer soon!</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recent Stories -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book-open me-2"></i>
+                        My Recent Stories
+                    </h5>
+                    <a href="{{ url_for('senior.stories') }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_stories %}
+                        {% for story in recent_stories %}
+                        <div class="story-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">{{ story.title }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ story.created_at|timeago }}
+                                    </small>
+                                </div>
+                                <span class="category-badge">{{ story.category }}</span>
+                            </div>
+                            <p class="text-muted mb-2">
+                                {{ story.content[:150] }}{% if story.content|length > 150 %}...{% endif %}
+                            </p>
+                            <div class="d-flex gap-3 text-muted small">
+                                <span>
+                                    <i class="fas fa-heart text-danger"></i>
+                                    {{ story.reactions.filter_by(reaction_type='heart').count() }}
+                                </span>
+                                <span>
+                                    <i class="fas fa-comment"></i>
+                                    {{ story.comments.count() }}
+                                </span>
+                            </div>
+                        </div>
+                        {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-book fa-2x text-muted mb-3"></i>
+                            <p class="text-muted mb-3">You haven't shared any stories yet</p>
+                            <a href="{{ url_for('senior.create_story') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Share Your First Story
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Upcoming Events & Quick Links -->
+        <div class="col-lg-4">
+            <!-- Quick Links -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body p-2">
+                    <a href="{{ url_for('senior.create_story') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-plus-circle text-primary me-2"></i>
+                        Share a New Story
+                    </a>
+                    <a href="{{ url_for('senior.messages') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-comments text-success me-2"></i>
+                        Message My Buddy
+                    </a>
+                    <a href="{{ url_for('senior.events') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-calendar text-warning me-2"></i>
+                        Browse Events
+                    </a>
+                    <a href="{{ url_for('senior.communities') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users text-info me-2"></i>
+                        Join Communities
+                    </a>
+                    <a href="{{ url_for('senior.games') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-gamepad text-danger me-2"></i>
+                        Play Games
+                    </a>
+                    <a href="{{ url_for('senior.checkin') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-smile text-warning me-2"></i>
+                        Weekly Check-in
+                    </a>
+                </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Upcoming Events
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_events %}
+                        {% for event in upcoming_events %}
+                        <div class="event-card">
+                            <div class="event-date">
+                                <i class="fas fa-calendar me-2"></i>
+                                {{ event.date.strftime('%b %d, %Y') }}
+                            </div>
+                            <h6 class="mb-2">{{ event.title }}</h6>
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                {{ event.location if event.location else 'Online' }}
+                            </p>
+                            <a href="{{ url_for('senior.events') }}" class="btn btn-sm btn-outline-primary">
+                                View Details
+                            </a>
+                        </div>
+                        {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No upcoming events</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Weekly Check-in Reminder -->
+            <div class="card border-warning">
+                <div class="card-body">
+                    <h6 class="mb-2">
+                        <i class="fas fa-smile text-warning me-2"></i>
+                        How are you feeling?
+                    </h6>
+                    <p class="small text-muted mb-3">
+                        Share your mood with us this week
+                    </p>
+                    <a href="{{ url_for('senior.checkin') }}" class="btn btn-warning btn-sm w-100">
+                        <i class="fas fa-clipboard-check me-2"></i>
+                        Weekly Check-in
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #FFF9F0 0%, #FFEFD5 100%);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .list-group-item {
+        border: none;
+        padding: 0.875rem 1rem;
+        transition: all 0.2s;
+    }
+
+    .list-group-item:hover {
+        background-color: #F8F9FA;
+        transform: translateX(5px);
+    }
+</style>
+{% endblock %}

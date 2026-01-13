@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+<!--
+    File: youth/dashboard.html
+    Purpose: Youth volunteer dashboard - main page after login
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Description: Displays welcome message, recent stories from seniors,
+                 buddy information, impact stats, and badges for youth volunteers
+-->
+
+{% block title %}Youth Dashboard - GenCon SG{% endblock %}
+
+{% block body_class %}youth-dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Header -->
+    <div class="dashboard-header mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-2">
+                    <i class="fas fa-heart text-danger me-2"></i>
+                    Welcome back, {{ user.full_name.split()[0] }}!
+                </h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-calendar me-2"></i>
+                    {{ "now"|date("%A, %B %d, %Y") }}
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <!-- Streak Display -->
+                <div class="streak-display">
+                    <i class="fas fa-fire text-warning"></i>
+                    <span class="streak-number">{{ user.streak.current_streak if user.streak else 0 }}</span>
+                    <span class="text-muted">day streak</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Stories and Buddy -->
+        <div class="col-lg-8">
+            <!-- Impact Statistics -->
+            <div class="row mb-4">
+                <!-- Stories Engaged -->
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="value">0</div>
+                        <div class="label">Stories Read</div>
+                    </div>
+                </div>
+
+                <!-- Messages Sent -->
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="value">{{ user.sent_messages.count() }}</div>
+                        <div class="label">Messages Sent</div>
+                    </div>
+                </div>
+
+                <!-- Badges Earned -->
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="value">{{ badges_count }}</div>
+                        <div class="label">Badges Earned</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Senior Buddy Card -->
+            {% if buddy %}
+            <div class="card buddy-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-friends me-2"></i>
+                        My Senior Buddy
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <img src="{{ url_for('static', filename='images/' + buddy.profile_picture) }}"
+                                 alt="{{ buddy.full_name }}"
+                                 class="rounded-circle"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                        </div>
+                        <div class="col">
+                            <h4 class="mb-2">{{ buddy.full_name }}</h4>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-user-circle text-primary me-2"></i>
+                                Age {{ buddy.age }}
+                            </p>
+                            {% if buddy.interests %}
+                            <div class="mb-3">
+                                <strong>Interests:</strong>
+                                <div class="mt-2">
+                                    {% for interest in buddy.interests[:3] %}
+                                    <span class="badge bg-secondary me-1">{{ interest }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('youth.messages') }}" class="btn btn-primary">
+                                    <i class="fas fa-comment me-2"></i>Send Message
+                                </a>
+                                <a href="{{ url_for('youth.story_feed') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-book me-2"></i>View Their Stories
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- No Buddy Assigned -->
+            <div class="card mb-4">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                    <h4>No Buddy Assigned Yet</h4>
+                    <p class="text-muted">You will be paired with a senior soon!</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recent Stories Feed -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-newspaper me-2"></i>
+                        Recent Stories from Seniors
+                    </h5>
+                    <a href="{{ url_for('youth.story_feed') }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_stories %}
+                        {% for story in recent_stories[:5] %}
+                        <div class="story-card">
+                            <div class="story-header mb-2">
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ url_for('static', filename='images/' + story.user.profile_picture) }}"
+                                         alt="{{ story.user.full_name }}"
+                                         class="rounded-circle me-2"
+                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                    <div>
+                                        <strong>{{ story.user.full_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ story.created_at|timeago }}
+                                        </small>
+                                    </div>
+                                    <span class="category-badge ms-auto">{{ story.category }}</span>
+                                </div>
+                            </div>
+                            <h6 class="mb-2">{{ story.title }}</h6>
+                            <p class="text-muted mb-2">
+                                {{ story.content[:120] }}{% if story.content|length > 120 %}...{% endif %}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex gap-3 text-muted small">
+                                    <span>
+                                        <i class="fas fa-heart text-danger"></i>
+                                        {{ story.reactions.filter_by(reaction_type='heart').count() }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-comment"></i>
+                                        {{ story.comments.count() }}
+                                    </span>
+                                </div>
+                                <a href="{{ url_for('youth.story_detail', story_id=story.id) }}" class="btn btn-sm btn-outline-primary">
+                                    Read More
+                                </a>
+                            </div>
+                        </div>
+                        {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-book-open fa-2x text-muted mb-3"></i>
+                            <p class="text-muted">No stories yet. Check back soon!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Quick Actions & Achievements -->
+        <div class="col-lg-4">
+            <!-- Quick Links -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body p-2">
+                    <a href="{{ url_for('youth.story_feed') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-book-open text-primary me-2"></i>
+                        Browse Stories
+                    </a>
+                    <a href="{{ url_for('youth.messages') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-comments text-success me-2"></i>
+                        Message My Buddy
+                    </a>
+                    <a href="{{ url_for('youth.events') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-calendar text-warning me-2"></i>
+                        Browse Events
+                    </a>
+                    <a href="{{ url_for('youth.communities') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users text-info me-2"></i>
+                        Join Communities
+                    </a>
+                    <a href="{{ url_for('youth.badges') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-trophy text-warning me-2"></i>
+                        My Achievements
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Badges -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-award me-2"></i>
+                        Recent Achievements
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if user.badges.limit(3).all() %}
+                        {% for badge in user.badges.limit(3).all() %}
+                        <div class="badge-item text-center mb-3">
+                            <div class="badge-icon mb-2" style="font-size: 3rem;">
+                                {% if 'Week' in badge.badge_type %}🔥
+                                {% elif 'Month' in badge.badge_type %}⭐
+                                {% elif 'Century' in badge.badge_type %}💯
+                                {% else %}🏆{% endif %}
+                            </div>
+                            <strong>{{ badge.badge_type }}</strong>
+                            <br>
+                            <small class="text-muted">
+                                Earned {{ badge.earned_at|timeago }}
+                            </small>
+                        </div>
+                        {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                        <a href="{{ url_for('youth.badges') }}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                            View All Badges
+                        </a>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-trophy fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-2">No badges earned yet</p>
+                            <small class="text-muted">Keep engaging to earn your first badge!</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Impact This Week -->
+            <div class="card border-success">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="fas fa-heart text-danger me-2"></i>
+                        Your Impact This Week
+                    </h6>
+                    <div class="impact-stats">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Stories Read</span>
+                            <strong>0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Reactions Given</span>
+                            <strong>0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Comments Posted</span>
+                            <strong>0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Messages Sent</span>
+                            <strong>{{ user.sent_messages.count() }}</strong>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="small text-muted mb-0 text-center">
+                        💪 Keep making a difference!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .streak-display {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .streak-display .fa-fire {
+        font-size: 1.5rem;
+    }
+
+    .streak-number {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #9B59B6;
+    }
+
+    .list-group-item {
+        border: none;
+        padding: 0.875rem 1rem;
+        transition: all 0.2s;
+    }
+
+    .list-group-item:hover {
+        background-color: #F8F9FA;
+        transform: translateX(5px);
+    }
+
+    .badge-item .badge-icon {
+        transition: transform 0.3s;
+    }
+
+    .badge-item:hover .badge-icon {
+        transform: scale(1.2);
+    }
+</style>
+{% endblock %}

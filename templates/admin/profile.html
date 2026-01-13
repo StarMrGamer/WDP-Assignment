@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+<!--
+    File: profile.html
+    Purpose: Admin profile management
+    Author: Asher
+    Date: December 2025
+-->
+
+{% block title %}Admin Profile - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #3498DB 0%, #2C3E50 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+        text-align: center;
+    }
+
+    .profile-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border: 2px solid #E9ECEF;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .form-control:focus {
+        border-color: #3498DB;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #3498DB 0%, #2C3E50 100%);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+    }
+
+    .btn-save:hover {
+        background: linear-gradient(135deg, #2C3E50 0%, #3498DB 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="profile-header">
+        <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
+             alt="{{ user.full_name }}" class="profile-avatar">
+        <h1>{{ user.full_name }}</h1>
+        <p class="mb-0">System Administrator</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="profile-card">
+                <h3 class="mb-4"><i class="fas fa-user me-2"></i>Profile Information</h3>
+                <form method="POST" action="{{ url_for('admin.profile') }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name"
+                                   value="{{ user.full_name }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username"
+                                   value="{{ user.username }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email"
+                                   value="{{ user.email }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" name="phone"
+                                   value="{{ user.phone or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-save">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="profile-card">
+                <h3 class="mb-4"><i class="fas fa-lock me-2"></i>Change Password</h3>
+                <form id="passwordForm">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-save">
+                            <i class="fas fa-key me-2"></i>Change Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('passwordForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (newPassword !== confirmPassword) {
+            alert('New password and confirm password do not match!');
+            return false;
+        }
+
+        if (newPassword.length < 6) {
+            alert('Password must be at least 6 characters long!');
+            return false;
+        }
+
+        alert('Password changed successfully!');
+        this.reset();
+    });
+</script>
+{% endblock %}

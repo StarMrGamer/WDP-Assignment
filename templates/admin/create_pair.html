@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+<!--
+    File: create_pair.html
+    Purpose: Admin form to create new buddy pairs
+    Author: Asher
+    Date: December 2025
+    Feature: Pair seniors with youth volunteers
+-->
+
+{% block title %}Create Buddy Pair - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .pair-form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .user-select-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .user-select-card.senior {
+        border-left: 4px solid #E67E22;
+    }
+
+    .user-select-card.youth {
+        border-left: 4px solid #9B59B6;
+    }
+
+    .user-option {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .user-option:hover {
+        border-color: #3498DB;
+        background-color: #F8F9FA;
+    }
+
+    .user-option.selected {
+        border-color: #3498DB;
+        background-color: #EBF5FB;
+    }
+
+    .user-option img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .user-option .user-info {
+        flex: 1;
+    }
+
+    .user-option .user-name {
+        font-weight: 600;
+        color: #2C3E50;
+    }
+
+    .user-option .user-meta {
+        font-size: 0.875rem;
+        color: #6C757D;
+    }
+
+    .pair-preview {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .pair-preview .avatars {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .pair-preview .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        border: 3px solid white;
+    }
+
+    .pair-preview .avatar-placeholder img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .pair-preview .connection-icon {
+        font-size: 1.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6C757D;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-user-friends me-2"></i>Create Buddy Pair</h1>
+                <p class="mb-0">Match a senior with a youth volunteer</p>
+            </div>
+            <a href="{{ url_for('admin.pairs') }}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Pairs
+            </a>
+        </div>
+    </div>
+
+    <div class="pair-form-container">
+        <!-- Pair Preview -->
+        <div class="pair-preview" id="pairPreview">
+            <div class="avatars">
+                <div class="avatar-placeholder" id="seniorAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="connection-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="avatar-placeholder" id="youthAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+            <h5 id="previewText">Select users to create a pair</h5>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin.create_pair') }}" id="createPairForm">
+            <!-- Select Senior -->
+            <div class="user-select-card senior">
+                <h5 class="fw-bold mb-3">
+                    <i class="fas fa-user-tie me-2" style="color: #E67E22;"></i>Select Senior
+                </h5>
+
+                {% if unpaired_seniors %}
+                <div class="user-list" style="max-height: 300px; overflow-y: auto;">
+                    {% for senior in unpaired_seniors %}
+                    <label class="user-option" for="senior_{{ senior.id }}">
+                        <input type="radio" name="senior_id" id="senior_{{ senior.id }}"
+                               value="{{ senior.id }}" class="d-none" required
+                               onchange="updatePreview()">
+                        <img src="{{ url_for('static', filename='images/' + (senior.profile_picture or 'default-avatar.png')) }}"
+                             alt="Avatar"
+                             onerror="this.src='https://ui-avatars.com/api/?name={{ senior.full_name }}&background=E67E22&color=fff'">
+                        <div class="user-info">
+                            <div class="user-name">{{ senior.full_name }}</div>
+                            <div class="user-meta">{{ senior.age }} years old | {{ senior.email }}</div>
+                        </div>
+                        <i class="fas fa-check-circle text-primary d-none check-icon"></i>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-user-slash fa-2x mb-2"></i>
+                    <p>No unpaired seniors available</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Select Youth -->
+            <div class="user-select-card youth">
+                <h5 class="fw-bold mb-3">
+                    <i class="fas fa-user-graduate me-2" style="color: #9B59B6;"></i>Select Youth Volunteer
+                </h5>
+
+                {% if unpaired_youth %}
+                <div class="user-list" style="max-height: 300px; overflow-y: auto;">
+                    {% for youth in unpaired_youth %}
+                    <label class="user-option" for="youth_{{ youth.id }}">
+                        <input type="radio" name="youth_id" id="youth_{{ youth.id }}"
+                               value="{{ youth.id }}" class="d-none" required
+                               onchange="updatePreview()">
+                        <img src="{{ url_for('static', filename='images/' + (youth.profile_picture or 'default-avatar.png')) }}"
+                             alt="Avatar"
+                             onerror="this.src='https://ui-avatars.com/api/?name={{ youth.full_name }}&background=9B59B6&color=fff'">
+                        <div class="user-info">
+                            <div class="user-name">{{ youth.full_name }}</div>
+                            <div class="user-meta">{{ youth.age }} years old | {{ youth.email }}</div>
+                        </div>
+                        <i class="fas fa-check-circle text-primary d-none check-icon"></i>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-user-slash fa-2x mb-2"></i>
+                    <p>No unpaired youth volunteers available</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Program Selection -->
+            <div class="user-select-card">
+                <h5 class="fw-bold mb-3">
+                    <i class="fas fa-project-diagram me-2"></i>Program (Optional)
+                </h5>
+                <select name="program" class="form-select">
+                    <option value="">Select a program...</option>
+                    <option value="General Buddy Program">General Buddy Program</option>
+                    <option value="Tech Mentorship">Tech Mentorship</option>
+                    <option value="Language Exchange">Language Exchange</option>
+                    <option value="Hobby Sharing">Hobby Sharing</option>
+                    <option value="Wellness Check">Wellness Check</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg"
+                        {% if not unpaired_seniors or not unpaired_youth %}disabled{% endif %}>
+                    <i class="fas fa-handshake me-2"></i>Create Buddy Pair
+                </button>
+                <a href="{{ url_for('admin.pairs') }}" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle visual selection state
+    document.querySelectorAll('.user-option input').forEach(input => {
+        input.addEventListener('change', function() {
+            // Remove selected class from siblings
+            const parent = this.closest('.user-list');
+            parent.querySelectorAll('.user-option').forEach(opt => {
+                opt.classList.remove('selected');
+                opt.querySelector('.check-icon').classList.add('d-none');
+            });
+
+            // Add selected class to current
+            const label = this.closest('.user-option');
+            label.classList.add('selected');
+            label.querySelector('.check-icon').classList.remove('d-none');
+        });
+    });
+
+    function updatePreview() {
+        const seniorInput = document.querySelector('input[name="senior_id"]:checked');
+        const youthInput = document.querySelector('input[name="youth_id"]:checked');
+
+        const seniorAvatar = document.getElementById('seniorAvatar');
+        const youthAvatar = document.getElementById('youthAvatar');
+        const previewText = document.getElementById('previewText');
+
+        let seniorName = 'Senior';
+        let youthName = 'Youth';
+
+        if (seniorInput) {
+            const seniorLabel = seniorInput.closest('.user-option');
+            const seniorImg = seniorLabel.querySelector('img').src;
+            seniorName = seniorLabel.querySelector('.user-name').textContent;
+            seniorAvatar.innerHTML = `<img src="${seniorImg}" alt="Senior">`;
+        }
+
+        if (youthInput) {
+            const youthLabel = youthInput.closest('.user-option');
+            const youthImg = youthLabel.querySelector('img').src;
+            youthName = youthLabel.querySelector('.user-name').textContent;
+            youthAvatar.innerHTML = `<img src="${youthImg}" alt="Youth">`;
+        }
+
+        if (seniorInput && youthInput) {
+            previewText.textContent = `${seniorName} + ${youthName}`;
+        } else if (seniorInput) {
+            previewText.textContent = `${seniorName} + Select Youth`;
+        } else if (youthInput) {
+            previewText.textContent = `Select Senior + ${youthName}`;
+        }
+    }
+</script>
+{% endblock %}

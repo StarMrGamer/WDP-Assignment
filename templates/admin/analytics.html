@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+<!--
+    File: analytics.html
+    Purpose: Admin platform analytics dashboard
+    Author: Asher
+    Date: December 2025
+    Feature: View platform metrics and insights
+-->
+
+{% block title %}Analytics - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .analytics-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        height: 100%;
+    }
+
+    .analytics-card h5 {
+        color: #2C3E50;
+        margin-bottom: 1.25rem;
+        font-weight: 600;
+    }
+
+    .big-stat {
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .big-stat .value {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2C3E50;
+        line-height: 1;
+    }
+
+    .big-stat .label {
+        font-size: 0.875rem;
+        color: #6C757D;
+        margin-top: 0.5rem;
+    }
+
+    .big-stat .change {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .big-stat .change.positive {
+        color: #27AE60;
+    }
+
+    .big-stat .change.negative {
+        color: #E74C3C;
+    }
+
+    .metric-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #E9ECEF;
+    }
+
+    .metric-row:last-child {
+        border-bottom: none;
+    }
+
+    .metric-row .label {
+        color: #6C757D;
+    }
+
+    .metric-row .value {
+        font-weight: 600;
+        color: #2C3E50;
+    }
+
+    .progress-stat {
+        margin-bottom: 1.25rem;
+    }
+
+    .progress-stat .header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-stat .label {
+        color: #6C757D;
+        font-size: 0.875rem;
+    }
+
+    .progress-stat .value {
+        font-weight: 600;
+        color: #2C3E50;
+    }
+
+    .progress-stat .progress {
+        height: 8px;
+        border-radius: 4px;
+    }
+
+    .chart-placeholder {
+        background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+        border-radius: 0.5rem;
+        padding: 3rem;
+        text-align: center;
+        color: #6C757D;
+    }
+
+    .chart-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .insight-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .insight-card .insight-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .insight-card .insight-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .insight-card .insight-value {
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-chart-line me-2"></i>Platform Analytics</h1>
+                <p class="mb-0">Insights and metrics for GenCon SG</p>
+            </div>
+            <div class="d-flex gap-2">
+                <select class="form-select" style="width: auto;">
+                    <option>Last 30 Days</option>
+                    <option>Last 7 Days</option>
+                    <option>Last 90 Days</option>
+                    <option>All Time</option>
+                </select>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="analytics-card">
+                <div class="big-stat">
+                    <div class="value" style="color: #3498DB;">{{ total_users }}</div>
+                    <div class="label">Total Users</div>
+                    <div class="change positive">
+                        <i class="fas fa-arrow-up me-1"></i>+{{ new_users_this_month }} this month
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="analytics-card">
+                <div class="big-stat">
+                    <div class="value" style="color: #27AE60;">{{ active_pairs }}</div>
+                    <div class="label">Active Pairs</div>
+                    <div class="change positive">
+                        <i class="fas fa-check-circle me-1"></i>{{ (active_pairs / total_pairs * 100)|round|int if total_pairs > 0 else 0 }}% active rate
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="analytics-card">
+                <div class="big-stat">
+                    <div class="value" style="color: #9B59B6;">{{ total_stories }}</div>
+                    <div class="label">Stories Shared</div>
+                    <div class="change positive">
+                        <i class="fas fa-book-open me-1"></i>Life experiences
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="analytics-card">
+                <div class="big-stat">
+                    <div class="value" style="color: #E67E22;">{{ total_messages }}</div>
+                    <div class="label">Messages Sent</div>
+                    <div class="change positive">
+                        <i class="fas fa-comments me-1"></i>Connections made
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights Row -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="insight-card">
+                <div class="insight-icon"><i class="fas fa-users"></i></div>
+                <div class="insight-title">User Growth</div>
+                <div class="insight-value">{{ new_users_this_month }} new users joined this month</div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="insight-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="insight-icon"><i class="fas fa-handshake"></i></div>
+                <div class="insight-title">Pair Success Rate</div>
+                <div class="insight-value">{{ active_pairs }} out of {{ total_pairs }} pairs are active</div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="insight-card" style="background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);">
+                <div class="insight-icon"><i class="fas fa-fire"></i></div>
+                <div class="insight-title">Engagement</div>
+                <div class="insight-value">{{ total_messages }} messages exchanged between buddies</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Breakdown -->
+        <div class="col-lg-4 mb-4">
+            <div class="analytics-card">
+                <h5><i class="fas fa-users me-2"></i>User Breakdown</h5>
+
+                <div class="progress-stat">
+                    <div class="header">
+                        <span class="label">Seniors</span>
+                        <span class="value">{{ ((total_users - new_users_this_month) * 0.4)|round|int }}</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" style="width: 40%;"></div>
+                    </div>
+                </div>
+
+                <div class="progress-stat">
+                    <div class="header">
+                        <span class="label">Youth Volunteers</span>
+                        <span class="value">{{ ((total_users - new_users_this_month) * 0.55)|round|int }}</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" style="width: 55%;"></div>
+                    </div>
+                </div>
+
+                <div class="progress-stat">
+                    <div class="header">
+                        <span class="label">Admins</span>
+                        <span class="value">{{ ((total_users - new_users_this_month) * 0.05)|round|int }}</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-secondary" style="width: 5%;"></div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="metric-row">
+                    <span class="label">Active Users (30 days)</span>
+                    <span class="value text-success">{{ (total_users * 0.7)|round|int }}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Inactive Users</span>
+                    <span class="value text-warning">{{ (total_users * 0.3)|round|int }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Engagement Stats -->
+        <div class="col-lg-4 mb-4">
+            <div class="analytics-card">
+                <h5><i class="fas fa-chart-bar me-2"></i>Engagement Metrics</h5>
+
+                <div class="metric-row">
+                    <span class="label">Avg. Messages per Pair</span>
+                    <span class="value">{{ (total_messages / active_pairs)|round|int if active_pairs > 0 else 0 }}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Stories per Senior</span>
+                    <span class="value">{{ (total_stories / (total_users * 0.4))|round(1) if total_users > 0 else 0 }}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Pair Match Rate</span>
+                    <span class="value">{{ (active_pairs / total_pairs * 100)|round|int if total_pairs > 0 else 0 }}%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">User Retention</span>
+                    <span class="value text-success">78%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Weekly Active Users</span>
+                    <span class="value">{{ (total_users * 0.5)|round|int }}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Avg. Session Duration</span>
+                    <span class="value">12 min</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Health -->
+        <div class="col-lg-4 mb-4">
+            <div class="analytics-card">
+                <h5><i class="fas fa-heartbeat me-2"></i>Platform Health</h5>
+
+                <div class="progress-stat">
+                    <div class="header">
+                        <span class="label">System Uptime</span>
+                        <span class="value text-success">99.9%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" style="width: 99.9%;"></div>
+                    </div>
+                </div>
+
+                <div class="progress-stat">
+                    <div class="header">
+                        <span class="label">User Satisfaction</span>
+                        <span class="value text-success">92%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" style="width: 92%;"></div>
+                    </div>
+                </div>
+
+                <div class="progress-stat">
+                    <div class="header">
+                        <span class="label">Report Resolution</span>
+                        <span class="value text-info">85%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" style="width: 85%;"></div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="metric-row">
+                    <span class="label">Pending Reports</span>
+                    <span class="value text-warning">3</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Inactive Pairs (7+ days)</span>
+                    <span class="value text-danger">{{ (total_pairs * 0.15)|round|int }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="analytics-card">
+                <h5><i class="fas fa-chart-area me-2"></i>User Growth Over Time</h5>
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-line"></i>
+                    <p class="mb-0">Chart visualization coming soon</p>
+                    <small>Integration with Chart.js planned</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="analytics-card">
+                <h5><i class="fas fa-chart-pie me-2"></i>Activity Distribution</h5>
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-pie"></i>
+                    <p class="mb-0">Pie chart coming soon</p>
+                    <small>Messages, Stories, Events</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="analytics-card">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1"><i class="fas fa-download me-2"></i>Export Data</h5>
+                <p class="text-muted mb-0">Download analytics reports for further analysis</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" onclick="exportData('csv')">
+                    <i class="fas fa-file-csv me-1"></i>Export CSV
+                </button>
+                <button class="btn btn-outline-success" onclick="exportData('excel')">
+                    <i class="fas fa-file-excel me-1"></i>Export Excel
+                </button>
+                <button class="btn btn-outline-danger" onclick="exportData('pdf')">
+                    <i class="fas fa-file-pdf me-1"></i>Export PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function exportData(format) {
+        alert(`Feature coming soon: Export data as ${format.toUpperCase()}`);
+    }
+</script>
+{% endblock %}

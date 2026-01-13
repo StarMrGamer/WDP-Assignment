@@ -1,0 +1,691 @@
+{% extends "base.html" %}
+<!--
+    File: badges.html
+    Purpose: Achievement showcase and volunteer hours tracking
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Feature: Gamification and recognition for youth volunteers
+-->
+
+{% block title %}My Achievements - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badges-header {
+        background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+        color: white;
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-radius: 1rem;
+    }
+
+    .badges-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .badges-header p {
+        font-size: 1.125rem;
+        opacity: 0.95;
+        margin: 0;
+    }
+
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 3px solid transparent;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        border-color: #F39C12;
+    }
+
+    .stat-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-value {
+        font-size: 2.75rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        color: #6C757D;
+        font-weight: 600;
+    }
+
+    .section-header {
+        margin: 3rem 0 1.5rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.75rem;
+    }
+
+    .section-subtitle {
+        font-size: 1.125rem;
+        color: #6C757D;
+    }
+
+    .badges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .badge-card {
+        background: white;
+        padding: 2rem 1.5rem;
+        border-radius: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        border: 3px solid transparent;
+    }
+
+    .badge-card:hover {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+    }
+
+    .badge-card.earned {
+        border-color: #F39C12;
+    }
+
+    .badge-card.locked {
+        opacity: 0.5;
+        filter: grayscale(80%);
+    }
+
+    .badge-icon-container {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+
+    .badge-icon {
+        font-size: 5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-checkmark {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #27AE60;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+    }
+
+    .badge-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-description {
+        font-size: 0.9rem;
+        color: #6C757D;
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+    }
+
+    .badge-progress {
+        margin-top: 1rem;
+    }
+
+    .progress-bar-container {
+        background: #E9ECEF;
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        font-size: 0.85rem;
+        color: #6C757D;
+        font-weight: 600;
+    }
+
+    .milestones-section {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        margin-bottom: 3rem;
+    }
+
+    .milestone-timeline {
+        position: relative;
+        padding-left: 3rem;
+        margin-top: 2rem;
+    }
+
+    .milestone-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(to bottom, #F39C12 0%, #E67E22 100%);
+        border-radius: 2px;
+    }
+
+    .milestone-item {
+        position: relative;
+        padding-bottom: 2.5rem;
+    }
+
+    .milestone-item::before {
+        content: '';
+        position: absolute;
+        left: -3.375rem;
+        top: 0.75rem;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #F39C12;
+        border: 4px solid white;
+        box-shadow: 0 0 0 3px #F39C12;
+        z-index: 1;
+    }
+
+    .milestone-item.locked::before {
+        background: #E9ECEF;
+        box-shadow: 0 0 0 3px #E9ECEF;
+    }
+
+    .milestone-content {
+        background: #F8F9FA;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        border-left: 4px solid #F39C12;
+    }
+
+    .milestone-item.locked .milestone-content {
+        border-left-color: #E9ECEF;
+        opacity: 0.6;
+    }
+
+    .milestone-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+    }
+
+    .milestone-hours {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #F39C12;
+        color: white;
+        padding: 0.375rem 1rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .milestone-description {
+        color: #6C757D;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .leaderboard-section {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .leaderboard-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .leaderboard-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.25rem;
+        background: #F8F9FA;
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .leaderboard-item:hover {
+        background: #E9ECEF;
+        transform: translateX(5px);
+    }
+
+    .leaderboard-rank {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #F39C12;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    .leaderboard-rank.top-1 {
+        color: #FFD700;
+    }
+
+    .leaderboard-rank.top-2 {
+        color: #C0C0C0;
+    }
+
+    .leaderboard-rank.top-3 {
+        color: #CD7F32;
+    }
+
+    .leaderboard-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #F39C12;
+    }
+
+    .leaderboard-info {
+        flex: 1;
+    }
+
+    .leaderboard-name {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.25rem;
+    }
+
+    .leaderboard-stats {
+        font-size: 0.9rem;
+        color: #6C757D;
+    }
+
+    .leaderboard-hours {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #F39C12;
+    }
+
+    @media (max-width: 768px) {
+        .badges-header h1 {
+            font-size: 2rem;
+        }
+
+        .badges-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .milestone-timeline {
+            padding-left: 2rem;
+        }
+
+        .leaderboard-rank {
+            font-size: 1.25rem;
+            min-width: 40px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="badges-header text-center">
+        <h1>
+            <i class="fas fa-trophy me-3"></i>My Achievements
+        </h1>
+        <p>Track your volunteer journey and earn badges</p>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-value">48</div>
+            <div class="stat-label">Volunteer Hours</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-award"></i>
+            </div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Badges Earned</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-value">24</div>
+            <div class="stat-label">Events Attended</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-value">15</div>
+            <div class="stat-label">Seniors Helped</div>
+        </div>
+    </div>
+
+    <!-- Badges Section -->
+    <div class="section-header text-center">
+        <h2 class="section-title">Achievement Badges</h2>
+        <p class="section-subtitle">Unlock badges by completing various volunteer activities</p>
+    </div>
+
+    <div class="badges-grid">
+        <!-- Badge 1: First Steps (Earned) -->
+        <div class="badge-card earned">
+            <div class="badge-icon-container">
+                <div class="badge-icon">🌟</div>
+                <div class="badge-checkmark">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+            <h3 class="badge-title">First Steps</h3>
+            <p class="badge-description">Complete your first volunteer session</p>
+        </div>
+
+        <!-- Badge 2: Story Keeper (Earned) -->
+        <div class="badge-card earned">
+            <div class="badge-icon-container">
+                <div class="badge-icon">📖</div>
+                <div class="badge-checkmark">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+            <h3 class="badge-title">Story Keeper</h3>
+            <p class="badge-description">Document 5 senior life stories</p>
+        </div>
+
+        <!-- Badge 3: Tech Wizard (Earned) -->
+        <div class="badge-card earned">
+            <div class="badge-icon-container">
+                <div class="badge-icon">💻</div>
+                <div class="badge-checkmark">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+            <h3 class="badge-title">Tech Wizard</h3>
+            <p class="badge-description">Help 10 seniors with technology</p>
+        </div>
+
+        <!-- Badge 4: Game Master (In Progress) -->
+        <div class="badge-card">
+            <div class="badge-icon-container">
+                <div class="badge-icon">🎮</div>
+            </div>
+            <h3 class="badge-title">Game Master</h3>
+            <p class="badge-description">Facilitate 15 game sessions</p>
+            <div class="badge-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 60%"></div>
+                </div>
+                <div class="progress-text">9/15 sessions</div>
+            </div>
+        </div>
+
+        <!-- Badge 5: Community Builder (In Progress) -->
+        <div class="badge-card">
+            <div class="badge-icon-container">
+                <div class="badge-icon">🏘️</div>
+            </div>
+            <h3 class="badge-title">Community Builder</h3>
+            <p class="badge-description">Join 5 volunteer communities</p>
+            <div class="badge-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 60%"></div>
+                </div>
+                <div class="progress-text">3/5 communities</div>
+            </div>
+        </div>
+
+        <!-- Badge 6: Event Organizer (Locked) -->
+        <div class="badge-card locked">
+            <div class="badge-icon-container">
+                <div class="badge-icon">📅</div>
+            </div>
+            <h3 class="badge-title">Event Organizer</h3>
+            <p class="badge-description">Organize 3 volunteer events</p>
+            <div class="badge-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text">0/3 events</div>
+            </div>
+        </div>
+
+        <!-- Badge 7: Heritage Champion (Earned) -->
+        <div class="badge-card earned">
+            <div class="badge-icon-container">
+                <div class="badge-icon">🏛️</div>
+                <div class="badge-checkmark">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+            <h3 class="badge-title">Heritage Champion</h3>
+            <p class="badge-description">Participate in 5 heritage activities</p>
+        </div>
+
+        <!-- Badge 8: Conversation Partner (In Progress) -->
+        <div class="badge-card">
+            <div class="badge-icon-container">
+                <div class="badge-icon">💬</div>
+            </div>
+            <h3 class="badge-title">Conversation Partner</h3>
+            <p class="badge-description">Have 20 meaningful conversations</p>
+            <div class="badge-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 75%"></div>
+                </div>
+                <div class="progress-text">15/20 conversations</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7">
+            <!-- Milestones Section -->
+            <div class="milestones-section">
+                <h2 class="section-title">Volunteer Milestones</h2>
+                <p class="section-subtitle mb-0">Progress through your volunteer journey</p>
+
+                <div class="milestone-timeline">
+                    <div class="milestone-item">
+                        <div class="milestone-content">
+                            <h3 class="milestone-title">Bronze Volunteer</h3>
+                            <span class="milestone-hours">
+                                <i class="fas fa-clock me-1"></i>10 Hours
+                            </span>
+                            <p class="milestone-description">
+                                You've taken your first steps in volunteering! Keep up the great work.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="milestone-item">
+                        <div class="milestone-content">
+                            <h3 class="milestone-title">Silver Volunteer</h3>
+                            <span class="milestone-hours">
+                                <i class="fas fa-clock me-1"></i>25 Hours
+                            </span>
+                            <p class="milestone-description">
+                                You're making a real difference in the community. Seniors appreciate your dedication!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="milestone-item">
+                        <div class="milestone-content">
+                            <h3 class="milestone-title">Gold Volunteer</h3>
+                            <span class="milestone-hours">
+                                <i class="fas fa-clock me-1"></i>50 Hours
+                            </span>
+                            <p class="milestone-description">
+                                Outstanding commitment! You're on track to reach this milestone soon.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="milestone-item locked">
+                        <div class="milestone-content">
+                            <h3 class="milestone-title">Platinum Volunteer</h3>
+                            <span class="milestone-hours" style="background: #95A5A6;">
+                                <i class="fas fa-clock me-1"></i>100 Hours
+                            </span>
+                            <p class="milestone-description">
+                                Elite volunteer status. Your impact on the community is incredible!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="milestone-item locked">
+                        <div class="milestone-content">
+                            <h3 class="milestone-title">Diamond Volunteer</h3>
+                            <span class="milestone-hours" style="background: #95A5A6;">
+                                <i class="fas fa-clock me-1"></i>200 Hours
+                            </span>
+                            <p class="milestone-description">
+                                The highest honor. You're a true champion for intergenerational connections!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <!-- Leaderboard Section -->
+            <div class="leaderboard-section">
+                <h2 class="section-title">Top Volunteers</h2>
+                <p class="section-subtitle mb-4">This Month's Leaders</p>
+
+                <div class="leaderboard-list">
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank top-1">🥇</div>
+                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                             alt="Sarah Chen" class="leaderboard-avatar">
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">Sarah Chen</div>
+                            <div class="leaderboard-stats">32 events • 18 badges</div>
+                        </div>
+                        <div class="leaderboard-hours">127h</div>
+                    </div>
+
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank top-2">🥈</div>
+                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                             alt="Ryan Lee" class="leaderboard-avatar">
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">Ryan Lee (You)</div>
+                            <div class="leaderboard-stats">24 events • 12 badges</div>
+                        </div>
+                        <div class="leaderboard-hours">105h</div>
+                    </div>
+
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank top-3">🥉</div>
+                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                             alt="David Tan" class="leaderboard-avatar">
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">David Tan</div>
+                            <div class="leaderboard-stats">28 events • 15 badges</div>
+                        </div>
+                        <div class="leaderboard-hours">98h</div>
+                    </div>
+
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">4</div>
+                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                             alt="Emily Wong" class="leaderboard-avatar">
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">Emily Wong</div>
+                            <div class="leaderboard-stats">22 events • 11 badges</div>
+                        </div>
+                        <div class="leaderboard-hours">87h</div>
+                    </div>
+
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">5</div>
+                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                             alt="Marcus Lim" class="leaderboard-avatar">
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">Marcus Lim</div>
+                            <div class="leaderboard-stats">19 events • 10 badges</div>
+                        </div>
+                        <div class="leaderboard-hours">75h</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    console.log('Badges page loaded');
+
+    // Animate progress bars on load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}

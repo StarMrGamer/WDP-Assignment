@@ -1,0 +1,621 @@
+{% extends "base.html" %}
+<!--
+    File: checkin.html
+    Purpose: Weekly mood and wellbeing check-in for seniors
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Feature: Mental health tracking and mood monitoring
+-->
+
+{% block title %}Weekly Check-In - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkin-header {
+        background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+        color: white;
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-radius: 1rem;
+    }
+
+    .checkin-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .checkin-header p {
+        font-size: 1.125rem;
+        opacity: 0.95;
+        margin: 0;
+    }
+
+    .streak-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .streak-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #FF6B6B 0%, #FFA500 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .streak-number {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+    }
+
+    .streak-label {
+        font-size: 1.25rem;
+        color: #6C757D;
+        font-weight: 600;
+    }
+
+    .checkin-form-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .question-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .question-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .question-title {
+        font-size: 1.375rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.75rem;
+    }
+
+    .question-subtitle {
+        font-size: 1rem;
+        color: #6C757D;
+        margin-bottom: 1.5rem;
+    }
+
+    .mood-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 1rem;
+    }
+
+    .mood-option {
+        text-align: center;
+        padding: 1.5rem 1rem;
+        border-radius: 1rem;
+        border: 3px solid #E9ECEF;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .mood-option:hover {
+        border-color: #27AE60;
+        background: #F0FFF4;
+        transform: translateY(-3px);
+    }
+
+    .mood-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .mood-option input[type="radio"]:checked + label {
+        border-color: #27AE60;
+        background: #27AE60;
+        color: white;
+    }
+
+    .mood-option.selected {
+        border-color: #27AE60;
+        background: #27AE60;
+        color: white;
+    }
+
+    .mood-icon {
+        font-size: 3rem;
+        margin-bottom: 0.75rem;
+        transition: transform 0.3s ease;
+    }
+
+    .mood-option:hover .mood-icon {
+        transform: scale(1.2);
+    }
+
+    .mood-label {
+        font-size: 1rem;
+        font-weight: 600;
+        display: block;
+    }
+
+    .slider-container {
+        margin: 2rem 0;
+    }
+
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        color: #6C757D;
+    }
+
+    .slider {
+        width: 100%;
+        height: 12px;
+        border-radius: 6px;
+        background: linear-gradient(to right, #E74C3C 0%, #F39C12 50%, #27AE60 100%);
+        outline: none;
+        -webkit-appearance: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #27AE60;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .slider::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #27AE60;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .slider-value {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #27AE60;
+    }
+
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        border: 2px solid #E9ECEF;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .checkbox-item:hover {
+        border-color: #27AE60;
+        background: #F0FFF4;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 22px;
+        height: 22px;
+        margin-right: 1rem;
+        cursor: pointer;
+    }
+
+    .checkbox-item label {
+        cursor: pointer;
+        font-weight: 600;
+        color: #2C3E50;
+        margin: 0;
+    }
+
+    .textarea-container {
+        margin-top: 1.5rem;
+    }
+
+    .textarea-container textarea {
+        width: 100%;
+        min-height: 150px;
+        padding: 1rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        transition: all 0.3s ease;
+    }
+
+    .textarea-container textarea:focus {
+        border-color: #27AE60;
+        box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
+        outline: none;
+    }
+
+    .submit-section {
+        margin-top: 2.5rem;
+        text-align: center;
+    }
+
+    .btn-submit-checkin {
+        padding: 1.25rem 4rem;
+        background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+        color: white;
+        border: none;
+        border-radius: 3rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-submit-checkin:hover {
+        background: linear-gradient(135deg, #229954 0%, #27AE60 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(39, 174, 96, 0.4);
+    }
+
+    .history-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .history-card h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 1.5rem;
+    }
+
+    .history-timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .history-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #E9ECEF;
+    }
+
+    .history-item {
+        position: relative;
+        padding-bottom: 2rem;
+    }
+
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: -2.4375rem;
+        top: 0.5rem;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #27AE60;
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px #27AE60;
+    }
+
+    .history-date {
+        font-size: 0.95rem;
+        color: #6C757D;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .history-mood {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #2C3E50;
+    }
+
+    @media (max-width: 768px) {
+        .checkin-header h1 {
+            font-size: 2rem;
+        }
+
+        .mood-options {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .checkbox-group {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-submit-checkin {
+            width: 100%;
+            padding: 1.25rem 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="checkin-header text-center">
+        <h1>
+            <i class="fas fa-heart me-3"></i>Weekly Check-In
+        </h1>
+        <p>Take a moment to reflect on your week and share how you're feeling</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Check-In Form -->
+            <div class="checkin-form-card">
+                <form id="checkinForm" method="POST" action="{{ url_for('senior.checkin') }}">
+                    <!-- Question 1: Overall Mood -->
+                    <div class="question-section">
+                        <h3 class="question-title">
+                            <i class="fas fa-smile me-2 text-warning"></i>
+                            How are you feeling today?
+                        </h3>
+                        <p class="question-subtitle">Select the emoji that best represents your mood</p>
+                        <div class="mood-options">
+                            <div class="mood-option" data-mood="great">
+                                <div class="mood-icon">😊</div>
+                                <span class="mood-label">Great</span>
+                            </div>
+                            <div class="mood-option" data-mood="good">
+                                <div class="mood-icon">🙂</div>
+                                <span class="mood-label">Good</span>
+                            </div>
+                            <div class="mood-option" data-mood="okay">
+                                <div class="mood-icon">😐</div>
+                                <span class="mood-label">Okay</span>
+                            </div>
+                            <div class="mood-option" data-mood="down">
+                                <div class="mood-icon">😔</div>
+                                <span class="mood-label">Down</span>
+                            </div>
+                            <div class="mood-option" data-mood="sad">
+                                <div class="mood-icon">😢</div>
+                                <span class="mood-label">Sad</span>
+                            </div>
+                        </div>
+                        <input type="hidden" name="mood" id="moodInput">
+                    </div>
+
+                    <!-- Question 2: Energy Level -->
+                    <div class="question-section">
+                        <h3 class="question-title">
+                            <i class="fas fa-battery-three-quarters me-2 text-info"></i>
+                            What's your energy level today?
+                        </h3>
+                        <p class="question-subtitle">Slide to indicate your current energy</p>
+                        <div class="slider-container">
+                            <div class="slider-labels">
+                                <span>Low Energy</span>
+                                <span>High Energy</span>
+                            </div>
+                            <input type="range" min="1" max="10" value="5" class="slider" id="energySlider" name="energy">
+                            <div class="slider-value">
+                                <span id="energyValue">5</span> / 10
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 3: Activities -->
+                    <div class="question-section">
+                        <h3 class="question-title">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            What activities did you enjoy this week?
+                        </h3>
+                        <p class="question-subtitle">Select all that apply</p>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="activity1" name="activities" value="social">
+                                <label for="activity1">Socializing with others</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="activity2" name="activities" value="games">
+                                <label for="activity2">Playing games</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="activity3" name="activities" value="stories">
+                                <label for="activity3">Sharing stories</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="activity4" name="activities" value="exercise">
+                                <label for="activity4">Physical activities</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="activity5" name="activities" value="learning">
+                                <label for="activity5">Learning new things</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="activity6" name="activities" value="hobbies">
+                                <label for="activity6">Hobbies & crafts</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 4: Social Connection -->
+                    <div class="question-section">
+                        <h3 class="question-title">
+                            <i class="fas fa-users me-2 text-primary"></i>
+                            How connected do you feel to others?
+                        </h3>
+                        <p class="question-subtitle">Rate your sense of social connection</p>
+                        <div class="slider-container">
+                            <div class="slider-labels">
+                                <span>Isolated</span>
+                                <span>Very Connected</span>
+                            </div>
+                            <input type="range" min="1" max="10" value="5" class="slider" id="connectionSlider" name="connection">
+                            <div class="slider-value">
+                                <span id="connectionValue">5</span> / 10
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 5: Additional Thoughts -->
+                    <div class="question-section">
+                        <h3 class="question-title">
+                            <i class="fas fa-comment-dots me-2 text-secondary"></i>
+                            Anything else you'd like to share?
+                        </h3>
+                        <p class="question-subtitle">Optional - Share your thoughts, concerns, or highlights</p>
+                        <div class="textarea-container">
+                            <textarea name="notes" placeholder="Share what's on your mind..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="submit-section">
+                        <button type="submit" class="btn btn-submit-checkin">
+                            <i class="fas fa-check-circle me-3"></i>Complete Check-In
+                        </button>
+                        <p class="text-muted mt-3">
+                            <i class="fas fa-lock me-2"></i>Your responses are private and secure
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Streak Card -->
+            <div class="streak-card">
+                <div class="streak-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="streak-number">7</div>
+                <div class="streak-label">Week Streak</div>
+                <p class="text-muted mt-3">
+                    Keep it up! Regular check-ins help track your wellbeing.
+                </p>
+            </div>
+
+            <!-- Check-In History -->
+            <div class="history-card">
+                <h2><i class="fas fa-history me-2"></i>Recent Check-Ins</h2>
+                <div class="history-timeline">
+                    <div class="history-item">
+                        <div class="history-date">Last Week</div>
+                        <div class="history-mood">
+                            <span>😊</span>
+                            <span>Great</span>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-date">2 Weeks Ago</div>
+                        <div class="history-mood">
+                            <span>🙂</span>
+                            <span>Good</span>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-date">3 Weeks Ago</div>
+                        <div class="history-mood">
+                            <span>😐</span>
+                            <span>Okay</span>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-date">4 Weeks Ago</div>
+                        <div class="history-mood">
+                            <span>🙂</span>
+                            <span>Good</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Mood selection
+    document.querySelectorAll('.mood-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove selection from all options
+            document.querySelectorAll('.mood-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Add selection to clicked option
+            this.classList.add('selected');
+
+            // Update hidden input
+            const mood = this.getAttribute('data-mood');
+            document.getElementById('moodInput').value = mood;
+        });
+    });
+
+    // Energy slider
+    const energySlider = document.getElementById('energySlider');
+    const energyValue = document.getElementById('energyValue');
+
+    energySlider.addEventListener('input', function() {
+        energyValue.textContent = this.value;
+    });
+
+    // Connection slider
+    const connectionSlider = document.getElementById('connectionSlider');
+    const connectionValue = document.getElementById('connectionValue');
+
+    connectionSlider.addEventListener('input', function() {
+        connectionValue.textContent = this.value;
+    });
+
+    // Form validation
+    document.getElementById('checkinForm').addEventListener('submit', function(e) {
+        const mood = document.getElementById('moodInput').value;
+
+        if (!mood) {
+            e.preventDefault();
+            alert('Please select your mood before submitting');
+            return false;
+        }
+
+        // If validation passes, show success message
+        alert('Thank you for completing your weekly check-in!\n\nYour responses help us understand your wellbeing better.');
+    });
+
+    console.log('Check-in page loaded');
+</script>
+{% endblock %}

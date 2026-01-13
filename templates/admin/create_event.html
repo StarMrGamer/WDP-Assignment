@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+<!--
+    File: create_event.html
+    Purpose: Admin form to create new events
+    Author: Asher
+    Date: December 2025
+    Feature: Create community events
+-->
+
+{% block title %}Create Event - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .event-form-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+    }
+
+    .form-card h5 {
+        color: #2C3E50;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .event-type-selector {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .event-type-option {
+        flex: 1;
+        padding: 1.5rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .event-type-option:hover {
+        border-color: #3498DB;
+        background-color: #F8F9FA;
+    }
+
+    .event-type-option.selected {
+        border-color: #3498DB;
+        background-color: #EBF5FB;
+    }
+
+    .event-type-option i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .event-type-option.online i {
+        color: #27AE60;
+    }
+
+    .event-type-option.in-person i {
+        color: #9B59B6;
+    }
+
+    .event-type-option input {
+        display: none;
+    }
+
+    .preview-card {
+        background: linear-gradient(135deg, #3498DB 0%, #2C3E50 100%);
+        color: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .preview-card .preview-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .preview-card .preview-meta {
+        opacity: 0.9;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-calendar-plus me-2"></i>Create Event</h1>
+                <p class="mb-0">Schedule a new community event</p>
+            </div>
+            <a href="{{ url_for('admin.events') }}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Events
+            </a>
+        </div>
+    </div>
+
+    <div class="event-form-container">
+        <!-- Live Preview -->
+        <div class="preview-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="preview-title" id="previewTitle">Event Title</div>
+                    <div class="preview-meta">
+                        <i class="fas fa-calendar me-1"></i><span id="previewDate">Select date</span> |
+                        <i class="fas fa-map-marker-alt me-1"></i><span id="previewLocation">Location</span>
+                    </div>
+                </div>
+                <span class="badge bg-light text-dark" id="previewType">Type</span>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin.create_event') }}" id="createEventForm">
+            <!-- Basic Information -->
+            <div class="form-card">
+                <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-bold">Event Title *</label>
+                    <input type="text" class="form-control" id="title" name="title"
+                           placeholder="Enter event title" required
+                           oninput="updatePreview()">
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label fw-bold">Description</label>
+                    <textarea class="form-control" id="description" name="description"
+                              rows="4" placeholder="Describe the event..."></textarea>
+                </div>
+            </div>
+
+            <!-- Event Type -->
+            <div class="form-card">
+                <h5><i class="fas fa-tags me-2"></i>Event Type *</h5>
+
+                <div class="event-type-selector">
+                    <label class="event-type-option online" for="type_online">
+                        <input type="radio" name="event_type" id="type_online" value="online" required
+                               onchange="updatePreview()">
+                        <i class="fas fa-video"></i>
+                        <div class="fw-bold">Online</div>
+                        <small class="text-muted">Virtual event via video call</small>
+                    </label>
+                    <label class="event-type-option in-person" for="type_inperson">
+                        <input type="radio" name="event_type" id="type_inperson" value="in-person"
+                               onchange="updatePreview()">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="fw-bold">In-Person</div>
+                        <small class="text-muted">Physical location meetup</small>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Date & Time -->
+            <div class="form-card">
+                <h5><i class="fas fa-clock me-2"></i>Date & Time *</h5>
+
+                <div class="mb-3">
+                    <label for="date" class="form-label fw-bold">Event Date & Time</label>
+                    <input type="datetime-local" class="form-control" id="date" name="date"
+                           required oninput="updatePreview()">
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="form-card">
+                <h5><i class="fas fa-map-marker-alt me-2"></i>Location</h5>
+
+                <div class="mb-3">
+                    <label for="location" class="form-label fw-bold">
+                        <span id="locationLabel">Location / Meeting Link</span>
+                    </label>
+                    <input type="text" class="form-control" id="location" name="location"
+                           placeholder="Enter location or meeting link"
+                           oninput="updatePreview()">
+                    <small class="text-muted" id="locationHint">
+                        For online events, enter the video call link. For in-person, enter the address.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Capacity -->
+            <div class="form-card">
+                <h5><i class="fas fa-users me-2"></i>Capacity</h5>
+
+                <div class="mb-3">
+                    <label for="capacity" class="form-label fw-bold">Maximum Participants</label>
+                    <input type="number" class="form-control" id="capacity" name="capacity"
+                           placeholder="Leave blank for unlimited" min="1">
+                    <small class="text-muted">Leave blank for unlimited capacity</small>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-calendar-check me-2"></i>Create Event
+                </button>
+                <a href="{{ url_for('admin.events') }}" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle event type selection visual state
+    document.querySelectorAll('.event-type-option input').forEach(input => {
+        input.addEventListener('change', function() {
+            document.querySelectorAll('.event-type-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.closest('.event-type-option').classList.add('selected');
+
+            // Update location hint based on type
+            const locationHint = document.getElementById('locationHint');
+            const locationLabel = document.getElementById('locationLabel');
+            const locationInput = document.getElementById('location');
+
+            if (this.value === 'online') {
+                locationLabel.textContent = 'Meeting Link';
+                locationInput.placeholder = 'Enter video call link (Zoom, Google Meet, etc.)';
+                locationHint.textContent = 'Participants will use this link to join the virtual event.';
+            } else {
+                locationLabel.textContent = 'Venue Address';
+                locationInput.placeholder = 'Enter physical address';
+                locationHint.textContent = 'Provide a clear address for participants to find the venue.';
+            }
+        });
+    });
+
+    function updatePreview() {
+        // Update title
+        const title = document.getElementById('title').value;
+        document.getElementById('previewTitle').textContent = title || 'Event Title';
+
+        // Update date
+        const dateInput = document.getElementById('date').value;
+        if (dateInput) {
+            const date = new Date(dateInput);
+            const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('previewDate').textContent = date.toLocaleDateString('en-US', options);
+        } else {
+            document.getElementById('previewDate').textContent = 'Select date';
+        }
+
+        // Update location
+        const location = document.getElementById('location').value;
+        document.getElementById('previewLocation').textContent = location || 'Location';
+
+        // Update type
+        const typeInput = document.querySelector('input[name="event_type"]:checked');
+        if (typeInput) {
+            const typeText = typeInput.value === 'online' ? 'Online' : 'In-Person';
+            document.getElementById('previewType').textContent = typeText;
+        }
+    }
+
+    // Set minimum date to today
+    const dateInput = document.getElementById('date');
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    dateInput.min = now.toISOString().slice(0, 16);
+</script>
+{% endblock %}

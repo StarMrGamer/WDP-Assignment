@@ -1,0 +1,748 @@
+{% extends "base.html" %}
+<!--
+    File: profile.html
+    Purpose: Profile management for youth volunteers
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Feature: Profile editing, settings, volunteer history
+-->
+
+{% block title %}My Profile - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 1rem;
+    }
+
+    .profile-header-content {
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+    }
+
+    .profile-avatar-section {
+        text-align: center;
+    }
+
+    .profile-avatar-large {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        margin-bottom: 1rem;
+    }
+
+    .btn-change-photo {
+        background: white;
+        color: #9B59B6;
+        padding: 0.625rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-change-photo:hover {
+        background: #F8F9FA;
+        transform: translateY(-2px);
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-role {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+    }
+
+    .profile-stats {
+        display: flex;
+        gap: 2rem;
+        font-size: 1.125rem;
+    }
+
+    .profile-stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .profile-stat-item i {
+        font-size: 1.5rem;
+    }
+
+    .profile-tabs {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .tab-buttons {
+        display: flex;
+        gap: 1rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .tab-btn {
+        padding: 1rem 2rem;
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: #6C757D;
+        font-weight: 600;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: -2px;
+    }
+
+    .tab-btn:hover {
+        color: #9B59B6;
+    }
+
+    .tab-btn.active {
+        color: #9B59B6;
+        border-bottom-color: #9B59B6;
+    }
+
+    .tab-content-area {
+        display: none;
+    }
+
+    .tab-content-area.active {
+        display: block;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .profile-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .profile-card h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        padding: 0.875rem 1rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #9B59B6;
+        box-shadow: 0 0 0 0.2rem rgba(155, 89, 182, 0.25);
+        outline: none;
+    }
+
+    .btn-save {
+        padding: 0.875rem 2.5rem;
+        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+        background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+    }
+
+    .volunteer-history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .history-item {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1.25rem;
+        background: #F8F9FA;
+        border-radius: 0.75rem;
+        border-left: 4px solid #9B59B6;
+    }
+
+    .history-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.75rem;
+    }
+
+    .history-content {
+        flex: 1;
+    }
+
+    .history-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.25rem;
+    }
+
+    .history-details {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 0.95rem;
+        color: #6C757D;
+        margin-bottom: 0.5rem;
+    }
+
+    .history-description {
+        color: #6C757D;
+        font-size: 0.95rem;
+    }
+
+    .history-hours {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #9B59B6;
+    }
+
+    .preferences-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .preference-item {
+        padding: 1.25rem;
+        background: #F8F9FA;
+        border-radius: 0.75rem;
+        border: 2px solid #E9ECEF;
+        transition: all 0.3s ease;
+    }
+
+    .preference-item:hover {
+        border-color: #9B59B6;
+        background: #F8F5FB;
+    }
+
+    .preference-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .preference-title {
+        font-weight: 700;
+        color: #2C3E50;
+        font-size: 1.05rem;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+        background: #E9ECEF;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .toggle-switch.active {
+        background: #9B59B6;
+    }
+
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: white;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.3s ease;
+    }
+
+    .toggle-switch.active::after {
+        transform: translateX(30px);
+    }
+
+    .preference-description {
+        color: #6C757D;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .profile-header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+        }
+
+        .profile-stats {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tab-buttons {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-btn {
+            white-space: nowrap;
+        }
+
+        .history-item {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="container">
+            <div class="profile-header-content">
+                <div class="profile-avatar-section">
+                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                         alt="Ryan Lee" class="profile-avatar-large">
+                    <div>
+                        <button class="btn btn-change-photo">
+                            <i class="fas fa-camera me-2"></i>Change Photo
+                        </button>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name">Ryan Lee</h1>
+                    <p class="profile-role">
+                        <i class="fas fa-heart me-2"></i>Youth Volunteer
+                    </p>
+                    <div class="profile-stats">
+                        <div class="profile-stat-item">
+                            <i class="fas fa-clock"></i>
+                            <span>48 hours volunteered</span>
+                        </div>
+                        <div class="profile-stat-item">
+                            <i class="fas fa-award"></i>
+                            <span>12 badges earned</span>
+                        </div>
+                        <div class="profile-stat-item">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Member since Dec 2024</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Tabs -->
+    <div class="profile-tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab('info')">
+                <i class="fas fa-user me-2"></i>Personal Info
+            </button>
+            <button class="tab-btn" onclick="switchTab('history')">
+                <i class="fas fa-history me-2"></i>Volunteer History
+            </button>
+            <button class="tab-btn" onclick="switchTab('settings')">
+                <i class="fas fa-cog me-2"></i>Settings
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab Content: Personal Info -->
+    <div class="tab-content-area active" id="infoTab">
+        <div class="profile-card">
+            <h3><i class="fas fa-id-card me-2"></i>Personal Information</h3>
+            <form method="POST" action="{{ url_for('youth.profile') }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name"
+                                   value="Ryan Lee" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username"
+                                   value="ryan_lee" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" name="email"
+                                   value="ryan.lee@email.com" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone"
+                                   value="+65 9123 4567" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-control" name="age"
+                                   value="20" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">School/Organization</label>
+                            <input type="text" class="form-control" name="school"
+                                   value="Nanyang Polytechnic">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bio</label>
+                    <textarea class="form-control" name="bio" rows="4"
+                              placeholder="Tell seniors about yourself...">Passionate about bridging generations and learning from seniors. I love hearing their stories and helping them with technology!</textarea>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="profile-card">
+            <h3><i class="fas fa-lock me-2"></i>Security</h3>
+            <form id="passwordForm">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-key me-2"></i>Change Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tab Content: Volunteer History -->
+    <div class="tab-content-area" id="historyTab">
+        <div class="profile-card">
+            <h3><i class="fas fa-history me-2"></i>Volunteer History</h3>
+            <div class="volunteer-history-list">
+                <div class="history-item">
+                    <div class="history-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="history-content">
+                        <h4 class="history-title">Traditional Storytelling Session</h4>
+                        <div class="history-details">
+                            <span><i class="fas fa-calendar me-1"></i>Dec 15, 2024</span>
+                            <span><i class="fas fa-map-marker-alt me-1"></i>Toa Payoh CC</span>
+                        </div>
+                        <p class="history-description">
+                            Facilitated story sharing session with 8 seniors, documenting their childhood memories.
+                        </p>
+                    </div>
+                    <div class="history-hours">2.5h</div>
+                </div>
+
+                <div class="history-item">
+                    <div class="history-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <div class="history-content">
+                        <h4 class="history-title">Tech Help Workshop</h4>
+                        <div class="history-details">
+                            <span><i class="fas fa-calendar me-1"></i>Dec 10, 2024</span>
+                            <span><i class="fas fa-map-marker-alt me-1"></i>Bishan Library</span>
+                        </div>
+                        <p class="history-description">
+                            Helped seniors learn to use smartphones and video calling apps to stay connected with family.
+                        </p>
+                    </div>
+                    <div class="history-hours">3h</div>
+                </div>
+
+                <div class="history-item">
+                    <div class="history-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="history-content">
+                        <h4 class="history-title">Traditional Games Day</h4>
+                        <div class="history-details">
+                            <span><i class="fas fa-calendar me-1"></i>Dec 5, 2024</span>
+                            <span><i class="fas fa-map-marker-alt me-1"></i>Ang Mo Kio Park</span>
+                        </div>
+                        <p class="history-description">
+                            Organized Congkak and Five Stones games, learned traditional games from seniors.
+                        </p>
+                    </div>
+                    <div class="history-hours">4h</div>
+                </div>
+
+                <div class="history-item">
+                    <div class="history-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="history-content">
+                        <h4 class="history-title">Heritage Cooking Class</h4>
+                        <div class="history-details">
+                            <span><i class="fas fa-calendar me-1"></i>Nov 28, 2024</span>
+                            <span><i class="fas fa-map-marker-alt me-1"></i>Community Kitchen</span>
+                        </div>
+                        <p class="history-description">
+                            Learned to make traditional kueh from senior bakers, documented family recipes.
+                        </p>
+                    </div>
+                    <div class="history-hours">3.5h</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content: Settings -->
+    <div class="tab-content-area" id="settingsTab">
+        <div class="profile-card">
+            <h3><i class="fas fa-bell me-2"></i>Notification Preferences</h3>
+            <div class="preferences-grid">
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">Event Reminders</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <p class="preference-description">
+                        Receive reminders about upcoming volunteer events
+                    </p>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">New Stories</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <p class="preference-description">
+                        Get notified when seniors share new stories
+                    </p>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">Message Notifications</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <p class="preference-description">
+                        Alert me when I receive new messages
+                    </p>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">Badge Achievements</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <p class="preference-description">
+                        Celebrate when you earn new badges
+                    </p>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">Weekly Summary</span>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <p class="preference-description">
+                        Get weekly summary of your volunteer activities
+                    </p>
+                </div>
+
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">Email Notifications</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <p class="preference-description">
+                        Receive important updates via email
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <h3><i class="fas fa-globe me-2"></i>Language & Accessibility</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Preferred Language</label>
+                        <select class="form-control">
+                            <option selected>English</option>
+                            <option>中文 (Chinese)</option>
+                            <option>Bahasa Melayu (Malay)</option>
+                            <option>தமிழ் (Tamil)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Time Zone</label>
+                        <select class="form-control">
+                            <option selected>Singapore (GMT+8)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="text-end">
+                <button class="btn btn-save">
+                    <i class="fas fa-save me-2"></i>Save Preferences
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab switching
+    function switchTab(tab) {
+        // Remove active from all tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content-area').forEach(area => area.classList.remove('active'));
+
+        // Add active to selected tab
+        event.target.closest('.tab-btn').classList.add('active');
+        document.getElementById(tab + 'Tab').classList.add('active');
+    }
+
+    // Toggle switch
+    function toggleSwitch(element) {
+        element.classList.toggle('active');
+    }
+
+    // Password form validation
+    document.getElementById('passwordForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (newPassword !== confirmPassword) {
+            alert('New password and confirm password do not match!');
+            return false;
+        }
+
+        if (newPassword.length < 6) {
+            alert('Password must be at least 6 characters long!');
+            return false;
+        }
+
+        alert('Password changed successfully!');
+        this.reset();
+    });
+
+    console.log('Profile page loaded');
+</script>
+{% endblock %}

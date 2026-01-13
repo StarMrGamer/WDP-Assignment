@@ -1,0 +1,676 @@
+{% extends "base.html" %}
+<!--
+    File: story_detail.html
+    Purpose: Full story view with reactions and comments
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Feature: Detailed story display for youth volunteers
+-->
+
+{% block title %}Story Details - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    .story-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #9B59B6;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+        color: #8E44AD;
+        transform: translateX(-5px);
+    }
+
+    .story-detail-card {
+        background: white;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .story-header {
+        padding: 2.5rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .author-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .author-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #9B59B6;
+    }
+
+    .author-details h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.25rem;
+    }
+
+    .author-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.95rem;
+        color: #6C757D;
+    }
+
+    .story-title {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+
+    .story-tags {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .story-tag {
+        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        color: white;
+        padding: 0.5rem 1.25rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .story-body {
+        padding: 2.5rem;
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: #2C3E50;
+    }
+
+    .story-content {
+        margin-bottom: 2rem;
+    }
+
+    .story-content p {
+        margin-bottom: 1.5rem;
+    }
+
+    .translation-toggle {
+        text-align: center;
+        padding: 1.5rem;
+        background: #F8F9FA;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-translate {
+        padding: 0.875rem 2rem;
+        background: #3498DB;
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-translate:hover {
+        background: #2980B9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .story-footer {
+        padding: 2rem 2.5rem;
+        background: #F8F9FA;
+        border-top: 2px solid #E9ECEF;
+    }
+
+    .reaction-bar {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #DEE2E6;
+    }
+
+    .reaction-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        background: white;
+        border: 2px solid #E9ECEF;
+        border-radius: 2rem;
+        font-weight: 600;
+        color: #6C757D;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .reaction-btn:hover {
+        border-color: #9B59B6;
+        color: #9B59B6;
+        background: #F8F5FB;
+    }
+
+    .reaction-btn.active {
+        border-color: #9B59B6;
+        background: #9B59B6;
+        color: white;
+    }
+
+    .reaction-btn .emoji {
+        font-size: 1.5rem;
+    }
+
+    .story-stats {
+        display: flex;
+        gap: 2rem;
+        font-size: 0.95rem;
+        color: #6C757D;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .stat-item i {
+        color: #9B59B6;
+    }
+
+    .comments-section {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .comments-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .comments-header h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2C3E50;
+    }
+
+    .comment-form {
+        margin-bottom: 2.5rem;
+    }
+
+    .comment-input-wrapper {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .comment-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #9B59B6;
+    }
+
+    .comment-input-box {
+        flex: 1;
+    }
+
+    .comment-input-box textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 1rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 1rem;
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        transition: all 0.3s ease;
+    }
+
+    .comment-input-box textarea:focus {
+        border-color: #9B59B6;
+        box-shadow: 0 0 0 0.2rem rgba(155, 89, 182, 0.25);
+        outline: none;
+    }
+
+    .comment-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .btn-comment {
+        padding: 0.75rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-post-comment {
+        background: #9B59B6;
+        color: white;
+    }
+
+    .btn-post-comment:hover {
+        background: #8E44AD;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+    }
+
+    .btn-cancel-comment {
+        background: white;
+        color: #6C757D;
+        border: 2px solid #E9ECEF;
+    }
+
+    .btn-cancel-comment:hover {
+        background: #F8F9FA;
+    }
+
+    .comments-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .comment-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: #F8F9FA;
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .comment-item:hover {
+        background: #EEEFF1;
+    }
+
+    .comment-content {
+        flex: 1;
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .comment-author {
+        font-weight: 700;
+        color: #2C3E50;
+        font-size: 1.05rem;
+    }
+
+    .comment-time {
+        font-size: 0.875rem;
+        color: #6C757D;
+    }
+
+    .comment-text {
+        color: #2C3E50;
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+    }
+
+    .comment-footer {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .comment-action {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6C757D;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .comment-action:hover {
+        color: #9B59B6;
+    }
+
+    @media (max-width: 768px) {
+        .story-title {
+            font-size: 1.75rem;
+        }
+
+        .story-body {
+            font-size: 1rem;
+            padding: 1.5rem;
+        }
+
+        .reaction-bar {
+            flex-wrap: wrap;
+        }
+
+        .comment-input-wrapper {
+            flex-direction: column;
+        }
+
+        .comment-avatar {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="story-container">
+        <!-- Back Button -->
+        <a href="{{ url_for('youth.stories') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Stories</span>
+        </a>
+
+        <!-- Story Detail Card -->
+        <div class="story-detail-card">
+            <!-- Story Header -->
+            <div class="story-header">
+                <div class="author-info">
+                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                         alt="Margaret Tan" class="author-avatar">
+                    <div class="author-details">
+                        <h3>Margaret Tan</h3>
+                        <div class="author-meta">
+                            <span><i class="fas fa-calendar me-1"></i>3 days ago</span>
+                            <span><i class="fas fa-book me-1"></i>Life Story</span>
+                        </div>
+                    </div>
+                </div>
+                <h1 class="story-title">Growing Up in 1960s Singapore</h1>
+                <div class="story-tags">
+                    <span class="story-tag"><i class="fas fa-history me-2"></i>Heritage</span>
+                    <span class="story-tag"><i class="fas fa-home me-2"></i>Kampung Life</span>
+                    <span class="story-tag"><i class="fas fa-users me-2"></i>Family</span>
+                </div>
+            </div>
+
+            <!-- Story Body -->
+            <div class="story-body">
+                <div class="story-content" id="originalContent">
+                    <p>
+                        I remember waking up to the sound of roosters crowing in our kampung.
+                        Life was simpler then - we didn't have much, but we had everything we needed.
+                        Our wooden house stood on stilts, and beneath it, my siblings and I would
+                        play with marbles and five stones.
+                    </p>
+                    <p>
+                        Every morning, I would help my mother fetch water from the communal well.
+                        It was heavy work for a young girl, but I never complained. The well was
+                        where all the neighborhood aunties would gather, sharing news and laughter
+                        while we waited our turn.
+                    </p>
+                    <p>
+                        Our neighbors were like extended family. When someone cooked curry, the
+                        aroma would fill the entire kampung, and they would always share with us.
+                        We would share our kueh in return. That's how it was - everyone looked
+                        out for each other.
+                    </p>
+                    <p>
+                        School was a long walk away, and I would go barefoot to save my only pair
+                        of shoes for special occasions. My teacher, Mrs. Lim, was strict but kind.
+                        She believed in us and pushed us to do better. I owe my love of learning
+                        to her.
+                    </p>
+                    <p>
+                        In the evenings, we children would catch spiders and stage fights, or play
+                        catching under the moonlight. There were no computers or handphones - just
+                        our imagination and the great outdoors. Those were truly the golden days.
+                    </p>
+                    <p>
+                        Now, when I look at modern Singapore with its tall buildings and busy streets,
+                        I marvel at how far we've come. But sometimes, I miss the simplicity, the
+                        close-knit community, and the slower pace of life in my kampung days.
+                    </p>
+                </div>
+
+                <!-- Translation Toggle -->
+                <div class="translation-toggle">
+                    <button class="btn btn-translate" onclick="toggleTranslation()">
+                        <i class="fas fa-language me-2"></i>Translate to Malay
+                    </button>
+                </div>
+            </div>
+
+            <!-- Story Footer -->
+            <div class="story-footer">
+                <div class="reaction-bar">
+                    <button class="reaction-btn active">
+                        <span class="emoji">❤️</span>
+                        <span>45 Hearts</span>
+                    </button>
+                    <button class="reaction-btn">
+                        <span class="emoji">👏</span>
+                        <span>32 Claps</span>
+                    </button>
+                    <button class="reaction-btn">
+                        <span class="emoji">😊</span>
+                        <span>18 Smiles</span>
+                    </button>
+                    <button class="reaction-btn">
+                        <span class="emoji">🙏</span>
+                        <span>12 Thanks</span>
+                    </button>
+                </div>
+                <div class="story-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-eye"></i>
+                        <span>287 views</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-comment"></i>
+                        <span>24 comments</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-share"></i>
+                        <span>8 shares</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <div class="comments-header">
+                <h3><i class="fas fa-comments me-2"></i>Comments (24)</h3>
+            </div>
+
+            <!-- Comment Form -->
+            <div class="comment-form">
+                <div class="comment-input-wrapper">
+                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                         alt="Your Avatar" class="comment-avatar">
+                    <div class="comment-input-box">
+                        <textarea placeholder="Share your thoughts about this story..."
+                                  id="commentInput"></textarea>
+                        <div class="comment-actions">
+                            <button class="btn btn-comment btn-cancel-comment">Cancel</button>
+                            <button class="btn btn-comment btn-post-comment">
+                                <i class="fas fa-paper-plane me-2"></i>Post Comment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments List -->
+            <div class="comments-list">
+                <!-- Comment 1 -->
+                <div class="comment-item">
+                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                         alt="Ryan Lee" class="comment-avatar">
+                    <div class="comment-content">
+                        <div class="comment-header">
+                            <span class="comment-author">Ryan Lee</span>
+                            <span class="comment-time">2 days ago</span>
+                        </div>
+                        <p class="comment-text">
+                            Thank you so much for sharing this beautiful story! It's amazing to hear
+                            about life in the kampung. I can't imagine living without all the modern
+                            conveniences we have today, but your story makes it sound so wonderful
+                            and full of warmth.
+                        </p>
+                        <div class="comment-footer">
+                            <span class="comment-action">
+                                <i class="far fa-heart"></i>Like (12)
+                            </span>
+                            <span class="comment-action">
+                                <i class="fas fa-reply"></i>Reply
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comment 2 -->
+                <div class="comment-item">
+                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                         alt="Sarah Ng" class="comment-avatar">
+                    <div class="comment-content">
+                        <div class="comment-header">
+                            <span class="comment-author">Sarah Ng</span>
+                            <span class="comment-time">1 day ago</span>
+                        </div>
+                        <p class="comment-text">
+                            This reminds me of stories my grandmother used to tell! The sense of
+                            community you described is something we're missing in modern times.
+                            Everyone is so busy and disconnected now.
+                        </p>
+                        <div class="comment-footer">
+                            <span class="comment-action">
+                                <i class="far fa-heart"></i>Like (8)
+                            </span>
+                            <span class="comment-action">
+                                <i class="fas fa-reply"></i>Reply
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comment 3 -->
+                <div class="comment-item">
+                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                         alt="David Tan" class="comment-avatar">
+                    <div class="comment-content">
+                        <div class="comment-header">
+                            <span class="comment-author">David Tan</span>
+                            <span class="comment-time">12 hours ago</span>
+                        </div>
+                        <p class="comment-text">
+                            Mrs. Tan, I love how you described the communal spirit of the kampung!
+                            It would be great if you could share more stories about the games you
+                            played. I'd love to learn about traditional games like five stones!
+                        </p>
+                        <div class="comment-footer">
+                            <span class="comment-action">
+                                <i class="far fa-heart"></i>Like (5)
+                            </span>
+                            <span class="comment-action">
+                                <i class="fas fa-reply"></i>Reply
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Translation toggle (placeholder)
+    function toggleTranslation() {
+        alert('Translation feature will be implemented in Phase 2!\n\nThis will use Google Translate API to translate stories between English, Mandarin, Malay, and Tamil.');
+    }
+
+    // Reaction buttons
+    document.querySelectorAll('.reaction-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.toggle('active');
+
+            // Update count (placeholder)
+            const countSpan = this.querySelector('span:last-child');
+            const currentText = countSpan.textContent;
+            const match = currentText.match(/\d+/);
+            if (match) {
+                const count = parseInt(match[0]);
+                const isActive = this.classList.contains('active');
+                const newCount = isActive ? count + 1 : count - 1;
+                countSpan.textContent = countSpan.textContent.replace(count, newCount);
+            }
+        });
+    });
+
+    // Post comment
+    document.querySelector('.btn-post-comment')?.addEventListener('click', function() {
+        const commentText = document.getElementById('commentInput').value;
+
+        if (!commentText.trim()) {
+            alert('Please write a comment before posting');
+            return;
+        }
+
+        alert('Comment posted successfully!\n\nComment system will be fully functional in Phase 2.');
+        document.getElementById('commentInput').value = '';
+    });
+
+    // Cancel comment
+    document.querySelector('.btn-cancel-comment')?.addEventListener('click', function() {
+        document.getElementById('commentInput').value = '';
+    });
+
+    // Like comment
+    document.querySelectorAll('.comment-action').forEach(action => {
+        action.addEventListener('click', function() {
+            if (this.textContent.includes('Like')) {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('far')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    this.style.color = '#E74C3C';
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    this.style.color = '';
+                }
+            }
+        });
+    });
+
+    console.log('Story detail page loaded');
+</script>
+{% endblock %}

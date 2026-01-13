@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+<!--
+    File: communities.html
+    Purpose: Admin community management page
+    Author: Asher
+    Date: December 2025
+    Feature: View and manage all communities
+-->
+
+{% block title %}Community Management - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .community-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        height: 100%;
+        transition: all 0.3s ease;
+        border-left: 4px solid #3498DB;
+    }
+
+    .community-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+
+    .community-card.story {
+        border-left-color: #9B59B6;
+    }
+
+    .community-card.hobby {
+        border-left-color: #27AE60;
+    }
+
+    .community-card.learning {
+        border-left-color: #E67E22;
+    }
+
+    .community-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .community-icon.story {
+        background: rgba(155, 89, 182, 0.1);
+        color: #9B59B6;
+    }
+
+    .community-icon.hobby {
+        background: rgba(39, 174, 96, 0.1);
+        color: #27AE60;
+    }
+
+    .community-icon.learning {
+        background: rgba(230, 126, 34, 0.1);
+        color: #E67E22;
+    }
+
+    .community-stats {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+    }
+
+    .community-stat {
+        text-align: center;
+    }
+
+    .community-stat .value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2C3E50;
+    }
+
+    .community-stat .label {
+        font-size: 0.75rem;
+        color: #6C757D;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-users-cog me-2"></i>Community Management</h1>
+                <p class="mb-0">Manage interest-based communities</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success" onclick="createCommunity()">
+                    <i class="fas fa-plus me-2"></i>Create Community
+                </button>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #3498DB;">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-value">{{ communities|length }}</div>
+                <div class="stat-label">Total Communities</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #9B59B6;">
+                <div class="stat-icon" style="color: #9B59B6;"><i class="fas fa-book"></i></div>
+                <div class="stat-value">{{ communities|selectattr('type', 'equalto', 'Story')|list|length }}</div>
+                <div class="stat-label">Story Communities</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #27AE60;">
+                <div class="stat-icon" style="color: #27AE60;"><i class="fas fa-palette"></i></div>
+                <div class="stat-value">{{ communities|selectattr('type', 'equalto', 'Hobby')|list|length }}</div>
+                <div class="stat-label">Hobby Communities</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #E67E22;">
+                <div class="stat-icon" style="color: #E67E22;"><i class="fas fa-graduation-cap"></i></div>
+                <div class="stat-value">{{ communities|selectattr('type', 'equalto', 'Learning')|list|length }}</div>
+                <div class="stat-label">Learning Communities</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Communities Grid -->
+    {% if communities %}
+    <div class="row">
+        {% for community in communities %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="community-card {{ community.type|lower }}">
+                <!-- Community Header -->
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="community-icon {{ community.type|lower }}">
+                        {% if community.type == 'Story' %}
+                        <i class="fas fa-book-open"></i>
+                        {% elif community.type == 'Hobby' %}
+                        <i class="fas fa-palette"></i>
+                        {% else %}
+                        <i class="fas fa-graduation-cap"></i>
+                        {% endif %}
+                    </div>
+                    <span class="badge {% if community.type == 'Story' %}bg-purple{% elif community.type == 'Hobby' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                        {{ community.type }}
+                    </span>
+                </div>
+
+                <!-- Community Info -->
+                <h5 class="fw-bold mb-2">{{ community.name }}</h5>
+                <p class="text-muted small mb-3">
+                    {{ community.description[:100] if community.description else 'No description available' }}{% if community.description and community.description|length > 100 %}...{% endif %}
+                </p>
+
+                <!-- Community Stats -->
+                <div class="community-stats">
+                    <div class="community-stat">
+                        <div class="value">{{ community.member_count }}</div>
+                        <div class="label">Members</div>
+                    </div>
+                    <div class="community-stat">
+                        <div class="value">{{ community.posts.count() }}</div>
+                        <div class="label">Posts</div>
+                    </div>
+                    <div class="community-stat">
+                        <div class="value">{{ community.created_at.strftime('%b %d') }}</div>
+                        <div class="label">Created</div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="viewCommunity({{ community.id }})">
+                        <i class="fas fa-eye me-1"></i>View
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" onclick="editCommunity({{ community.id }})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCommunity({{ community.id }})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="data-table-container">
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No communities yet</h5>
+            <p class="text-muted">Create your first community to get started</p>
+            <button class="btn btn-primary mt-2" onclick="createCommunity()">
+                <i class="fas fa-plus me-2"></i>Create First Community
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Community Rules Section -->
+    <div class="data-table-container mt-4">
+        <div class="table-header">
+            <h3><i class="fas fa-gavel me-2"></i>Community Guidelines</h3>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <h6><i class="fas fa-check-circle text-success me-2"></i>Be Respectful</h6>
+                    <p class="small text-muted">Treat all members with kindness and respect, regardless of age or background.</p>
+                </div>
+                <div class="col-md-4">
+                    <h6><i class="fas fa-check-circle text-success me-2"></i>Stay On Topic</h6>
+                    <p class="small text-muted">Keep discussions relevant to the community's purpose and interests.</p>
+                </div>
+                <div class="col-md-4">
+                    <h6><i class="fas fa-check-circle text-success me-2"></i>Report Issues</h6>
+                    <p class="small text-muted">Report any inappropriate content or behavior to the admin team.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function createCommunity() {
+        // TODO: Implement community creation modal/form
+        alert('Feature coming soon: Create community');
+    }
+
+    function viewCommunity(communityId) {
+        // TODO: Implement community detail view
+        alert('Feature coming soon: View community details');
+    }
+
+    function editCommunity(communityId) {
+        // TODO: Implement community editing
+        alert('Feature coming soon: Edit community');
+    }
+
+    function deleteCommunity(communityId) {
+        if (confirm('Are you sure you want to delete this community? All posts and memberships will be removed.')) {
+            // TODO: Implement community deletion
+            alert('Feature coming soon: Delete community');
+        }
+    }
+</script>
+{% endblock %}

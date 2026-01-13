@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+<!--
+    File: users.html
+    Purpose: Admin user management page
+    Author: Asher
+    Date: December 2025
+    Feature: View, filter, and manage all users
+-->
+
+{% block title %}User Management - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-users me-2"></i>User Management</h1>
+                <p class="mb-0">View and manage all registered users</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <form method="GET" class="d-flex gap-3 flex-wrap align-items-center w-100">
+            <div class="d-flex align-items-center gap-2">
+                <label for="role" class="fw-bold text-nowrap">Role:</label>
+                <select name="role" id="role" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if role_filter == 'all' %}selected{% endif %}>All Roles</option>
+                    <option value="senior" {% if role_filter == 'senior' %}selected{% endif %}>Seniors</option>
+                    <option value="youth" {% if role_filter == 'youth' %}selected{% endif %}>Youth</option>
+                </select>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label for="status" class="fw-bold text-nowrap">Status:</label>
+                <select name="status" id="status" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            <div class="ms-auto">
+                <span class="badge bg-secondary fs-6">{{ users|length }} users found</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="data-table-container">
+        <div class="table-header">
+            <h3><i class="fas fa-list me-2"></i>Registered Users</h3>
+        </div>
+
+        {% if users %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                    <th>Joined</th>
+                    <th>Last Active</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="{{ url_for('static', filename='images/' + (user.profile_picture or 'default-avatar.png')) }}"
+                                 alt="Avatar"
+                                 class="rounded-circle"
+                                 style="width: 40px; height: 40px; object-fit: cover;"
+                                 onerror="this.src='https://ui-avatars.com/api/?name={{ user.full_name }}&background=random'">
+                            <div>
+                                <div class="fw-bold">{{ user.full_name }}</div>
+                                <small class="text-muted">@{{ user.username }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge {% if user.role == 'senior' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                            {{ user.role|capitalize }}
+                        </span>
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.age }}</td>
+                    <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                    <td>{{ user.last_active.strftime('%b %d, %Y') }}</td>
+                    <td>
+                        {% if user.is_active %}
+                        <span class="status-badge active">Active</span>
+                        {% else %}
+                        <span class="status-badge inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin.user_detail', user_id=user.id) }}"
+                           class="btn btn-sm btn-outline-primary table-action-btn"
+                           title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <button class="btn btn-sm btn-outline-warning table-action-btn"
+                                title="Toggle Status"
+                                onclick="toggleUserStatus({{ user.id }})">
+                            <i class="fas fa-ban"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No users found</h5>
+            <p class="text-muted">Try adjusting your filters</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- User Statistics Cards -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="stat-card seniors">
+                <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="stat-value">{{ users|selectattr('role', 'equalto', 'senior')|list|length }}</div>
+                <div class="stat-label">Seniors in View</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card youth">
+                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-value">{{ users|selectattr('role', 'equalto', 'youth')|list|length }}</div>
+                <div class="stat-label">Youth in View</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                <div class="stat-value">{{ users|selectattr('is_active')|list|length }}</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleUserStatus(userId) {
+        if (confirm('Are you sure you want to toggle this user\'s status?')) {
+            // TODO: Implement backend endpoint for toggling user status
+            alert('Feature coming soon: Toggle user status');
+        }
+    }
+</script>
+{% endblock %}

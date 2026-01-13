@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+<!--
+    File: index.html
+    Purpose: Simple landing page for GenCon SG
+    Author: Rai (Team Lead)
+    Date: December 2025
+    Description: Clean landing page with Login/Signup options
+-->
+
+{% block title %}Welcome to GenCon SG - Bridging Generations{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom styles for landing page */
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 80px); /* Account for navbar height */
+        padding: 2rem 0;
+    }
+
+    .landing-container {
+        text-align: center;
+        color: white;
+        padding: 2rem;
+        max-width: 800px;
+        margin: auto;
+        width: 100%;
+    }
+
+    .logo-icon {
+        font-size: 6rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .landing-container h1 {
+        font-size: 4rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        animation: slideDown 0.8s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .tagline {
+        font-size: 1.75rem;
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+        opacity: 0.95;
+        animation: slideDown 0.8s ease-out 0.2s both;
+    }
+
+    .description {
+        font-size: 1.25rem;
+        max-width: 600px;
+        margin: 0 auto 3rem;
+        opacity: 0.9;
+        line-height: 1.8;
+        animation: slideDown 0.8s ease-out 0.4s both;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        animation: slideDown 0.8s ease-out 0.6s both;
+    }
+
+    .landing-btn {
+        padding: 1.25rem 3rem;
+        font-size: 1.375rem;
+        font-weight: 600;
+        border-radius: 3rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        min-width: 200px;
+    }
+
+    .btn-login {
+        background: white;
+        color: #667eea;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        color: #667eea;
+    }
+
+    .btn-signup {
+        background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
+        color: white;
+    }
+
+    .btn-signup:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        background: linear-gradient(135deg, #D35400 0%, #E67E22 100%);
+        color: white;
+    }
+
+    .features-preview {
+        margin-top: 4rem;
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        flex-wrap: wrap;
+        animation: slideDown 0.8s ease-out 0.8s both;
+    }
+
+    .feature-pill {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        border-radius: 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .feature-pill i {
+        margin-right: 0.75rem;
+        font-size: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+        .landing-container h1 {
+            font-size: 2.5rem;
+        }
+
+        .tagline {
+            font-size: 1.25rem;
+        }
+
+        .description {
+            font-size: 1.125rem;
+        }
+
+        .landing-btn {
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            width: 100%;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <!-- Logo Icon -->
+    <div class="logo-icon">
+        <i class="fas fa-hands-helping"></i>
+    </div>
+
+    <!-- Main Heading -->
+    <h1>GenCon SG</h1>
+
+    <!-- Tagline -->
+    <p class="tagline">Bridging Generations Through Meaningful Connections</p>
+
+    <!-- Description -->
+    <p class="description">
+        Singapore's premier intergenerational connection platform bringing together
+        seniors and youth volunteers for meaningful interactions and cultural exchange.
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{{ url_for('auth.login') }}" class="btn landing-btn btn-login">
+            <i class="fas fa-sign-in-alt me-2"></i>Login
+        </a>
+        <a href="{{ url_for('auth.register') }}" class="btn landing-btn btn-signup">
+            <i class="fas fa-user-plus me-2"></i>Sign Up
+        </a>
+    </div>
+
+    <!-- Features Preview -->
+    <div class="features-preview">
+        <div class="feature-pill">
+            <i class="fas fa-book-open"></i>
+            Story Sharing
+        </div>
+        <div class="feature-pill">
+            <i class="fas fa-language"></i>
+            Translation Support
+        </div>
+        <div class="feature-pill">
+            <i class="fas fa-shield-alt"></i>
+            Safe & Secure
+        </div>
+        <div class="feature-pill">
+            <i class="fas fa-gamepad"></i>
+            Cultural Games
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    console.log('GenCon SG Landing Page loaded');
+</script>
+{% endblock %}

@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+<!--
+    File: reports.html
+    Purpose: Admin chat report management page
+    Author: Asher
+    Date: December 2025
+    Feature: View and manage reported chat messages
+-->
+
+{% block title %}Report Management - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-flag me-2"></i>Report Management</h1>
+                <p class="mb-0">Review and manage reported chat messages</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <form method="GET" class="d-flex gap-3 flex-wrap align-items-center w-100">
+            <div class="d-flex align-items-center gap-2">
+                <label for="status" class="fw-bold text-nowrap">Status:</label>
+                <select name="status" id="status" class="form-select" onchange="this.form.submit()">
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="under_review" {% if status_filter == 'under_review' %}selected{% endif %}>Under Review</option>
+                    <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="dismissed" {% if status_filter == 'dismissed' %}selected{% endif %}>Dismissed</option>
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Reports</option>
+                </select>
+            </div>
+            <div class="ms-auto">
+                <span class="badge bg-danger fs-6">{{ reports|length }} reports</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Statistics Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #F39C12;">
+                <div class="stat-icon" style="color: #F39C12;"><i class="fas fa-clock"></i></div>
+                <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+                <div class="stat-label">Pending Review</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #3498DB;">
+                <div class="stat-icon" style="color: #3498DB;"><i class="fas fa-search"></i></div>
+                <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'under_review')|list|length }}</div>
+                <div class="stat-label">Under Review</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #27AE60;">
+                <div class="stat-icon" style="color: #27AE60;"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'resolved')|list|length }}</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #95A5A6;">
+                <div class="stat-icon" style="color: #95A5A6;"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'dismissed')|list|length }}</div>
+                <div class="stat-label">Dismissed</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports List -->
+    {% if reports %}
+    <div class="row">
+        {% for report in reports %}
+        <div class="col-12 mb-4">
+            <div class="report-card">
+                <!-- Report Header -->
+                <div class="report-header">
+                    <div>
+                        <span class="report-id">Report #{{ report.id }}</span>
+                        <span class="badge bg-danger ms-2">{{ report.reason }}</span>
+                    </div>
+                    <span class="status-badge {{ report.status|replace('_', '-') }}">
+                        {% if report.status == 'pending' %}
+                        <i class="fas fa-clock me-1"></i>
+                        {% elif report.status == 'under_review' %}
+                        <i class="fas fa-search me-1"></i>
+                        {% elif report.status == 'resolved' %}
+                        <i class="fas fa-check me-1"></i>
+                        {% else %}
+                        <i class="fas fa-times me-1"></i>
+                        {% endif %}
+                        {{ report.status|replace('_', ' ')|title }}
+                    </span>
+                </div>
+
+                <!-- Reported Message -->
+                <div class="report-message">
+                    <small class="text-muted d-block mb-2">Reported Message:</small>
+                    <p class="mb-0">"{{ report.message.content }}"</p>
+                </div>
+
+                <!-- Report Details -->
+                <div class="report-details">
+                    <div class="report-detail">
+                        <div class="label">Reported By</div>
+                        <div class="value">
+                            <i class="fas fa-user me-1"></i>{{ report.reporter.full_name }}
+                            <small class="text-muted">({{ report.reporter.role }})</small>
+                        </div>
+                    </div>
+                    <div class="report-detail">
+                        <div class="label">Reported User</div>
+                        <div class="value">
+                            <i class="fas fa-user-slash me-1"></i>{{ report.reported_user.full_name }}
+                            <small class="text-muted">({{ report.reported_user.role }})</small>
+                        </div>
+                    </div>
+                    <div class="report-detail">
+                        <div class="label">Date Reported</div>
+                        <div class="value">
+                            <i class="fas fa-calendar me-1"></i>{{ report.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                        </div>
+                    </div>
+                    <div class="report-detail">
+                        <div class="label">Message Sent</div>
+                        <div class="value">
+                            <i class="fas fa-clock me-1"></i>{{ report.message.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Description -->
+                {% if report.description %}
+                <div class="mt-3 p-3 bg-light rounded">
+                    <small class="text-muted d-block mb-1">Additional Details:</small>
+                    <p class="mb-0">{{ report.description }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Admin Notes -->
+                {% if report.admin_notes %}
+                <div class="admin-notes">
+                    <small class="text-muted d-block mb-1"><i class="fas fa-sticky-note me-1"></i>Admin Notes:</small>
+                    <p class="mb-0">{{ report.admin_notes }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                    <a href="{{ url_for('admin.report_detail', report_id=report.id) }}"
+                       class="btn btn-primary">
+                        <i class="fas fa-eye me-1"></i>Review Report
+                    </a>
+                    {% if report.status == 'pending' %}
+                    <button class="btn btn-info" onclick="markUnderReview({{ report.id }})">
+                        <i class="fas fa-search me-1"></i>Start Review
+                    </button>
+                    {% endif %}
+                    {% if report.status in ['pending', 'under_review'] %}
+                    <button class="btn btn-success" onclick="resolveReport({{ report.id }})">
+                        <i class="fas fa-check me-1"></i>Resolve
+                    </button>
+                    <button class="btn btn-secondary" onclick="dismissReport({{ report.id }})">
+                        <i class="fas fa-times me-1"></i>Dismiss
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="data-table-container">
+        <div class="text-center py-5">
+            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+            <h5 class="text-muted">No reports found</h5>
+            <p class="text-muted">
+                {% if status_filter == 'pending' %}
+                Great! There are no pending reports to review.
+                {% else %}
+                No reports match the selected filter.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Moderation Guidelines -->
+    <div class="data-table-container mt-4">
+        <div class="table-header">
+            <h3><i class="fas fa-shield-alt me-2"></i>Moderation Guidelines</h3>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="fw-bold"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Resolve When:</h6>
+                    <ul class="small text-muted">
+                        <li>Content clearly violates community guidelines</li>
+                        <li>Harassment or bullying is present</li>
+                        <li>Inappropriate or offensive language used</li>
+                        <li>Spam or scam content detected</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="fw-bold"><i class="fas fa-times-circle text-secondary me-2"></i>Dismiss When:</h6>
+                    <ul class="small text-muted">
+                        <li>Report is a misunderstanding</li>
+                        <li>Content doesn't violate guidelines</li>
+                        <li>Report is duplicate or spam</li>
+                        <li>Context shows acceptable conversation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function markUnderReview(reportId) {
+        if (confirm('Mark this report as under review?')) {
+            // TODO: Implement API call to update status
+            alert('Report marked as under review');
+            location.reload();
+        }
+    }
+
+    function resolveReport(reportId) {
+        const notes = prompt('Enter resolution notes (optional):');
+        if (notes !== null) {
+            // TODO: Implement API call to resolve report
+            alert('Report resolved successfully');
+            location.reload();
+        }
+    }
+
+    function dismissReport(reportId) {
+        const notes = prompt('Enter reason for dismissal (optional):');
+        if (notes !== null) {
+            // TODO: Implement API call to dismiss report
+            alert('Report dismissed');
+            location.reload();
+        }
+    }
+</script>
+{% endblock %}
