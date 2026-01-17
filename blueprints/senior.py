@@ -8,10 +8,12 @@ Description: Handles all routes for senior users including story creation,
              messaging with youth buddies, event registration, and accessibility features
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from models import db, User, Story, Message, Event, Community, Pair
 from datetime import datetime
 from functools import wraps
+from werkzeug.utils import secure_filename
+import os
 
 # Create senior blueprint
 senior_bp = Blueprint('senior', __name__)
@@ -103,8 +105,23 @@ def create_story():
             category=category
         )
 
-        # Handle photo upload (if any)
-        # TODO: Implement file upload in Phase B
+        # Handle photo upload
+        if 'photo' in request.files:
+            file = request.files['photo']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                # Check extension
+                ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                if ext in current_app.config['ALLOWED_EXTENSIONS']:
+                    # Ensure upload directory exists
+                    os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                    
+                    # Save file with unique name
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
+                    unique_filename = timestamp + filename
+                    
+                    file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+                    new_story.photo_url = unique_filename
 
         db.session.add(new_story)
         db.session.commit()
@@ -116,7 +133,7 @@ def create_story():
 
 
 # ==================== MESSAGES ====================
-@senior_bp.route('/messages')
+@senior_bp.route('/messages', methods=['GET', 'POST'])
 @login_required
 def messages():
     """Display messaging interface with youth buddy."""
@@ -130,6 +147,46 @@ def messages():
 
     buddy = User.query.get(pair.youth_id)
 
+    if request.method == 'POST':
+        # Retrieve message content from form
+        content = request.form.get('message')
+        if content:
+            # Check for unkind words using the application configuration
+            # This is a basic safety feature to flag potentially harmful content
+            is_flagged = False
+            unkind_words = current_app.config.get('UNKIND_WORDS', [])
+            for word in unkind_words:
+                if word.lower() in content.lower():
+                    is_flagged = True
+                    break
+            
+            # Create new message object
+            # Status defaults to sent/unread (logic handled by frontend display)
+            new_message = Message(
+                sender_id=user_id,
+                recipient_id=buddy.id,
+                content=content,
+                is_flagged=is_flagged
+            )
+            
+            # Add to database session
+            db.session.add(new_message)
+            
+            # Update pair last interaction timestamp
+            # This helps track active vs inactive pairs for admin reporting
+            pair.last_interaction = datetime.utcnow()
+            
+            # Commit changes to database
+            db.session.commit()
+            
+            # Notify user if their message was flagged
+            if is_flagged:
+                flash('Your message was sent but flagged for review due to potentially unkind language.', 'warning')
+            
+            # Redirect to the same page to show the new message
+            # This follows the Post-Redirect-Get pattern
+            return redirect(url_for('senior.messages'))
+
     # Get messages between senior and youth
     messages = Message.query.filter(
         ((Message.sender_id == user_id) & (Message.recipient_id == buddy.id)) |
@@ -137,6 +194,44 @@ def messages():
     ).order_by(Message.created_at).all()
 
     return render_template('senior/messages.html', buddy=buddy, messages=messages)
+
+
+@senior_bp.route('/api/messages')
+@login_required
+def get_messages_json():
+    """
+    API endpoint to fetch messages in JSON format.
+    Used by the frontend polling script (chat.js) to update the chat window
+    without reloading the entire page.
+    """
+    user_id = session['user_id']
+    
+    # Check if user has a buddy
+    pair = Pair.query.filter_by(senior_id=user_id, status='active').first()
+    if not pair:
+        return {'messages': []}
+
+    buddy_id = pair.youth_id
+
+    # Query all messages between the user and their buddy
+    # Ordered by creation time to show conversation history
+    messages = Message.query.filter(
+        ((Message.sender_id == user_id) & (Message.recipient_id == buddy_id)) |
+        ((Message.sender_id == buddy_id) & (Message.recipient_id == user_id))
+    ).order_by(Message.created_at).all()
+
+    # Convert message objects to a list of dictionaries (JSON-serializable)
+    messages_data = [{
+        'id': msg.id,
+        'content': msg.content,
+        'sender_id': msg.sender_id,
+        'is_me': msg.sender_id == user_id,
+        'created_at': msg.created_at.strftime('%I:%M %p'), # Format: 02:30 PM
+        'is_flagged': msg.is_flagged,
+        'translated_content': msg.translated_content if msg.original_language != 'en' else None
+    } for msg in messages]
+
+    return {'messages': messages_data}
 
 
 # ==================== EVENTS ====================
@@ -210,3 +305,25 @@ def checkin():
         return redirect(url_for('senior.dashboard'))
 
     return render_template('senior/checkin.html')
+
+
+# ==================== ACCESSIBILITY SETTINGS ====================
+@senior_bp.route('/accessibility-settings', methods=['POST'])
+@login_required
+def save_accessibility_settings():
+    """
+    API to save accessibility preferences.
+    """
+    data = request.get_json()
+    user = User.query.get(session['user_id'])
+    
+    settings = {
+        'font_size': data.get('font_size', 'normal'),
+        'high_contrast': data.get('high_contrast', False),
+        'color_blind_friendly': data.get('color_blind_friendly', False)
+    }
+    
+    user.accessibility_settings = settings
+    db.session.commit()
+    
+    return {'success': True}

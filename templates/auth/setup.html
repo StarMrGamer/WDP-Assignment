@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Quick Setup - GenCon SG{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h3 class="mb-0">
+                        <i class="fas fa-magic me-2"></i>Quick Setup
+                    </h3>
+                    <p class="mb-0 opacity-75">Let's personalize your experience</p>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-center text-muted mb-4">
+                        Welcome, {{ session.username }}! Select your interests so we can recommend the best stories and connections for you.
+                    </p>
+
+                    <form method="POST" action="{{ url_for('auth.setup') }}">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-3">What are you interested in?</label>
+                            <div class="row g-3">
+                                {% set interests_list = [
+                                    'Music', 'Cooking', 'History', 'Technology', 
+                                    'Gardening', 'Sports', 'Art & Craft', 'Reading',
+                                    'Travel', 'Movies', 'Health & Fitness', 'Board Games'
+                                ] %}
+                                
+                                {% for interest in interests_list %}
+                                <div class="col-6">
+                                    <div class="form-check card-radio">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="interests" value="{{ interest }}" 
+                                               id="interest_{{ loop.index }}">
+                                        <label class="form-check-label w-100 p-3 border rounded text-center cursor-pointer" 
+                                               for="interest_{{ loop.index }}">
+                                            {{ interest }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Complete Setup <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                            <a href="{{ url_for(session.role + '.dashboard') }}" class="btn btn-link text-muted">
+                                Skip for now
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-radio .form-check-input {
+        display: none;
+    }
+    
+    .card-radio .form-check-label {
+        transition: all 0.2s ease;
+        background-color: #f8f9fa;
+    }
+    
+    .card-radio .form-check-input:checked + .form-check-label {
+        background-color: #e7f1ff;
+        border-color: #0d6efd !important;
+        color: #0d6efd;
+        font-weight: 600;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .card-radio .form-check-label:hover {
+        background-color: #e9ecef;
+    }
+    
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

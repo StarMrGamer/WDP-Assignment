@@ -8,8 +8,8 @@ Description: Handles all routes for youth volunteers including story engagement,
              messaging with senior buddies, badge tracking, and theme customization
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from models import db, User, Story, Message, Event, Community, Pair, Badge
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment
 from datetime import datetime
 from functools import wraps
 
@@ -93,7 +93,7 @@ def story_detail(story_id):
 
 
 # ==================== MESSAGES ====================
-@youth_bp.route('/messages')
+@youth_bp.route('/messages', methods=['GET', 'POST'])
 @login_required
 def messages():
     """Display messaging interface with senior buddy."""
@@ -107,6 +107,46 @@ def messages():
 
     buddy = User.query.get(pair.senior_id)
 
+    if request.method == 'POST':
+        # Retrieve message content from form
+        content = request.form.get('message')
+        if content:
+            # Check for unkind words using the application configuration
+            # This is a basic safety feature to flag potentially harmful content
+            is_flagged = False
+            unkind_words = current_app.config.get('UNKIND_WORDS', [])
+            for word in unkind_words:
+                if word.lower() in content.lower():
+                    is_flagged = True
+                    break
+            
+            # Create new message object
+            # Status defaults to sent/unread (logic handled by frontend display)
+            new_message = Message(
+                sender_id=user_id,
+                recipient_id=buddy.id,
+                content=content,
+                is_flagged=is_flagged
+            )
+            
+            # Add to database session
+            db.session.add(new_message)
+            
+            # Update pair last interaction timestamp
+            # This helps track active vs inactive pairs for admin reporting
+            pair.last_interaction = datetime.utcnow()
+            
+            # Commit changes to database
+            db.session.commit()
+            
+            # Notify user if their message was flagged
+            if is_flagged:
+                flash('Your message was sent but flagged for review due to potentially unkind language.', 'warning')
+            
+            # Redirect to the same page to show the new message
+            # This follows the Post-Redirect-Get pattern
+            return redirect(url_for('youth.messages'))
+
     # Get messages between youth and senior
     messages = Message.query.filter(
         ((Message.sender_id == user_id) & (Message.recipient_id == buddy.id)) |
@@ -114,6 +154,44 @@ def messages():
     ).order_by(Message.created_at).all()
 
     return render_template('youth/messages.html', buddy=buddy, messages=messages)
+
+
+@youth_bp.route('/api/messages')
+@login_required
+def get_messages_json():
+    """
+    API endpoint to fetch messages in JSON format.
+    Used by the frontend polling script (chat.js) to update the chat window
+    without reloading the entire page.
+    """
+    user_id = session['user_id']
+    
+    # Check if user has a buddy
+    pair = Pair.query.filter_by(youth_id=user_id, status='active').first()
+    if not pair:
+        return {'messages': []}
+
+    buddy_id = pair.senior_id
+
+    # Query all messages between the user and their buddy
+    # Ordered by creation time to show conversation history
+    messages = Message.query.filter(
+        ((Message.sender_id == user_id) & (Message.recipient_id == buddy_id)) |
+        ((Message.sender_id == buddy_id) & (Message.recipient_id == user_id))
+    ).order_by(Message.created_at).all()
+
+    # Convert message objects to a list of dictionaries (JSON-serializable)
+    messages_data = [{
+        'id': msg.id,
+        'content': msg.content,
+        'sender_id': msg.sender_id,
+        'is_me': msg.sender_id == user_id,
+        'created_at': msg.created_at.strftime('%I:%M %p'), # Format: 02:30 PM
+        'is_flagged': msg.is_flagged,
+        'translated_content': msg.translated_content if msg.original_language != 'en' else None
+    } for msg in messages]
+
+    return {'messages': messages_data}
 
 
 # ==================== EVENTS ====================
@@ -180,3 +258,84 @@ def profile():
                          reactions_count=reactions_count,
                          comments_count=comments_count,
                          messages_count=messages_count)
+
+
+# ==================== STORY INTERACTIONS API ====================
+@youth_bp.route('/api/stories/<int:story_id>/react', methods=['POST'])
+@login_required
+def api_react_story(story_id):
+    """
+    API endpoint to handle story reactions.
+    Toggles reaction if same type exists, or updates/creates new one.
+    """
+    data = request.get_json()
+    reaction_type = data.get('reaction_type')
+    user_id = session['user_id']
+    
+    if not reaction_type:
+        return {'success': False, 'message': 'Missing reaction type'}, 400
+        
+    # Check for existing reaction
+    existing_reaction = StoryReaction.query.filter_by(
+        story_id=story_id,
+        user_id=user_id
+    ).first()
+    
+    if existing_reaction:
+        if existing_reaction.reaction_type == reaction_type:
+            # Toggle off (remove reaction)
+            db.session.delete(existing_reaction)
+            action = 'removed'
+        else:
+            # Change reaction type
+            existing_reaction.reaction_type = reaction_type
+            action = 'updated'
+    else:
+        # Create new reaction
+        new_reaction = StoryReaction(
+            story_id=story_id,
+            user_id=user_id,
+            reaction_type=reaction_type
+        )
+        db.session.add(new_reaction)
+        action = 'added'
+        
+    db.session.commit()
+    
+    # Get updated count for this reaction type
+    count = StoryReaction.query.filter_by(
+        story_id=story_id,
+        reaction_type=reaction_type
+    ).count()
+    
+    return {
+        'success': True,
+        'action': action,
+        'count': count
+    }
+
+
+@youth_bp.route('/api/stories/<int:story_id>/comment', methods=['POST'])
+@login_required
+def api_comment_story(story_id):
+    """
+    API endpoint to add a comment to a story.
+    """
+    data = request.get_json()
+    content = data.get('content')
+    user_id = session['user_id']
+    
+    if not content or not content.strip():
+        return {'success': False, 'message': 'Comment cannot be empty'}, 400
+        
+    # Create new comment
+    new_comment = StoryComment(
+        story_id=story_id,
+        user_id=user_id,
+        content=content.strip()
+    )
+    
+    db.session.add(new_comment)
+    db.session.commit()
+    
+    return {'success': True}

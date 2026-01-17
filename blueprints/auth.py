@@ -93,6 +93,30 @@ def login():
     return render_template('auth/login.html')
 
 
+# ==================== SETUP ROUTE ====================
+@auth_bp.route('/setup', methods=['GET', 'POST'])
+def setup():
+    """
+    Handle quick setup after registration.
+    Allows users to select interests.
+    """
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+
+    if request.method == 'POST':
+        interests = request.form.getlist('interests')
+        
+        user = User.query.get(session['user_id'])
+        if user:
+            user.interests = interests
+            db.session.commit()
+            
+            flash('Profile setup complete!', 'success')
+            return redirect(url_for(f'{user.role}.dashboard'))
+
+    return render_template('auth/setup.html')
+
+
 # ==================== REGISTRATION ROUTE ====================
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -216,8 +240,16 @@ def register():
             db.session.add(streak)
             db.session.commit()
 
-            flash(f'Account created successfully! Please login with your credentials.', 'success')
-            return redirect(url_for('auth.login', role=role))
+            # Auto-login the user
+            session['user_id'] = new_user.id
+            session['username'] = new_user.username
+            session['role'] = new_user.role
+            session['profile_picture'] = new_user.profile_picture
+            session['full_name'] = new_user.full_name
+            session.permanent = True
+
+            flash(f'Account created successfully! Please complete your profile setup.', 'success')
+            return redirect(url_for('auth.setup'))
 
         except Exception as e:
             db.session.rollback()

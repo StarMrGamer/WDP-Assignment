@@ -243,34 +243,37 @@
         <div class="col-lg-4 mb-4">
             <div class="analytics-card">
                 <h5><i class="fas fa-users me-2"></i>User Breakdown</h5>
+                
+                {% set total_population = total_users + total_admins %}
+                {% if total_population == 0 %}{% set total_population = 1 %}{% endif %}
 
                 <div class="progress-stat">
                     <div class="header">
                         <span class="label">Seniors</span>
-                        <span class="value">{{ ((total_users - new_users_this_month) * 0.4)|round|int }}</span>
+                        <span class="value">{{ total_seniors }}</span>
                     </div>
                     <div class="progress">
-                        <div class="progress-bar bg-warning" style="width: 40%;"></div>
+                        <div class="progress-bar bg-warning" style="width: {{ (total_seniors / total_population * 100)|int }}%;"></div>
                     </div>
                 </div>
 
                 <div class="progress-stat">
                     <div class="header">
                         <span class="label">Youth Volunteers</span>
-                        <span class="value">{{ ((total_users - new_users_this_month) * 0.55)|round|int }}</span>
+                        <span class="value">{{ total_youth }}</span>
                     </div>
                     <div class="progress">
-                        <div class="progress-bar bg-info" style="width: 55%;"></div>
+                        <div class="progress-bar bg-info" style="width: {{ (total_youth / total_population * 100)|int }}%;"></div>
                     </div>
                 </div>
 
                 <div class="progress-stat">
                     <div class="header">
                         <span class="label">Admins</span>
-                        <span class="value">{{ ((total_users - new_users_this_month) * 0.05)|round|int }}</span>
+                        <span class="value">{{ total_admins }}</span>
                     </div>
                     <div class="progress">
-                        <div class="progress-bar bg-secondary" style="width: 5%;"></div>
+                        <div class="progress-bar bg-secondary" style="width: {{ (total_admins / total_population * 100)|int }}%;"></div>
                     </div>
                 </div>
 
@@ -278,11 +281,11 @@
 
                 <div class="metric-row">
                     <span class="label">Active Users (30 days)</span>
-                    <span class="value text-success">{{ (total_users * 0.7)|round|int }}</span>
+                    <span class="value text-success">{{ active_users_30d }}</span>
                 </div>
                 <div class="metric-row">
                     <span class="label">Inactive Users</span>
-                    <span class="value text-warning">{{ (total_users * 0.3)|round|int }}</span>
+                    <span class="value text-warning">{{ inactive_users }}</span>
                 </div>
             </div>
         </div>
@@ -298,7 +301,7 @@
                 </div>
                 <div class="metric-row">
                     <span class="label">Stories per Senior</span>
-                    <span class="value">{{ (total_stories / (total_users * 0.4))|round(1) if total_users > 0 else 0 }}</span>
+                    <span class="value">{{ (total_stories / total_seniors)|round(1) if total_seniors > 0 else 0 }}</span>
                 </div>
                 <div class="metric-row">
                     <span class="label">Pair Match Rate</span>
@@ -310,7 +313,7 @@
                 </div>
                 <div class="metric-row">
                     <span class="label">Weekly Active Users</span>
-                    <span class="value">{{ (total_users * 0.5)|round|int }}</span>
+                    <span class="value">{{ (active_users_30d * 0.5)|round|int }}</span>
                 </div>
                 <div class="metric-row">
                     <span class="label">Avg. Session Duration</span>
@@ -347,10 +350,10 @@
                 <div class="progress-stat">
                     <div class="header">
                         <span class="label">Report Resolution</span>
-                        <span class="value text-info">85%</span>
+                        <span class="value text-info">{{ resolution_rate }}%</span>
                     </div>
                     <div class="progress">
-                        <div class="progress-bar bg-info" style="width: 85%;"></div>
+                        <div class="progress-bar bg-info" style="width: {{ resolution_rate }}%;"></div>
                     </div>
                 </div>
 
@@ -358,11 +361,11 @@
 
                 <div class="metric-row">
                     <span class="label">Pending Reports</span>
-                    <span class="value text-warning">3</span>
+                    <span class="value text-warning">{{ pending_reports_count }}</span>
                 </div>
                 <div class="metric-row">
                     <span class="label">Inactive Pairs (7+ days)</span>
-                    <span class="value text-danger">{{ (total_pairs * 0.15)|round|int }}</span>
+                    <span class="value text-danger">{{ inactive_pairs_count }}</span>
                 </div>
             </div>
         </div>

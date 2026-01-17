@@ -12,7 +12,7 @@ Description: This is the entry point for the Flask application. It:
              - Provides the main route (index/landing page)
 """
 
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, redirect, url_for
 from config import get_config
 from models import db
 import os
@@ -66,7 +66,7 @@ with app.app_context():
     Note: In production, database migrations should be handled by Flask-Migrate
     """
     db.create_all()
-    print("✓ Database tables created successfully")
+    print("Database tables created successfully")
 
 
 # ==================== CONTEXT PROCESSORS ====================
@@ -89,13 +89,17 @@ def inject_user():
 def index():
     """
     Landing page route - displays role selection cards.
-
-    This is the first page users see when visiting GenCon SG.
-    Shows three cards for Senior, Youth, and Admin roles.
-
-    Returns:
-        Rendered index.html template
+    Redirects logged-in users to their respective dashboards.
     """
+    if 'user_id' in session:
+        role = session.get('role')
+        if role == 'senior':
+            return redirect(url_for('senior.dashboard'))
+        elif role == 'youth':
+            return redirect(url_for('youth.dashboard'))
+        elif role == 'admin':
+            return redirect(url_for('admin.dashboard'))
+
     return render_template('index.html')
 
 
@@ -247,13 +251,13 @@ if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     print("="* 60)
-    print("🚀 Starting GenCon SG Application")
+    print("Starting GenCon SG Application")
     print("="* 60)
     print(f"Environment: {config_name}")
     print(f"Debug Mode: {app.config['DEBUG']}")
     print(f"Database: {app.config['SQLALCHEMY_DATABASE_URI']}")
     print("="* 60)
-    print("📡 Server running at http://localhost:5000")
+    print("Server running at http://localhost:5000")
     print("Press CTRL+C to quit")
     print("="* 60)
 

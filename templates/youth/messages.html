@@ -314,8 +314,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Include Chat Polling Script -->
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 <script>
-    // Auto-scroll to bottom of messages
+    // Auto-scroll to bottom of messages (handled by chat.js now)
     const chatMessages = document.getElementById('chatMessages');
     if (chatMessages) {
         chatMessages.scrollTop = chatMessages.scrollHeight;

@@ -352,10 +352,24 @@
         const highContrast = document.getElementById('highContrast').checked;
         const colorBlind = document.getElementById('colorBlindMode').checked;
 
-        // Apply font size
-        document.body.className = document.body.className.replace(/font-\w+/g, '');
-        if (fontSize !== 'normal') {
-            document.body.classList.add('font-' + fontSize);
+        // Apply using global functions from main.js where available
+        if (window.setFontSize) {
+            window.setFontSize(fontSize);
+        }
+
+        // Handle High Contrast
+        const currentHighContrast = document.body.getAttribute('data-high-contrast') === 'true';
+        if (highContrast !== currentHighContrast) {
+            if (window.toggleHighContrast) {
+                window.toggleHighContrast();
+            }
+        }
+
+        // Handle Color Blind Mode (Custom logic as main.js might not have it yet)
+        if (colorBlind) {
+            document.body.classList.add('color-blind-mode');
+        } else {
+            document.body.classList.remove('color-blind-mode');
         }
 
         // Save to localStorage
@@ -391,22 +405,24 @@
 
     // Load saved settings on page load
     document.addEventListener('DOMContentLoaded', function() {
-        const saved = localStorage.getItem('accessibility_settings');
-        if (saved) {
-            const settings = JSON.parse(saved);
+        // Settings are already applied visually by main.js
+        // We just need to sync the form controls to the current state
+        
+        // Sync Font Size
+        const currentFontSize = localStorage.getItem('fontSize') || 'normal';
+        const fontRadio = document.querySelector(`input[name="fontSize"][value="${currentFontSize}"]`);
+        if (fontRadio) fontRadio.checked = true;
 
-            // Set font size radio
-            const fontRadio = document.querySelector(`input[name="fontSize"][value="${settings.fontSize}"]`);
-            if (fontRadio) fontRadio.checked = true;
+        // Sync High Contrast
+        const currentHighContrast = localStorage.getItem('highContrast') === 'true';
+        document.getElementById('highContrast').checked = currentHighContrast;
 
-            // Set checkboxes
-            document.getElementById('highContrast').checked = settings.highContrast;
-            document.getElementById('colorBlindMode').checked = settings.colorBlind;
-
-            // Apply settings
-            if (settings.fontSize !== 'normal') {
-                document.body.classList.add('font-' + settings.fontSize);
-            }
+        // Sync Color Blind (from local storage object if exists)
+        const savedSettings = localStorage.getItem('accessibility_settings');
+        if (savedSettings) {
+            const parsed = JSON.parse(savedSettings);
+            document.getElementById('colorBlindMode').checked = parsed.colorBlind;
+            if (parsed.colorBlind) document.body.classList.add('color-blind-mode');
         }
     });
 

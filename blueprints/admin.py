@@ -214,7 +214,7 @@ def events():
     """Display all events."""
     all_events = Event.query.order_by(Event.date.desc()).all()
 
-    return render_template('admin/events.html', events=all_events)
+    return render_template('admin/events.html', events=all_events, now=datetime.utcnow())
 
 
 @admin_bp.route('/events/create', methods=['GET', 'POST'])
@@ -325,6 +325,25 @@ def analytics():
         User.created_at >= datetime.utcnow() - timedelta(days=30)
     ).count()
 
+    # User Breakdown
+    total_seniors = User.query.filter_by(role='senior').count()
+    total_youth = User.query.filter_by(role='youth').count()
+    total_admins = User.query.filter_by(role='admin').count()
+
+    # Active Users (last 30 days)
+    active_users_30d = User.query.filter(
+        User.last_active >= datetime.utcnow() - timedelta(days=30)
+    ).count()
+
+    # Inactive Users (users not active in 30 days)
+    # Note: total_users calculation above excludes admins, but active_users_30d might include them if not filtered.
+    # To be consistent with "User Breakdown" card which usually sums up to total users visible.
+    # Let's count inactive based on role != admin to match total_users.
+    inactive_users = User.query.filter(
+        User.role != 'admin',
+        (User.last_active < datetime.utcnow() - timedelta(days=30)) | (User.last_active == None)
+    ).count()
+
     # Engagement metrics
     total_stories = Story.query.count()
     total_messages = Message.query.count()
@@ -332,6 +351,19 @@ def analytics():
     # Pair health
     total_pairs = Pair.query.count()
     active_pairs = Pair.query.filter_by(status='active').count()
+    
+    # Inactive pairs (no interaction in 7 days)
+    inactive_threshold = datetime.utcnow() - timedelta(days=7)
+    inactive_pairs_count = Pair.query.filter(
+        Pair.status == 'active',
+        Pair.last_interaction < inactive_threshold
+    ).count()
+
+    # Reports
+    pending_reports_count = ChatReport.query.filter_by(status='pending').count()
+    resolved_reports = ChatReport.query.filter_by(status='resolved').count()
+    total_reports = ChatReport.query.count()
+    resolution_rate = int((resolved_reports / total_reports * 100)) if total_reports > 0 else 100
 
     return render_template('admin/analytics.html',
                          total_users=total_users,
@@ -339,7 +371,15 @@ def analytics():
                          total_stories=total_stories,
                          total_messages=total_messages,
                          total_pairs=total_pairs,
-                         active_pairs=active_pairs)
+                         active_pairs=active_pairs,
+                         total_seniors=total_seniors,
+                         total_youth=total_youth,
+                         total_admins=total_admins,
+                         active_users_30d=active_users_30d,
+                         inactive_users=inactive_users,
+                         inactive_pairs_count=inactive_pairs_count,
+                         pending_reports_count=pending_reports_count,
+                         resolution_rate=resolution_rate)
 
 
 # ==================== ADMIN PROFILE ====================

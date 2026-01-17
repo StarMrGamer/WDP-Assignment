@@ -401,103 +401,64 @@
             <!-- Story Header -->
             <div class="story-header">
                 <div class="author-info">
-                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                         alt="Margaret Tan" class="author-avatar">
+                    <img src="{{ url_for('static', filename='images/' + story.user.profile_picture) }}"
+                         alt="{{ story.user.full_name }}" class="author-avatar">
                     <div class="author-details">
-                        <h3>Margaret Tan</h3>
+                        <h3>{{ story.user.full_name }}</h3>
                         <div class="author-meta">
-                            <span><i class="fas fa-calendar me-1"></i>3 days ago</span>
-                            <span><i class="fas fa-book me-1"></i>Life Story</span>
+                            <span><i class="fas fa-calendar me-1"></i>{{ story.created_at.strftime('%d %b %Y') }}</span>
+                            <span><i class="fas fa-book me-1"></i>{{ story.category }}</span>
                         </div>
                     </div>
                 </div>
-                <h1 class="story-title">Growing Up in 1960s Singapore</h1>
+                <h1 class="story-title">{{ story.title }}</h1>
                 <div class="story-tags">
-                    <span class="story-tag"><i class="fas fa-history me-2"></i>Heritage</span>
-                    <span class="story-tag"><i class="fas fa-home me-2"></i>Kampung Life</span>
-                    <span class="story-tag"><i class="fas fa-users me-2"></i>Family</span>
+                    <span class="story-tag"><i class="fas fa-tag me-2"></i>{{ story.category }}</span>
                 </div>
             </div>
 
             <!-- Story Body -->
             <div class="story-body">
+                <!-- Optional Photo -->
+                {% if story.photo_url %}
+                <div class="mb-4 text-center">
+                    <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" 
+                         class="img-fluid rounded" style="max-height: 500px;" alt="{{ story.title }}">
+                </div>
+                {% endif %}
+
                 <div class="story-content" id="originalContent">
-                    <p>
-                        I remember waking up to the sound of roosters crowing in our kampung.
-                        Life was simpler then - we didn't have much, but we had everything we needed.
-                        Our wooden house stood on stilts, and beneath it, my siblings and I would
-                        play with marbles and five stones.
-                    </p>
-                    <p>
-                        Every morning, I would help my mother fetch water from the communal well.
-                        It was heavy work for a young girl, but I never complained. The well was
-                        where all the neighborhood aunties would gather, sharing news and laughter
-                        while we waited our turn.
-                    </p>
-                    <p>
-                        Our neighbors were like extended family. When someone cooked curry, the
-                        aroma would fill the entire kampung, and they would always share with us.
-                        We would share our kueh in return. That's how it was - everyone looked
-                        out for each other.
-                    </p>
-                    <p>
-                        School was a long walk away, and I would go barefoot to save my only pair
-                        of shoes for special occasions. My teacher, Mrs. Lim, was strict but kind.
-                        She believed in us and pushed us to do better. I owe my love of learning
-                        to her.
-                    </p>
-                    <p>
-                        In the evenings, we children would catch spiders and stage fights, or play
-                        catching under the moonlight. There were no computers or handphones - just
-                        our imagination and the great outdoors. Those were truly the golden days.
-                    </p>
-                    <p>
-                        Now, when I look at modern Singapore with its tall buildings and busy streets,
-                        I marvel at how far we've come. But sometimes, I miss the simplicity, the
-                        close-knit community, and the slower pace of life in my kampung days.
-                    </p>
+                    {{ story.content | replace('\n', '<br>') | safe }}
                 </div>
 
                 <!-- Translation Toggle -->
                 <div class="translation-toggle">
                     <button class="btn btn-translate" onclick="toggleTranslation()">
-                        <i class="fas fa-language me-2"></i>Translate to Malay
+                        <i class="fas fa-language me-2"></i>Translate
                     </button>
+                    <div id="translatedContent" class="d-none mt-3 text-start">
+                        <p class="text-muted">Translation feature coming soon...</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Story Footer -->
             <div class="story-footer">
                 <div class="reaction-bar">
-                    <button class="reaction-btn active">
-                        <span class="emoji">❤️</span>
-                        <span>45 Hearts</span>
+                    {% for type, icon in [('heart', '❤️'), ('clap', '👏'), ('smile', '😊'), ('hug', '🤗')] %}
+                    {% set count = story.reactions.filter_by(reaction_type=type).count() %}
+                    {% set user_reacted = story.reactions.filter_by(reaction_type=type, user_id=session.user_id).first() %}
+                    <button class="reaction-btn {{ 'active' if user_reacted else '' }}" 
+                            onclick="reactToStory({{ story.id }}, '{{ type }}', this)">
+                        <span class="emoji">{{ icon }}</span>
+                        <span class="count-text">{{ count }} {{ type|capitalize }}s</span>
                     </button>
-                    <button class="reaction-btn">
-                        <span class="emoji">👏</span>
-                        <span>32 Claps</span>
-                    </button>
-                    <button class="reaction-btn">
-                        <span class="emoji">😊</span>
-                        <span>18 Smiles</span>
-                    </button>
-                    <button class="reaction-btn">
-                        <span class="emoji">🙏</span>
-                        <span>12 Thanks</span>
-                    </button>
+                    {% endfor %}
                 </div>
                 <div class="story-stats">
                     <div class="stat-item">
-                        <i class="fas fa-eye"></i>
-                        <span>287 views</span>
-                    </div>
-                    <div class="stat-item">
                         <i class="fas fa-comment"></i>
-                        <span>24 comments</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="fas fa-share"></i>
-                        <span>8 shares</span>
+                        <span>{{ story.comments.count() }} comments</span>
                     </div>
                 </div>
             </div>
@@ -506,20 +467,19 @@
         <!-- Comments Section -->
         <div class="comments-section">
             <div class="comments-header">
-                <h3><i class="fas fa-comments me-2"></i>Comments (24)</h3>
+                <h3><i class="fas fa-comments me-2"></i>Comments ({{ story.comments.count() }})</h3>
             </div>
 
             <!-- Comment Form -->
             <div class="comment-form">
                 <div class="comment-input-wrapper">
-                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                         alt="Your Avatar" class="comment-avatar">
+                    <!-- Current User Avatar -->
                     <div class="comment-input-box">
                         <textarea placeholder="Share your thoughts about this story..."
                                   id="commentInput"></textarea>
                         <div class="comment-actions">
                             <button class="btn btn-comment btn-cancel-comment">Cancel</button>
-                            <button class="btn btn-comment btn-post-comment">
+                            <button class="btn btn-comment btn-post-comment" onclick="postComment({{ story.id }})">
                                 <i class="fas fa-paper-plane me-2"></i>Post Comment
                             </button>
                         </div>
@@ -529,81 +489,25 @@
 
             <!-- Comments List -->
             <div class="comments-list">
-                <!-- Comment 1 -->
+                {% for comment in story.comments %}
                 <div class="comment-item">
-                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                         alt="Ryan Lee" class="comment-avatar">
+                    <img src="{{ url_for('static', filename='images/' + comment.user.profile_picture) }}"
+                         alt="{{ comment.user.full_name }}" class="comment-avatar">
                     <div class="comment-content">
                         <div class="comment-header">
-                            <span class="comment-author">Ryan Lee</span>
-                            <span class="comment-time">2 days ago</span>
+                            <span class="comment-author">{{ comment.user.full_name }}</span>
+                            <span class="comment-time">{{ comment.created_at.strftime('%d %b %Y, %I:%M %p') }}</span>
                         </div>
                         <p class="comment-text">
-                            Thank you so much for sharing this beautiful story! It's amazing to hear
-                            about life in the kampung. I can't imagine living without all the modern
-                            conveniences we have today, but your story makes it sound so wonderful
-                            and full of warmth.
+                            {{ comment.content }}
                         </p>
-                        <div class="comment-footer">
-                            <span class="comment-action">
-                                <i class="far fa-heart"></i>Like (12)
-                            </span>
-                            <span class="comment-action">
-                                <i class="fas fa-reply"></i>Reply
-                            </span>
-                        </div>
                     </div>
                 </div>
-
-                <!-- Comment 2 -->
-                <div class="comment-item">
-                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                         alt="Sarah Ng" class="comment-avatar">
-                    <div class="comment-content">
-                        <div class="comment-header">
-                            <span class="comment-author">Sarah Ng</span>
-                            <span class="comment-time">1 day ago</span>
-                        </div>
-                        <p class="comment-text">
-                            This reminds me of stories my grandmother used to tell! The sense of
-                            community you described is something we're missing in modern times.
-                            Everyone is so busy and disconnected now.
-                        </p>
-                        <div class="comment-footer">
-                            <span class="comment-action">
-                                <i class="far fa-heart"></i>Like (8)
-                            </span>
-                            <span class="comment-action">
-                                <i class="fas fa-reply"></i>Reply
-                            </span>
-                        </div>
-                    </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <p>No comments yet. Be the first to share your thoughts!</p>
                 </div>
-
-                <!-- Comment 3 -->
-                <div class="comment-item">
-                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                         alt="David Tan" class="comment-avatar">
-                    <div class="comment-content">
-                        <div class="comment-header">
-                            <span class="comment-author">David Tan</span>
-                            <span class="comment-time">12 hours ago</span>
-                        </div>
-                        <p class="comment-text">
-                            Mrs. Tan, I love how you described the communal spirit of the kampung!
-                            It would be great if you could share more stories about the games you
-                            played. I'd love to learn about traditional games like five stones!
-                        </p>
-                        <div class="comment-footer">
-                            <span class="comment-action">
-                                <i class="far fa-heart"></i>Like (5)
-                            </span>
-                            <span class="comment-action">
-                                <i class="fas fa-reply"></i>Reply
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -612,63 +516,77 @@
 
 {% block extra_js %}
 <script>
-    // Translation toggle (placeholder)
+    // Translation toggle
     function toggleTranslation() {
-        alert('Translation feature will be implemented in Phase 2!\n\nThis will use Google Translate API to translate stories between English, Mandarin, Malay, and Tamil.');
+        const content = document.getElementById('translatedContent');
+        content.classList.toggle('d-none');
     }
 
-    // Reaction buttons
-    document.querySelectorAll('.reaction-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.classList.toggle('active');
-
-            // Update count (placeholder)
-            const countSpan = this.querySelector('span:last-child');
-            const currentText = countSpan.textContent;
-            const match = currentText.match(/\d+/);
-            if (match) {
-                const count = parseInt(match[0]);
-                const isActive = this.classList.contains('active');
-                const newCount = isActive ? count + 1 : count - 1;
-                countSpan.textContent = countSpan.textContent.replace(count, newCount);
+    // React to story
+    function reactToStory(storyId, reactionType, btnElement) {
+        fetch(`/youth/api/stories/${storyId}/react`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reaction_type: reactionType })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update UI
+                const countSpan = btnElement.querySelector('.count-text');
+                const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
+                countSpan.textContent = `${data.count} ${capitalize(reactionType)}s`;
+                
+                if (data.action === 'added' || data.action === 'updated') {
+                    // Remove active class from other buttons if we want single choice
+                    // But current logic allows multiple? The backend logic:
+                    // "If it's a DIFFERENT type, update it to the new type."
+                    // So it IS single choice per user.
+                    // We should remove 'active' from all other buttons
+                    document.querySelectorAll('.reaction-btn').forEach(b => b.classList.remove('active'));
+                    btnElement.classList.add('active');
+                } else if (data.action === 'removed') {
+                    btnElement.classList.remove('active');
+                }
             }
-        });
-    });
+        })
+        .catch(error => console.error('Error:', error));
+    }
 
     // Post comment
-    document.querySelector('.btn-post-comment')?.addEventListener('click', function() {
-        const commentText = document.getElementById('commentInput').value;
+    function postComment(storyId) {
+        const input = document.getElementById('commentInput');
+        const content = input.value.trim();
 
-        if (!commentText.trim()) {
-            alert('Please write a comment before posting');
+        if (!content) {
+            alert('Please write a comment first.');
             return;
         }
 
-        alert('Comment posted successfully!\n\nComment system will be fully functional in Phase 2.');
-        document.getElementById('commentInput').value = '';
-    });
+        fetch(`/youth/api/stories/${storyId}/comment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content: content })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload page to show new comment
+                window.location.reload();
+            } else {
+                alert(data.message || 'Error posting comment');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
 
     // Cancel comment
     document.querySelector('.btn-cancel-comment')?.addEventListener('click', function() {
         document.getElementById('commentInput').value = '';
-    });
-
-    // Like comment
-    document.querySelectorAll('.comment-action').forEach(action => {
-        action.addEventListener('click', function() {
-            if (this.textContent.includes('Like')) {
-                const icon = this.querySelector('i');
-                if (icon.classList.contains('far')) {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                    this.style.color = '#E74C3C';
-                } else {
-                    icon.classList.remove('fas');
-                    icon.classList.add('far');
-                    this.style.color = '';
-                }
-            }
-        });
     });
 
     console.log('Story detail page loaded');
