@@ -379,31 +379,31 @@
         <div class="container">
             <div class="profile-header-content">
                 <div class="profile-avatar-section">
-                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                         alt="Ryan Lee" class="profile-avatar-large">
+                    <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
+                         alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
                     <div>
-                        <button class="btn btn-change-photo">
+                        <button type="button" class="btn btn-change-photo" onclick="document.getElementById('profilePictureInput').click()">
                             <i class="fas fa-camera me-2"></i>Change Photo
                         </button>
                     </div>
                 </div>
                 <div class="profile-info">
-                    <h1 class="profile-name">Ryan Lee</h1>
+                    <h1 class="profile-name">{{ user.full_name }}</h1>
                     <p class="profile-role">
                         <i class="fas fa-heart me-2"></i>Youth Volunteer
                     </p>
                     <div class="profile-stats">
                         <div class="profile-stat-item">
-                            <i class="fas fa-clock"></i>
-                            <span>48 hours volunteered</span>
+                            <i class="fas fa-comments"></i>
+                            <span>{{ messages_count }} messages</span>
                         </div>
                         <div class="profile-stat-item">
-                            <i class="fas fa-award"></i>
-                            <span>12 badges earned</span>
+                            <i class="fas fa-heart"></i>
+                            <span>{{ reactions_count }} reactions</span>
                         </div>
                         <div class="profile-stat-item">
                             <i class="fas fa-calendar-check"></i>
-                            <span>Member since Dec 2024</span>
+                            <span>Member since {{ user.created_at.strftime('%b %Y') }}</span>
                         </div>
                     </div>
                 </div>
@@ -430,20 +430,23 @@
     <div class="tab-content-area active" id="infoTab">
         <div class="profile-card">
             <h3><i class="fas fa-id-card me-2"></i>Personal Information</h3>
-            <form method="POST" action="{{ url_for('youth.profile') }}">
+            <form method="POST" action="{{ url_for('youth.profile') }}" enctype="multipart/form-data">
+                <!-- Hidden file input for profile picture -->
+                <input type="file" id="profilePictureInput" name="profile_picture" accept="image/*" style="display: none;" onchange="previewProfilePicture(this)">
+                
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label">Full Name</label>
                             <input type="text" class="form-control" name="full_name"
-                                   value="Ryan Lee" required>
+                                   value="{{ user.full_name }}" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label">Username</label>
                             <input type="text" class="form-control" name="username"
-                                   value="ryan_lee" required>
+                                   value="{{ user.username }}" readonly style="background-color: #e9ecef;">
                         </div>
                     </div>
                 </div>
@@ -453,14 +456,14 @@
                         <div class="form-group">
                             <label class="form-label">Email Address</label>
                             <input type="email" class="form-control" name="email"
-                                   value="ryan.lee@email.com" required>
+                                   value="{{ user.email }}" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label">Phone Number</label>
                             <input type="tel" class="form-control" name="phone"
-                                   value="+65 9123 4567" required>
+                                   value="{{ user.phone }}" required>
                         </div>
                     </div>
                 </div>
@@ -470,14 +473,14 @@
                         <div class="form-group">
                             <label class="form-label">Age</label>
                             <input type="number" class="form-control" name="age"
-                                   value="20" required>
+                                   value="{{ user.age }}" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label">School/Organization</label>
                             <input type="text" class="form-control" name="school"
-                                   value="Nanyang Polytechnic">
+                                   value="{{ user.school or '' }}">
                         </div>
                     </div>
                 </div>
@@ -485,7 +488,7 @@
                 <div class="form-group">
                     <label class="form-label">Bio</label>
                     <textarea class="form-control" name="bio" rows="4"
-                              placeholder="Tell seniors about yourself...">Passionate about bridging generations and learning from seniors. I love hearing their stories and helping them with technology!</textarea>
+                              placeholder="Tell seniors about yourself...">{{ user.bio or '' }}</textarea>
                 </div>
 
                 <div class="text-end">
@@ -706,6 +709,17 @@
 
 {% block extra_js %}
 <script>
+    // Preview profile picture
+    function previewProfilePicture(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('headerProfilePreview').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
     // Tab switching
     function switchTab(tab) {
         // Remove active from all tabs

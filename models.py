@@ -75,6 +75,8 @@ class User(db.Model):
     full_name = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(20))
     age = db.Column(db.Integer, nullable=False)
+    bio = db.Column(db.Text)  # User biography
+    school = db.Column(db.String(255))  # School or organization for youth
 
     # Role-based access control
     role = db.Column(db.String(20), nullable=False)  # 'senior', 'youth', or 'admin'
