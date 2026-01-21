@@ -125,7 +125,58 @@ def user_detail(user_id):
                          stories_count=stories_count,
                          messages_sent=messages_sent,
                          pair=pair)
+    @admin_bp.route('/users/<int:user_id>/toggle_status', methods=['POST'])
+@admin_required
+def toggle_user_status(user_id):
+    """Enable or disable a user account."""
+    user = User.query.get_or_404(user_id)
+    
+    # Toggle status
+    user.is_active = not user.is_active
+    
+    if not user.is_active:
+        # If disabling, save the reason
+        reason = request.form.get('reason', 'No reason provided')
+        user.disable_reason = reason
+        flash(f'User {user.username} has been disabled.', 'warning')
+    else:
+        # If enabling, clear the reason
+        user.disable_reason = None
+        flash(f'User {user.username} has been reactivated.', 'success')
+        
+    db.session.commit()
+    return redirect(url_for('admin.user_detail', user_id=user.id))
 
+
+@admin_bp.route('/users/<int:user_id>/delete', methods=['POST'])
+@admin_required
+def delete_user(user_id):
+    """Permanently delete a user account."""
+    user = User.query.get_or_404(user_id)
+    
+    # Prevent deleting yourself
+    if user.id == session['user_id']:
+        flash('You cannot delete your own admin account.', 'danger')
+        return redirect(url_for('admin.user_detail', user_id=user.id))
+        
+    try:
+        # 1. Delete or unlink dependencies (Optional but recommended)
+        # SQLAlchemy 'cascade' usually handles this if configured, 
+        # but manual cleanup is safer for complex relationships.
+        
+        # 2. Delete the user
+        username = user.username
+        db.session.delete(user)
+        db.session.commit()
+        
+        flash(f'User {username} has been permanently deleted.', 'success')
+        return redirect(url_for('admin.users'))
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Delete error: {e}")
+        flash('Error deleting user. Ensure all related records are cleared.', 'danger')
+        return redirect(url_for('admin.user_detail', user_id=user.id))
 
 # ==================== PAIR MANAGEMENT ====================
 @admin_bp.route('/pairs')

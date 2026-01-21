@@ -43,6 +43,11 @@ def login():
 
         # Check if user exists and password is correct
         if user and user.check_password(password):
+            # === NEW: CHECK IF ACCOUNT IS DISABLED ===
+            if not user.is_active:
+                reason = user.disable_reason or "Account disabled by administrator."
+                flash(f'Your account has been disabled. Reason: {reason}', 'danger')
+                return render_template('auth/login.html')
             # Set session variables
             session['user_id'] = user.id
             session['username'] = user.username

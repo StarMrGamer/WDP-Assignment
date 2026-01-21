@@ -84,6 +84,9 @@ class User(db.Model):
     # Profile customization
     profile_picture = db.Column(db.String(255), default='default-avatar.png')
 
+    # Disabkle Account #
+    disable_reason = db.Column(db.Text)
+
     # JSON fields for flexible data storage
     # Using JSON allows storing arrays/objects without additional tables
     interests_json = db.Column(db.Text)  # Stores interests as JSON array
