@@ -239,7 +239,6 @@ def badges():
 @youth_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    """Display and edit youth profile."""
     user = User.query.get(session['user_id'])
 
     if request.method == 'POST':
@@ -250,13 +249,12 @@ def profile():
         user.school = request.form.get('school')
         user.bio = request.form.get('bio')
         
-        # Handle age with validation
         try:
             user.age = int(request.form.get('age'))
         except (ValueError, TypeError):
             flash('Invalid age provided.', 'warning')
 
-        # 2. Handle Profile Picture Upload
+        # 2. Handle Profile Picture Upload (FIXED)
         if 'profile_picture' in request.files:
             file = request.files['profile_picture']
             if file and file.filename != '':
@@ -264,28 +262,27 @@ def profile():
                 import os
                 
                 filename = secure_filename(file.filename)
-                # Check extension
                 ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
                 if ext in current_app.config['ALLOWED_EXTENSIONS']:
-                    # Ensure upload directory exists
                     os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
                     
-                    # Save file with unique name to prevent collisions
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
                     unique_filename = f"profile_{user.id}_{timestamp}{filename}"
                     
                     file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
                     
-                    # Delete old profile picture if it's not the default
-                    if user.profile_picture and user.profile_picture != 'default-avatar.png':
-                        old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], user.profile_picture)
+                    # DELETE OLD PICTURE (Updated logic)
+                    if user.profile_picture and 'default-avatar' not in user.profile_picture:
+                        old_filename = os.path.basename(user.profile_picture)
+                        old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], old_filename)
                         if os.path.exists(old_path):
                             try:
                                 os.remove(old_path)
                             except OSError:
-                                pass # Ignore error if old file cannot be deleted
+                                pass
                                 
-                    user.profile_picture = unique_filename
+                    # SAVE TO DB WITH 'uploads/' PREFIX
+                    user.profile_picture = f"uploads/{unique_filename}"
 
         # 3. Commit changes
         try:
@@ -298,6 +295,7 @@ def profile():
             
         return redirect(url_for('youth.profile'))
 
+    # ... [Keep the rest of the existing youth profile code below] ...
     # Get paired senior buddy info
     pair = Pair.query.filter_by(youth_id=user.id, status='active').first()
     buddy = User.query.get(pair.senior_id) if pair else None

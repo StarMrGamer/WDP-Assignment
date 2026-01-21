@@ -15,10 +15,29 @@
                 </div>
                 <div class="card-body p-4">
                     <p class="text-center text-muted mb-4">
-                        Welcome, {{ session.username }}! Select your interests so we can recommend the best stories and connections for you.
+                        Welcome, {{ session.username }}! Customize your profile and select your interests so we can recommend the best stories and connections for you.
                     </p>
 
-                    <form method="POST" action="{{ url_for('auth.setup') }}">
+                    <form method="POST" action="{{ url_for('auth.setup') }}" enctype="multipart/form-data">
+                        
+                        <div class="text-center mb-5">
+                            <div class="mb-3">
+                                <div class="avatar-placeholder lg mx-auto mb-3">
+                                    {{ session.get('full_name', 'U')[0] | upper }}
+                                </div>
+                                <h4>Upload a Profile Photo</h4>
+                                <p class="text-muted small">Upload a photo to replace the default avatar, or skip to keep it.</p>
+                            </div>
+                            
+                            <div class="d-flex justify-content-center">
+                                <div class="col-md-10">
+                                    <input type="file" class="form-control" name="profile_picture" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
                         <div class="mb-4">
                             <label class="form-label fw-bold mb-3">What are you interested in?</label>
                             <div class="row g-3">
@@ -44,13 +63,14 @@
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2">
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{{ url_for(session.role + '.dashboard') }}" class="text-muted text-decoration-none">
+                                Skip for now
+                            </a>
+
                             <button type="submit" class="btn btn-primary btn-lg">
                                 Complete Setup <i class="fas fa-arrow-right ms-2"></i>
                             </button>
-                            <a href="{{ url_for(session.role + '.dashboard') }}" class="btn btn-link text-muted">
-                                Skip for now
-                            </a>
                         </div>
                     </form>
                 </div>
@@ -62,6 +82,7 @@
 
 {% block extra_css %}
 <style>
+    /* Styling for the interest selection cards */
     .card-radio .form-check-input {
         display: none;
     }

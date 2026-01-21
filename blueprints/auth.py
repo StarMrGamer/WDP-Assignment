@@ -3,22 +3,17 @@ File: auth.py
 Purpose: Authentication blueprint for login, registration, and logout
 Author: Rai (Team Lead)
 Date: December 2025
-Feature: Authentication & User Management (RAI's Feature Part 1)
-Description: Handles:
-             - Role selection
-             - User login with session management
-             - User registration with age validation
-             - Password hashing and verification
-             - Logout functionality
+Feature: Authentication & User Management
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from models import db, User, Streak
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from datetime import datetime
+import os
 
 # Create authentication blueprint
-# All routes in this file will be prefixed with /auth (set in app.py)
 auth_bp = Blueprint('auth', __name__)
 
 
@@ -27,18 +22,6 @@ auth_bp = Blueprint('auth', __name__)
 def login():
     """
     Handle user login.
-
-    GET: Display login form
-    POST: Process login credentials
-
-    Form fields:
-        - username: User's username
-        - password: User's password
-        - remember: Remember me checkbox (optional)
-
-    Returns:
-        GET: Rendered login.html template
-        POST: Redirect to role-specific dashboard or back to login with error
     """
     # If user is already logged in, redirect to their dashboard
     if 'user_id' in session:
@@ -60,7 +43,7 @@ def login():
 
         # Check if user exists and password is correct
         if user and user.check_password(password):
-            # Set session variables (logs user in)
+            # Set session variables
             session['user_id'] = user.id
             session['username'] = user.username
             session['role'] = user.role
@@ -78,18 +61,13 @@ def login():
 
             db.session.commit()
 
-            # Flash success message
             flash(f'Welcome back, {user.full_name}!', 'success')
-
-            # Redirect to role-specific dashboard based on user's actual role
             return redirect(url_for(f'{user.role}.dashboard'))
 
         else:
-            # Invalid credentials
             flash('Invalid username or password', 'danger')
             return render_template('auth/login.html')
 
-    # GET request - display login form
     return render_template('auth/login.html')
 
 
@@ -98,7 +76,6 @@ def login():
 def setup():
     """
     Handle quick setup after registration.
-    Allows users to select interests.
     """
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
@@ -120,41 +97,16 @@ def setup():
 # ==================== REGISTRATION ROUTE ====================
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    """
-    Handle user registration.
-
-    GET: Display registration form
-    POST: Process registration data and create new user
-
-    Form fields:
-        - full_name: User's full name
-        - email: Email address
-        - phone: Phone number
-        - age: User's age (validated based on role)
-        - username: Desired username
-        - password: Password
-        - confirm_password: Password confirmation
-
-    Validation:
-        - Seniors must be 60+ years old
-        - Youth must be 13+ years old
-        - Username must be unique
-        - Email must be unique
-        - Password must match confirmation
-
-    Returns:
-        GET: Rendered register.html template
-        POST: Redirect to login on success, or back to register with errors
-    """
-    # If user is already logged in, redirect to dashboard
     if 'user_id' in session:
         return redirect(url_for(f"{session['role']}.dashboard"))
 
-    # Get role from query parameter
     role = request.args.get('role', 'senior')
 
     if request.method == 'POST':
-        # Get form data
+        # Get role from form
+        role = request.form.get('role')
+
+        # ... [Keep existing form data extraction] ...
         full_name = request.form.get('full_name')
         email = request.form.get('email')
         phone = request.form.get('phone')
@@ -175,7 +127,7 @@ def register():
             flash('Please enter a valid age', 'danger')
             return render_template('auth/register.html', role=role)
 
-        # Validate age based on role
+        # Validate age based on the CORRECTLY detected role
         if role == 'senior' and age < 60:
             flash('Seniors must be 60 years or older', 'danger')
             return render_template('auth/register.html', role=role)
@@ -210,10 +162,32 @@ def register():
             full_name=full_name,
             phone=phone,
             age=age,
-            role=role
+            role=role,
+            profile_picture='default-avatar.png' # Default value
         )
 
-        # Set hashed password
+        # === NEW CODE: Handle Profile Picture Upload ===
+        if 'profile_picture' in request.files:
+            file = request.files['profile_picture']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                
+                if ext in current_app.config['ALLOWED_EXTENSIONS']:
+                    # Ensure upload directory exists
+                    os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                    
+                    # Create unique filename: profile_username_timestamp.ext
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    unique_filename = f"profile_{username}_{timestamp}.{ext}"
+                    
+                    # Save file
+                    file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+                    
+                    # Update user object (Store with 'uploads/' prefix)
+                    new_user.profile_picture = f"uploads/{unique_filename}"
+        # ===============================================
+
         new_user.set_password(password)
 
         # Set default accessibility settings for seniors
@@ -266,22 +240,10 @@ def register():
 def logout():
     """
     Handle user logout.
-
-    Clears session data and redirects to landing page.
-
-    Returns:
-        Redirect to index page
     """
-    # Get username for goodbye message
     username = session.get('username', 'User')
-
-    # Clear all session data
     session.clear()
-
-    # Flash goodbye message
     flash(f'Goodbye, {username}! You have been logged out.', 'info')
-
-    # Redirect to landing page
     return redirect(url_for('index'))
 
 
@@ -289,14 +251,6 @@ def logout():
 def update_user_streak(user):
     """
     Update user's daily streak on login.
-
-    Checks if user logged in today. If not, updates streak:
-    - If last login was yesterday, increment streak
-    - If last login was 2+ days ago, reset streak to 1
-    - Awards badges for milestone streaks
-
-    Args:
-        user (User): User object to update streak for
     """
     from datetime import date, timedelta
 
@@ -311,7 +265,7 @@ def update_user_streak(user):
 
     # Check if already logged in today
     if streak.last_login == today:
-        return  # Streak already updated today
+        return
 
     yesterday = today - timedelta(days=1)
 
@@ -320,11 +274,9 @@ def update_user_streak(user):
         streak.current_streak += 1
         streak.points += 10 * streak.current_streak
 
-        # Update longest streak if needed
         if streak.current_streak > streak.longest_streak:
             streak.longest_streak = streak.current_streak
 
-        # Check for milestone badges
         check_streak_badges(user, streak.current_streak)
 
     else:
@@ -338,15 +290,10 @@ def update_user_streak(user):
 def check_streak_badges(user, streak_days):
     """
     Award badges for streak milestones.
-
-    Args:
-        user (User): User to award badge to
-        streak_days (int): Current streak count
     """
     from models import Badge
     from flask import current_app
 
-    # Get streak milestones from config
     milestones = current_app.config.get('STREAK_MILESTONES', {
         7: 'Week Warrior',
         30: 'Month Master',
@@ -354,18 +301,15 @@ def check_streak_badges(user, streak_days):
         365: 'Year Legend'
     })
 
-    # Check if user reached a milestone
     if streak_days in milestones:
         badge_name = milestones[streak_days]
-
-        # Check if badge already exists
+        
         existing_badge = Badge.query.filter_by(
             user_id=user.id,
             badge_type=badge_name
         ).first()
 
         if not existing_badge:
-            # Award new badge
             new_badge = Badge(user_id=user.id, badge_type=badge_name)
             db.session.add(new_badge)
             flash(f'🎉 Congratulations! You earned the {badge_name} badge!', 'success')

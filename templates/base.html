@@ -260,9 +260,21 @@
 
                         <!-- User Profile Dropdown -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#"
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
                                id="profileDropdown" role="button" data-bs-toggle="dropdown"
                                aria-expanded="false">
+                                
+                                {% if 'default-avatar' in session.get('profile_picture', 'default-avatar.png') %}
+                                    <div class="avatar-placeholder sm me-2">
+                                        {{ session.get('full_name', 'U')[0] | upper }}
+                                    </div>
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='images/' + session.get('profile_picture')) }}" 
+                                         alt="User" 
+                                         class="rounded-circle me-2" 
+                                         width="32" height="32" 
+                                         style="object-fit: cover;">
+                                {% endif %}
                                 {{ session.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">

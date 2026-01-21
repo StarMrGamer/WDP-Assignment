@@ -667,3 +667,32 @@ p {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* Default Avatar */
+.avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Default Purple/Blue */
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 50%;
+    overflow: hidden;
+    font-size: 1.2rem; /* Adjust based on size */
+}
+
+/* Specific Sizes */
+.avatar-placeholder.sm { width: 40px; height: 40px; font-size: 1rem; }
+.avatar-placeholder.md { width: 80px; height: 80px; font-size: 2rem; }
+.avatar-placeholder.lg { width: 150px; height: 150px; font-size: 4rem; }
+
+/* Senior specific color */
+.senior-theme .avatar-placeholder {
+    background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
+}
+
+/* Youth specific color */
+.youth-theme .avatar-placeholder {
+    background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+}
