@@ -271,10 +271,6 @@ def games():
 @senior_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    """
-    Display and edit senior profile.
-    Handles both viewing the profile and processing updates.
-    """
     user = User.query.get(session['user_id'])
 
     if request.method == 'POST':
@@ -283,51 +279,51 @@ def profile():
         user.email = request.form.get('email')
         user.phone = request.form.get('phone')
         
-        # Handle age with validation
         try:
             user.age = int(request.form.get('age'))
         except (ValueError, TypeError):
             flash('Invalid age provided.', 'warning')
 
-        # 2. Handle Interests (Textarea -> List conversion)
-        # We split the comma-separated string into a list for JSON storage
+        # 2. Handle Interests
         interests_text = request.form.get('interests')
         if interests_text:
-            # Split by comma and strip whitespace
             user.interests = [i.strip() for i in interests_text.split(',') if i.strip()]
         
-        # 3. Handle Languages (Checkboxes -> List)
-        # getlist returns all selected values from checkboxes with same name
+        # 3. Handle Languages
         languages = request.form.getlist('languages')
         user.languages = languages
 
-        # 4. Handle Profile Picture Upload
+        # 4. Handle Profile Picture Upload (FIXED)
         if 'profile_picture' in request.files:
             file = request.files['profile_picture']
             if file and file.filename != '':
                 filename = secure_filename(file.filename)
-                # Check extension
                 ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
                 if ext in current_app.config['ALLOWED_EXTENSIONS']:
                     # Ensure upload directory exists
                     os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
                     
-                    # Save file with unique name to prevent collisions
+                    # Create unique filename
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
                     unique_filename = f"profile_{user.id}_{timestamp}{filename}"
                     
+                    # Save the physical file to static/images/uploads/
                     file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
                     
-                    # Delete old profile picture if it's not the default
-                    if user.profile_picture and user.profile_picture != 'default-avatar.png':
-                        old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], user.profile_picture)
+                    # DELETE OLD PICTURE (Updated logic)
+                    if user.profile_picture and 'default-avatar' not in user.profile_picture:
+                        # We use basename to get just the filename, ignoring any 'uploads/' prefix
+                        old_filename = os.path.basename(user.profile_picture)
+                        old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], old_filename)
                         if os.path.exists(old_path):
                             try:
                                 os.remove(old_path)
                             except OSError:
-                                pass # Ignore error if old file cannot be deleted
+                                pass 
                                 
-                    user.profile_picture = unique_filename
+                    # SAVE TO DB WITH 'uploads/' PREFIX
+                    # This tells the template to look inside the uploads folder
+                    user.profile_picture = f"uploads/{unique_filename}"
 
         # 5. Commit changes
         try:
@@ -345,7 +341,6 @@ def profile():
     buddy = User.query.get(pair.youth_id) if pair else None
 
     return render_template('senior/profile.html', user=user, buddy=buddy)
-
 
 # ==================== CHECKIN ====================
 @senior_bp.route('/checkin', methods=['GET', 'POST'])
