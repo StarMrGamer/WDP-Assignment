@@ -342,17 +342,30 @@ def seed_data():
         
         # Create active game session
         chess = Game.query.filter_by(title='International Chess').first()
+        
+        # Create Buddy Pair (ESSENTIAL for buddy features to work)
+        if senior and youth:
+            pair = Pair(
+                senior_id=senior.id,
+                youth_id=youth.id,
+                program='Intergenerational Tech Bridge',
+                status='active'
+            )
+            db.session.add(pair)
+            db.session.commit()
+            print("Seeded buddy pair.")
+
         if chess and senior and youth:
-            session = GameSession(
+            gs = GameSession(
                 game_id=chess.id,
                 player1_id=senior.id,
                 player2_id=youth.id,
                 current_turn_id=senior.id, # Senior's turn
-                status='active'
+                status='waiting' # Set to waiting to test readiness
             )
-            db.session.add(session)
+            db.session.add(gs)
             db.session.commit()
-            print("Seeded active game session.")
+            print("Seeded waiting game session.")
 
 if __name__ == '__main__':
     seed_data()

@@ -710,6 +710,29 @@ class Checkin(db.Model):
         return f'<Checkin {self.id}: User {self.user_id} - {self.mood}>'
 
 
+# ==================== NOTIFICATION MODEL ====================
+class Notification(db.Model):
+    """
+    User notifications for events, games, etc.
+    """
+    __tablename__ = 'notifications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    title = db.Column(db.String(100), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(20)) # 'event', 'game', 'message'
+    link = db.Column(db.String(255))
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationship
+    user = db.relationship('User', backref=db.backref('notifications_list', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<Notification {self.id}: {self.title}>'
+
+
 # ==================== GAME MODELS ====================
 class Game(db.Model):
     """
@@ -756,7 +779,11 @@ class GameSession(db.Model):
     player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     current_turn_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    status = db.Column(db.String(20), default='active')  # active, completed, abandoned
+    status = db.Column(db.String(20), default='waiting')  # active, completed, abandoned, waiting
+    
+    player1_ready = db.Column(db.Boolean, default=False)
+    player2_ready = db.Column(db.Boolean, default=False)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships

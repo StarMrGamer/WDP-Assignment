@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Chess - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chessboard-1.0.0.min.css') }}" />
+<style>
+    .game-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 2rem;
+    }
+    #myBoard {
+        width: 600px;
+        max-width: 90vw;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .game-info {
+        margin-top: 1.5rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        width: 600px;
+        max-width: 90vw;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .status-label {
+        font-weight: bold;
+        color: #2C3E50;
+    }
+    #status {
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+    }
+    #pgn {
+        font-family: monospace;
+        background: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        max-height: 100px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('youth.games') }}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i> Back to Lobby
+        </a>
+        <h1 class="mb-0">International Chess</h1>
+    </div>
+
+    <div class="game-container">
+        <!-- Game Controls -->
+        <div class="mb-3 d-flex gap-2">
+            <button id="readyBtn" class="btn btn-success" {% if (active_session.player1_id == session.user_id and active_session.player1_ready) or (active_session.player2_id == session.user_id and active_session.player2_ready) %}disabled{% endif %}>
+                <i class="fas fa-check me-2"></i>I'm Ready
+            </button>
+            <button id="forfeitBtn" class="btn btn-danger">
+                <i class="fas fa-flag me-2"></i>Forfeit Game
+            </button>
+        </div>
+
+        <div id="waitingOverlay" class="text-center p-4 bg-light rounded mb-3 {% if active_session.status == 'active' %}d-none{% endif %}">
+            <h4 class="text-primary"><i class="fas fa-clock fa-spin me-2"></i>Waiting for buddy to be ready...</h4>
+            <p class="mb-0">The game will start automatically when both players click "Ready".</p>
+        </div>
+
+        <div id="myBoard" class="{% if active_session.status != 'active' %}opacity-50{% endif %}"></div>
+        
+        <div class="game-info">
+            <div class="status-label">Status:</div>
+            <div id="status"></div>
+            
+            <div class="status-label">Moves:</div>
+            <div id="pgn"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/jquery-3.7.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chessboard-1.0.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chess-0.10.3.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+<script>
+    var gameSessionId = {{ game_session_id }};
+    var playerColor = "{{ color }}";
+    var currentUserId = {{ session.user_id }};
+</script>
+<script src="{{ url_for('static', filename='js/socket_chess.js') }}"></script>
+{% endblock %}

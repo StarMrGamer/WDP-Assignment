@@ -12,23 +12,110 @@ Description: This is the entry point for the Flask application. It:
              - Provides the main route (index/landing page)
 """
 
-from flask import Flask, render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, url_for, request
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from config import get_config
 from models import db
 import os
 
 # Initialize Flask application
-# __name__ tells Flask where to look for templates and static files
 app = Flask(__name__)
 
-# Load configuration from config.py
-# Uses 'development' config by default, can be changed via FLASK_ENV environment variable
+# Load configuration
 config_name = os.environ.get('FLASK_ENV', 'development')
 app.config.from_object(get_config(config_name))
 
+# Initialize SocketIO
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+
 # Initialize database with app
-# This connects SQLAlchemy to our Flask app
 db.init_app(app)
+
+# ==================== SOCKET.IO EVENTS ====================
+@socketio.on('join')
+def on_join(data):
+    from models import GameSession
+    room = f"game_{data['game_id']}"
+    join_room(room)
+    print(f"DEBUG: User {session.get('username')} (ID: {session.get('user_id')}) joined room {room}")
+    
+    # Send initial status
+    gs = GameSession.query.get(data['game_id'])
+    if gs:
+        emit('init_game', {'status': gs.status})
+        print(f"DEBUG: Sent init_game with status {gs.status} to {session.get('username')}")
+
+@socketio.on('challenge')
+def on_challenge(data):
+    # Data contains game_id and buddy_id
+    buddy_room = f"user_{data['buddy_id']}"
+    print(f"DEBUG: {session.get('username')} challenging buddy in room {buddy_room}")
+    socketio.emit('game_challenge', {
+        'challenger_name': session.get('full_name'),
+        'challenger_id': session.get('user_id'),
+        'game_id': data['game_id'],
+        'game_title': data['game_title']
+    }, room=buddy_room)
+
+@socketio.on('ready')
+def on_ready(data):
+    from models import GameSession, db
+    session_id = data.get('session_id')
+    user_id = session.get('user_id')
+    print(f"DEBUG: Ready event from {user_id} for session {session_id}")
+    
+    gs = GameSession.query.get(session_id)
+    if not gs: 
+        print(f"DEBUG: Session {session_id} not found")
+        return
+
+    if gs.player1_id == user_id:
+        gs.player1_ready = True
+        print(f"DEBUG: Player 1 ({user_id}) is ready")
+    elif gs.player2_id == user_id:
+        gs.player2_ready = True
+        print(f"DEBUG: Player 2 ({user_id}) is ready")
+    
+    db.session.commit()
+    
+    room = f"game_{session_id}"
+    if gs.player1_ready and gs.player2_ready:
+        gs.status = 'active'
+        db.session.commit()
+        print(f"DEBUG: BOTH READY - Starting game {session_id} in room {room}")
+        socketio.emit('game_start', {'session_id': session_id}, room=room)
+    else:
+        print(f"DEBUG: One player ready, waiting for other. Room: {room}")
+        socketio.emit('player_ready', {'user_id': user_id}, room=room)
+
+@socketio.on('forfeit')
+def on_forfeit(data):
+    from models import GameSession, db
+    session_id = data.get('session_id')
+    gs = GameSession.query.get(session_id)
+    if gs:
+        gs.status = 'abandoned'
+        db.session.commit()
+        room = f"game_{session_id}"
+        print(f"DEBUG: Game {session_id} forfeited by {session.get('username')}. Notifying room {room}")
+        socketio.emit('opponent_forfeit', {'winner_name': session.get('full_name')}, room=room, include_self=False)
+
+@socketio.on('move')
+def on_move(data):
+    room = f"game_{data['game_id']}"
+    # Broadcast the move to the other player in the room
+    emit('move', data, room=room, include_self=False)
+    print(f"Move received in room {room}: {data['move']}")
+
+@socketio.on('connect')
+def on_connect():
+    # Join a private room for the user to receive challenges
+    if 'user_id' in session:
+        join_room(f"user_{session['user_id']}")
+
+@socketio.on('disconnect')
+def on_disconnect():
+    print(f"User {session.get('username')} disconnected")
 
 
 # ==================== BLUEPRINT REGISTRATION ====================
@@ -237,6 +324,47 @@ def date_filter(value, format='%B %d, %Y'):
     return ''
 
 
+# ==================== NOTIFICATION API ====================
+@app.route('/api/notifications')
+def get_notifications():
+    if 'user_id' not in session:
+        return {'count': 0, 'notifications': []}
+    
+    from models import Notification
+    user_id = session['user_id']
+    
+    # Get unread notifications
+    notifs = Notification.query.filter_by(user_id=user_id, is_read=False)\
+        .order_by(Notification.created_at.desc()).all()
+    
+    return {
+        'count': len(notifs),
+        'notifications': [{
+            'id': n.id,
+            'title': n.title,
+            'message': n.message,
+            'type': n.type,
+            'link': n.link,
+            'timeAgo': timeago_filter(n.created_at)
+        } for n in notifs]
+    }
+
+@app.route('/api/notifications/<int:notification_id>/dismiss', methods=['POST'])
+def dismiss_notification(notification_id):
+    if 'user_id' not in session:
+        return {'success': False}, 403
+    
+    from models import Notification, db
+    notif = Notification.query.get_or_404(notification_id)
+    
+    if notif.user_id != session['user_id']:
+        return {'success': False}, 403
+    
+    notif.is_read = True
+    db.session.commit()
+    return {'success': True}
+
+
 # ==================== MAIN EXECUTION ====================
 if __name__ == '__main__':
     """
@@ -262,8 +390,9 @@ if __name__ == '__main__':
     print("="* 60)
 
     # Run the development server
-    app.run(
-        host='0.0.0.0',  # Makes server accessible externally
-        port=5000,
+    socketio.run(
+        app,
+        host='0.0.0.0',
+        port=5001,
         debug=app.config['DEBUG']
     )

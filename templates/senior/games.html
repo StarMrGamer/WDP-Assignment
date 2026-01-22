@@ -415,35 +415,6 @@
         </div>
     </div>
 
-    <!-- Active Games -->
-    <div class="active-games-section">
-        <h2><i class="fas fa-play-circle me-2 text-success"></i>Continue Playing</h2>
-        {% if active_session %}
-        <div class="active-game-item">
-            <div class="active-game-info">
-                <div class="active-game-icon">
-                    <i class="{{ active_session.game.icon }}"></i>
-                </div>
-                <div class="active-game-details">
-                    <h4>{{ active_session.game.title }} Match</h4>
-                    <p>Playing with {{ buddy.full_name if buddy else 'Unknown' }} • 
-                        {% if active_session.current_turn_id == session.user_id %}
-                            Your turn
-                        {% else %}
-                            Their turn
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-            <button class="btn btn-continue" data-game="{{ active_session.game.title }}">
-                <i class="fas fa-arrow-right me-2"></i>Continue
-            </button>
-        </div>
-        {% else %}
-        <p class="text-muted">No active games. Connect with a youth buddy to start playing!</p>
-        {% endif %}
-    </div>
-
     <!-- Available Games Grid -->
     <div class="section-header mb-4">
         <h2 style="font-size: 1.75rem; font-weight: 700; color: #2C3E50;">
@@ -484,9 +455,15 @@
                     </div>
                 </div>
                 <div class="game-footer">
+                    {% if game.name == 'International Chess' %}
+                    <button class="btn btn-play btn-challenge" data-game-id="{{ game.id }}">
+                        <i class="fas fa-hand-sparkles me-2"></i>Challenge Buddy
+                    </button>
+                    {% else %}
                     <button class="btn btn-play">
                         <i class="fas fa-play me-2"></i>Play Now
                     </button>
+                    {% endif %}
                     <button class="btn btn-learn">
                         <i class="fas fa-book me-2"></i>Rules
                     </button>
@@ -516,10 +493,22 @@
         });
     });
 
-    // Continue button
-    document.querySelector('.btn-continue')?.addEventListener('click', function() {
-        const gameName = this.getAttribute('data-game');
-        alert(`Resuming your ${gameName} game...\n\nGame state will be loaded in Phase 2!`);
+    // Challenge Buddy functionality
+    document.querySelectorAll('.btn-challenge').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const gameId = this.getAttribute('data-game-id');
+            const gameTitle = this.closest('.game-card').querySelector('h3').textContent;
+            const buddyId = "{{ buddy.id if buddy else '' }}";
+            
+            if (!buddyId) {
+                alert('You need a paired buddy to play!');
+                return;
+            }
+
+            // Optional: notify via socket immediately if they are online
+            // But we'll mostly rely on the redirect creating the session
+            window.location.href = `/senior/games/challenge/${gameId}`;
+        });
     });
 
     console.log('Games page loaded');

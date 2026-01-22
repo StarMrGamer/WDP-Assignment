@@ -393,6 +393,25 @@
 
     <!-- Main JavaScript file with global utility functions -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Socket.IO Global Notifications -->
+    {% if session.user_id %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script>
+        const globalSocket = io();
+        globalSocket.on('game_challenge', function(data) {
+            console.log("Received challenge:", data);
+            // Refresh navbar notifications
+            if (typeof loadNotifications === 'function') {
+                loadNotifications();
+            }
+            // Also show a toast for immediate feedback
+            if (typeof showToast === 'function') {
+                showToast(data.challenger_name + ' challenged you to ' + data.game_title + '!', 'info');
+            }
+        });
+    </script>
+    {% endif %}
 
     <!-- Additional JavaScript block for child templates -->
     {% block extra_js %}{% endblock %}

@@ -144,14 +144,14 @@ async function loadNotifications() {
             } else {
                 listElement.innerHTML = data.notifications.map(notif => `
                     <li>
-                        <a class="dropdown-item notification-item" href="#" data-notif-id="${notif.id}">
+                        <a class="dropdown-item notification-item" href="${notif.link || '#'}" data-notif-id="${notif.id}">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <strong>${notif.title}</strong>
                                     <p class="mb-0 small text-muted">${notif.message}</p>
                                     <small class="text-muted">${notif.timeAgo}</small>
                                 </div>
-                                <button class="btn btn-sm btn-link" onclick="dismissNotification(${notif.id})">
+                                <button class="btn btn-sm btn-link text-danger" onclick="dismissNotification(${notif.id}); event.preventDefault(); event.stopPropagation();">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>

@@ -656,3 +656,75 @@ def games():
         })
 
     return render_template('youth/games.html', buddy=buddy, games=games_data, stats=stats, active_session=active_session)
+
+
+@youth_bp.route('/games/challenge/<int:game_id>')
+@login_required
+def challenge_buddy(game_id):
+    """Create a new game session and challenge buddy."""
+    from app import socketio
+    user_id = session['user_id']
+    pair = Pair.query.filter_by(youth_id=user_id, status='active').first()
+    if not pair:
+        flash('You need a buddy to play!', 'warning')
+        return redirect(url_for('youth.games'))
+    
+    # Close any existing waiting sessions
+    existing = GameSession.query.filter_by(player1_id=user_id, player2_id=pair.senior_id, status='waiting').first()
+    if existing:
+        db.session.delete(existing)
+
+    game = Game.query.get(game_id)
+    new_session = GameSession(
+        game_id=game_id,
+        player1_id=user_id,
+        player2_id=pair.senior_id,
+        status='waiting',
+        current_turn_id=user_id
+    )
+    db.session.add(new_session)
+    db.session.commit()
+
+    # EMIT CHALLENGE
+    socketio.emit('game_challenge', {
+        'challenger_name': session.get('full_name'),
+        'game_title': game.title,
+        'session_id': new_session.id
+    }, room=f"user_{pair.senior_id}")
+
+    # CREATE NOTIFICATION RECORD
+    from models import Notification
+    notif = Notification(
+        user_id=pair.senior_id,
+        title='Game Challenge!',
+        message=f"{session.get('full_name')} has challenged you to a game of {game.title}!",
+        type='game',
+        link=url_for('senior.chess_game', session_id=new_session.id)
+    )
+    db.session.add(notif)
+    db.session.commit()
+    
+    return redirect(url_for('youth.chess_game', session_id=new_session.id))
+
+
+@youth_bp.route('/game/chess')
+@login_required
+def chess_game():
+    """Render the chess game page."""
+    user_id = session['user_id']
+    session_id = request.args.get('session_id')
+    
+    if session_id:
+        active_session = GameSession.query.get_or_404(session_id)
+    else:
+        active_session = GameSession.query.filter(
+            ((GameSession.player1_id == user_id) | (GameSession.player2_id == user_id)),
+            GameSession.status.in_(['active', 'waiting'])
+        ).order_by(GameSession.created_at.desc()).first()
+    
+    if not active_session:
+        flash('No active game session found. Please challenge your buddy!', 'warning')
+        return redirect(url_for('youth.games'))
+
+    color = 'white' if active_session.player1_id == user_id else 'black'
+    return render_template('youth/chess.html', color=color, game_session_id=active_session.id, active_session=active_session)
