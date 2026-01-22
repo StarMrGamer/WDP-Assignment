@@ -588,6 +588,8 @@ class Streak(db.Model):
     current_streak = db.Column(db.Integer, default=0)
     longest_streak = db.Column(db.Integer, default=0)
     points = db.Column(db.Integer, default=0)
+    games_played = db.Column(db.Integer, default=0)
+    games_won = db.Column(db.Integer, default=0)
     last_login = db.Column(db.Date, default=datetime.utcnow().date)
 
     # Relationships

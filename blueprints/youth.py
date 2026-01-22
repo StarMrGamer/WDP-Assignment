@@ -368,6 +368,64 @@ def leave_community(community_id):
     return redirect(url_for('youth.communities'))
 
 
+# ==================== GAMES ====================
+@youth_bp.route('/games')
+@login_required
+def games():
+    """Display game selection lobby."""
+    from models import Streak
+
+    # Get paired senior buddy for online status
+    pair = Pair.query.filter_by(youth_id=session['user_id'], status='active').first()
+    buddy = User.query.get(pair.senior_id) if pair else None
+
+    # Get user stats
+    streak = Streak.query.filter_by(user_id=session['user_id']).first()
+    if not streak:
+        streak = Streak(user_id=session['user_id'])
+        db.session.add(streak)
+        db.session.commit()
+
+    # Define available games dynamically
+    games_list = [
+        {
+            'name': 'Chess',
+            'type': 'Classic',
+            'badge_class': 'modern',
+            'icon_class': 'fa-chess-king', # using king icon for western chess
+            'css_class': 'pick-up-sticks', # reusing existing gradient style
+            'description': 'The classic game of strategy. Checkmate your opponent by trapping their King!',
+            'players': '2 Players',
+            'time': '30-60 min',
+            'skill': 'Strategy'
+        },
+        {
+            'name': 'Chinese Chess',
+            'type': 'Traditional',
+            'badge_class': 'traditional',
+            'icon_class': 'fa-chess-board', # closest approx if specific xiangqi icon missing
+            'css_class': 'congkak', # reusing existing gradient style
+            'description': 'Xiangqi (Chinese Chess) is a strategy board game for two players. Capture the enemy General!',
+            'players': '2 Players',
+            'time': '30-60 min',
+            'skill': 'Strategy'
+        },
+        {
+            'name': 'Tic-Tac-Toe',
+            'type': 'Classic',
+            'badge_class': 'modern',
+            'icon_class': 'fa-th',
+            'css_class': 'tic-tac-toe',
+            'description': 'The timeless classic! Get three in a row before your opponent. Simple to learn, challenging to master.',
+            'players': '2 Players',
+            'time': '2-5 min',
+            'skill': 'Logic'
+        }
+    ]
+
+    return render_template('youth/games.html', buddy=buddy, games=games_list, streak=streak)
+
+
 # ==================== BADGES ====================
 @youth_bp.route('/badges')
 @login_required
