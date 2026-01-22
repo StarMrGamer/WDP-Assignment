@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+<!--
+    File: create_community.html
+    Purpose: Form to create a new community
+    Author: Admin
+-->
+
+{% block title %}Create Community - GenCon SG{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-users me-2"></i>Create New Community</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.create_community') }}">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Community Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="type" class="form-label">Type</label>
+                                <select class="form-select" id="type" name="type" required>
+                                    <option value="Story">Story</option>
+                                    <option value="Hobby">Hobby</option>
+                                    <option value="Learning">Learning</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="banner_class" class="form-label">Theme Color (Banner)</label>
+                                <select class="form-select" id="banner_class" name="banner_class" required>
+                                    <option value="arts">Arts (Pink/Yellow)</option>
+                                    <option value="cooking">Cooking (Orange/Yellow)</option>
+                                    <option value="culture">Culture (Blue/Cyan)</option>
+                                    <option value="gardening">Gardening (Green/Purple)</option>
+                                    <option value="music">Music (Teal/Pink)</option>
+                                    <option value="sports">Sports (Orange/Red)</option>
+                                    <option value="tech">Tech (Blue)</option>
+                                    <option value="storytelling">Storytelling (Purple/Pink)</option>
+                                    <option value="games">Games (Purple/Blue)</option>
+                                    <option value="language">Language (Cyan/Pink)</option>
+                                    <option value="wellness">Wellness (Orange)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="icon" class="form-label">Icon Class (FontAwesome)</label>
+                            <input type="text" class="form-control" id="icon" name="icon" placeholder="fas fa-users" value="fas fa-users" required>
+                            <div class="form-text">e.g., fas fa-book, fas fa-palette, fas fa-gamepad</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags (Comma separated)</label>
+                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Art, Creative, Fun">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Create Community</button>
+                            <a href="{{ url_for('admin.communities') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

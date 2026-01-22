@@ -321,18 +321,12 @@
     <div class="my-communities-section">
         <h2><i class="fas fa-star me-2 text-warning"></i>My Communities</h2>
         <div class="my-communities-list">
+            {% for community in communities if community.is_joined %}
             <div class="my-community-pill">
-                <i class="fas fa-book-open"></i>
-                <span>Story Collectors</span>
+                <i class="{{ community.icon }}"></i>
+                <span>{{ community.name }}</span>
             </div>
-            <div class="my-community-pill">
-                <i class="fas fa-laptop"></i>
-                <span>Tech Helpers</span>
-            </div>
-            <div class="my-community-pill">
-                <i class="fas fa-gamepad"></i>
-                <span>Game Facilitators</span>
-            </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -372,162 +366,42 @@
 
     <!-- Communities Grid -->
     <div class="communities-grid">
-        <!-- Community Card 1: Story Collectors -->
-        <div class="community-card" data-category="storytelling">
-            <div class="community-banner storytelling">
+        {% for community in communities %}
+        <div class="community-card" data-category="{{ community.type }}">
+            <div class="community-banner {{ community.banner_class }}">
                 <div class="icon">
-                    <i class="fas fa-book-open"></i>
+                    <i class="{{ community.icon }}"></i>
                 </div>
             </div>
             <div class="community-body">
                 <div class="community-header">
-                    <h3>Story Collectors</h3>
+                    <h3>{{ community.name }}</h3>
                 </div>
                 <div class="community-meta">
                     <div class="community-meta-item">
                         <i class="fas fa-users"></i>
-                        <span>156 volunteers</span>
+                        <span>{{ community.member_count }} volunteers</span>
                     </div>
                     <div class="community-meta-item">
-                        <i class="fas fa-book"></i>
-                        <span>342 stories</span>
+                        <i class="{{ community.stat_icon }}"></i>
+                        <span>{{ community.stat_count }} {{ community.stat_label }}</span>
                     </div>
                 </div>
                 <p class="community-description">
-                    Document and preserve seniors' life stories. Help create a digital
-                    archive of Singapore's living history through interviews and recordings.
+                    {{ community.description }}
                 </p>
                 <div class="community-tags">
-                    <span class="community-tag">Storytelling</span>
-                    <span class="community-tag">Heritage</span>
-                    <span class="community-tag">Documentation</span>
+                    {% for tag in community.tags %}
+                    <span class="community-tag">{{ tag }}</span>
+                    {% endfor %}
                 </div>
                 <div class="community-footer">
-                    <button class="btn btn-join joined">
+                    <button class="btn btn-join {{ 'joined' if community.is_joined else '' }}" data-id="{{ community.id }}">
+                        {% if community.is_joined %}
                         <i class="fas fa-check me-2"></i>Joined
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Community Card 2: Tech Helpers -->
-        <div class="community-card" data-category="tech">
-            <div class="community-banner tech">
-                <div class="icon">
-                    <i class="fas fa-laptop"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Tech Helpers</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>203 volunteers</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-hands-helping"></i>
-                        <span>487 sessions</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    Bridge the digital divide by teaching seniors how to use smartphones,
-                    tablets, and computers. Help them stay connected with loved ones.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Technology</span>
-                    <span class="community-tag">Teaching</span>
-                    <span class="community-tag">Digital Skills</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join joined">
-                        <i class="fas fa-check me-2"></i>Joined
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Community Card 3: Game Facilitators -->
-        <div class="community-card" data-category="games">
-            <div class="community-banner games">
-                <div class="icon">
-                    <i class="fas fa-gamepad"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Game Facilitators</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>189 volunteers</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-gamepad"></i>
-                        <span>234 games</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    Organize and facilitate traditional and modern games with seniors.
-                    Promote active aging through fun and engaging activities.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Games</span>
-                    <span class="community-tag">Recreation</span>
-                    <span class="community-tag">Active Aging</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join joined">
-                        <i class="fas fa-check me-2"></i>Joined
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Community Card 4: Arts & Crafts -->
-        <div class="community-card" data-category="arts">
-            <div class="community-banner arts">
-                <div class="icon">
-                    <i class="fas fa-palette"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Arts & Crafts Buddies</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>134 volunteers</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-palette"></i>
-                        <span>178 projects</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    Explore creativity through arts and crafts with seniors. Learn traditional
-                    art forms and create beautiful projects together.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Arts</span>
-                    <span class="community-tag">Crafts</span>
-                    <span class="community-tag">Creative</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join">
+                        {% else %}
                         <i class="fas fa-plus me-2"></i>Join
+                        {% endif %}
                     </button>
                     <button class="btn btn-view">
                         <i class="fas fa-arrow-right me-2"></i>View
@@ -535,88 +409,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Community Card 5: Language Exchange -->
-        <div class="community-card" data-category="language">
-            <div class="community-banner language">
-                <div class="icon">
-                    <i class="fas fa-language"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Language Exchange</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>167 volunteers</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-comments"></i>
-                        <span>298 sessions</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    Practice and preserve mother tongues through conversations with seniors.
-                    Learn dialects and share language skills across generations.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Language</span>
-                    <span class="community-tag">Dialects</span>
-                    <span class="community-tag">Culture</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join">
-                        <i class="fas fa-plus me-2"></i>Join
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Community Card 6: Wellness Champions -->
-        <div class="community-card" data-category="wellness">
-            <div class="community-banner wellness">
-                <div class="icon">
-                    <i class="fas fa-heartbeat"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Wellness Champions</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>145 volunteers</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-running"></i>
-                        <span>256 activities</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    Promote health and wellness through exercise, yoga, and mindfulness
-                    activities. Support seniors in maintaining active lifestyles.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Wellness</span>
-                    <span class="community-tag">Exercise</span>
-                    <span class="community-tag">Health</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join">
-                        <i class="fas fa-plus me-2"></i>Join
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
@@ -656,15 +449,51 @@
         });
     });
 
-    // Join/Leave button toggle
+    // Join/Leave functionality
     document.querySelectorAll('.btn-join').forEach(btn => {
-        btn.addEventListener('click', function() {
-            if (this.classList.contains('joined')) {
-                this.classList.remove('joined');
-                this.innerHTML = '<i class="fas fa-plus me-2"></i>Join';
-            } else {
-                this.classList.add('joined');
-                this.innerHTML = '<i class="fas fa-check me-2"></i>Joined';
+        btn.addEventListener('click', async function() {
+            const communityId = this.getAttribute('data-id');
+            const originalContent = this.innerHTML;
+            
+            // Disable button during request
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>...';
+
+            try {
+                const response = await fetch(`/youth/communities/${communityId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.status === 'joined') {
+                        this.classList.add('joined');
+                        this.innerHTML = '<i class="fas fa-check me-2"></i>Joined';
+                    } else {
+                        this.classList.remove('joined');
+                        this.innerHTML = '<i class="fas fa-plus me-2"></i>Join';
+                    }
+                    
+                    // Update member count
+                    const card = this.closest('.community-card');
+                    const memberCountSpan = card.querySelector('.community-meta-item i.fa-users').nextElementSibling;
+                    if (memberCountSpan) {
+                        memberCountSpan.textContent = `${data.member_count} volunteers`;
+                    }
+                } else {
+                    alert('Error updating membership');
+                    this.innerHTML = originalContent;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+                this.innerHTML = originalContent;
+            } finally {
+                this.disabled = false;
             }
         });
     });

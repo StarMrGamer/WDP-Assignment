@@ -74,8 +74,14 @@
 {% block content %}
 <div class="container py-4">
     <div class="profile-header">
-        <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
-             alt="{{ user.full_name }}" class="profile-avatar">
+        {% if 'default-avatar' in user.profile_picture %}
+            <div class="avatar-placeholder md mb-3 mx-auto">
+                {{ user.full_name[0] | upper }}
+            </div>
+        {% else %}
+            <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
+                 alt="{{ user.full_name }}" class="profile-avatar">
+        {% endif %}
         <h1>{{ user.full_name }}</h1>
         <p class="mb-0">System Administrator</p>
     </div>

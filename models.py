@@ -481,6 +481,12 @@ class Community(db.Model):
     type = db.Column(db.String(20), nullable=False)  # Story, Hobby, Learning
     description = db.Column(db.Text)
     rules = db.Column(db.Text)
+    
+    # Visual customization
+    icon = db.Column(db.String(50), default='fas fa-users')
+    banner_class = db.Column(db.String(50), default='default')
+    tags = db.Column(db.String(255))  # Comma separated tags
+    
     member_count = db.Column(db.Integer, default=0)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -573,6 +579,8 @@ class Streak(db.Model):
         current_streak (int): Current consecutive days
         longest_streak (int): Record longest streak
         points (int): Total points accumulated
+        games_played (int): Total games completed
+        games_won (int): Total games won
         last_login (date): Last login date for streak tracking
 
     Relationships:
@@ -586,6 +594,8 @@ class Streak(db.Model):
     current_streak = db.Column(db.Integer, default=0)
     longest_streak = db.Column(db.Integer, default=0)
     points = db.Column(db.Integer, default=0)
+    games_played = db.Column(db.Integer, default=0)
+    games_won = db.Column(db.Integer, default=0)
     last_login = db.Column(db.Date, default=datetime.utcnow().date)
 
     # Relationships
@@ -698,3 +708,61 @@ class Checkin(db.Model):
 
     def __repr__(self):
         return f'<Checkin {self.id}: User {self.user_id} - {self.mood}>'
+
+
+# ==================== GAME MODELS ====================
+class Game(db.Model):
+    """
+    Game definitions for the Games Arcade.
+    """
+    __tablename__ = 'games'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    icon = db.Column(db.String(50))  # e.g., 'fas fa-chess'
+    
+    # Badge info (e.g., "Traditional", "Strategy")
+    badge_label = db.Column(db.String(50))
+    badge_class = db.Column(db.String(50))  # css class
+    badge_icon = db.Column(db.String(50))
+    
+    # Meta info
+    players_text = db.Column(db.String(50))  # "2 Players"
+    duration_text = db.Column(db.String(50)) # "20-40 min"
+    
+    # Type info
+    type_label = db.Column(db.String(50))    # "Strategy", "Logic"
+    type_icon = db.Column(db.String(50))
+    
+    # Visuals
+    bg_gradient = db.Column(db.String(255))  # CSS gradient string
+
+    sessions = db.relationship('GameSession', back_populates='game', lazy='dynamic')
+
+    def __repr__(self):
+        return f'<Game {self.title}>'
+
+
+class GameSession(db.Model):
+    """
+    Active game sessions between users.
+    """
+    __tablename__ = 'game_sessions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('games.id'), nullable=False)
+    player1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    current_turn_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    status = db.Column(db.String(20), default='active')  # active, completed, abandoned
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    game = db.relationship('Game', back_populates='sessions')
+    player1 = db.relationship('User', foreign_keys=[player1_id])
+    player2 = db.relationship('User', foreign_keys=[player2_id])
+
+    def __repr__(self):
+        return f'<GameSession {self.id}: {self.status}>'

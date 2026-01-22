@@ -321,18 +321,12 @@
     <div class="my-communities-section">
         <h2><i class="fas fa-star me-2 text-warning"></i>My Communities</h2>
         <div class="my-communities-list">
+            {% for community in communities if community.is_joined %}
             <div class="my-community-pill">
-                <i class="fas fa-palette"></i>
-                <span>Traditional Arts</span>
+                <i class="{{ community.icon }}"></i>
+                <span>{{ community.name }}</span>
             </div>
-            <div class="my-community-pill">
-                <i class="fas fa-utensils"></i>
-                <span>Heritage Cooking</span>
-            </div>
-            <div class="my-community-pill">
-                <i class="fas fa-book-open"></i>
-                <span>Story Sharing Circle</span>
-            </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -372,162 +366,42 @@
 
     <!-- Communities Grid -->
     <div class="communities-grid">
-        <!-- Community Card 1: Traditional Arts -->
-        <div class="community-card" data-category="arts">
-            <div class="community-banner arts">
+        {% for community in communities %}
+        <div class="community-card" data-category="{{ community.type }}">
+            <div class="community-banner {{ community.banner_class }}">
                 <div class="icon">
-                    <i class="fas fa-palette"></i>
+                    <i class="{{ community.icon }}"></i>
                 </div>
             </div>
             <div class="community-body">
                 <div class="community-header">
-                    <h3>Traditional Arts</h3>
+                    <h3>{{ community.name }}</h3>
                 </div>
                 <div class="community-meta">
                     <div class="community-meta-item">
                         <i class="fas fa-users"></i>
-                        <span>124 members</span>
+                        <span>{{ community.member_count }} members</span>
                     </div>
                     <div class="community-meta-item">
                         <i class="fas fa-comment"></i>
-                        <span>45 posts</span>
+                        <span>{{ community.post_count }} posts</span>
                     </div>
                 </div>
                 <p class="community-description">
-                    Explore and share traditional Singaporean art forms including calligraphy,
-                    batik painting, and Chinese brush painting.
+                    {{ community.description }}
                 </p>
                 <div class="community-tags">
-                    <span class="community-tag">Painting</span>
-                    <span class="community-tag">Calligraphy</span>
-                    <span class="community-tag">Heritage</span>
+                    {% for tag in community.tags %}
+                    <span class="community-tag">{{ tag }}</span>
+                    {% endfor %}
                 </div>
                 <div class="community-footer">
-                    <button class="btn btn-join joined">
+                    <button class="btn btn-join {{ 'joined' if community.is_joined else '' }}" data-id="{{ community.id }}">
+                        {% if community.is_joined %}
                         <i class="fas fa-check me-2"></i>Joined
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Community Card 2: Heritage Cooking -->
-        <div class="community-card" data-category="cooking">
-            <div class="community-banner cooking">
-                <div class="icon">
-                    <i class="fas fa-utensils"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Heritage Cooking</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>256 members</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-comment"></i>
-                        <span>89 posts</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    Share traditional recipes, cooking techniques, and culinary stories passed
-                    down through generations.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Recipes</span>
-                    <span class="community-tag">Food Heritage</span>
-                    <span class="community-tag">Cooking Tips</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join joined">
-                        <i class="fas fa-check me-2"></i>Joined
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Community Card 3: Story Sharing Circle -->
-        <div class="community-card" data-category="culture">
-            <div class="community-banner culture">
-                <div class="icon">
-                    <i class="fas fa-book-open"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Story Sharing Circle</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>187 members</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-comment"></i>
-                        <span>156 posts</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    A safe space to share life experiences, wisdom, and stories from Singapore's
-                    rich history and your personal journey.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Life Stories</span>
-                    <span class="community-tag">History</span>
-                    <span class="community-tag">Wisdom</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join joined">
-                        <i class="fas fa-check me-2"></i>Joined
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Community Card 4: Gardening Enthusiasts -->
-        <div class="community-card" data-category="other">
-            <div class="community-banner gardening">
-                <div class="icon">
-                    <i class="fas fa-seedling"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Gardening Enthusiasts</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>98 members</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-comment"></i>
-                        <span>67 posts</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    Connect with fellow gardening lovers to share tips on growing tropical plants,
-                    herbs, and creating beautiful gardens.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Plants</span>
-                    <span class="community-tag">Gardening</span>
-                    <span class="community-tag">Nature</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join">
+                        {% else %}
                         <i class="fas fa-plus me-2"></i>Join
+                        {% endif %}
                     </button>
                     <button class="btn btn-view">
                         <i class="fas fa-arrow-right me-2"></i>View
@@ -535,88 +409,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Community Card 5: Music & Songs -->
-        <div class="community-card" data-category="arts">
-            <div class="community-banner music">
-                <div class="icon">
-                    <i class="fas fa-music"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Music & Songs</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>143 members</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-comment"></i>
-                        <span>78 posts</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    Share your love for music, from traditional songs to modern tunes.
-                    Discuss favorite melodies and musical memories.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Music</span>
-                    <span class="community-tag">Songs</span>
-                    <span class="community-tag">Memories</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join">
-                        <i class="fas fa-plus me-2"></i>Join
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Community Card 6: Active Seniors -->
-        <div class="community-card" data-category="other">
-            <div class="community-banner sports">
-                <div class="icon">
-                    <i class="fas fa-walking"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>Active Seniors</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>211 members</span>
-                    </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-comment"></i>
-                        <span>134 posts</span>
-                    </div>
-                </div>
-                <p class="community-description">
-                    Stay active and healthy together! Share fitness tips, walking routes,
-                    tai chi sessions, and wellness activities.
-                </p>
-                <div class="community-tags">
-                    <span class="community-tag">Fitness</span>
-                    <span class="community-tag">Wellness</span>
-                    <span class="community-tag">Activities</span>
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join">
-                        <i class="fas fa-plus me-2"></i>Join
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
@@ -656,15 +449,51 @@
         });
     });
 
-    // Join/Leave button toggle
+    // Join/Leave functionality
     document.querySelectorAll('.btn-join').forEach(btn => {
-        btn.addEventListener('click', function() {
-            if (this.classList.contains('joined')) {
-                this.classList.remove('joined');
-                this.innerHTML = '<i class="fas fa-plus me-2"></i>Join';
-            } else {
-                this.classList.add('joined');
-                this.innerHTML = '<i class="fas fa-check me-2"></i>Joined';
+        btn.addEventListener('click', async function() {
+            const communityId = this.getAttribute('data-id');
+            const originalContent = this.innerHTML;
+            
+            // Disable button during request
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>...';
+
+            try {
+                const response = await fetch(`/senior/communities/${communityId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.status === 'joined') {
+                        this.classList.add('joined');
+                        this.innerHTML = '<i class="fas fa-check me-2"></i>Joined';
+                    } else {
+                        this.classList.remove('joined');
+                        this.innerHTML = '<i class="fas fa-plus me-2"></i>Join';
+                    }
+                    
+                    // Update member count
+                    const card = this.closest('.community-card');
+                    const memberCountSpan = card.querySelector('.community-meta-item i.fa-users').nextElementSibling;
+                    if (memberCountSpan) {
+                        memberCountSpan.textContent = `${data.member_count} members`;
+                    }
+                } else {
+                    alert('Error updating membership');
+                    this.innerHTML = originalContent;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+                this.innerHTML = originalContent;
+            } finally {
+                this.disabled = false;
             }
         });
     });

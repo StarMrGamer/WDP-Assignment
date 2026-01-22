@@ -9,7 +9,7 @@ Description: Handles all routes for youth volunteers including story engagement,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment
+from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment, EventParticipant, CommunityMember, Game, GameSession
 from datetime import datetime
 from functools import wraps
 
@@ -199,10 +199,75 @@ def get_messages_json():
 @login_required
 def events():
     """Display all available events."""
-    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow())\
-        .order_by(Event.date).all()
+    user_id = session['user_id']
+    
+    # Get all upcoming events
+    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow()).order_by(Event.date).all()
+    
+    # Get IDs of events user is registered for
+    registered_event_ids = [p.event_id for p in EventParticipant.query.filter_by(user_id=user_id).all()]
+    
+    # Process events for display
+    events_data = []
+    my_events = []
+    for event in upcoming_events:
+        is_registered = event.id in registered_event_ids
+        
+        event_dict = {
+            'id': event.id,
+            'title': event.title,
+            'description': event.description,
+            'event_type': event.event_type,
+            'location': event.location,
+            'date': event.date,
+            'capacity': event.capacity,
+            'participants_count': event.participants.count(),
+            'is_registered': is_registered,
+            'is_full': event.capacity is not None and event.participants.count() >= event.capacity
+        }
+        events_data.append(event_dict)
+        if is_registered:
+            my_events.append(event_dict)
 
-    return render_template('youth/events.html', events=upcoming_events)
+    return render_template('youth/events.html', events=events_data, my_events=my_events)
+
+
+@youth_bp.route('/events/<int:event_id>/register', methods=['POST'])
+@login_required
+def register_event(event_id):
+    """Toggle event registration for the user."""
+    
+    event = Event.query.get_or_404(event_id)
+    user_id = session['user_id']
+    
+    registration = EventParticipant.query.filter_by(
+        event_id=event_id,
+        user_id=user_id
+    ).first()
+    
+    status = ''
+    
+    if registration:
+        # Unregister
+        db.session.delete(registration)
+        status = 'unregistered'
+    else:
+        # Check capacity
+        if event.capacity is not None and event.participants.count() >= event.capacity:
+            return {'success': False, 'message': 'Event is full'}, 400
+        
+        # Register
+        new_registration = EventParticipant(event_id=event_id, user_id=user_id)
+        db.session.add(new_registration)
+        status = 'registered'
+        
+    db.session.commit()
+    
+    return {
+        'success': True,
+        'status': status,
+        'participant_count': event.participants.count()
+    }
 
 
 # ==================== COMMUNITIES ====================
@@ -211,8 +276,94 @@ def events():
 def communities():
     """Display all communities."""
     all_communities = Community.query.all()
+    user_id = session['user_id']
+    
+    # Process communities for display
+    communities_data = []
 
-    return render_template('youth/communities.html', communities=all_communities)
+    for comm in all_communities:
+        # Check if user is member
+        is_member = CommunityMember.query.filter_by(
+            community_id=comm.id, 
+            user_id=user_id
+        ).first() is not None
+        
+        # Parse tags
+        tags_list = []
+        if comm.tags:
+            tags_list = [t.strip() for t in comm.tags.split(',') if t.strip()]
+            
+        # Determine stats label/icon based on type
+        if comm.type == 'Story':
+            stat_label = 'stories'
+            stat_icon = 'fas fa-book'
+        elif comm.type == 'Learning':
+            stat_label = 'sessions'
+            stat_icon = 'fas fa-laptop'
+        elif comm.type == 'Hobby':
+            stat_label = 'activities'
+            stat_icon = 'fas fa-star'
+        else:
+            stat_label = 'posts'
+            stat_icon = 'fas fa-comment'
+
+        comm_data = {
+            'id': comm.id,
+            'name': comm.name,
+            'type': comm.type,
+            'icon': comm.icon,
+            'banner_class': comm.banner_class,
+            'description': comm.description,
+            'member_count': comm.member_count,
+            'stat_count': comm.posts.count(), # derived
+            'stat_label': stat_label,
+            'stat_icon': stat_icon,
+            'tags': tags_list,
+            'is_joined': is_member
+        }
+        communities_data.append(comm_data)
+
+    return render_template('youth/communities.html', communities=communities_data)
+
+
+@youth_bp.route('/communities/<int:community_id>/join', methods=['POST'])
+@login_required
+def join_community(community_id):
+    """Toggle community membership."""
+    
+    community = Community.query.get_or_404(community_id)
+    user_id = session['user_id']
+    
+    # Check existing membership
+    membership = CommunityMember.query.filter_by(
+        community_id=community_id,
+        user_id=user_id
+    ).first()
+    
+    status = 'joined'
+    
+    if membership:
+        # Leave community
+        db.session.delete(membership)
+        community.member_count = max(0, community.member_count - 1)
+        status = 'left'
+    else:
+        # Join community
+        new_member = CommunityMember(
+            community_id=community_id,
+            user_id=user_id
+        )
+        db.session.add(new_member)
+        community.member_count += 1
+        status = 'joined'
+        
+    db.session.commit()
+    
+    return {
+        'success': True,
+        'status': status,
+        'member_count': community.member_count
+    }
 
 
 # ==================== BADGES ====================
@@ -220,19 +371,77 @@ def communities():
 @login_required
 def badges():
     """Display earned badges and achievements."""
-    user = User.query.get(session['user_id'])
+    user_id = session['user_id']
+    user = User.query.get(user_id)
 
     # Get earned badges
-    earned_badges = Badge.query.filter_by(user_id=user.id).all()
+    earned_badges = Badge.query.filter_by(user_id=user_id).all()
+    earned_types = [b.badge_type for b in earned_badges]
 
-    # Get streak info
+    # Define all possible badges
+    MASTER_BADGES = [
+        {'title': 'First Steps', 'desc': 'Complete your first volunteer session', 'icon': '🌟', 'target': 1, 'current': 1 if 'First Steps' in earned_types else 0},
+        {'title': 'Story Keeper', 'desc': 'Document 5 senior life stories', 'icon': '📖', 'target': 5, 'current': 5 if 'Story Keeper' in earned_types else 2},
+        {'title': 'Tech Wizard', 'desc': 'Help 10 seniors with technology', 'icon': '💻', 'target': 10, 'current': 10 if 'Tech Wizard' in earned_types else 4},
+        {'title': 'Game Master', 'desc': 'Facilitate 15 game sessions', 'icon': '🎮', 'target': 15, 'current': 9 if 'Game Master' not in earned_types else 15},
+        {'title': 'Community Builder', 'desc': 'Join 5 volunteer communities', 'icon': '🏘️', 'target': 5, 'current': 3 if 'Community Builder' not in earned_types else 5},
+        {'title': 'Event Organizer', 'desc': 'Organize 3 volunteer events', 'icon': '📅', 'target': 3, 'current': 0 if 'Event Organizer' not in earned_types else 3},
+        {'title': 'Heritage Champion', 'desc': 'Participate in 5 heritage activities', 'icon': '🏛️', 'target': 5, 'current': 5 if 'Heritage Champion' in earned_types else 1},
+        {'title': 'Conversation Partner', 'desc': 'Have 20 meaningful conversations', 'icon': '💬', 'target': 20, 'current': 15 if 'Conversation Partner' not in earned_types else 20}
+    ]
+
+    # Process badges for template
+    processed_badges = []
+    for mb in MASTER_BADGES:
+        mb['is_earned'] = mb['current'] >= mb['target']
+        mb['progress_pct'] = min(100, int((mb['current'] / mb['target']) * 100))
+        processed_badges.append(mb)
+
+    # Get streak and points
     from models import Streak
-    streak = Streak.query.filter_by(user_id=user.id).first()
+    streak = Streak.query.filter_by(user_id=user_id).first()
+    points = streak.points if streak else 0
+    
+    # Calculate stats
+    stats = {
+        'hours': int(points / 10), # Derived from points
+        'badges_count': len(earned_badges),
+        'events_attended': EventParticipant.query.filter_by(user_id=user_id).count() or 24, # Mock if 0
+        'seniors_helped': int(points / 30) or 15 # Derived
+    }
+
+    # Milestones (fixed definitions, dynamic status)
+    MILESTONES = [
+        {'title': 'Bronze Volunteer', 'hours': 10, 'desc': "You've taken your first steps in volunteering! Keep up the great work."},
+        {'title': 'Silver Volunteer', 'hours': 25, 'desc': "You're making a real difference in the community. Seniors appreciate your dedication!"},
+        {'title': 'Gold Volunteer', 'hours': 50, 'desc': "Outstanding commitment! You're on track to reach this milestone soon."},
+        {'title': 'Platinum Volunteer', 'hours': 100, 'desc': "Elite volunteer status. Your impact on the community is incredible!"},
+        {'title': 'Diamond Volunteer', 'hours': 200, 'desc': "The highest honor. You're a true champion for intergenerational connections!"}
+    ]
+    for m in MILESTONES:
+        m['is_locked'] = stats['hours'] < m['hours']
+
+    # Leaderboard (Top 5 youth by points)
+    leaderboard_users = User.query.filter_by(role='youth').join(Streak).order_by(Streak.points.desc()).limit(5).all()
+    leaderboard = []
+    for i, u in enumerate(leaderboard_users):
+        u_streak = Streak.query.filter_by(user_id=u.id).first()
+        leaderboard.append({
+            'rank': i + 1,
+            'name': u.full_name,
+            'is_me': u.id == user_id,
+            'avatar': u.profile_picture,
+            'events': EventParticipant.query.filter_by(user_id=u.id).count() or (20 + i), # Mock
+            'badges': Badge.query.filter_by(user_id=u.id).count(),
+            'hours': int((u_streak.points if u_streak else 0) / 10)
+        })
 
     return render_template('youth/badges.html',
                          user=user,
-                         earned_badges=earned_badges,
-                         streak=streak)
+                         badges=processed_badges,
+                         stats=stats,
+                         milestones=MILESTONES,
+                         leaderboard=leaderboard)
 
 
 # ==================== PROFILE ====================
@@ -244,6 +453,7 @@ def profile():
     if request.method == 'POST':
         # 1. Update basic information
         user.full_name = request.form.get('full_name')
+        session['full_name'] = user.full_name
         user.email = request.form.get('email')
         user.phone = request.form.get('phone')
         user.school = request.form.get('school')
@@ -283,6 +493,7 @@ def profile():
                                 
                     # SAVE TO DB WITH 'uploads/' PREFIX
                     user.profile_picture = f"uploads/{unique_filename}"
+                    session['profile_picture'] = user.profile_picture
 
         # 3. Commit changes
         try:
@@ -393,3 +604,55 @@ def api_comment_story(story_id):
     db.session.commit()
     
     return {'success': True}
+
+
+# ==================== GAMES ====================
+@youth_bp.route('/games')
+@login_required
+def games():
+    """Display available games."""
+    user_id = session['user_id']
+
+    # Get paired senior buddy for online status/active games
+    pair = Pair.query.filter_by(youth_id=user_id, status='active').first()
+    buddy = User.query.get(pair.senior_id) if pair else None
+
+    # Get active game session
+    active_session = GameSession.query.filter(
+        ((GameSession.player1_id == user_id) | (GameSession.player2_id == user_id)),
+        GameSession.status == 'active'
+    ).first()
+
+    # Get streak info
+    from models import Streak
+    streak_info = Streak.query.filter_by(user_id=user_id).first()
+    
+    # Placeholder stats
+    stats = {
+        'played': streak_info.games_played if streak_info else 0,
+        'won': streak_info.games_won if streak_info else 0,
+        'points': streak_info.points if streak_info else 0,
+        'streak': streak_info.current_streak if streak_info else 0
+    }
+
+    # Fetch games from DB
+    db_games = Game.query.all()
+    games_data = []
+    for g in db_games:
+        games_data.append({
+            'id': g.id,
+            'name': g.title,
+            'image_class': 'game-image',
+            'image_style': g.bg_gradient,
+            'icon': g.icon,
+            'badge': g.badge_label,
+            'badge_class': g.badge_class,
+            'badge_icon': g.badge_icon,
+            'description': g.description,
+            'players': g.players_text,
+            'time': g.duration_text,
+            'type': g.type_label,
+            'type_icon': g.type_icon
+        })
+
+    return render_template('youth/games.html', buddy=buddy, games=games_data, stats=stats, active_session=active_session)

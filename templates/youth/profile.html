@@ -379,8 +379,15 @@
         <div class="container">
             <div class="profile-header-content">
                 <div class="profile-avatar-section">
-                    <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
-                         alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
+                    {% if 'default-avatar' in user.profile_picture %}
+                        <div class="avatar-placeholder lg mb-3 mx-auto" id="profilePreviewPlaceholder">
+                            {{ user.full_name[0] | upper }}
+                        </div>
+                        <img src="" alt="{{ user.full_name }}" class="profile-avatar-large d-none" id="headerProfilePreview">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
+                             alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
+                    {% endif %}
                     <div>
                         <button type="button" class="btn btn-change-photo" onclick="document.getElementById('profilePictureInput').click()">
                             <i class="fas fa-camera me-2"></i>Change Photo
@@ -714,7 +721,15 @@
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('headerProfilePreview').src = e.target.result;
+                const preview = document.getElementById('headerProfilePreview');
+                const placeholder = document.getElementById('profilePreviewPlaceholder');
+                
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+                
+                if (placeholder) {
+                    placeholder.classList.add('d-none');
+                }
             };
             reader.readAsDataURL(input.files[0]);
         }

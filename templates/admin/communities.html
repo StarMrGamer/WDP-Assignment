@@ -100,9 +100,9 @@
                 <p class="mb-0">Manage interest-based communities</p>
             </div>
             <div class="d-flex gap-2">
-                <button class="btn btn-success" onclick="createCommunity()">
+                <a href="{{ url_for('admin.create_community') }}" class="btn btn-success">
                     <i class="fas fa-plus me-2"></i>Create Community
-                </button>
+                </a>
                 <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
                     <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                 </a>
@@ -151,13 +151,7 @@
                 <!-- Community Header -->
                 <div class="d-flex justify-content-between align-items-start">
                     <div class="community-icon {{ community.type|lower }}">
-                        {% if community.type == 'Story' %}
-                        <i class="fas fa-book-open"></i>
-                        {% elif community.type == 'Hobby' %}
-                        <i class="fas fa-palette"></i>
-                        {% else %}
-                        <i class="fas fa-graduation-cap"></i>
-                        {% endif %}
+                        <i class="{{ community.icon }}"></i>
                     </div>
                     <span class="badge {% if community.type == 'Story' %}bg-purple{% elif community.type == 'Hobby' %}bg-success{% else %}bg-warning text-dark{% endif %}">
                         {{ community.type }}
@@ -188,15 +182,17 @@
 
                 <!-- Actions -->
                 <div class="d-flex gap-2 mt-3">
-                    <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="viewCommunity({{ community.id }})">
+                    <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="alert('View coming soon')">
                         <i class="fas fa-eye me-1"></i>View
                     </button>
-                    <button class="btn btn-sm btn-outline-warning" onclick="editCommunity({{ community.id }})">
+                    <button class="btn btn-sm btn-outline-warning" onclick="alert('Edit coming soon')">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCommunity({{ community.id }})">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <form action="{{ url_for('admin.delete_community', community_id=community.id) }}" method="POST" onsubmit="return confirm('Delete this community?');" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -208,9 +204,9 @@
             <i class="fas fa-users fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">No communities yet</h5>
             <p class="text-muted">Create your first community to get started</p>
-            <button class="btn btn-primary mt-2" onclick="createCommunity()">
+            <a href="{{ url_for('admin.create_community') }}" class="btn btn-primary mt-2">
                 <i class="fas fa-plus me-2"></i>Create First Community
-            </button>
+            </a>
         </div>
     </div>
     {% endif %}

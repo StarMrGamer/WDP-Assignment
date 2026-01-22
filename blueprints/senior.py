@@ -9,7 +9,7 @@ Description: Handles all routes for senior users including story creation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Story, Message, Event, Community, Pair
+from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession
 from datetime import datetime
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -239,10 +239,72 @@ def get_messages_json():
 @login_required
 def events():
     """Display all available events."""
-    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow())\
-        .order_by(Event.date).all()
+    user_id = session['user_id']
+    
+    # Get all upcoming events
+    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow()).order_by(Event.date).all()
+    
+    # Get IDs of events user is registered for
+    registered_event_ids = [p.event_id for p in EventParticipant.query.filter_by(user_id=user_id).all()]
+    
+    # Process events for display
+    events_data = []
+    for event in upcoming_events:
+        is_registered = event.id in registered_event_ids
+        
+        event_dict = {
+            'id': event.id,
+            'title': event.title,
+            'description': event.description,
+            'event_type': event.event_type,
+            'location': event.location,
+            'date': event.date,
+            'capacity': event.capacity,
+            'participants_count': event.participants.count(),
+            'is_registered': is_registered,
+            'is_full': event.capacity is not None and event.participants.count() >= event.capacity
+        }
+        events_data.append(event_dict)
 
-    return render_template('senior/events.html', events=upcoming_events)
+    return render_template('senior/events.html', events=events_data)
+
+
+@senior_bp.route('/events/<int:event_id>/register', methods=['POST'])
+@login_required
+def register_event(event_id):
+    """Toggle event registration for the user."""
+    
+    event = Event.query.get_or_404(event_id)
+    user_id = session['user_id']
+    
+    registration = EventParticipant.query.filter_by(
+        event_id=event_id,
+        user_id=user_id
+    ).first()
+    
+    status = ''
+    
+    if registration:
+        # Unregister
+        db.session.delete(registration)
+        status = 'unregistered'
+    else:
+        # Check capacity
+        if event.capacity is not None and event.participants.count() >= event.capacity:
+            return {'success': False, 'message': 'Event is full'}, 400
+        
+        # Register
+        new_registration = EventParticipant(event_id=event_id, user_id=user_id)
+        db.session.add(new_registration)
+        status = 'registered'
+        
+    db.session.commit()
+    
+    return {
+        'success': True,
+        'status': status,
+        'participant_count': event.participants.count()
+    }
 
 
 # ==================== COMMUNITIES ====================
@@ -251,8 +313,84 @@ def events():
 def communities():
     """Display all communities."""
     all_communities = Community.query.all()
+    user_id = session['user_id']
+    
+    # Process communities for display
+    communities_data = []
+    
+    for comm in all_communities:
+        # Check if user is member
+        is_member = CommunityMember.query.filter_by(
+            community_id=comm.id, 
+            user_id=user_id
+        ).first() is not None
+        
+        # Parse tags
+        tags_list = []
+        if comm.tags:
+            tags_list = [t.strip() for t in comm.tags.split(',') if t.strip()]
+            
+        # Create display object (can attach attributes to object or create dict)
+        # Using dict for flexibility or attaching to object if allowed. 
+        # Attaching to object is risky if session is active, better create a wrapper or dict.
+        # But for template convenience, let's just add attributes to the object if possible, 
+        # or better, create a rich dict.
+        
+        comm_data = {
+            'id': comm.id,
+            'name': comm.name,
+            'type': comm.type, # e.g. 'Story', 'Hobby'
+            'icon': comm.icon,
+            'banner_class': comm.banner_class,
+            'description': comm.description,
+            'member_count': comm.member_count,
+            'post_count': comm.posts.count(), # derived from relationship
+            'tags': tags_list,
+            'is_joined': is_member
+        }
+        communities_data.append(comm_data)
 
-    return render_template('senior/communities.html', communities=all_communities)
+    return render_template('senior/communities.html', communities=communities_data)
+
+
+@senior_bp.route('/communities/<int:community_id>/join', methods=['POST'])
+@login_required
+def join_community(community_id):
+    """Toggle community membership."""
+    
+    community = Community.query.get_or_404(community_id)
+    user_id = session['user_id']
+    
+    # Check existing membership
+    membership = CommunityMember.query.filter_by(
+        community_id=community_id,
+        user_id=user_id
+    ).first()
+    
+    status = 'joined'
+    
+    if membership:
+        # Leave community
+        db.session.delete(membership)
+        community.member_count = max(0, community.member_count - 1)
+        status = 'left'
+    else:
+        # Join community
+        new_member = CommunityMember(
+            community_id=community_id,
+            user_id=user_id
+        )
+        db.session.add(new_member)
+        community.member_count += 1
+        status = 'joined'
+        
+    db.session.commit()
+    
+    return {
+        'success': True,
+        'status': status,
+        'member_count': community.member_count
+    }
 
 
 # ==================== GAMES ====================
@@ -260,11 +398,51 @@ def communities():
 @login_required
 def games():
     """Display game selection lobby."""
+    user_id = session['user_id']
+    
     # Get paired youth buddy for online status
-    pair = Pair.query.filter_by(senior_id=session['user_id'], status='active').first()
+    pair = Pair.query.filter_by(senior_id=user_id, status='active').first()
     buddy = User.query.get(pair.youth_id) if pair else None
 
-    return render_template('senior/games.html', buddy=buddy)
+    # Get active game session
+    active_session = GameSession.query.filter(
+        ((GameSession.player1_id == user_id) | (GameSession.player2_id == user_id)),
+        GameSession.status == 'active'
+    ).first()
+
+    # Get streak info
+    from models import Streak
+    streak_info = Streak.query.filter_by(user_id=user_id).first()
+    
+    # Stats
+    stats = {
+        'played': streak_info.games_played if streak_info else 0,
+        'won': streak_info.games_won if streak_info else 0,
+        'points': streak_info.points if streak_info else 0,
+        'streak': streak_info.current_streak if streak_info else 0
+    }
+
+    # Fetch games from DB
+    db_games = Game.query.all()
+    games_data = []
+    for g in db_games:
+        games_data.append({
+            'id': g.id,
+            'name': g.title,
+            'image_class': 'game-image',
+            'image_style': g.bg_gradient,
+            'icon': g.icon,
+            'badge': g.badge_label,
+            'badge_class': g.badge_class,
+            'badge_icon': g.badge_icon,
+            'description': g.description,
+            'players': g.players_text,
+            'time': g.duration_text,
+            'type': g.type_label,
+            'type_icon': g.type_icon
+        })
+
+    return render_template('senior/games.html', buddy=buddy, games=games_data, stats=stats, active_session=active_session)
 
 
 # ==================== PROFILE ====================
@@ -276,6 +454,7 @@ def profile():
     if request.method == 'POST':
         # 1. Update basic information
         user.full_name = request.form.get('full_name')
+        session['full_name'] = user.full_name
         user.email = request.form.get('email')
         user.phone = request.form.get('phone')
         
@@ -324,6 +503,7 @@ def profile():
                     # SAVE TO DB WITH 'uploads/' PREFIX
                     # This tells the template to look inside the uploads folder
                     user.profile_picture = f"uploads/{unique_filename}"
+                    session['profile_picture'] = user.profile_picture
 
         # 5. Commit changes
         try:

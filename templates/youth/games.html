@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 <!--
-    File: games.html
-    Purpose: Game lobby with traditional Singapore games
+    File: youth/games.html
+    Purpose: Game lobby with traditional Singapore games for youth volunteers
     Author: Rai (Team Lead)
-    Date: December 2025
-    Feature: Interactive games for seniors to play with youth
+    Date: January 2026
+    Feature: Interactive games for youth to play with seniors
 -->
 
 {% block title %}Games - GenCon SG{% endblock %}
@@ -12,7 +12,7 @@
 {% block extra_css %}
 <style>
     .games-header {
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
         color: white;
         padding: 2.5rem 0;
         margin-bottom: 2rem;
@@ -61,7 +61,7 @@
     .stat-item .icon {
         font-size: 2.5rem;
         margin-bottom: 0.75rem;
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -99,7 +99,7 @@
     .game-card:hover {
         transform: translateY(-8px);
         box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-        border-color: #9B59B6;
+        border-color: #3498DB;
     }
 
     .game-image {
@@ -120,29 +120,12 @@
         background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%);
     }
 
-    .game-image.congkak {
-        background: linear-gradient(135deg, #FA709A 0%, #FEE140 100%);
-    }
-
-    .game-image.five-stones {
-        background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%);
-    }
-
-    .game-image.pick-up-sticks {
-        background: linear-gradient(135deg, #F093FB 0%, #F5576C 100%);
-    }
-
-    .game-image.chapteh {
-        background: linear-gradient(135deg, #30CFD0 0%, #330867 100%);
-    }
-
-    .game-image.tic-tac-toe {
-        background: linear-gradient(135deg, #A8EDEA 0%, #FED6E3 100%);
-    }
-
-    .game-image.memory-game {
-        background: linear-gradient(135deg, #FF9A56 0%, #FF6A88 100%);
-    }
+    .game-image.congkak { background: linear-gradient(135deg, #FA709A 0%, #FEE140 100%); }
+    .game-image.five-stones { background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%); }
+    .game-image.pick-up-sticks { background: linear-gradient(135deg, #F093FB 0%, #F5576C 100%); }
+    .game-image.chapteh { background: linear-gradient(135deg, #30CFD0 0%, #330867 100%); }
+    .game-image.tic-tac-toe { background: linear-gradient(135deg, #A8EDEA 0%, #FED6E3 100%); }
+    .game-image.memory-game { background: linear-gradient(135deg, #FF9A56 0%, #FF6A88 100%); }
 
     .game-icon {
         font-size: 5rem;
@@ -157,13 +140,9 @@
         50% { transform: translateY(-10px); }
     }
 
-    .game-body {
-        padding: 1.75rem;
-    }
+    .game-body { padding: 1.75rem; }
 
-    .game-header {
-        margin-bottom: 1rem;
-    }
+    .game-header { margin-bottom: 1rem; }
 
     .game-header h3 {
         font-size: 1.625rem;
@@ -185,15 +164,8 @@
         margin-bottom: 0.75rem;
     }
 
-    .game-badge.traditional {
-        background: #D1ECF1;
-        color: #0C5460;
-    }
-
-    .game-badge.modern {
-        background: #F8D7DA;
-        color: #721C24;
-    }
+    .game-badge.traditional { background: #D1ECF1; color: #0C5460; }
+    .game-badge.modern { background: #F8D7DA; color: #721C24; }
 
     .game-description {
         color: #6C757D;
@@ -219,20 +191,14 @@
         font-size: 0.95rem;
     }
 
-    .game-meta-item i {
-        color: #9B59B6;
-        font-size: 1.125rem;
-    }
+    .game-meta-item i { color: #3498DB; font-size: 1.125rem; }
 
-    .game-footer {
-        display: flex;
-        gap: 0.75rem;
-    }
+    .game-footer { display: flex; gap: 0.75rem; }
 
     .btn-play {
         flex: 2;
         padding: 0.875rem;
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
         color: white;
         border: none;
         border-radius: 0.75rem;
@@ -244,26 +210,23 @@
     }
 
     .btn-play:hover {
-        background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
+        background: linear-gradient(135deg, #2980B9 0%, #3498DB 100%);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
     }
 
     .btn-learn {
         flex: 1;
         padding: 0.875rem;
         background: white;
-        color: #9B59B6;
-        border: 2px solid #9B59B6;
+        color: #3498DB;
+        border: 2px solid #3498DB;
         border-radius: 0.75rem;
         font-weight: 600;
         transition: all 0.3s ease;
     }
 
-    .btn-learn:hover {
-        background: #9B59B6;
-        color: white;
-    }
+    .btn-learn:hover { background: #3498DB; color: white; }
 
     .active-games-section {
         background: white;
@@ -288,7 +251,7 @@
         background: #F8F9FA;
         border-radius: 0.75rem;
         margin-bottom: 1rem;
-        border-left: 4px solid #9B59B6;
+        border-left: 4px solid #3498DB;
         transition: all 0.3s ease;
     }
 
@@ -297,17 +260,13 @@
         transform: translateX(5px);
     }
 
-    .active-game-info {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-    }
+    .active-game-info { display: flex; align-items: center; gap: 1.5rem; }
 
     .active-game-icon {
         width: 60px;
         height: 60px;
         border-radius: 0.75rem;
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -322,15 +281,11 @@
         margin-bottom: 0.25rem;
     }
 
-    .active-game-details p {
-        font-size: 0.9rem;
-        color: #6C757D;
-        margin: 0;
-    }
+    .active-game-details p { font-size: 0.9rem; color: #6C757D; margin: 0; }
 
     .btn-continue {
         padding: 0.75rem 1.5rem;
-        background: #9B59B6;
+        background: #3498DB;
         color: white;
         border: none;
         border-radius: 0.75rem;
@@ -339,34 +294,17 @@
     }
 
     .btn-continue:hover {
-        background: #8E44AD;
+        background: #2980B9;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
     }
 
     @media (max-width: 768px) {
-        .games-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .games-header h1 {
-            font-size: 2rem;
-        }
-
-        .game-meta {
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .active-game-item {
-            flex-direction: column;
-            text-align: center;
-            gap: 1rem;
-        }
-
-        .active-game-info {
-            flex-direction: column;
-        }
+        .games-grid { grid-template-columns: 1fr; }
+        .games-header h1 { font-size: 2rem; }
+        .game-meta { flex-direction: column; gap: 0.75rem; }
+        .active-game-item { flex-direction: column; text-align: center; gap: 1rem; }
+        .active-game-info { flex-direction: column; }
     }
 </style>
 {% endblock %}
@@ -378,37 +316,29 @@
         <h1>
             <i class="fas fa-gamepad me-3"></i>Game Lobby
         </h1>
-        <p>Play traditional Singapore games and connect with youth</p>
+        <p>Challenge your senior buddy to traditional Singapore games!</p>
     </div>
 
     <!-- Stats Bar -->
     <div class="stats-bar">
         <div class="stats-grid">
             <div class="stat-item">
-                <div class="icon">
-                    <i class="fas fa-trophy"></i>
-                </div>
+                <div class="icon"><i class="fas fa-trophy"></i></div>
                 <div class="value">{{ stats.played }}</div>
                 <div class="label">Games Played</div>
             </div>
             <div class="stat-item">
-                <div class="icon">
-                    <i class="fas fa-star"></i>
-                </div>
+                <div class="icon"><i class="fas fa-star"></i></div>
                 <div class="value">{{ stats.won }}</div>
                 <div class="label">Games Won</div>
             </div>
             <div class="stat-item">
-                <div class="icon">
-                    <i class="fas fa-medal"></i>
-                </div>
+                <div class="icon"><i class="fas fa-medal"></i></div>
                 <div class="value">{{ stats.points }}</div>
                 <div class="label">Total Points</div>
             </div>
             <div class="stat-item">
-                <div class="icon">
-                    <i class="fas fa-fire"></i>
-                </div>
+                <div class="icon"><i class="fas fa-fire"></i></div>
                 <div class="value">{{ stats.streak }}</div>
                 <div class="label">Day Streak</div>
             </div>
@@ -440,7 +370,7 @@
             </button>
         </div>
         {% else %}
-        <p class="text-muted">No active games. Connect with a youth buddy to start playing!</p>
+        <p class="text-muted">No active games. Start a new one below!</p>
         {% endif %}
     </div>
 
@@ -455,41 +385,18 @@
         {% for game in games %}
         <div class="game-card">
             <div class="{{ game.image_class }}" style="{{ game.image_style }}">
-                <div class="game-icon">
-                    <i class="{{ game.icon }}"></i>
-                </div>
+                <div class="game-icon"><i class="{{ game.icon }}"></i></div>
             </div>
             <div class="game-body">
-                <div class="game-header">
-                    <h3>{{ game.name }}</h3>
-                    <span class="game-badge {{ game.badge_class }}">
-                        <i class="{{ game.badge_icon }}"></i>{{ game.badge }}
-                    </span>
-                </div>
-                <p class="game-description">
-                    {{ game.description }}
-                </p>
+                <div class="game-header"><h3>{{ game.name }}</h3><span class="game-badge {{ game.badge_class }}"><i class="{{ game.badge_icon }}"></i>{{ game.badge }}</span></div>
+                <p class="game-description">{{ game.description }}</p>
                 <div class="game-meta">
-                    <div class="game-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>{{ game.players }}</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>{{ game.time }}</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="{{ game.type_icon }}"></i>
-                        <span>{{ game.type }}</span>
-                    </div>
+                    <div class="game-meta-item"><i class="fas fa-users"></i><span>{{ game.players }}</span></div>
+                    <div class="game-meta-item"><i class="fas fa-clock"></i><span>{{ game.time }}</span></div>
                 </div>
                 <div class="game-footer">
-                    <button class="btn btn-play">
-                        <i class="fas fa-play me-2"></i>Play Now
-                    </button>
-                    <button class="btn btn-learn">
-                        <i class="fas fa-book me-2"></i>Rules
-                    </button>
+                    <button class="btn btn-play"><i class="fas fa-play me-2"></i>Play Now</button>
+                    <button class="btn btn-learn"><i class="fas fa-book me-2"></i>Rules</button>
                 </div>
             </div>
         </div>
@@ -500,7 +407,6 @@
 
 {% block extra_js %}
 <script>
-    // Play button functionality
     document.querySelectorAll('.btn-play').forEach(btn => {
         btn.addEventListener('click', function() {
             const gameName = this.closest('.game-card').querySelector('h3').textContent;
@@ -508,7 +414,6 @@
         });
     });
 
-    // Learn/Rules button functionality
     document.querySelectorAll('.btn-learn').forEach(btn => {
         btn.addEventListener('click', function() {
             const gameName = this.closest('.game-card').querySelector('h3').textContent;
@@ -516,12 +421,9 @@
         });
     });
 
-    // Continue button
     document.querySelector('.btn-continue')?.addEventListener('click', function() {
         const gameName = this.getAttribute('data-game');
-        alert(`Resuming your ${gameName} game...\n\nGame state will be loaded in Phase 2!`);
+        alert(`Resuming your ${gameName} match...\n\nGame state will be loaded in Phase 2!`);
     });
-
-    console.log('Games page loaded');
 </script>
 {% endblock %}

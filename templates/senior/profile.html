@@ -37,11 +37,22 @@
                     <form method="POST" action="{{ url_for('senior.profile') }}" enctype="multipart/form-data">
                         <!-- Profile Picture -->
                         <div class="text-center mb-4">
-                            <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
-                                 alt="{{ user.full_name }}"
-                                 class="rounded-circle mb-3"
-                                 id="profilePreview"
-                                 style="width: 150px; height: 150px; object-fit: cover; border: 4px solid var(--senior-primary);">
+                            {% if 'default-avatar' in user.profile_picture %}
+                                <div class="avatar-placeholder lg mb-3 mx-auto" id="profilePreviewPlaceholder">
+                                    {{ user.full_name[0] | upper }}
+                                </div>
+                                <img src=""
+                                     alt="{{ user.full_name }}"
+                                     class="rounded-circle mb-3 d-none"
+                                     id="profilePreview"
+                                     style="width: 150px; height: 150px; object-fit: cover; border: 4px solid var(--senior-primary);">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
+                                     alt="{{ user.full_name }}"
+                                     class="rounded-circle mb-3"
+                                     id="profilePreview"
+                                     style="width: 150px; height: 150px; object-fit: cover; border: 4px solid var(--senior-primary);">
+                            {% endif %}
 
                             <div>
                                 <label for="profilePicture" class="btn btn-sm btn-outline-primary">
@@ -282,7 +293,15 @@
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('profilePreview').src = e.target.result;
+                const preview = document.getElementById('profilePreview');
+                const placeholder = document.getElementById('profilePreviewPlaceholder');
+                
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+                
+                if (placeholder) {
+                    placeholder.classList.add('d-none');
+                }
             };
             reader.readAsDataURL(input.files[0]);
         }

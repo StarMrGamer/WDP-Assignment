@@ -125,7 +125,7 @@ def user_detail(user_id):
                          stories_count=stories_count,
                          messages_sent=messages_sent,
                          pair=pair)
-    @admin_bp.route('/users/<int:user_id>/toggle_status', methods=['POST'])
+@admin_bp.route('/users/<int:user_id>/toggle_status', methods=['POST'])
 @admin_required
 def toggle_user_status(user_id):
     """Enable or disable a user account."""
@@ -311,6 +311,58 @@ def communities():
     all_communities = Community.query.order_by(Community.created_at.desc()).all()
 
     return render_template('admin/communities.html', communities=all_communities)
+
+
+@admin_bp.route('/communities/create', methods=['GET', 'POST'])
+@admin_required
+def create_community():
+    """Create a new community."""
+    if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description')
+        comm_type = request.form.get('type')
+        icon = request.form.get('icon')
+        banner_class = request.form.get('banner_class')
+        tags = request.form.get('tags')
+
+        if Community.query.filter_by(name=name).first():
+            flash('Community with this name already exists', 'danger')
+            return redirect(url_for('admin.create_community'))
+
+        new_community = Community(
+            name=name,
+            description=description,
+            type=comm_type,
+            icon=icon,
+            banner_class=banner_class,
+            tags=tags,
+            created_by=session['user_id']
+        )
+
+        db.session.add(new_community)
+        db.session.commit()
+
+        flash('Community created successfully!', 'success')
+        return redirect(url_for('admin.communities'))
+
+    return render_template('admin/create_community.html')
+
+
+@admin_bp.route('/communities/<int:community_id>/delete', methods=['POST'])
+@admin_required
+def delete_community(community_id):
+    """Delete a community."""
+    community = Community.query.get_or_404(community_id)
+    
+    try:
+        db.session.delete(community)
+        db.session.commit()
+        flash('Community deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error deleting community. It may have active members or posts.', 'danger')
+        
+    return redirect(url_for('admin.communities'))
 
 
 # ==================== REPORT MANAGEMENT ====================
