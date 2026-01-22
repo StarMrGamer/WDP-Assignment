@@ -536,73 +536,38 @@
         <div class="profile-card">
             <h3><i class="fas fa-history me-2"></i>Volunteer History</h3>
             <div class="volunteer-history-list">
-                <div class="history-item">
-                    <div class="history-icon">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    <div class="history-content">
-                        <h4 class="history-title">Traditional Storytelling Session</h4>
-                        <div class="history-details">
-                            <span><i class="fas fa-calendar me-1"></i>Dec 15, 2024</span>
-                            <span><i class="fas fa-map-marker-alt me-1"></i>Toa Payoh CC</span>
+                {% if user.event_participants.count() > 0 %}
+                    {% for participant in user.event_participants %}
+                        {% if participant.event.date < now %}
+                        <div class="history-item">
+                            <div class="history-icon">
+                                {% if participant.event.event_type == 'online' %}
+                                    <i class="fas fa-laptop"></i>
+                                {% else %}
+                                    <i class="fas fa-users"></i>
+                                {% endif %}
+                            </div>
+                            <div class="history-content">
+                                <h4 class="history-title">{{ participant.event.title }}</h4>
+                                <div class="history-details">
+                                    <span><i class="fas fa-calendar me-1"></i>{{ participant.event.date.strftime('%b %d, %Y') }}</span>
+                                    <span><i class="fas fa-map-marker-alt me-1"></i>{{ participant.event.location or 'Online' }}</span>
+                                </div>
+                                <p class="history-description">
+                                    {{ participant.event.description or 'Participated in volunteer event.' }}
+                                </p>
+                            </div>
+                            <div class="history-hours">2h</div>
                         </div>
-                        <p class="history-description">
-                            Facilitated story sharing session with 8 seniors, documenting their childhood memories.
-                        </p>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No volunteer history yet. Sign up for an event!</p>
+                        <a href="{{ url_for('youth.events') }}" class="btn btn-sm btn-primary">Browse Events</a>
                     </div>
-                    <div class="history-hours">2.5h</div>
-                </div>
-
-                <div class="history-item">
-                    <div class="history-icon">
-                        <i class="fas fa-laptop"></i>
-                    </div>
-                    <div class="history-content">
-                        <h4 class="history-title">Tech Help Workshop</h4>
-                        <div class="history-details">
-                            <span><i class="fas fa-calendar me-1"></i>Dec 10, 2024</span>
-                            <span><i class="fas fa-map-marker-alt me-1"></i>Bishan Library</span>
-                        </div>
-                        <p class="history-description">
-                            Helped seniors learn to use smartphones and video calling apps to stay connected with family.
-                        </p>
-                    </div>
-                    <div class="history-hours">3h</div>
-                </div>
-
-                <div class="history-item">
-                    <div class="history-icon">
-                        <i class="fas fa-gamepad"></i>
-                    </div>
-                    <div class="history-content">
-                        <h4 class="history-title">Traditional Games Day</h4>
-                        <div class="history-details">
-                            <span><i class="fas fa-calendar me-1"></i>Dec 5, 2024</span>
-                            <span><i class="fas fa-map-marker-alt me-1"></i>Ang Mo Kio Park</span>
-                        </div>
-                        <p class="history-description">
-                            Organized Congkak and Five Stones games, learned traditional games from seniors.
-                        </p>
-                    </div>
-                    <div class="history-hours">4h</div>
-                </div>
-
-                <div class="history-item">
-                    <div class="history-icon">
-                        <i class="fas fa-utensils"></i>
-                    </div>
-                    <div class="history-content">
-                        <h4 class="history-title">Heritage Cooking Class</h4>
-                        <div class="history-details">
-                            <span><i class="fas fa-calendar me-1"></i>Nov 28, 2024</span>
-                            <span><i class="fas fa-map-marker-alt me-1"></i>Community Kitchen</span>
-                        </div>
-                        <p class="history-description">
-                            Learned to make traditional kueh from senior bakers, documented family recipes.
-                        </p>
-                    </div>
-                    <div class="history-hours">3.5h</div>
-                </div>
+                {% endif %}
             </div>
         </div>
     </div>

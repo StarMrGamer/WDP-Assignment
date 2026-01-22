@@ -690,6 +690,9 @@ class Checkin(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
 
     mood = db.Column(db.String(20), nullable=False)  # Great, Good, Okay, Not Good
+    energy_level = db.Column(db.Integer)  # 1-10
+    activities_json = db.Column(db.Text)  # JSON array of activities
+    social_connection = db.Column(db.Integer)  # 1-10
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
 

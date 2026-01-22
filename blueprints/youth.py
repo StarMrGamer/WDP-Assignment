@@ -199,10 +199,47 @@ def get_messages_json():
 @login_required
 def events():
     """Display all available events."""
+    user = User.query.get(session['user_id'])
+    
     upcoming_events = Event.query.filter(Event.date >= datetime.utcnow())\
         .order_by(Event.date).all()
+        
+    # Get IDs of events the user has registered for
+    registered_event_ids = {p.event_id for p in user.event_participants}
 
-    return render_template('youth/events.html', events=upcoming_events)
+    return render_template('youth/events.html', 
+                         events=upcoming_events, 
+                         user=user,
+                         registered_event_ids=registered_event_ids,
+                         now=datetime.utcnow())
+
+
+@youth_bp.route('/events/<int:event_id>/register', methods=['POST'])
+@login_required
+def register_event(event_id):
+    """Register for an event."""
+    from models import EventParticipant
+    
+    # Check if already registered
+    existing = EventParticipant.query.filter_by(
+        event_id=event_id, 
+        user_id=session['user_id']
+    ).first()
+    
+    if existing:
+        flash('You are already registered for this event.', 'info')
+    else:
+        new_participant = EventParticipant(
+            event_id=event_id,
+            user_id=session['user_id']
+        )
+        db.session.add(new_participant)
+        db.session.commit()
+        
+        event = Event.query.get(event_id)
+        flash(f'Successfully registered for {event.title}!', 'success')
+        
+    return redirect(url_for('youth.events'))
 
 
 # ==================== COMMUNITIES ====================
@@ -210,9 +247,72 @@ def events():
 @login_required
 def communities():
     """Display all communities."""
+    user = User.query.get(session['user_id'])
     all_communities = Community.query.all()
+    
+    # Get IDs of communities the user has already joined
+    joined_community_ids = {member.community_id for member in user.community_members}
 
-    return render_template('youth/communities.html', communities=all_communities)
+    return render_template('youth/communities.html', 
+                         communities=all_communities, 
+                         user=user,
+                         joined_community_ids=joined_community_ids)
+
+
+@youth_bp.route('/communities/<int:community_id>/join', methods=['POST'])
+@login_required
+def join_community(community_id):
+    """Join a community."""
+    from models import CommunityMember
+    
+    # Check if already joined
+    existing = CommunityMember.query.filter_by(
+        community_id=community_id, 
+        user_id=session['user_id']
+    ).first()
+    
+    if existing:
+        flash('You are already a member of this community.', 'info')
+    else:
+        new_member = CommunityMember(
+            community_id=community_id,
+            user_id=session['user_id']
+        )
+        
+        # Update member count
+        community = Community.query.get_or_404(community_id)
+        community.member_count += 1
+        
+        db.session.add(new_member)
+        db.session.commit()
+        flash(f'Successfully joined {community.name}!', 'success')
+        
+    return redirect(url_for('youth.communities'))
+
+
+@youth_bp.route('/communities/<int:community_id>/leave', methods=['POST'])
+@login_required
+def leave_community(community_id):
+    """Leave a community."""
+    from models import CommunityMember
+    
+    member = CommunityMember.query.filter_by(
+        community_id=community_id, 
+        user_id=session['user_id']
+    ).first()
+    
+    if member:
+        # Update member count
+        community = Community.query.get_or_404(community_id)
+        community.member_count = max(0, community.member_count - 1)
+        
+        db.session.delete(member)
+        db.session.commit()
+        flash(f'You have left {community.name}.', 'info')
+    else:
+        flash('You are not a member of this community.', 'warning')
+        
+    return redirect(url_for('youth.communities'))
 
 
 # ==================== BADGES ====================
@@ -223,16 +323,41 @@ def badges():
     user = User.query.get(session['user_id'])
 
     # Get earned badges
-    earned_badges = Badge.query.filter_by(user_id=user.id).all()
+    earned_badges_list = Badge.query.filter_by(user_id=user.id).all()
+    earned_badge_types = {b.badge_type for b in earned_badges_list}
 
     # Get streak info
     from models import Streak
     streak = Streak.query.filter_by(user_id=user.id).first()
 
+    # Calculate stats
+    events_count = user.event_participants.count()
+    total_hours = events_count * 2 # Assumption: 2 hours per event
+    seniors_helped = events_count + (1 if user.youth_pairs.count() > 0 else 0)
+
+    # Define all available badges
+    all_badges = [
+        {'type': 'First Steps', 'icon': '🌟', 'desc': 'Complete your first volunteer session', 'threshold': 1},
+        {'type': 'Story Keeper', 'icon': '📖', 'desc': 'Document 5 senior life stories', 'threshold': 5},
+        {'type': 'Tech Wizard', 'icon': '💻', 'desc': 'Help 10 seniors with technology', 'threshold': 10},
+        {'type': 'Game Master', 'icon': '🎮', 'desc': 'Facilitate 15 game sessions', 'threshold': 15},
+        {'type': 'Community Builder', 'icon': '🏘️', 'desc': 'Join 5 volunteer communities', 'threshold': 5},
+        {'type': 'Event Organizer', 'icon': '📅', 'desc': 'Organize 3 volunteer events', 'threshold': 3},
+        {'type': 'Heritage Champion', 'icon': '🏛️', 'desc': 'Participate in 5 heritage activities', 'threshold': 5},
+        {'type': 'Conversation Partner', 'icon': '💬', 'desc': 'Have 20 meaningful conversations', 'threshold': 20}
+    ]
+
     return render_template('youth/badges.html',
                          user=user,
-                         earned_badges=earned_badges,
-                         streak=streak)
+                         earned_badge_types=earned_badge_types,
+                         streak=streak,
+                         stats={
+                             'hours': total_hours,
+                             'badges': len(earned_badges_list),
+                             'events': events_count,
+                             'seniors': seniors_helped
+                         },
+                         all_badges=all_badges)
 
 
 # ==================== PROFILE ====================
@@ -287,6 +412,8 @@ def profile():
         # 3. Commit changes
         try:
             db.session.commit()
+            # Update session with new profile picture to reflect changes immediately in navbar
+            session['profile_picture'] = user.profile_picture
             flash('Profile updated successfully!', 'success')
         except Exception as e:
             db.session.rollback()
@@ -311,7 +438,8 @@ def profile():
                          buddy=buddy,
                          reactions_count=reactions_count,
                          comments_count=comments_count,
-                         messages_count=messages_count)
+                         messages_count=messages_count,
+                         now=datetime.utcnow())
 
 
 # ==================== STORY INTERACTIONS API ====================

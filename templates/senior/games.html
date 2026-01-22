@@ -704,28 +704,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    // Play button functionality
-    document.querySelectorAll('.btn-play').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const gameName = this.closest('.game-card').querySelector('h3').textContent;
-            alert(`Starting ${gameName}...\n\nGame functionality will be implemented in Phase 2!`);
-        });
-    });
-
-    // Learn/Rules button functionality
-    document.querySelectorAll('.btn-learn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const gameName = this.closest('.game-card').querySelector('h3').textContent;
-            alert(`${gameName} Rules:\n\nDetailed rules and tutorials will be available in the full version!`);
-        });
-    });
-
-    // Continue button
-    document.querySelector('.btn-continue')?.addEventListener('click', function() {
-        alert('Resuming your Congkak game...\n\nGame state will be loaded in Phase 2!');
-    });
-
-    console.log('Games page loaded');
-</script>
+<script src="{{ url_for('static', filename='js/games.js') }}"></script>
 {% endblock %}

@@ -393,23 +393,23 @@
                         </h3>
                         <p class="question-subtitle">Select the emoji that best represents your mood</p>
                         <div class="mood-options">
-                            <div class="mood-option" data-mood="great">
+                            <div class="mood-option" data-mood="Great">
                                 <div class="mood-icon">😊</div>
                                 <span class="mood-label">Great</span>
                             </div>
-                            <div class="mood-option" data-mood="good">
+                            <div class="mood-option" data-mood="Good">
                                 <div class="mood-icon">🙂</div>
                                 <span class="mood-label">Good</span>
                             </div>
-                            <div class="mood-option" data-mood="okay">
+                            <div class="mood-option" data-mood="Okay">
                                 <div class="mood-icon">😐</div>
                                 <span class="mood-label">Okay</span>
                             </div>
-                            <div class="mood-option" data-mood="down">
+                            <div class="mood-option" data-mood="Down">
                                 <div class="mood-icon">😔</div>
                                 <span class="mood-label">Down</span>
                             </div>
-                            <div class="mood-option" data-mood="sad">
+                            <div class="mood-option" data-mood="Sad">
                                 <div class="mood-icon">😢</div>
                                 <span class="mood-label">Sad</span>
                             </div>
@@ -521,7 +521,7 @@
                 <div class="streak-icon">
                     <i class="fas fa-fire"></i>
                 </div>
-                <div class="streak-number">7</div>
+                <div class="streak-number">{{ streak.current_streak if streak else 0 }}</div>
                 <div class="streak-label">Week Streak</div>
                 <p class="text-muted mt-3">
                     Keep it up! Regular check-ins help track your wellbeing.
@@ -532,34 +532,24 @@
             <div class="history-card">
                 <h2><i class="fas fa-history me-2"></i>Recent Check-Ins</h2>
                 <div class="history-timeline">
-                    <div class="history-item">
-                        <div class="history-date">Last Week</div>
-                        <div class="history-mood">
-                            <span>😊</span>
-                            <span>Great</span>
+                    {% if history %}
+                        {% for checkin in history %}
+                        <div class="history-item">
+                            <div class="history-date">{{ checkin.created_at.strftime('%B %d, %Y') }}</div>
+                            <div class="history-mood">
+                                {% if checkin.mood == 'Great' %}<span>😊</span>
+                                {% elif checkin.mood == 'Good' %}<span>🙂</span>
+                                {% elif checkin.mood == 'Okay' %}<span>😐</span>
+                                {% elif checkin.mood == 'Down' %}<span>😔</span>
+                                {% elif checkin.mood == 'Sad' %}<span>😢</span>
+                                {% else %}<span>❓</span>{% endif %}
+                                <span>{{ checkin.mood }}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="history-item">
-                        <div class="history-date">2 Weeks Ago</div>
-                        <div class="history-mood">
-                            <span>🙂</span>
-                            <span>Good</span>
-                        </div>
-                    </div>
-                    <div class="history-item">
-                        <div class="history-date">3 Weeks Ago</div>
-                        <div class="history-mood">
-                            <span>😐</span>
-                            <span>Okay</span>
-                        </div>
-                    </div>
-                    <div class="history-item">
-                        <div class="history-date">4 Weeks Ago</div>
-                        <div class="history-mood">
-                            <span>🙂</span>
-                            <span>Good</span>
-                        </div>
-                    </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No check-ins yet. Start today!</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -611,9 +601,8 @@
             alert('Please select your mood before submitting');
             return false;
         }
-
-        // If validation passes, show success message
-        alert('Thank you for completing your weekly check-in!\n\nYour responses help us understand your wellbeing better.');
+        
+        // No alert needed on success, backend handles redirection and flash message
     });
 
     console.log('Check-in page loaded');

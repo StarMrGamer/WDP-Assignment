@@ -276,84 +276,6 @@
         line-height: 1.6;
     }
 
-    .leaderboard-section {
-        background: white;
-        padding: 2.5rem;
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    }
-
-    .leaderboard-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .leaderboard-item {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        padding: 1.25rem;
-        background: #F8F9FA;
-        border-radius: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .leaderboard-item:hover {
-        background: #E9ECEF;
-        transform: translateX(5px);
-    }
-
-    .leaderboard-rank {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #F39C12;
-        min-width: 50px;
-        text-align: center;
-    }
-
-    .leaderboard-rank.top-1 {
-        color: #FFD700;
-    }
-
-    .leaderboard-rank.top-2 {
-        color: #C0C0C0;
-    }
-
-    .leaderboard-rank.top-3 {
-        color: #CD7F32;
-    }
-
-    .leaderboard-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #F39C12;
-    }
-
-    .leaderboard-info {
-        flex: 1;
-    }
-
-    .leaderboard-name {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: #2C3E50;
-        margin-bottom: 0.25rem;
-    }
-
-    .leaderboard-stats {
-        font-size: 0.9rem;
-        color: #6C757D;
-    }
-
-    .leaderboard-hours {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #F39C12;
-    }
-
     @media (max-width: 768px) {
         .badges-header h1 {
             font-size: 2rem;
@@ -366,11 +288,6 @@
 
         .milestone-timeline {
             padding-left: 2rem;
-        }
-
-        .leaderboard-rank {
-            font-size: 1.25rem;
-            min-width: 40px;
         }
     }
 </style>
@@ -392,28 +309,28 @@
             <div class="stat-icon">
                 <i class="fas fa-clock"></i>
             </div>
-            <div class="stat-value">48</div>
+            <div class="stat-value">{{ stats.hours }}</div>
             <div class="stat-label">Volunteer Hours</div>
         </div>
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-award"></i>
             </div>
-            <div class="stat-value">12</div>
+            <div class="stat-value">{{ stats.badges }}</div>
             <div class="stat-label">Badges Earned</div>
         </div>
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-calendar-check"></i>
             </div>
-            <div class="stat-value">24</div>
+            <div class="stat-value">{{ stats.events }}</div>
             <div class="stat-label">Events Attended</div>
         </div>
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-users"></i>
             </div>
-            <div class="stat-value">15</div>
+            <div class="stat-value">{{ stats.seniors }}</div>
             <div class="stat-label">Seniors Helped</div>
         </div>
     </div>
@@ -425,247 +342,66 @@
     </div>
 
     <div class="badges-grid">
-        <!-- Badge 1: First Steps (Earned) -->
-        <div class="badge-card earned">
-            <div class="badge-icon-container">
-                <div class="badge-icon">🌟</div>
-                <div class="badge-checkmark">
-                    <i class="fas fa-check"></i>
+        {% for badge_def in all_badges %}
+            {% set is_earned = badge_def.type in earned_badge_types %}
+            <div class="badge-card {{ 'earned' if is_earned else 'locked' }}">
+                <div class="badge-icon-container">
+                    <div class="badge-icon">{{ badge_def.icon }}</div>
+                    {% if is_earned %}
+                    <div class="badge-checkmark">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    {% endif %}
                 </div>
-            </div>
-            <h3 class="badge-title">First Steps</h3>
-            <p class="badge-description">Complete your first volunteer session</p>
-        </div>
-
-        <!-- Badge 2: Story Keeper (Earned) -->
-        <div class="badge-card earned">
-            <div class="badge-icon-container">
-                <div class="badge-icon">📖</div>
-                <div class="badge-checkmark">
-                    <i class="fas fa-check"></i>
+                <h3 class="badge-title">{{ badge_def.type }}</h3>
+                <p class="badge-description">{{ badge_def.desc }}</p>
+                
+                {% if not is_earned %}
+                <div class="badge-progress">
+                    <div class="progress-bar-container">
+                        <!-- Simulated progress for demo: random or 0 -->
+                        <div class="progress-bar-fill" style="width: 30%"></div>
+                    </div>
+                    <div class="progress-text">In Progress</div>
                 </div>
-            </div>
-            <h3 class="badge-title">Story Keeper</h3>
-            <p class="badge-description">Document 5 senior life stories</p>
-        </div>
-
-        <!-- Badge 3: Tech Wizard (Earned) -->
-        <div class="badge-card earned">
-            <div class="badge-icon-container">
-                <div class="badge-icon">💻</div>
-                <div class="badge-checkmark">
-                    <i class="fas fa-check"></i>
+                {% else %}
+                <div class="badge-progress">
+                    <div class="progress-text text-success">Completed!</div>
                 </div>
+                {% endif %}
             </div>
-            <h3 class="badge-title">Tech Wizard</h3>
-            <p class="badge-description">Help 10 seniors with technology</p>
-        </div>
-
-        <!-- Badge 4: Game Master (In Progress) -->
-        <div class="badge-card">
-            <div class="badge-icon-container">
-                <div class="badge-icon">🎮</div>
-            </div>
-            <h3 class="badge-title">Game Master</h3>
-            <p class="badge-description">Facilitate 15 game sessions</p>
-            <div class="badge-progress">
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill" style="width: 60%"></div>
-                </div>
-                <div class="progress-text">9/15 sessions</div>
-            </div>
-        </div>
-
-        <!-- Badge 5: Community Builder (In Progress) -->
-        <div class="badge-card">
-            <div class="badge-icon-container">
-                <div class="badge-icon">🏘️</div>
-            </div>
-            <h3 class="badge-title">Community Builder</h3>
-            <p class="badge-description">Join 5 volunteer communities</p>
-            <div class="badge-progress">
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill" style="width: 60%"></div>
-                </div>
-                <div class="progress-text">3/5 communities</div>
-            </div>
-        </div>
-
-        <!-- Badge 6: Event Organizer (Locked) -->
-        <div class="badge-card locked">
-            <div class="badge-icon-container">
-                <div class="badge-icon">📅</div>
-            </div>
-            <h3 class="badge-title">Event Organizer</h3>
-            <p class="badge-description">Organize 3 volunteer events</p>
-            <div class="badge-progress">
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill" style="width: 0%"></div>
-                </div>
-                <div class="progress-text">0/3 events</div>
-            </div>
-        </div>
-
-        <!-- Badge 7: Heritage Champion (Earned) -->
-        <div class="badge-card earned">
-            <div class="badge-icon-container">
-                <div class="badge-icon">🏛️</div>
-                <div class="badge-checkmark">
-                    <i class="fas fa-check"></i>
-                </div>
-            </div>
-            <h3 class="badge-title">Heritage Champion</h3>
-            <p class="badge-description">Participate in 5 heritage activities</p>
-        </div>
-
-        <!-- Badge 8: Conversation Partner (In Progress) -->
-        <div class="badge-card">
-            <div class="badge-icon-container">
-                <div class="badge-icon">💬</div>
-            </div>
-            <h3 class="badge-title">Conversation Partner</h3>
-            <p class="badge-description">Have 20 meaningful conversations</p>
-            <div class="badge-progress">
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill" style="width: 75%"></div>
-                </div>
-                <div class="progress-text">15/20 conversations</div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 
     <div class="row">
-        <div class="col-lg-7">
+        <div class="col-lg-12">
             <!-- Milestones Section -->
             <div class="milestones-section">
                 <h2 class="section-title">Volunteer Milestones</h2>
                 <p class="section-subtitle mb-0">Progress through your volunteer journey</p>
 
                 <div class="milestone-timeline">
-                    <div class="milestone-item">
-                        <div class="milestone-content">
-                            <h3 class="milestone-title">Bronze Volunteer</h3>
-                            <span class="milestone-hours">
-                                <i class="fas fa-clock me-1"></i>10 Hours
-                            </span>
-                            <p class="milestone-description">
-                                You've taken your first steps in volunteering! Keep up the great work.
-                            </p>
+                    {% set milestones = [10, 25, 50, 100, 200] %}
+                    {% set titles = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'] %}
+                    
+                    {% for threshold in milestones %}
+                        {% set is_unlocked = stats.hours >= threshold %}
+                        <div class="milestone-item {{ 'unlocked' if is_unlocked else 'locked' }}">
+                            <div class="milestone-content">
+                                <h3 class="milestone-title">{{ titles[loop.index0] }} Volunteer</h3>
+                                <span class="milestone-hours" style="{{ 'background: #95A5A6;' if not is_unlocked else '' }}">
+                                    <i class="fas fa-clock me-1"></i>{{ threshold }} Hours
+                                </span>
+                                <p class="milestone-description">
+                                    {% if is_unlocked %}
+                                        Congratulations! You've reached this milestone.
+                                    {% else %}
+                                        Keep volunteering to unlock this prestigious status.
+                                    {% endif %}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="milestone-item">
-                        <div class="milestone-content">
-                            <h3 class="milestone-title">Silver Volunteer</h3>
-                            <span class="milestone-hours">
-                                <i class="fas fa-clock me-1"></i>25 Hours
-                            </span>
-                            <p class="milestone-description">
-                                You're making a real difference in the community. Seniors appreciate your dedication!
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="milestone-item">
-                        <div class="milestone-content">
-                            <h3 class="milestone-title">Gold Volunteer</h3>
-                            <span class="milestone-hours">
-                                <i class="fas fa-clock me-1"></i>50 Hours
-                            </span>
-                            <p class="milestone-description">
-                                Outstanding commitment! You're on track to reach this milestone soon.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="milestone-item locked">
-                        <div class="milestone-content">
-                            <h3 class="milestone-title">Platinum Volunteer</h3>
-                            <span class="milestone-hours" style="background: #95A5A6;">
-                                <i class="fas fa-clock me-1"></i>100 Hours
-                            </span>
-                            <p class="milestone-description">
-                                Elite volunteer status. Your impact on the community is incredible!
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="milestone-item locked">
-                        <div class="milestone-content">
-                            <h3 class="milestone-title">Diamond Volunteer</h3>
-                            <span class="milestone-hours" style="background: #95A5A6;">
-                                <i class="fas fa-clock me-1"></i>200 Hours
-                            </span>
-                            <p class="milestone-description">
-                                The highest honor. You're a true champion for intergenerational connections!
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-5">
-            <!-- Leaderboard Section -->
-            <div class="leaderboard-section">
-                <h2 class="section-title">Top Volunteers</h2>
-                <p class="section-subtitle mb-4">This Month's Leaders</p>
-
-                <div class="leaderboard-list">
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank top-1">🥇</div>
-                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                             alt="Sarah Chen" class="leaderboard-avatar">
-                        <div class="leaderboard-info">
-                            <div class="leaderboard-name">Sarah Chen</div>
-                            <div class="leaderboard-stats">32 events • 18 badges</div>
-                        </div>
-                        <div class="leaderboard-hours">127h</div>
-                    </div>
-
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank top-2">🥈</div>
-                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                             alt="Ryan Lee" class="leaderboard-avatar">
-                        <div class="leaderboard-info">
-                            <div class="leaderboard-name">Ryan Lee (You)</div>
-                            <div class="leaderboard-stats">24 events • 12 badges</div>
-                        </div>
-                        <div class="leaderboard-hours">105h</div>
-                    </div>
-
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank top-3">🥉</div>
-                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                             alt="David Tan" class="leaderboard-avatar">
-                        <div class="leaderboard-info">
-                            <div class="leaderboard-name">David Tan</div>
-                            <div class="leaderboard-stats">28 events • 15 badges</div>
-                        </div>
-                        <div class="leaderboard-hours">98h</div>
-                    </div>
-
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank">4</div>
-                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                             alt="Emily Wong" class="leaderboard-avatar">
-                        <div class="leaderboard-info">
-                            <div class="leaderboard-name">Emily Wong</div>
-                            <div class="leaderboard-stats">22 events • 11 badges</div>
-                        </div>
-                        <div class="leaderboard-hours">87h</div>
-                    </div>
-
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank">5</div>
-                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}"
-                             alt="Marcus Lim" class="leaderboard-avatar">
-                        <div class="leaderboard-info">
-                            <div class="leaderboard-name">Marcus Lim</div>
-                            <div class="leaderboard-stats">19 events • 10 badges</div>
-                        </div>
-                        <div class="leaderboard-hours">75h</div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

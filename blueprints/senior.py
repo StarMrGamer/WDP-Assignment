@@ -14,6 +14,7 @@ from datetime import datetime
 from functools import wraps
 from werkzeug.utils import secure_filename
 import os
+import json
 
 # Create senior blueprint
 senior_bp = Blueprint('senior', __name__)
@@ -250,9 +251,76 @@ def events():
 @login_required
 def communities():
     """Display all communities."""
+    user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()
+        return redirect(url_for('auth.login', role='senior'))
+        
     all_communities = Community.query.all()
+    
+    # Get IDs of communities the user has already joined
+    joined_community_ids = {member.community_id for member in user.community_members}
 
-    return render_template('senior/communities.html', communities=all_communities)
+    return render_template('senior/communities.html', 
+                         communities=all_communities, 
+                         user=user,
+                         joined_community_ids=joined_community_ids)
+
+
+@senior_bp.route('/communities/<int:community_id>/join', methods=['POST'])
+@login_required
+def join_community(community_id):
+    """Join a community."""
+    from models import CommunityMember
+    
+    # Check if already joined
+    existing = CommunityMember.query.filter_by(
+        community_id=community_id, 
+        user_id=session['user_id']
+    ).first()
+    
+    if existing:
+        flash('You are already a member of this community.', 'info')
+    else:
+        new_member = CommunityMember(
+            community_id=community_id,
+            user_id=session['user_id']
+        )
+        
+        # Update member count
+        community = Community.query.get_or_404(community_id)
+        community.member_count += 1
+        
+        db.session.add(new_member)
+        db.session.commit()
+        flash(f'Successfully joined {community.name}!', 'success')
+        
+    return redirect(url_for('senior.communities'))
+
+
+@senior_bp.route('/communities/<int:community_id>/leave', methods=['POST'])
+@login_required
+def leave_community(community_id):
+    """Leave a community."""
+    from models import CommunityMember
+    
+    member = CommunityMember.query.filter_by(
+        community_id=community_id, 
+        user_id=session['user_id']
+    ).first()
+    
+    if member:
+        # Update member count
+        community = Community.query.get_or_404(community_id)
+        community.member_count = max(0, community.member_count - 1)
+        
+        db.session.delete(member)
+        db.session.commit()
+        flash(f'You have left {community.name}.', 'info')
+    else:
+        flash('You are not a member of this community.', 'warning')
+        
+    return redirect(url_for('senior.communities'))
 
 
 # ==================== GAMES ====================
@@ -328,6 +396,8 @@ def profile():
         # 5. Commit changes
         try:
             db.session.commit()
+            # Update session with new profile picture to reflect changes immediately in navbar
+            session['profile_picture'] = user.profile_picture
             flash('Profile updated successfully!', 'success')
         except Exception as e:
             db.session.rollback()
@@ -347,25 +417,57 @@ def profile():
 @login_required
 def checkin():
     """Weekly mood check-in for seniors."""
+    user_id = session['user_id']
+    
     if request.method == 'POST':
         from models import Checkin
 
         mood = request.form.get('mood')
+        energy = request.form.get('energy')
+        connection = request.form.get('connection')
         notes = request.form.get('notes')
+        activities = request.form.getlist('activities')
 
         new_checkin = Checkin(
-            user_id=session['user_id'],
+            user_id=user_id,
             mood=mood,
+            energy_level=int(energy) if energy else None,
+            social_connection=int(connection) if connection else None,
+            activities_json=json.dumps(activities) if activities else None,
             notes=notes
         )
 
         db.session.add(new_checkin)
+        
+        # Update streak logic (simplified)
+        # In a real app, we'd check dates to ensure it's a consecutive week/day
+        from models import Streak
+        streak = Streak.query.filter_by(user_id=user_id).first()
+        if not streak:
+            streak = Streak(user_id=user_id, current_streak=1, longest_streak=1)
+            db.session.add(streak)
+        else:
+            # For demo purposes, just increment
+            streak.current_streak += 1
+            if streak.current_streak > streak.longest_streak:
+                streak.longest_streak = streak.current_streak
+                
         db.session.commit()
 
         flash('Check-in submitted successfully!', 'success')
         return redirect(url_for('senior.dashboard'))
 
-    return render_template('senior/checkin.html')
+    # GET request - show form and history
+    from models import Checkin, Streak
+    
+    # Get streak info
+    streak = Streak.query.filter_by(user_id=user_id).first()
+    
+    # Get recent checkins history
+    history = Checkin.query.filter_by(user_id=user_id)\
+        .order_by(Checkin.created_at.desc()).limit(4).all()
+
+    return render_template('senior/checkin.html', streak=streak, history=history)
 
 
 # ==================== ACCESSIBILITY SETTINGS ====================
