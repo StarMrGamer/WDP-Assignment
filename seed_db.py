@@ -164,7 +164,7 @@ def seed_data():
                     tags=c['tags'],
                     description=c['desc'],
                     created_by=admin.id,
-                    member_count=120 # Mock count
+                    member_count=0 
                 )
                 db.session.add(comm)
         
@@ -179,7 +179,7 @@ def seed_data():
                     tags=c['tags'],
                     description=c['desc'],
                     created_by=admin.id,
-                    member_count=80 # Mock count
+                    member_count=0 
                 )
                 db.session.add(comm)
 

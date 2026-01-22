@@ -487,8 +487,16 @@
                         <div class="leaderboard-rank {{ 'top-' + item.rank|string if item.rank <= 3 else '' }}">
                             {% if item.rank == 1 %}🥇{% elif item.rank == 2 %}🥈{% elif item.rank == 3 %}🥉{% else %}{{ item.rank }}{% endif %}
                         </div>
-                        <img src="{{ url_for('static', filename='images/' + (item.avatar if item.avatar else 'default-avatar.png')) }}"
-                             alt="{{ item.name }}" class="leaderboard-avatar">
+                        
+                        {% if 'default-avatar' in item.avatar %}
+                            <div class="avatar-placeholder sm me-3" style="min-width: 60px; height: 60px; font-size: 1.5rem;">
+                                {{ item.name[0] | upper }}
+                            </div>
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/' + item.avatar) }}"
+                                 alt="{{ item.name }}" class="leaderboard-avatar">
+                        {% endif %}
+
                         <div class="leaderboard-info">
                             <div class="leaderboard-name">{{ item.name }}{{ ' (You)' if item.is_me else '' }}</div>
                             <div class="leaderboard-stats">{{ item.events }} events • {{ item.badges }} badges</div>
