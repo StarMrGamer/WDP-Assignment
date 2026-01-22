@@ -162,10 +162,8 @@ body[data-role="admin"] .data-table-container {
     background: var(--admin-card-bg);
     border-radius: 0.75rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    overflow-x: auto; /* Enable horizontal scroll for large tables */
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
     margin-bottom: 2rem;
-    width: 100%;
 }
 
 body[data-role="admin"] .table-header {
@@ -191,7 +189,6 @@ body[data-role="admin"] .table-actions {
 body[data-role="admin"] .data-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px; /* Ensure table doesn't get too cramped */
 }
 
 body[data-role="admin"] .data-table thead {

@@ -197,26 +197,22 @@ body[data-role="senior"] .story-card .category-badge {
 }
 
 /* ==================== MESSAGING INTERFACE ==================== */
-body[data-role="senior"] .message-sent,
-body[data-role="senior"] .message-received {
+body[data-role="senior"] .message-sent {
+    background-color: #FFE4C4;       /* Warm beige for sent messages */
+    border-left: 4px solid var(--senior-primary);
     padding: 1.25rem;
     border-radius: 1rem;
     margin: 1rem 0;
     font-size: 1.125rem;
-    word-break: break-word;
-    max-width: 90%;
-}
-
-body[data-role="senior"] .message-sent {
-    background-color: #FFE4C4;       /* Warm beige for sent messages */
-    border-left: 4px solid var(--senior-primary);
-    margin-left: auto;
 }
 
 body[data-role="senior"] .message-received {
     background-color: #E8F5E9;       /* Light green for received messages */
     border-left: 4px solid var(--senior-secondary);
-    margin-right: auto;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    margin: 1rem 0;
+    font-size: 1.125rem;
 }
 
 body[data-role="senior"] .message-input {
