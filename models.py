@@ -111,6 +111,8 @@ class User(db.Model):
     streak = db.relationship('Streak', back_populates='user', uselist=False)
     badges = db.relationship('Badge', back_populates='user', lazy='dynamic')
     checkins = db.relationship('Checkin', back_populates='user', lazy='dynamic')
+    event_participants = db.relationship('EventParticipant', back_populates='user', lazy='dynamic')
+    community_members = db.relationship('CommunityMember', back_populates='user', lazy='dynamic')
 
     def set_password(self, password):
         """
@@ -444,7 +446,7 @@ class EventParticipant(db.Model):
 
     # Relationships
     event = db.relationship('Event', back_populates='participants')
-    user = db.relationship('User')
+    user = db.relationship('User', back_populates='event_participants')
 
     # Unique constraint: one user can only register once per event
     __table_args__ = (db.UniqueConstraint('event_id', 'user_id', name='unique_event_user'),)
@@ -520,7 +522,7 @@ class CommunityMember(db.Model):
 
     # Relationships
     community = db.relationship('Community', back_populates='members')
-    user = db.relationship('User')
+    user = db.relationship('User', back_populates='community_members')
 
     # Unique constraint: one user can only join a community once
     __table_args__ = (db.UniqueConstraint('community_id', 'user_id', name='unique_community_user'),)
@@ -586,6 +588,8 @@ class Streak(db.Model):
     current_streak = db.Column(db.Integer, default=0)
     longest_streak = db.Column(db.Integer, default=0)
     points = db.Column(db.Integer, default=0)
+    games_played = db.Column(db.Integer, default=0)
+    games_won = db.Column(db.Integer, default=0)
     last_login = db.Column(db.Date, default=datetime.utcnow().date)
 
     # Relationships
@@ -690,6 +694,9 @@ class Checkin(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
 
     mood = db.Column(db.String(20), nullable=False)  # Great, Good, Okay, Not Good
+    energy_level = db.Column(db.Integer)  # 1-10
+    activities_json = db.Column(db.Text)  # JSON array of activities
+    social_connection = db.Column(db.Integer)  # 1-10
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
 

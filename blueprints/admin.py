@@ -126,8 +126,6 @@ def user_detail(user_id):
                          messages_sent=messages_sent,
                          pair=pair)
 
-# --- CORRECTION: These routes must be un-indented (aligned to the left) ---
-
 @admin_bp.route('/users/<int:user_id>/toggle_status', methods=['POST'])
 @admin_required
 def toggle_user_status(user_id):
@@ -163,6 +161,11 @@ def delete_user(user_id):
         return redirect(url_for('admin.user_detail', user_id=user.id))
         
     try:
+        # 1. Delete or unlink dependencies (Optional but recommended)
+        # SQLAlchemy 'cascade' usually handles this if configured, 
+        # but manual cleanup is safer for complex relationships.
+        
+        # 2. Delete the user
         username = user.username
         db.session.delete(user)
         db.session.commit()
@@ -175,7 +178,7 @@ def delete_user(user_id):
         print(f"Delete error: {e}")
         flash('Error deleting user. Ensure all related records are cleared.', 'danger')
         return redirect(url_for('admin.user_detail', user_id=user.id))
-    
+
 # ==================== PAIR MANAGEMENT ====================
 @admin_bp.route('/pairs')
 @admin_required

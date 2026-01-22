@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 <!--
     File: games.html
-    Purpose: Game lobby with traditional Singapore games
+    Purpose: Game lobby for Youth Volunteers
     Author: Rai (Team Lead)
-    Date: December 2025
-    Feature: Interactive games for seniors to play with youth
+    Date: January 2026
+    Feature: Interactive games for youth to play with seniors
 -->
 
 {% block title %}Games - GenCon SG{% endblock %}
@@ -12,7 +12,14 @@
 {% block extra_css %}
 <style>
     .games-header {
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #4834d4 0%, #686de0 100%); /* Different color for youth? Or keep same? Let's keep consistent style but maybe youth brand color */
+        /* Actually, let's stick to the senior style for consistency or use the youth primary color if distinct. 
+           Youth theme seems to use orange/blue/purple often. 
+           The senior page used purple (#9B59B6). 
+           I'll stick to the purple for now to ensure it works, or maybe use a nice blue/orange. 
+           Let's copy the senior CSS exactly for now to minimize design breakage, but I'll use a slightly different gradient to distinguish.
+        */
+        background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
         color: white;
         padding: 2.5rem 0;
         margin-bottom: 2rem;
@@ -61,7 +68,7 @@
     .stat-item .icon {
         font-size: 2.5rem;
         margin-bottom: 0.75rem;
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -99,7 +106,7 @@
     .game-card:hover {
         transform: translateY(-8px);
         box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-        border-color: #9B59B6;
+        border-color: #4834d4;
     }
 
     .game-image {
@@ -220,7 +227,7 @@
     }
 
     .game-meta-item i {
-        color: #9B59B6;
+        color: #4834d4;
         font-size: 1.125rem;
     }
 
@@ -232,7 +239,7 @@
     .btn-play {
         flex: 2;
         padding: 0.875rem;
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
         color: white;
         border: none;
         border-radius: 0.75rem;
@@ -244,24 +251,24 @@
     }
 
     .btn-play:hover {
-        background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
+        background: linear-gradient(135deg, #3c2bb3 0%, #4834d4 100%);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+        box-shadow: 0 6px 20px rgba(72, 52, 212, 0.4);
     }
 
     .btn-learn {
         flex: 1;
         padding: 0.875rem;
         background: white;
-        color: #9B59B6;
-        border: 2px solid #9B59B6;
+        color: #4834d4;
+        border: 2px solid #4834d4;
         border-radius: 0.75rem;
         font-weight: 600;
         transition: all 0.3s ease;
     }
 
     .btn-learn:hover {
-        background: #9B59B6;
+        background: #4834d4;
         color: white;
     }
 
@@ -288,7 +295,7 @@
         background: #F8F9FA;
         border-radius: 0.75rem;
         margin-bottom: 1rem;
-        border-left: 4px solid #9B59B6;
+        border-left: 4px solid #4834d4;
         transition: all 0.3s ease;
     }
 
@@ -307,7 +314,7 @@
         width: 60px;
         height: 60px;
         border-radius: 0.75rem;
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -330,7 +337,7 @@
 
     .btn-continue {
         padding: 0.75rem 1.5rem;
-        background: #9B59B6;
+        background: #4834d4;
         color: white;
         border: none;
         border-radius: 0.75rem;
@@ -339,9 +346,9 @@
     }
 
     .btn-continue:hover {
-        background: #8E44AD;
+        background: #3c2bb3;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+        box-shadow: 0 4px 12px rgba(72, 52, 212, 0.3);
     }
 
     @media (max-width: 768px) {
@@ -378,7 +385,7 @@
         <h1>
             <i class="fas fa-gamepad me-3"></i>Game Lobby
         </h1>
-        <p>Play traditional Singapore games and connect with youth</p>
+        <p>Connect and play with your senior buddies!</p>
     </div>
 
     <!-- Stats Bar -->
@@ -388,34 +395,35 @@
                 <div class="icon">
                     <i class="fas fa-trophy"></i>
                 </div>
-                <div class="value">12</div>
+                <div class="value">{{ streak.games_played }}</div>
                 <div class="label">Games Played</div>
             </div>
             <div class="stat-item">
                 <div class="icon">
                     <i class="fas fa-star"></i>
                 </div>
-                <div class="value">8</div>
+                <div class="value">{{ streak.games_won }}</div>
                 <div class="label">Games Won</div>
             </div>
             <div class="stat-item">
                 <div class="icon">
                     <i class="fas fa-medal"></i>
                 </div>
-                <div class="value">350</div>
+                <div class="value">{{ streak.points }}</div>
                 <div class="label">Total Points</div>
             </div>
             <div class="stat-item">
                 <div class="icon">
                     <i class="fas fa-fire"></i>
                 </div>
-                <div class="value">5</div>
+                <div class="value">{{ streak.current_streak }}</div>
                 <div class="label">Day Streak</div>
             </div>
         </div>
     </div>
 
     <!-- Active Games -->
+    {% if buddy %}
     <div class="active-games-section">
         <h2><i class="fas fa-play-circle me-2 text-success"></i>Continue Playing</h2>
         <div class="active-game-item">
@@ -425,7 +433,7 @@
                 </div>
                 <div class="active-game-details">
                     <h4>Congkak Match</h4>
-                    <p>Playing with Ryan Lee • Your turn</p>
+                    <p>Playing with {{ buddy.full_name }} • Your turn</p>
                 </div>
             </div>
             <button class="btn btn-continue">
@@ -433,6 +441,7 @@
             </button>
         </div>
     </div>
+    {% endif %}
 
     <!-- Available Games Grid -->
     <div class="section-header mb-4">
@@ -442,36 +451,35 @@
     </div>
 
     <div class="games-grid">
-        <!-- Game Card 1: Congkak -->
+        {% for game in games %}
         <div class="game-card">
-            <div class="game-image congkak">
+            <div class="game-image {{ game.css_class }}">
                 <div class="game-icon">
-                    <i class="fas fa-chess"></i>
+                    <i class="fas {{ game.icon_class }}"></i>
                 </div>
             </div>
             <div class="game-body">
                 <div class="game-header">
-                    <h3>Congkak</h3>
-                    <span class="game-badge traditional">
-                        <i class="fas fa-landmark"></i>Traditional
+                    <h3>{{ game.name }}</h3>
+                    <span class="game-badge {{ game.badge_class }}">
+                        <i class="fas fa-landmark"></i>{{ game.type }}
                     </span>
                 </div>
                 <p class="game-description">
-                    A traditional Malay board game involving strategy and counting.
-                    Distribute seeds wisely to capture more than your opponent!
+                    {{ game.description }}
                 </p>
                 <div class="game-meta">
                     <div class="game-meta-item">
                         <i class="fas fa-users"></i>
-                        <span>2 Players</span>
+                        <span>{{ game.players }}</span>
                     </div>
                     <div class="game-meta-item">
                         <i class="fas fa-clock"></i>
-                        <span>15-20 min</span>
+                        <span>{{ game.time }}</span>
                     </div>
                     <div class="game-meta-item">
                         <i class="fas fa-brain"></i>
-                        <span>Strategy</span>
+                        <span>{{ game.skill }}</span>
                     </div>
                 </div>
                 <div class="game-footer">
@@ -484,221 +492,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Game Card 2: Five Stones -->
-        <div class="game-card">
-            <div class="game-image five-stones">
-                <div class="game-icon">
-                    <i class="fas fa-gem"></i>
-                </div>
-            </div>
-            <div class="game-body">
-                <div class="game-header">
-                    <h3>Five Stones</h3>
-                    <span class="game-badge traditional">
-                        <i class="fas fa-landmark"></i>Traditional
-                    </span>
-                </div>
-                <p class="game-description">
-                    A classic childhood game testing hand-eye coordination.
-                    Toss and catch stones in increasingly complex patterns!
-                </p>
-                <div class="game-meta">
-                    <div class="game-meta-item">
-                        <i class="fas fa-user"></i>
-                        <span>1+ Players</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>5-10 min</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-hand-paper"></i>
-                        <span>Skill</span>
-                    </div>
-                </div>
-                <div class="game-footer">
-                    <button class="btn btn-play">
-                        <i class="fas fa-play me-2"></i>Play Now
-                    </button>
-                    <button class="btn btn-learn">
-                        <i class="fas fa-book me-2"></i>Rules
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Game Card 3: Pick Up Sticks -->
-        <div class="game-card">
-            <div class="game-image pick-up-sticks">
-                <div class="game-icon">
-                    <i class="fas fa-magic"></i>
-                </div>
-            </div>
-            <div class="game-body">
-                <div class="game-header">
-                    <h3>Pick Up Sticks</h3>
-                    <span class="game-badge traditional">
-                        <i class="fas fa-landmark"></i>Traditional
-                    </span>
-                </div>
-                <p class="game-description">
-                    Test your steady hand! Remove sticks one by one without
-                    disturbing the others. Precision is key!
-                </p>
-                <div class="game-meta">
-                    <div class="game-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>2-4 Players</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>10-15 min</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-crosshairs"></i>
-                        <span>Precision</span>
-                    </div>
-                </div>
-                <div class="game-footer">
-                    <button class="btn btn-play">
-                        <i class="fas fa-play me-2"></i>Play Now
-                    </button>
-                    <button class="btn btn-learn">
-                        <i class="fas fa-book me-2"></i>Rules
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Game Card 4: Chapteh -->
-        <div class="game-card">
-            <div class="game-image chapteh">
-                <div class="game-icon">
-                    <i class="fas fa-feather"></i>
-                </div>
-            </div>
-            <div class="game-body">
-                <div class="game-header">
-                    <h3>Chapteh</h3>
-                    <span class="game-badge traditional">
-                        <i class="fas fa-landmark"></i>Traditional
-                    </span>
-                </div>
-                <p class="game-description">
-                    Keep the feathered shuttlecock in the air using your feet!
-                    A beloved traditional game testing balance and coordination.
-                </p>
-                <div class="game-meta">
-                    <div class="game-meta-item">
-                        <i class="fas fa-user"></i>
-                        <span>1+ Players</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>5-10 min</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-running"></i>
-                        <span>Active</span>
-                    </div>
-                </div>
-                <div class="game-footer">
-                    <button class="btn btn-play">
-                        <i class="fas fa-play me-2"></i>Play Now
-                    </button>
-                    <button class="btn btn-learn">
-                        <i class="fas fa-book me-2"></i>Rules
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Game Card 5: Tic-Tac-Toe -->
-        <div class="game-card">
-            <div class="game-image tic-tac-toe">
-                <div class="game-icon">
-                    <i class="fas fa-th"></i>
-                </div>
-            </div>
-            <div class="game-body">
-                <div class="game-header">
-                    <h3>Tic-Tac-Toe</h3>
-                    <span class="game-badge modern">
-                        <i class="fas fa-laptop"></i>Classic
-                    </span>
-                </div>
-                <p class="game-description">
-                    The timeless classic! Get three in a row before your opponent.
-                    Simple to learn, challenging to master.
-                </p>
-                <div class="game-meta">
-                    <div class="game-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>2 Players</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>2-5 min</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-lightbulb"></i>
-                        <span>Logic</span>
-                    </div>
-                </div>
-                <div class="game-footer">
-                    <button class="btn btn-play">
-                        <i class="fas fa-play me-2"></i>Play Now
-                    </button>
-                    <button class="btn btn-learn">
-                        <i class="fas fa-book me-2"></i>Rules
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Game Card 6: Memory Match -->
-        <div class="game-card">
-            <div class="game-image memory-game">
-                <div class="game-icon">
-                    <i class="fas fa-brain"></i>
-                </div>
-            </div>
-            <div class="game-body">
-                <div class="game-header">
-                    <h3>Memory Match</h3>
-                    <span class="game-badge modern">
-                        <i class="fas fa-laptop"></i>Classic
-                    </span>
-                </div>
-                <p class="game-description">
-                    Flip cards to find matching pairs featuring Singapore landmarks
-                    and cultural icons. Great for memory training!
-                </p>
-                <div class="game-meta">
-                    <div class="game-meta-item">
-                        <i class="fas fa-user"></i>
-                        <span>1-2 Players</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>5-10 min</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-brain"></i>
-                        <span>Memory</span>
-                    </div>
-                </div>
-                <div class="game-footer">
-                    <button class="btn btn-play">
-                        <i class="fas fa-play me-2"></i>Play Now
-                    </button>
-                    <button class="btn btn-learn">
-                        <i class="fas fa-book me-2"></i>Rules
-                    </button>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

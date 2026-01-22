@@ -240,7 +240,7 @@ def date_filter(value, format='%B %d, %Y'):
 # ==================== MAIN EXECUTION ====================
 if __name__ == '__main__':
     """
-    Run the Flask development server.pyqpython -m pip install
+    Run the Flask development server.
 
     The app runs on http://localhost:5000 by default.
     Debug mode is enabled based on config settings.

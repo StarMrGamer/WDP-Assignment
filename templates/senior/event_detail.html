@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+<!--
+    File: senior/event_detail.html
+    Purpose: Detailed view of an event
+-->
+
+{% block title %}{{ event.title }} - GenCon SG{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('senior.events') }}">Events</a></li>
+            <li class="breadcrumb-item active">{{ event.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Event Info Column -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge {% if event.event_type == 'online' %}bg-primary{% else %}bg-success{% endif %} rounded-pill px-3 py-2">
+                            {{ event.event_type|capitalize }}
+                        </span>
+                        {% if is_registered %}
+                        <span class="badge bg-success rounded-pill px-3 py-2">
+                            <i class="fas fa-check me-1"></i> Registered
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <h1 class="display-6 fw-bold mb-3">{{ event.title }}</h1>
+
+                    <div class="d-flex gap-4 mb-4 text-muted">
+                        <div>
+                            <i class="fas fa-calendar text-warning me-2"></i>
+                            {{ event.date.strftime('%A, %B %d, %Y') }}
+                        </div>
+                        <div>
+                            <i class="fas fa-clock text-info me-2"></i>
+                            {{ event.date.strftime('%I:%M %p') }}
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3">About this Event</h5>
+                    <p class="card-text text-secondary mb-4" style="line-height: 1.7;">
+                        {{ event.description }}
+                    </p>
+
+                    <h5 class="fw-bold mb-3">Location</h5>
+                    <div class="bg-light p-3 rounded-3 mb-4">
+                        <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                        {{ event.location if event.location else 'Online link will be provided upon registration.' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar / Action Column -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Registration</h5>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Participants</span>
+                        <span class="fw-bold">
+                            {{ event.participants.count() }} 
+                            {% if event.capacity %} / {{ event.capacity }}{% endif %}
+                        </span>
+                    </div>
+
+                    {% if event.capacity %}
+                    <div class="progress mb-4" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ (event.participants.count() / event.capacity) * 100 }}%"></div>
+                    </div>
+                    {% endif %}
+
+                    {% if is_registered %}
+                        <div class="alert alert-success mb-0">
+                            <i class="fas fa-check-circle me-2"></i>
+                            You are going!
+                        </div>
+                    {% else %}
+                        <form action="{{ url_for('senior.register_event', event_id=event.id) }}" method="POST">
+                            <button class="btn btn-primary w-100 btn-lg shadow-sm"
+                                    {% if event.capacity and event.participants.count() >= event.capacity %}disabled{% endif %}>
+                                {% if event.capacity and event.participants.count() >= event.capacity %}
+                                    Event Full
+                                {% else %}
+                                    Join Event
+                                {% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Participants List (New Requirement: "list of who else has joined") -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 fw-bold">Who's Going?</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for participant in event.participants %}
+                    <li class="list-group-item d-flex align-items-center py-3">
+                        <div class="avatar-placeholder sm me-3 bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            {{ participant.user.full_name[0]|upper }}
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ participant.user.full_name }}</div>
+                            <small class="text-muted">{{ participant.user.role|capitalize }}</small>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-center text-muted py-4">
+                        Be the first to join!
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

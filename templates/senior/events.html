@@ -46,18 +46,18 @@
         {% if events %}
             {% for event in events %}
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card event-card h-100">
+                <div class="card event-card h-100 shadow-sm border-0">
                     <div class="card-body">
                         <!-- Event Type Badge -->
-                        <span class="badge {% if event.event_type == 'online' %}bg-primary{% else %}bg-success{% endif %} mb-3">
+                        <span class="badge {% if event.event_type == 'online' %}bg-primary{% else %}bg-success{% endif %} mb-3 rounded-pill px-3">
                             <i class="fas {% if event.event_type == 'online' %}fa-desktop{% else %}fa-map-marker-alt{% endif %} me-1"></i>
                             {{ event.event_type|capitalize }}
                         </span>
 
                         <!-- Event Date -->
-                        <div class="event-date mb-3">
+                        <div class="event-date mb-3 bg-light p-3 rounded-3 border-start border-4 border-warning">
                             <i class="fas fa-calendar text-warning me-2"></i>
-                            <strong>{{ event.date.strftime('%A, %B %d, %Y') }}</strong>
+                            <strong class="text-dark">{{ event.date.strftime('%A, %B %d, %Y') }}</strong>
                             <br>
                             <small class="text-muted ms-4">
                                 {{ event.date.strftime('%I:%M %p') }}
@@ -65,7 +65,11 @@
                         </div>
 
                         <!-- Event Title -->
-                        <h5 class="card-title mb-3">{{ event.title }}</h5>
+                        <h5 class="card-title mb-3 fw-bold">
+                            <a href="{{ url_for('senior.event_detail', event_id=event.id) }}" class="text-decoration-none text-dark stretched-link">
+                                {{ event.title }}
+                            </a>
+                        </h5>
 
                         <!-- Event Description -->
                         <p class="card-text text-muted">
@@ -73,13 +77,13 @@
                         </p>
 
                         <!-- Event Location -->
-                        <p class="text-muted mb-3">
-                            <i class="fas fa-map-marker-alt me-2"></i>
+                        <p class="text-muted mb-3 small">
+                            <i class="fas fa-map-marker-alt me-2 text-danger"></i>
                             {{ event.location if event.location else 'Online Event' }}
                         </p>
 
                         <!-- Participants Count -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
                             <small class="text-muted">
                                 <i class="fas fa-users me-1"></i>
                                 {{ event.participants.count() }} registered
@@ -88,22 +92,34 @@
                                 {% endif %}
                             </small>
                             {% if event.capacity and event.participants.count() >= event.capacity %}
-                                <span class="badge bg-danger">Full</span>
+                                <span class="badge bg-danger rounded-pill">Full</span>
                             {% endif %}
                         </div>
 
-                        <!-- Register Button -->
-                        <button class="btn btn-primary w-100"
-                                {% if event.capacity and event.participants.count() >= event.capacity %}
-                                    disabled
-                                {% endif %}>
-                            <i class="fas fa-check-circle me-2"></i>
-                            {% if event.capacity and event.participants.count() >= event.capacity %}
-                                Event Full
+                        <!-- Actions -->
+                        <div class="d-grid gap-2" style="position: relative; z-index: 2;">
+                            {% if event.id in registered_event_ids %}
+                                <button class="btn btn-success disabled">
+                                    <i class="fas fa-check me-2"></i>Registered
+                                </button>
                             {% else %}
-                                Register Now
+                                <form action="{{ url_for('senior.register_event', event_id=event.id) }}" method="POST">
+                                    <button class="btn btn-primary w-100" 
+                                            {% if event.capacity and event.participants.count() >= event.capacity %}disabled{% endif %}>
+                                        <i class="fas fa-plus-circle me-2"></i>
+                                        {% if event.capacity and event.participants.count() >= event.capacity %}
+                                            Event Full
+                                        {% else %}
+                                            Register Now
+                                        {% endif %}
+                                    </button>
+                                </form>
                             {% endif %}
-                        </button>
+                            
+                            <a href="{{ url_for('senior.event_detail', event_id=event.id) }}" class="btn btn-outline-secondary">
+                                View Details
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

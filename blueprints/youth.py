@@ -12,9 +12,40 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment
 from datetime import datetime
 from functools import wraps
+import re
 
 # Create youth blueprint
 youth_bp = Blueprint('youth', __name__)
+
+
+# ==================== HELPER FUNCTIONS ====================
+def check_badges(user):
+    """
+    Check and award badges based on user stats.
+    """
+    from models import Badge
+    
+    # 1. First Steps: 1st Event
+    events_count = user.event_participants.count()
+    if events_count >= 1:
+        award_badge(user, 'First Steps')
+        
+    # 2. Community Builder: 5 Communities
+    communities_count = user.community_members.count()
+    if communities_count >= 5:
+        award_badge(user, 'Community Builder')
+        
+    # 3. Conversation Partner: 20 Messages
+    messages_count = user.sent_messages.count()
+    if messages_count >= 20:
+        award_badge(user, 'Conversation Partner')
+
+def award_badge(user, badge_name):
+    from models import Badge
+    if not Badge.query.filter_by(user_id=user.id, badge_type=badge_name).first():
+        new_badge = Badge(user_id=user.id, badge_type=badge_name)
+        db.session.add(new_badge)
+        flash(f'🎉 Congratulations! You earned the {badge_name} badge!', 'success')
 
 
 # ==================== AUTHENTICATION DECORATOR ====================
@@ -122,11 +153,21 @@ def messages():
             
             # Create new message object
             # Status defaults to sent/unread (logic handled by frontend display)
+            
+            # MOCK TRANSLATION LOGIC
+            translated_text = None
+            if content and len(content) > 0 and not content.isascii():
+                 # Mock: If non-ascii characters (simulating foreign lang), add translation
+                 translated_text = f"{content} [Translated to English]"
+            elif content and "Bonjour" in content:
+                 translated_text = "Hello [Translated]"
+                 
             new_message = Message(
                 sender_id=user_id,
                 recipient_id=buddy.id,
                 content=content,
-                is_flagged=is_flagged
+                is_flagged=is_flagged,
+                translated_content=translated_text
             )
             
             # Add to database session
@@ -199,10 +240,53 @@ def get_messages_json():
 @login_required
 def events():
     """Display all available events."""
+    user = User.query.get(session['user_id'])
+    
     upcoming_events = Event.query.filter(Event.date >= datetime.utcnow())\
         .order_by(Event.date).all()
+        
+    # Get IDs of events the user has registered for
+    registered_event_ids = {p.event_id for p in user.event_participants}
 
-    return render_template('youth/events.html', events=upcoming_events)
+    return render_template('youth/events.html', 
+                         events=upcoming_events, 
+                         user=user,
+                         registered_event_ids=registered_event_ids,
+                         now=datetime.utcnow())
+
+
+@youth_bp.route('/events/<int:event_id>/register', methods=['POST'])
+@login_required
+def register_event(event_id):
+    """Register for an event."""
+    from models import EventParticipant
+    
+    # Check if already registered
+    existing = EventParticipant.query.filter_by(
+        event_id=event_id, 
+        user_id=session['user_id']
+    ).first()
+    
+    if existing:
+        flash('You are already registered for this event.', 'info')
+    else:
+        new_participant = EventParticipant(
+            event_id=event_id,
+            user_id=session['user_id']
+        )
+        db.session.add(new_participant)
+        db.session.commit()
+        
+        event = Event.query.get(event_id)
+        
+        # Check for badges
+        user = User.query.get(session['user_id'])
+        check_badges(user)
+        db.session.commit() # Commit again for badge
+        
+        flash(f'Successfully registered for {event.title}!', 'success')
+        
+    return redirect(url_for('youth.events'))
 
 
 # ==================== COMMUNITIES ====================
@@ -210,9 +294,136 @@ def events():
 @login_required
 def communities():
     """Display all communities."""
+    user = User.query.get(session['user_id'])
     all_communities = Community.query.all()
+    
+    # Get IDs of communities the user has already joined
+    joined_community_ids = {member.community_id for member in user.community_members}
 
-    return render_template('youth/communities.html', communities=all_communities)
+    return render_template('youth/communities.html', 
+                         communities=all_communities, 
+                         user=user,
+                         joined_community_ids=joined_community_ids)
+
+
+@youth_bp.route('/communities/<int:community_id>/join', methods=['POST'])
+@login_required
+def join_community(community_id):
+    """Join a community."""
+    from models import CommunityMember
+    
+    # Check if already joined
+    existing = CommunityMember.query.filter_by(
+        community_id=community_id, 
+        user_id=session['user_id']
+    ).first()
+    
+    if existing:
+        flash('You are already a member of this community.', 'info')
+    else:
+        new_member = CommunityMember(
+            community_id=community_id,
+            user_id=session['user_id']
+        )
+        
+        # Update member count
+        community = Community.query.get_or_404(community_id)
+        community.member_count += 1
+        
+        db.session.add(new_member)
+        db.session.commit()
+        
+        # Check for badges
+        user = User.query.get(session['user_id'])
+        check_badges(user)
+        db.session.commit() # Commit again for badge
+        
+        flash(f'Successfully joined {community.name}!', 'success')
+        
+    return redirect(url_for('youth.communities'))
+
+
+@youth_bp.route('/communities/<int:community_id>/leave', methods=['POST'])
+@login_required
+def leave_community(community_id):
+    """Leave a community."""
+    from models import CommunityMember
+    
+    member = CommunityMember.query.filter_by(
+        community_id=community_id, 
+        user_id=session['user_id']
+    ).first()
+    
+    if member:
+        # Update member count
+        community = Community.query.get_or_404(community_id)
+        community.member_count = max(0, community.member_count - 1)
+        
+        db.session.delete(member)
+        db.session.commit()
+        flash(f'You have left {community.name}.', 'info')
+    else:
+        flash('You are not a member of this community.', 'warning')
+        
+    return redirect(url_for('youth.communities'))
+
+
+# ==================== GAMES ====================
+@youth_bp.route('/games')
+@login_required
+def games():
+    """Display game selection lobby."""
+    from models import Streak
+
+    # Get paired senior buddy for online status
+    pair = Pair.query.filter_by(youth_id=session['user_id'], status='active').first()
+    buddy = User.query.get(pair.senior_id) if pair else None
+
+    # Get user stats
+    streak = Streak.query.filter_by(user_id=session['user_id']).first()
+    if not streak:
+        streak = Streak(user_id=session['user_id'])
+        db.session.add(streak)
+        db.session.commit()
+
+    # Define available games dynamically
+    games_list = [
+        {
+            'name': 'Chess',
+            'type': 'Classic',
+            'badge_class': 'modern',
+            'icon_class': 'fa-chess-king', # using king icon for western chess
+            'css_class': 'pick-up-sticks', # reusing existing gradient style
+            'description': 'The classic game of strategy. Checkmate your opponent by trapping their King!',
+            'players': '2 Players',
+            'time': '30-60 min',
+            'skill': 'Strategy'
+        },
+        {
+            'name': 'Chinese Chess',
+            'type': 'Traditional',
+            'badge_class': 'traditional',
+            'icon_class': 'fa-chess-board', # closest approx if specific xiangqi icon missing
+            'css_class': 'congkak', # reusing existing gradient style
+            'description': 'Xiangqi (Chinese Chess) is a strategy board game for two players. Capture the enemy General!',
+            'players': '2 Players',
+            'time': '30-60 min',
+            'skill': 'Strategy'
+        },
+        {
+            'name': 'Tic-Tac-Toe',
+            'type': 'Classic',
+            'badge_class': 'modern',
+            'icon_class': 'fa-th',
+            'css_class': 'tic-tac-toe',
+            'description': 'The timeless classic! Get three in a row before your opponent. Simple to learn, challenging to master.',
+            'players': '2 Players',
+            'time': '2-5 min',
+            'skill': 'Logic'
+        }
+    ]
+
+    return render_template('youth/games.html', buddy=buddy, games=games_list, streak=streak)
 
 
 # ==================== BADGES ====================
@@ -223,16 +434,41 @@ def badges():
     user = User.query.get(session['user_id'])
 
     # Get earned badges
-    earned_badges = Badge.query.filter_by(user_id=user.id).all()
+    earned_badges_list = Badge.query.filter_by(user_id=user.id).all()
+    earned_badge_types = {b.badge_type for b in earned_badges_list}
 
     # Get streak info
     from models import Streak
     streak = Streak.query.filter_by(user_id=user.id).first()
 
+    # Calculate stats
+    events_count = user.event_participants.count()
+    total_hours = events_count * 2 # Assumption: 2 hours per event
+    seniors_helped = events_count + (1 if user.youth_pairs.count() > 0 else 0)
+
+    # Define all available badges
+    all_badges = [
+        {'type': 'First Steps', 'icon': '🌟', 'desc': 'Complete your first volunteer session', 'threshold': 1},
+        {'type': 'Story Keeper', 'icon': '📖', 'desc': 'Document 5 senior life stories', 'threshold': 5},
+        {'type': 'Tech Wizard', 'icon': '💻', 'desc': 'Help 10 seniors with technology', 'threshold': 10},
+        {'type': 'Game Master', 'icon': '🎮', 'desc': 'Facilitate 15 game sessions', 'threshold': 15},
+        {'type': 'Community Builder', 'icon': '🏘️', 'desc': 'Join 5 volunteer communities', 'threshold': 5},
+        {'type': 'Event Organizer', 'icon': '📅', 'desc': 'Organize 3 volunteer events', 'threshold': 3},
+        {'type': 'Heritage Champion', 'icon': '🏛️', 'desc': 'Participate in 5 heritage activities', 'threshold': 5},
+        {'type': 'Conversation Partner', 'icon': '💬', 'desc': 'Have 20 meaningful conversations', 'threshold': 20}
+    ]
+
     return render_template('youth/badges.html',
                          user=user,
-                         earned_badges=earned_badges,
-                         streak=streak)
+                         earned_badge_types=earned_badge_types,
+                         streak=streak,
+                         stats={
+                             'hours': total_hours,
+                             'badges': len(earned_badges_list),
+                             'events': events_count,
+                             'seniors': seniors_helped
+                         },
+                         all_badges=all_badges)
 
 
 # ==================== PROFILE ====================
@@ -244,7 +480,15 @@ def profile():
     if request.method == 'POST':
         # 1. Update basic information
         user.full_name = request.form.get('full_name')
-        user.email = request.form.get('email')
+        email = request.form.get('email')
+        
+        # Validate email
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            flash('Please enter a valid email address', 'danger')
+            return redirect(url_for('youth.profile'))
+            
+        user.email = email
         user.phone = request.form.get('phone')
         user.school = request.form.get('school')
         user.bio = request.form.get('bio')
@@ -287,6 +531,8 @@ def profile():
         # 3. Commit changes
         try:
             db.session.commit()
+            # Update session with new profile picture to reflect changes immediately in navbar
+            session['profile_picture'] = user.profile_picture
             flash('Profile updated successfully!', 'success')
         except Exception as e:
             db.session.rollback()
@@ -311,7 +557,8 @@ def profile():
                          buddy=buddy,
                          reactions_count=reactions_count,
                          comments_count=comments_count,
-                         messages_count=messages_count)
+                         messages_count=messages_count,
+                         now=datetime.utcnow())
 
 
 # ==================== STORY INTERACTIONS API ====================
