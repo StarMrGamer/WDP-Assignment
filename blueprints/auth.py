@@ -12,6 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
+import re
 
 # Create authentication blueprint
 auth_bp = Blueprint('auth', __name__)
@@ -125,6 +126,17 @@ def register():
             flash('Please fill in all required fields', 'danger')
             return render_template('auth/register.html', role=role)
 
+        # Validate email format
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            flash('Please enter a valid email address', 'danger')
+            return render_template('auth/register.html', role=role)
+
+        # Validate password length
+        if len(password) < 6:
+            flash('Password must be at least 6 characters long', 'danger')
+            return render_template('auth/register.html', role=role)
+
         # Convert age to integer
         try:
             age = int(age)
@@ -149,6 +161,7 @@ def register():
         if password != confirm_password:
             flash('Passwords do not match', 'danger')
             return render_template('auth/register.html', role=role)
+
 
         # Check if username already exists
         if User.query.filter_by(username=username).first():

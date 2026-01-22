@@ -15,6 +15,7 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 import os
 import json
+import re
 
 # Create senior blueprint
 senior_bp = Blueprint('senior', __name__)
@@ -467,7 +468,15 @@ def profile():
     if request.method == 'POST':
         # 1. Update basic information
         user.full_name = request.form.get('full_name')
-        user.email = request.form.get('email')
+        email = request.form.get('email')
+        
+        # Validate email
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            flash('Please enter a valid email address', 'danger')
+            return redirect(url_for('senior.profile'))
+            
+        user.email = email
         user.phone = request.form.get('phone')
         
         try:

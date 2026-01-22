@@ -12,6 +12,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment
 from datetime import datetime
 from functools import wraps
+import re
 
 # Create youth blueprint
 youth_bp = Blueprint('youth', __name__)
@@ -421,7 +422,15 @@ def profile():
     if request.method == 'POST':
         # 1. Update basic information
         user.full_name = request.form.get('full_name')
-        user.email = request.form.get('email')
+        email = request.form.get('email')
+        
+        # Validate email
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            flash('Please enter a valid email address', 'danger')
+            return redirect(url_for('youth.profile'))
+            
+        user.email = email
         user.phone = request.form.get('phone')
         user.school = request.form.get('school')
         user.bio = request.form.get('bio')

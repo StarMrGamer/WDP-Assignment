@@ -97,5 +97,7 @@
     - [ ] Implement `update` and `delete` functionality for Communities in Admin panel.
     - [ ] Implement `unpair`/`delete` functionality for Pairs in Admin panel.
 - [ ] **General:**
-    - [ ] Add default avatar image file to `static/images/` if missing.
-    - [ ] Data validation refinements.
+    - [x] Add default avatar image file to `static/images/` if missing.
+    - [x] Data validation refinements.
+    - [ ] Implement pagination for lists (users, stories, etc.).
+    - [ ] Implement search functionality.
