@@ -12,7 +12,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
-import re
 
 # Create authentication blueprint
 auth_bp = Blueprint('auth', __name__)
@@ -126,17 +125,6 @@ def register():
             flash('Please fill in all required fields', 'danger')
             return render_template('auth/register.html', role=role)
 
-        # Validate email format
-        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_regex, email):
-            flash('Please enter a valid email address', 'danger')
-            return render_template('auth/register.html', role=role)
-
-        # Validate password length
-        if len(password) < 6:
-            flash('Password must be at least 6 characters long', 'danger')
-            return render_template('auth/register.html', role=role)
-
         # Convert age to integer
         try:
             age = int(age)
@@ -161,7 +149,6 @@ def register():
         if password != confirm_password:
             flash('Passwords do not match', 'danger')
             return render_template('auth/register.html', role=role)
-
 
         # Check if username already exists
         if User.query.filter_by(username=username).first():
@@ -263,41 +250,6 @@ def logout():
     session.clear()
     flash(f'Goodbye, {username}! You have been logged out.', 'info')
     return redirect(url_for('index'))
-
-
-# ==================== DELETE ACCOUNT ROUTE ====================
-@auth_bp.route('/delete_account', methods=['POST'])
-def delete_account():
-    """
-    Allow users to delete their own account.
-    """
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
-
-    user = User.query.get(session['user_id'])
-    if not user:
-        session.clear()
-        return redirect(url_for('index'))
-
-    try:
-        # Delete user (Cascading delete should handle related records if configured,
-        # otherwise we might need to manually clean up. Assuming DB cascade is set or
-        # SQLAlchemy cascade options are correct. If not, minimal cleanup here.)
-        
-        # Manually delete user-specific relations if they don't cascade automatically
-        # to ensure clean removal.
-        # (For this assignment, we rely on standard SQLAlchemy cascade behavior or just delete the user)
-        db.session.delete(user)
-        db.session.commit()
-
-        session.clear()
-        flash('Your account has been successfully deleted. We are sorry to see you go.', 'success')
-        return redirect(url_for('index'))
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error deleting account: {e}")
-        flash('An error occurred while deleting your account.', 'danger')
-        return redirect(url_for(f"{session.get('role', 'senior')}.profile"))
 
 
 # ==================== HELPER FUNCTIONS ====================
