@@ -331,13 +331,15 @@
             <hr class="my-3 opacity-25">
 
             <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-outline-light btn-sm" onclick="warnUser({{ report.reported_user.id }})">
+                <button class="btn btn-outline-light btn-sm" onclick="alert('Feature coming soon: Warn user')">
                     <i class="fas fa-exclamation-triangle me-1"></i>Warn User
                 </button>
-                <button class="btn btn-outline-light btn-sm" onclick="suspendUser({{ report.reported_user.id }})">
-                    <i class="fas fa-ban me-1"></i>Suspend User
-                </button>
-                <button class="btn btn-outline-light btn-sm" onclick="deleteMessage({{ report.message.id }})">
+                <form action="{{ url_for('admin.toggle_user_status', user_id=report.reported_user.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-ban me-1"></i>{{ 'Deactivate' if report.reported_user.is_active else 'Activate' }} User
+                    </button>
+                </form>
+                <button class="btn btn-outline-light btn-sm" onclick="alert('Feature coming soon: Delete message')">
                     <i class="fas fa-trash me-1"></i>Delete Message
                 </button>
             </div>

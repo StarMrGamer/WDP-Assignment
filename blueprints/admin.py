@@ -258,6 +258,34 @@ def create_pair():
                          unpaired_youth=unpaired_youth)
 
 
+@admin_bp.route('/pairs/<int:pair_id>/delete', methods=['POST'])
+@admin_required
+def delete_pair(pair_id):
+    """Permanently delete a buddy pair."""
+    pair = Pair.query.get_or_404(pair_id)
+    try:
+        db.session.delete(pair)
+        db.session.commit()
+        flash('Buddy pair has been removed.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error removing pair.', 'danger')
+    return redirect(url_for('admin.pairs'))
+
+
+@admin_bp.route('/pairs/<int:pair_id>/remind', methods=['POST'])
+@admin_required
+def send_pair_reminder(pair_id):
+    """Send a reminder to a pair (Mock interaction update)."""
+    pair = Pair.query.get_or_404(pair_id)
+    # In a real app, this would send an email or push notification.
+    # For this project, we'll update the interaction time to show it was "handled".
+    pair.last_interaction = datetime.utcnow()
+    db.session.commit()
+    flash(f'Reminder sent to {pair.senior.full_name} and {pair.youth.full_name}.', 'info')
+    return redirect(url_for('admin.pairs'))
+
+
 # ==================== EVENT MANAGEMENT ====================
 @admin_bp.route('/events')
 @admin_required

@@ -160,22 +160,9 @@
                 <!-- Actions -->
                 <div class="d-flex gap-2 mt-3 pt-3 border-top">
                     <a href="{{ url_for('admin.report_detail', report_id=report.id) }}"
-                       class="btn btn-primary">
-                        <i class="fas fa-eye me-1"></i>Review Report
+                       class="btn btn-primary w-100">
+                        <i class="fas fa-gavel me-1"></i>Review and Take Action
                     </a>
-                    {% if report.status == 'pending' %}
-                    <button class="btn btn-info" onclick="markUnderReview({{ report.id }})">
-                        <i class="fas fa-search me-1"></i>Start Review
-                    </button>
-                    {% endif %}
-                    {% if report.status in ['pending', 'under_review'] %}
-                    <button class="btn btn-success" onclick="resolveReport({{ report.id }})">
-                        <i class="fas fa-check me-1"></i>Resolve
-                    </button>
-                    <button class="btn btn-secondary" onclick="dismissReport({{ report.id }})">
-                        <i class="fas fa-times me-1"></i>Dismiss
-                    </button>
-                    {% endif %}
                 </div>
             </div>
         </div>
