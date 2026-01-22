@@ -94,8 +94,6 @@
         box-shadow: 0 2px 12px rgba(0,0,0,0.08);
         transition: all 0.3s ease;
         border: 2px solid transparent;
-        display: flex;
-        flex-direction: column;
     }
 
     .community-card:hover {
@@ -145,9 +143,6 @@
 
     .community-body {
         padding: 1.5rem;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
     }
 
     .community-header {
@@ -184,7 +179,6 @@
         font-size: 0.95rem;
         margin-bottom: 1rem;
         line-height: 1.6;
-        flex-grow: 1;
     }
 
     .community-tags {
@@ -323,27 +317,24 @@
         <p>Connect with others who share your interests and passions</p>
     </div>
 
-    <!-- My Communities Section (Dynamic) -->
-    {% if user and user.community_members.count() > 0 %}
+    <!-- My Communities Section -->
     <div class="my-communities-section">
         <h2><i class="fas fa-star me-2 text-warning"></i>My Communities</h2>
         <div class="my-communities-list">
-            {% for member in user.community_members %}
-                {% set comm = member.community %}
-                <div class="my-community-pill">
-                    {% if comm.type == 'Story' %}
-                        <i class="fas fa-book-open"></i>
-                    {% elif comm.type == 'Hobby' %}
-                        <i class="fas fa-palette"></i>
-                    {% else %}
-                        <i class="fas fa-users"></i>
-                    {% endif %}
-                    <span>{{ comm.name }}</span>
-                </div>
-            {% endfor %}
+            <div class="my-community-pill">
+                <i class="fas fa-palette"></i>
+                <span>Traditional Arts</span>
+            </div>
+            <div class="my-community-pill">
+                <i class="fas fa-utensils"></i>
+                <span>Heritage Cooking</span>
+            </div>
+            <div class="my-community-pill">
+                <i class="fas fa-book-open"></i>
+                <span>Story Sharing Circle</span>
+            </div>
         </div>
     </div>
-    {% endif %}
 
     <!-- Search and Filter Bar -->
     <div class="search-filter-bar">
@@ -362,94 +353,270 @@
                     <button class="filter-btn active" data-filter="all">
                         <i class="fas fa-th me-1"></i>All
                     </button>
-                    <button class="filter-btn" data-filter="Story">
-                        <i class="fas fa-book-open me-1"></i>Story
+                    <button class="filter-btn" data-filter="arts">
+                        <i class="fas fa-palette me-1"></i>Arts
                     </button>
-                    <button class="filter-btn" data-filter="Hobby">
-                        <i class="fas fa-palette me-1"></i>Hobby
+                    <button class="filter-btn" data-filter="culture">
+                        <i class="fas fa-landmark me-1"></i>Culture
                     </button>
-                    <button class="filter-btn" data-filter="Learning">
-                        <i class="fas fa-graduation-cap me-1"></i>Learning
+                    <button class="filter-btn" data-filter="cooking">
+                        <i class="fas fa-utensils me-1"></i>Cooking
+                    </button>
+                    <button class="filter-btn" data-filter="other">
+                        <i class="fas fa-ellipsis-h me-1"></i>Other
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Communities Grid (Dynamic) -->
+    <!-- Communities Grid -->
     <div class="communities-grid">
-        {% if communities %}
-            {% for community in communities %}
-                <!-- Determine styling based on type -->
-                {% set banner_class = 'other' %}
-                {% set icon_class = 'fas fa-users' %}
-                
-                {% if community.type == 'Story' %}
-                    {% set banner_class = 'culture' %}
-                    {% set icon_class = 'fas fa-book-open' %}
-                {% elif community.type == 'Hobby' %}
-                    {% set banner_class = 'arts' %}
-                    {% set icon_class = 'fas fa-palette' %}
-                {% elif community.type == 'Learning' %}
-                    {% set banner_class = 'gardening' %}
-                    {% set icon_class = 'fas fa-graduation-cap' %}
-                {% endif %}
-
-                <div class="community-card" data-category="{{ community.type }}">
-                    <div class="community-banner {{ banner_class }}">
-                        <div class="icon">
-                            <i class="{{ icon_class }}"></i>
-                        </div>
+        <!-- Community Card 1: Traditional Arts -->
+        <div class="community-card" data-category="arts">
+            <div class="community-banner arts">
+                <div class="icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+            </div>
+            <div class="community-body">
+                <div class="community-header">
+                    <h3>Traditional Arts</h3>
+                </div>
+                <div class="community-meta">
+                    <div class="community-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>124 members</span>
                     </div>
-                    <div class="community-body">
-                        <div class="community-header">
-                            <h3>{{ community.name }}</h3>
-                        </div>
-                        <div class="community-meta">
-                            <div class="community-meta-item">
-                                <i class="fas fa-users"></i>
-                                <span>{{ community.member_count }} members</span>
-                            </div>
-                            <div class="community-meta-item">
-                                <i class="fas fa-comment"></i>
-                                <span>{{ community.posts.count() }} posts</span>
-                            </div>
-                        </div>
-                        <p class="community-description">
-                            {{ community.description or 'No description available.' }}
-                        </p>
-                        <div class="community-tags">
-                            <span class="community-tag">{{ community.type }}</span>
-                        </div>
-                        <div class="community-footer">
-                            {% if community.id in joined_community_ids %}
-                                <form action="{{ url_for('senior.leave_community', community_id=community.id) }}" method="POST" style="flex: 1;">
-                                    <button type="submit" class="btn btn-join joined w-100">
-                                        <i class="fas fa-check me-2"></i>Joined
-                                    </button>
-                                </form>
-                            {% else %}
-                                <form action="{{ url_for('senior.join_community', community_id=community.id) }}" method="POST" style="flex: 1;">
-                                    <button type="submit" class="btn btn-join w-100">
-                                        <i class="fas fa-plus me-2"></i>Join
-                                    </button>
-                                </form>
-                            {% endif %}
-                            
-                            <!-- Placeholder for View (could link to a detail page in future) -->
-                            <button class="btn btn-view" onclick="alert('Community details feature coming soon!')">
-                                <i class="fas fa-arrow-right me-2"></i>View
-                            </button>
-                        </div>
+                    <div class="community-meta-item">
+                        <i class="fas fa-comment"></i>
+                        <span>45 posts</span>
                     </div>
                 </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12 text-center py-5">
-                <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
-                <p class="text-muted">No communities found. Check back later!</p>
+                <p class="community-description">
+                    Explore and share traditional Singaporean art forms including calligraphy,
+                    batik painting, and Chinese brush painting.
+                </p>
+                <div class="community-tags">
+                    <span class="community-tag">Painting</span>
+                    <span class="community-tag">Calligraphy</span>
+                    <span class="community-tag">Heritage</span>
+                </div>
+                <div class="community-footer">
+                    <button class="btn btn-join joined">
+                        <i class="fas fa-check me-2"></i>Joined
+                    </button>
+                    <button class="btn btn-view">
+                        <i class="fas fa-arrow-right me-2"></i>View
+                    </button>
+                </div>
             </div>
-        {% endif %}
+        </div>
+
+        <!-- Community Card 2: Heritage Cooking -->
+        <div class="community-card" data-category="cooking">
+            <div class="community-banner cooking">
+                <div class="icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+            </div>
+            <div class="community-body">
+                <div class="community-header">
+                    <h3>Heritage Cooking</h3>
+                </div>
+                <div class="community-meta">
+                    <div class="community-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>256 members</span>
+                    </div>
+                    <div class="community-meta-item">
+                        <i class="fas fa-comment"></i>
+                        <span>89 posts</span>
+                    </div>
+                </div>
+                <p class="community-description">
+                    Share traditional recipes, cooking techniques, and culinary stories passed
+                    down through generations.
+                </p>
+                <div class="community-tags">
+                    <span class="community-tag">Recipes</span>
+                    <span class="community-tag">Food Heritage</span>
+                    <span class="community-tag">Cooking Tips</span>
+                </div>
+                <div class="community-footer">
+                    <button class="btn btn-join joined">
+                        <i class="fas fa-check me-2"></i>Joined
+                    </button>
+                    <button class="btn btn-view">
+                        <i class="fas fa-arrow-right me-2"></i>View
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Community Card 3: Story Sharing Circle -->
+        <div class="community-card" data-category="culture">
+            <div class="community-banner culture">
+                <div class="icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+            </div>
+            <div class="community-body">
+                <div class="community-header">
+                    <h3>Story Sharing Circle</h3>
+                </div>
+                <div class="community-meta">
+                    <div class="community-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>187 members</span>
+                    </div>
+                    <div class="community-meta-item">
+                        <i class="fas fa-comment"></i>
+                        <span>156 posts</span>
+                    </div>
+                </div>
+                <p class="community-description">
+                    A safe space to share life experiences, wisdom, and stories from Singapore's
+                    rich history and your personal journey.
+                </p>
+                <div class="community-tags">
+                    <span class="community-tag">Life Stories</span>
+                    <span class="community-tag">History</span>
+                    <span class="community-tag">Wisdom</span>
+                </div>
+                <div class="community-footer">
+                    <button class="btn btn-join joined">
+                        <i class="fas fa-check me-2"></i>Joined
+                    </button>
+                    <button class="btn btn-view">
+                        <i class="fas fa-arrow-right me-2"></i>View
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Community Card 4: Gardening Enthusiasts -->
+        <div class="community-card" data-category="other">
+            <div class="community-banner gardening">
+                <div class="icon">
+                    <i class="fas fa-seedling"></i>
+                </div>
+            </div>
+            <div class="community-body">
+                <div class="community-header">
+                    <h3>Gardening Enthusiasts</h3>
+                </div>
+                <div class="community-meta">
+                    <div class="community-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>98 members</span>
+                    </div>
+                    <div class="community-meta-item">
+                        <i class="fas fa-comment"></i>
+                        <span>67 posts</span>
+                    </div>
+                </div>
+                <p class="community-description">
+                    Connect with fellow gardening lovers to share tips on growing tropical plants,
+                    herbs, and creating beautiful gardens.
+                </p>
+                <div class="community-tags">
+                    <span class="community-tag">Plants</span>
+                    <span class="community-tag">Gardening</span>
+                    <span class="community-tag">Nature</span>
+                </div>
+                <div class="community-footer">
+                    <button class="btn btn-join">
+                        <i class="fas fa-plus me-2"></i>Join
+                    </button>
+                    <button class="btn btn-view">
+                        <i class="fas fa-arrow-right me-2"></i>View
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Community Card 5: Music & Songs -->
+        <div class="community-card" data-category="arts">
+            <div class="community-banner music">
+                <div class="icon">
+                    <i class="fas fa-music"></i>
+                </div>
+            </div>
+            <div class="community-body">
+                <div class="community-header">
+                    <h3>Music & Songs</h3>
+                </div>
+                <div class="community-meta">
+                    <div class="community-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>143 members</span>
+                    </div>
+                    <div class="community-meta-item">
+                        <i class="fas fa-comment"></i>
+                        <span>78 posts</span>
+                    </div>
+                </div>
+                <p class="community-description">
+                    Share your love for music, from traditional songs to modern tunes.
+                    Discuss favorite melodies and musical memories.
+                </p>
+                <div class="community-tags">
+                    <span class="community-tag">Music</span>
+                    <span class="community-tag">Songs</span>
+                    <span class="community-tag">Memories</span>
+                </div>
+                <div class="community-footer">
+                    <button class="btn btn-join">
+                        <i class="fas fa-plus me-2"></i>Join
+                    </button>
+                    <button class="btn btn-view">
+                        <i class="fas fa-arrow-right me-2"></i>View
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Community Card 6: Active Seniors -->
+        <div class="community-card" data-category="other">
+            <div class="community-banner sports">
+                <div class="icon">
+                    <i class="fas fa-walking"></i>
+                </div>
+            </div>
+            <div class="community-body">
+                <div class="community-header">
+                    <h3>Active Seniors</h3>
+                </div>
+                <div class="community-meta">
+                    <div class="community-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>211 members</span>
+                    </div>
+                    <div class="community-meta-item">
+                        <i class="fas fa-comment"></i>
+                        <span>134 posts</span>
+                    </div>
+                </div>
+                <p class="community-description">
+                    Stay active and healthy together! Share fitness tips, walking routes,
+                    tai chi sessions, and wellness activities.
+                </p>
+                <div class="community-tags">
+                    <span class="community-tag">Fitness</span>
+                    <span class="community-tag">Wellness</span>
+                    <span class="community-tag">Activities</span>
+                </div>
+                <div class="community-footer">
+                    <button class="btn btn-join">
+                        <i class="fas fa-plus me-2"></i>Join
+                    </button>
+                    <button class="btn btn-view">
+                        <i class="fas fa-arrow-right me-2"></i>View
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -467,7 +634,7 @@
             const filter = this.getAttribute('data-filter');
             document.querySelectorAll('.community-card').forEach(card => {
                 if (filter === 'all' || card.getAttribute('data-category') === filter) {
-                    card.style.display = 'flex'; // Use flex to match the css definition
+                    card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
                 }
@@ -482,9 +649,22 @@
             const title = card.querySelector('h3').textContent.toLowerCase();
             const description = card.querySelector('.community-description').textContent.toLowerCase();
             if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                card.style.display = 'flex';
+                card.style.display = 'block';
             } else {
                 card.style.display = 'none';
+            }
+        });
+    });
+
+    // Join/Leave button toggle
+    document.querySelectorAll('.btn-join').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (this.classList.contains('joined')) {
+                this.classList.remove('joined');
+                this.innerHTML = '<i class="fas fa-plus me-2"></i>Join';
+            } else {
+                this.classList.add('joined');
+                this.innerHTML = '<i class="fas fa-check me-2"></i>Joined';
             }
         });
     });
