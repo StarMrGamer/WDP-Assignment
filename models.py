@@ -111,6 +111,8 @@ class User(db.Model):
     streak = db.relationship('Streak', back_populates='user', uselist=False)
     badges = db.relationship('Badge', back_populates='user', lazy='dynamic')
     checkins = db.relationship('Checkin', back_populates='user', lazy='dynamic')
+    event_participants = db.relationship('EventParticipant', back_populates='user', lazy='dynamic')
+    community_members = db.relationship('CommunityMember', back_populates='user', lazy='dynamic')
 
     def set_password(self, password):
         """
@@ -444,7 +446,7 @@ class EventParticipant(db.Model):
 
     # Relationships
     event = db.relationship('Event', back_populates='participants')
-    user = db.relationship('User')
+    user = db.relationship('User', back_populates='event_participants')
 
     # Unique constraint: one user can only register once per event
     __table_args__ = (db.UniqueConstraint('event_id', 'user_id', name='unique_event_user'),)
@@ -520,7 +522,7 @@ class CommunityMember(db.Model):
 
     # Relationships
     community = db.relationship('Community', back_populates='members')
-    user = db.relationship('User')
+    user = db.relationship('User', back_populates='community_members')
 
     # Unique constraint: one user can only join a community once
     __table_args__ = (db.UniqueConstraint('community_id', 'user_id', name='unique_community_user'),)

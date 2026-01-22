@@ -17,6 +17,36 @@ from functools import wraps
 youth_bp = Blueprint('youth', __name__)
 
 
+# ==================== HELPER FUNCTIONS ====================
+def check_badges(user):
+    """
+    Check and award badges based on user stats.
+    """
+    from models import Badge
+    
+    # 1. First Steps: 1st Event
+    events_count = user.event_participants.count()
+    if events_count >= 1:
+        award_badge(user, 'First Steps')
+        
+    # 2. Community Builder: 5 Communities
+    communities_count = user.community_members.count()
+    if communities_count >= 5:
+        award_badge(user, 'Community Builder')
+        
+    # 3. Conversation Partner: 20 Messages
+    messages_count = user.sent_messages.count()
+    if messages_count >= 20:
+        award_badge(user, 'Conversation Partner')
+
+def award_badge(user, badge_name):
+    from models import Badge
+    if not Badge.query.filter_by(user_id=user.id, badge_type=badge_name).first():
+        new_badge = Badge(user_id=user.id, badge_type=badge_name)
+        db.session.add(new_badge)
+        flash(f'🎉 Congratulations! You earned the {badge_name} badge!', 'success')
+
+
 # ==================== AUTHENTICATION DECORATOR ====================
 def login_required(f):
     """
@@ -122,11 +152,21 @@ def messages():
             
             # Create new message object
             # Status defaults to sent/unread (logic handled by frontend display)
+            
+            # MOCK TRANSLATION LOGIC
+            translated_text = None
+            if content and len(content) > 0 and not content.isascii():
+                 # Mock: If non-ascii characters (simulating foreign lang), add translation
+                 translated_text = f"{content} [Translated to English]"
+            elif content and "Bonjour" in content:
+                 translated_text = "Hello [Translated]"
+                 
             new_message = Message(
                 sender_id=user_id,
                 recipient_id=buddy.id,
                 content=content,
-                is_flagged=is_flagged
+                is_flagged=is_flagged,
+                translated_content=translated_text
             )
             
             # Add to database session
@@ -237,6 +277,12 @@ def register_event(event_id):
         db.session.commit()
         
         event = Event.query.get(event_id)
+        
+        # Check for badges
+        user = User.query.get(session['user_id'])
+        check_badges(user)
+        db.session.commit() # Commit again for badge
+        
         flash(f'Successfully registered for {event.title}!', 'success')
         
     return redirect(url_for('youth.events'))
@@ -285,6 +331,12 @@ def join_community(community_id):
         
         db.session.add(new_member)
         db.session.commit()
+        
+        # Check for badges
+        user = User.query.get(session['user_id'])
+        check_badges(user)
+        db.session.commit() # Commit again for badge
+        
         flash(f'Successfully joined {community.name}!', 'success')
         
     return redirect(url_for('youth.communities'))

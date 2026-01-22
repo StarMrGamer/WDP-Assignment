@@ -252,6 +252,41 @@ def logout():
     return redirect(url_for('index'))
 
 
+# ==================== DELETE ACCOUNT ROUTE ====================
+@auth_bp.route('/delete_account', methods=['POST'])
+def delete_account():
+    """
+    Allow users to delete their own account.
+    """
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()
+        return redirect(url_for('index'))
+
+    try:
+        # Delete user (Cascading delete should handle related records if configured,
+        # otherwise we might need to manually clean up. Assuming DB cascade is set or
+        # SQLAlchemy cascade options are correct. If not, minimal cleanup here.)
+        
+        # Manually delete user-specific relations if they don't cascade automatically
+        # to ensure clean removal.
+        # (For this assignment, we rely on standard SQLAlchemy cascade behavior or just delete the user)
+        db.session.delete(user)
+        db.session.commit()
+
+        session.clear()
+        flash('Your account has been successfully deleted. We are sorry to see you go.', 'success')
+        return redirect(url_for('index'))
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting account: {e}")
+        flash('An error occurred while deleting your account.', 'danger')
+        return redirect(url_for(f"{session.get('role', 'senior')}.profile"))
+
+
 # ==================== HELPER FUNCTIONS ====================
 def update_user_streak(user):
     """

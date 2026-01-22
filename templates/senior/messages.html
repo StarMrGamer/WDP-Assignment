@@ -184,7 +184,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="#">
+                <form method="POST" action="{{ url_for('senior.report') }}">
+                    {% if buddy %}
+                    <input type="hidden" name="reported_user_id" value="{{ buddy.id }}">
+                    {% endif %}
+                    
                     <div class="mb-3">
                         <label class="form-label">Reason for Report</label>
                         <select class="form-select" name="reason" required>
