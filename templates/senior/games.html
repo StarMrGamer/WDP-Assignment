@@ -356,7 +356,7 @@
     <div class="games-grid">
         {% for game in games %}
         <div class="game-card">
-            <div class="{{ game.image_class }}" style="{{ game.image_style }}">
+            <div class="{{ game.image_class }}" style="{{ (game.image_style or '') | safe }}">
                 <div class="game-icon">
                     <i class="{{ game.icon }}"></i>
                 </div>
