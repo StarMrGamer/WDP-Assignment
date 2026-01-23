@@ -1,7 +1,7 @@
 # GenCon SG - Project Status Report
-**Last Updated:** January 17, 2026
-**Updated By:** Gemini Agent
-**Reason for Update:** Implemented Story Reaction/Comment API, File Upload logic for stories, and verified completion of key frontend templates and scripts.
+**Last Updated:** January 18, 2026
+**Updated By:** Gemini Code Assist
+**Reason for Update:** Implemented Community features (browsing, chat, management), Profile pages (private & public), and Admin Report management.
 
 ---
 
@@ -34,9 +34,11 @@
 - ✅ `templates/senior/events.html`
 - ✅ `templates/senior/stories.html`
 - ✅ `templates/senior/create_story.html` - Story creation wizard (Logic connected)
-- ⏳ `templates/senior/communities.html` - Community browsing
+- ✅ `templates/senior/communities.html` - Community browsing
+- ✅ `templates/senior/community_chat.html` - Community chat interface
 - ⏳ `templates/senior/games.html` - Game lobby
-- ⏳ `templates/senior/profile.html` - Profile management
+- ✅ `templates/senior/profile.html` - Profile management
+- ✅ `templates/senior/public_profile.html` - Public profile view
 - ⏳ `templates/senior/checkin.html` - Weekly mood check-in
 
 #### Youth Pages
@@ -45,17 +47,21 @@
 - ✅ `templates/youth/story_feed.html` - Instagram-style story feed (API connected)
 - ✅ `templates/youth/story_detail.html` - Full story view with reactions (Dynamic & API connected)
 - ⏳ `templates/youth/events.html` - Event browsing
-- ⏳ `templates/youth/communities.html` - Community browsing
+- ✅ `templates/youth/communities.html` - Community browsing
+- ✅ `templates/youth/community_chat.html` - Community chat interface
 - ⏳ `templates/youth/badges.html` - Achievements showcase
-- ⏳ `templates/youth/profile.html` - Profile management
+- ✅ `templates/youth/profile.html` - Profile management
+- ✅ `templates/youth/public_profile.html` - Public profile view
 
 #### Admin Pages
 - ✅ `templates/admin/dashboard.html` - Fully implemented
 - 🔄 `templates/admin/users.html` - Backend logic done
 - 🔄 `templates/admin/pairs.html` - Backend logic done
 - 🔄 `templates/admin/events.html` - Backend logic done
-- 🔄 `templates/admin/communities.html` - Backend logic done
-- 🔄 `templates/admin/reports.html` - Backend logic done
+- ✅ `templates/admin/communities.html` - Community management list
+- ✅ `templates/admin/manage_community.html` - Edit community & chat monitor
+- ✅ `templates/admin/reports.html` - Report management list
+- ✅ `templates/admin/report_detail.html` - Report review & action
 - 🔄 `templates/admin/analytics.html` - Backend logic done
 
 ### **Static Files (CSS + JavaScript)**
@@ -79,23 +85,23 @@
 | Admin Backend Logic | 100% | ✅ Complete |
 | Senior/Youth Backend Logic | 95% | ✅ Complete |
 | Base Templates & CSS | 100% | ✅ Complete |
-| Senior Templates | 55% | 🔄 In Progress (5/9) |
-| Youth Templates | 38% | 🔄 In Progress (3/8) |
-| Admin Templates (Frontend) | 14% | 🔄 In Progress (1/7) |
+| Senior Templates | 82% | 🔄 In Progress (9/11) |
+| Youth Templates | 73% | 🔄 In Progress (8/11) |
+| Admin Templates (Frontend) | 45% | 🔄 In Progress (5/11) |
 | JavaScript Modules | 66% | 🔄 In Progress (2/3) |
 
-**Overall Project Completion: ~85%**
+**Overall Project Completion: ~90%**
 
 ---
 
 ## 🎯 NEXT STEPS
 
 ### Priority 1: Complete Remaining User Templates
-1.  **Senior:** Finish `communities.html`, `games.html`, `profile.html`, `checkin.html`.
-2.  **Youth:** Finish `story_detail.html`, `events.html`, `communities.html`, `badges.html`, `profile.html`.
+1.  **Senior:** Finish `games.html`, `checkin.html`.
+2.  **Youth:** Finish `events.html`, `badges.html`, `games.html`.
 
 ### Priority 2: Build Admin Frontend
-1.  Create the 6 remaining admin templates to connect to the completed backend logic.
+1.  Create the remaining admin templates (`users.html`, `pairs.html`, `events.html`, `analytics.html`).
 
 ### Priority 3: Final Polish
 1.  Add default avatar image to `static/images/`.
@@ -112,7 +118,7 @@
     - [ ] Implement event registration logic (`POST` on `/events/<int:event_id>/register`).
     - [ ] Implement community join/leave functionality.
 - [ ] **Build Admin UI:**
-    - [ ] Create remaining 6 admin templates (`users.html`, etc.).
+    - [ ] Create remaining admin templates (`users.html`, `pairs.html`, `events.html`, `analytics.html`).
 - [ ] **General:**
     - [ ] Add default avatar image file to `static/images/`.
     - [ ] Add data validation on all forms.
