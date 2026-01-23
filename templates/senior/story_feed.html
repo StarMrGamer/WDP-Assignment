@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block body_class %}senior-dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="color: var(--senior-text);">Community Stories</h1>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-filter me-2"></i>{{ current_filter|capitalize }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='all') }}">All Stories</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='Childhood') }}">Childhood</a></li>
+                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='Work Life') }}">Work Life</a></li>
+                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='Family') }}">Family</a></li>
+                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='Hobbies') }}">Hobbies</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            {% for story in stories %}
+            <div class="card shadow-sm mb-4 border-2" style="border-color: var(--senior-border);">
+                <div class="card-body p-4">
+                    <!-- Header -->
+                    <div class="d-flex align-items-center mb-3">
+                        <a href="{{ url_for('senior.public_profile', user_id=story.user.id) }}">
+                            <img src="{{ url_for('static', filename=story.user.profile_picture|fix_pfp) }}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--senior-primary);">
+                        </a>
+                        <div>
+                            <a href="{{ url_for('senior.public_profile', user_id=story.user.id) }}" class="text-decoration-none text-dark">
+                                <h4 class="card-title mb-0">{{ story.title }}</h4>
+                            </a>
+                            <p class="text-muted mb-0">by {{ story.user.full_name }} • {{ story.created_at|timeago }}</p>
+                        </div>
+                        <span class="badge bg-light text-dark border ms-auto fs-6">{{ story.category }}</span>
+                    </div>
+
+                    <!-- Image -->
+                    {% if story.photo_url %}
+                    <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" class="img-fluid rounded mb-3 w-100" style="max-height: 500px; object-fit: cover;">
+                    {% endif %}
+
+                    <!-- Content -->
+                    <p class="card-text fs-5 mb-4">{{ story.content }}</p>
+
+                    <!-- Footer -->
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <div class="fs-5 text-muted">
+                            {% set user_liked = story.reactions.filter_by(user_id=session.user_id, reaction_type='heart').first() is not none %}
+                            <span class="me-3"><i class="{{ 'fas' if user_liked else 'far' }} fa-heart text-danger me-2"></i>{{ story.reactions.count() }} Likes</span>
+                            <span><i class="fas fa-comment text-primary me-2"></i>{{ story.comments.count() }} Comments</span>
+                        </div>
+                        <a href="{{ url_for('senior.story_detail', story_id=story.id) }}" class="btn btn-primary btn-lg px-4">
+                            View & Comment
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

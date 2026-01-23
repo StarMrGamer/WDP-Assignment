@@ -40,8 +40,9 @@
 
                     <!-- Interactions -->
                     <div class="d-flex gap-2 mb-4">
-                        <button class="btn btn-outline-danger flex-grow-1" onclick="reactToStory({{ story.id }}, 'heart')">
-                            <i class="far fa-heart me-2"></i>Like
+                        {% set user_liked = story.reactions.filter_by(user_id=session.user_id, reaction_type='heart').first() is not none %}
+                        <button class="btn {{ 'btn-danger' if user_liked else 'btn-outline-danger' }} flex-grow-1" onclick="reactToStory({{ story.id }}, 'heart')">
+                            <i class="{{ 'fas' if user_liked else 'far' }} fa-heart me-2"></i>Like ({{ story.reactions.count() }})
                         </button>
                         <button class="btn btn-outline-primary flex-grow-1" onclick="document.getElementById('commentInput').focus()">
                             <i class="far fa-comment me-2"></i>Comment
