@@ -22,7 +22,7 @@
                     <i class="fas fa-heart text-danger me-2"></i>
                     Welcome back, {{ user.full_name.split()[0] }}!
                 </h1>
-                <p class="text-muted mb-0">
+                <p class="bg-white text-primary px-3 py-1 rounded-pill d-inline-block mb-0 shadow-sm">
                     <i class="fas fa-calendar me-2"></i>
                     {{ "now"|date("%A, %B %d, %Y") }}
                 </p>
@@ -111,10 +111,10 @@
                             </div>
                             {% endif %}
                             <div class="d-flex gap-2">
-                                <a href="{{ url_for('youth.games') }}" class="btn btn-outline-success">
+                                <a href="{{ url_for('youth.games') }}" class="btn btn-outline-primary">
                                     <i class="fas fa-gamepad me-2"></i>Play Games
                                 </a>
-                                <a href="{{ url_for('youth.messages') }}" class="btn btn-primary">
+                                <a href="{{ url_for('youth.messages') }}" class="btn btn-outline-primary">
                                     <i class="fas fa-comment me-2"></i>Send Message
                                 </a>
                                 <a href="{{ url_for('youth.story_feed') }}" class="btn btn-outline-primary">

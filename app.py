@@ -169,7 +169,14 @@ def inject_user():
     Returns:
         dict: Dictionary with session object
     """
-    return dict(session=session)
+    user_streak = 0
+    if 'user_id' in session:
+        from models import Streak
+        streak = Streak.query.filter_by(user_id=session['user_id']).first()
+        if streak:
+            user_streak = streak.current_streak
+            
+    return dict(session=session, user_streak=user_streak)
 
 
 # ==================== MAIN ROUTES ====================

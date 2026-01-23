@@ -88,18 +88,13 @@
         margin-bottom: 1.5rem;
     }
 
-    .my-events-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1rem;
-    }
-
     .my-event-card {
         background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
         color: white;
         padding: 1.5rem;
         border-radius: 1rem;
         transition: all 0.3s ease;
+        height: 100%;
     }
 
     .my-event-card:hover {
@@ -124,12 +119,6 @@
         opacity: 0.85;
     }
 
-    .events-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 2rem;
-    }
-
     .event-card {
         background: white;
         border-radius: 1.5rem;
@@ -137,6 +126,8 @@
         box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         transition: all 0.3s ease;
         border: 3px solid transparent;
+        display: flex;
+        flex-direction: column;
     }
 
     .event-card:hover {
@@ -152,6 +143,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
     }
 
     .event-image.workshop {
@@ -207,6 +199,9 @@
 
     .event-body {
         padding: 1.75rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .event-category {
@@ -219,7 +214,6 @@
         border-radius: 2rem;
         font-size: 0.875rem;
         font-weight: 600;
-        margin-bottom: 1rem;
     }
 
     .event-title {
@@ -265,6 +259,7 @@
         align-items: center;
         padding-top: 1rem;
         border-top: 1px solid #E9ECEF;
+        margin-top: auto;
     }
 
     .event-spots {
@@ -321,20 +316,12 @@
     }
 
     @media (max-width: 768px) {
-        .events-grid {
-            grid-template-columns: 1fr;
-        }
-
         .events-header h1 {
             font-size: 2rem;
         }
 
         .tab-buttons {
             justify-content: center;
-        }
-
-        .my-events-list {
-            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -353,21 +340,25 @@
     <!-- My Upcoming Events -->
     <div class="my-events-section">
         <h2><i class="fas fa-bookmark me-2 text-warning"></i>My Upcoming Events</h2>
-        <div class="my-events-list">
+        <div class="row g-3">
             {% if my_events %}
                 {% for event in my_events %}
-                <div class="my-event-card">
-                    <div class="my-event-date">
-                        <i class="fas fa-calendar me-2"></i>{{ event.date|format_date('%B %d, %Y') }}
-                    </div>
-                    <div class="my-event-title">{{ event.title }}</div>
-                    <div class="my-event-time">
-                        <i class="fas fa-clock me-2"></i>{{ event.date|format_date('%I:%M %p') }}
+                <div class="col-md-6 col-lg-4">
+                    <div class="my-event-card">
+                        <div class="my-event-date">
+                            <i class="fas fa-calendar me-2"></i>{{ event.date|format_date('%B %d, %Y') }}
+                        </div>
+                        <div class="my-event-title">{{ event.title }}</div>
+                        <div class="my-event-time">
+                            <i class="fas fa-clock me-2"></i>{{ event.date|format_date('%I:%M %p') }}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <p class="text-muted">You have no upcoming events. RSVP to an event below!</p>
+                <div class="col-12">
+                    <p class="text-muted">You have no upcoming events. RSVP to an event below!</p>
+                </div>
             {% endif %}
         </div>
     </div>
@@ -388,69 +379,75 @@
     </div>
 
     <!-- Events Grid -->
-    <div class="events-grid">
+    <div class="row g-4">
         {% if events %}
             {% for event in events %}
-            <div class="event-card" data-category="{{ event.event_type }}">
-                <div class="event-image {{ event.event_type }}">
-                    <div class="event-date-badge">
-                        <div class="day">{{ event.date|format_date('%d') }}</div>
-                        <div class="month">{{ event.date|format_date('%b') }}</div>
-                    </div>
-                    <div class="event-icon">
-                        <i class="fas {% if event.event_type == 'online' %}fa-desktop{% else %}fa-map-marker-alt{% endif %}"></i>
-                    </div>
-                </div>
-                <div class="event-body">
-                    <span class="event-category">
-                        <i class="fas {% if event.event_type == 'online' %}fa-desktop{% else %}fa-map-marker-alt{% endif %}"></i>
-                        {{ event.event_type|capitalize }}
-                    </span>
-                    <h3 class="event-title">{{ event.title }}</h3>
-                    <p class="event-description">
-                        {{ event.description }}
-                    </p>
-                    <div class="event-details">
-                        <div class="event-detail-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>{{ event.date|format_date('%A, %B %d, %Y') }}</span>
+            <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+                <div class="event-card h-100 w-100" data-category="{{ event.event_type }}">
+                    <div class="event-image {{ event.event_type }}">
+                        <div class="event-date-badge">
+                            <div class="day">{{ event.date|format_date('%d') }}</div>
+                            <div class="month">{{ event.date|format_date('%b') }}</div>
                         </div>
-                        <div class="event-detail-item">
-                            <i class="fas fa-clock"></i>
-                            <span>{{ event.date|format_date('%I:%M %p') }}</span>
-                        </div>
-                        <div class="event-detail-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>{{ event.location }}</span>
-                        </div>
-                        <div class="event-detail-item">
-                            <i class="fas fa-users"></i>
-                            <span>{{ event.capacity or 'Unlimited' }} spots</span>
+                        <div class="event-icon">
+                            <i class="fas {% if event.event_type == 'online' %}fa-desktop{% else %}fa-map-marker-alt{% endif %}"></i>
                         </div>
                     </div>
-                    <div class="event-footer">
-                        <div class="event-spots">
-                            <span>{{ event.participants_count }}/{{ event.capacity or '∞' }} spots filled</span>
+                    <div class="event-body d-flex flex-column h-100">
+                        <div class="mb-3">
+                            <span class="event-category">
+                                <i class="fas {% if event.event_type == 'online' %}fa-desktop{% else %}fa-map-marker-alt{% endif %}"></i>
+                                {{ event.event_type|capitalize }}
+                            </span>
                         </div>
-                        <button class="btn btn-rsvp 
-                                {% if event.is_registered %}registered{% endif %}
-                                {% if event.is_full and not event.is_registered %}full{% endif %}"
-                                data-id="{{ event.id }}"
-                                {% if event.is_full and not event.is_registered %}disabled{% endif %}>
-                            {% if event.is_full and not event.is_registered %}
-                                <i class="fas fa-times me-2"></i>Full
-                            {% elif event.is_registered %}
-                                <i class="fas fa-check me-2"></i>Registered
-                            {% else %}
-                                <i class="fas fa-plus me-2"></i>RSVP
-                            {% endif %}
-                        </button>
+                        <h3 class="event-title">{{ event.title }}</h3>
+                        <p class="event-description flex-grow-1">
+                            {{ event.description }}
+                        </p>
+                        <div class="event-details mt-auto">
+                            <div class="event-detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>{{ event.date|format_date('%A, %B %d, %Y') }}</span>
+                            </div>
+                            <div class="event-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ event.date|format_date('%I:%M %p') }}</span>
+                            </div>
+                            <div class="event-detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ event.location }}</span>
+                            </div>
+                            <div class="event-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>{{ event.capacity or 'Unlimited' }} spots</span>
+                            </div>
+                        </div>
+                        <div class="event-footer">
+                            <div class="event-spots">
+                                <span>{{ event.participants_count }}/{{ event.capacity or '∞' }} spots filled</span>
+                            </div>
+                            <button class="btn btn-rsvp 
+                                    {% if event.is_registered %}registered{% endif %}
+                                    {% if event.is_full and not event.is_registered %}full{% endif %}"
+                                    data-id="{{ event.id }}"
+                                    {% if event.is_full and not event.is_registered %}disabled{% endif %}>
+                                {% if event.is_full and not event.is_registered %}
+                                    <i class="fas fa-times me-2"></i>Full
+                                {% elif event.is_registered %}
+                                    <i class="fas fa-check me-2"></i>Registered
+                                {% else %}
+                                    <i class="fas fa-plus me-2"></i>RSVP
+                                {% endif %}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
         {% else %}
-        <p class="text-muted w-100 text-center">No upcoming events found.</p>
+        <div class="col-12">
+            <p class="text-muted w-100 text-center">No upcoming events found.</p>
+        </div>
         {% endif %}
     </div>
 </div>

@@ -200,7 +200,7 @@
                         <!-- Daily Streak Display (for seniors and youth) -->
                         <li class="nav-item d-flex align-items-center me-3">
                             <i class="fas fa-fire text-warning me-1"></i>
-                            <span class="fw-bold" id="streakCount">0</span>
+                            <span class="fw-bold" id="streakCount">{{ user_streak|default(0) }}</span>
                             <small class="text-muted ms-1">day streak</small>
                         </li>
                         {% endif %}
