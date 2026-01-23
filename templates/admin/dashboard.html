@@ -292,7 +292,7 @@
                         <div class="activity-content">
                             <div class="activity-title">{{ story.title }}</div>
                             <div class="activity-time">
-                                by {{ story.user.full_name }} • {{ story.created_at.strftime('%b %d, %Y') }}
+                                by {{ story.user.full_name }} • {{ story.created_at|format_date('%b %d, %Y') }}
                             </div>
                         </div>
                     </li>
@@ -317,7 +317,7 @@
                         <div class="activity-content">
                             <div class="activity-title">{{ user.full_name }}</div>
                             <div class="activity-time">
-                                {{ user.role|capitalize }} • Joined {{ user.created_at.strftime('%b %d, %Y') }}
+                                {{ user.role|capitalize }} • Joined {{ user.created_at|format_date('%b %d, %Y') }}
                             </div>
                         </div>
                     </li>

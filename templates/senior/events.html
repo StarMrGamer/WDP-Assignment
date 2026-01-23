@@ -25,17 +25,17 @@
     <!-- Filter Tabs -->
     <ul class="nav nav-pills mb-4">
         <li class="nav-item">
-            <a class="nav-link active" href="#">
+            <a class="nav-link active" href="#" data-filter="all">
                 <i class="fas fa-list me-2"></i>All Events
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="#" data-filter="online">
                 <i class="fas fa-desktop me-2"></i>Online
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="#" data-filter="in-person">
                 <i class="fas fa-map-marker-alt me-2"></i>In-Person
             </a>
         </li>
@@ -57,10 +57,10 @@
                         <!-- Event Date -->
                         <div class="event-date mb-3">
                             <i class="fas fa-calendar text-warning me-2"></i>
-                            <strong>{{ event.date.strftime('%A, %B %d, %Y') }}</strong>
+                            <strong>{{ event.date|format_date('%A, %B %d, %Y') }}</strong>
                             <br>
                             <small class="text-muted ms-4">
-                                {{ event.date.strftime('%I:%M %p') }}
+                                {{ event.date|format_date('%I:%M %p') }}
                             </small>
                         </div>
 
@@ -153,6 +153,30 @@
 
 {% block extra_js %}
 <script>
+    // Filter functionality
+    document.querySelectorAll('.nav-link[data-filter]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Update active state
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter events
+            const filter = this.getAttribute('data-filter');
+            document.querySelectorAll('.event-card').forEach(card => {
+                // The card wrapper is the column div (col-md-6 col-lg-4)
+                const cardCol = card.parentElement;
+                
+                if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                    cardCol.style.display = 'block';
+                } else {
+                    cardCol.style.display = 'none';
+                }
+            });
+        });
+    });
+
     document.querySelectorAll('.btn-register').forEach(btn => {
         btn.addEventListener('click', async function() {
             const eventId = this.getAttribute('data-id');

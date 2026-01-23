@@ -10,7 +10,7 @@ Description: Handles all routes for youth volunteers including story engagement,
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment, EventParticipant, CommunityMember, Game, GameSession
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 
 # Create youth blueprint
@@ -186,7 +186,7 @@ def get_messages_json():
         'content': msg.content,
         'sender_id': msg.sender_id,
         'is_me': msg.sender_id == user_id,
-        'created_at': msg.created_at.strftime('%I:%M %p'), # Format: 02:30 PM
+        'created_at': (msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'), # Format: 02:30 PM
         'is_flagged': msg.is_flagged,
         'translated_content': msg.translated_content if msg.original_language != 'en' else None
     } for msg in messages]

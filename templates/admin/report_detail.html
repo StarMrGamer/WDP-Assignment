@@ -191,7 +191,7 @@
             <div class="message-bubble">
                 <div class="message-content">"{{ report.message.content }}"</div>
                 <div class="message-meta">
-                    <i class="fas fa-clock me-1"></i>Sent on {{ report.message.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    <i class="fas fa-clock me-1"></i>Sent on {{ report.message.created_at|format_date('%B %d, %Y at %I:%M %p') }}
                 </div>
             </div>
 
@@ -264,7 +264,7 @@
                 </div>
                 <div>
                     <strong>Report Submitted</strong>
-                    <div class="text-muted small">{{ report.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                    <div class="text-muted small">{{ report.created_at|format_date('%B %d, %Y at %I:%M %p') }}</div>
                 </div>
             </div>
 

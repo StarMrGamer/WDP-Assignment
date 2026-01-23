@@ -405,7 +405,7 @@
                     <div class="author-details">
                         <h3>{{ story.user.full_name }}</h3>
                         <div class="author-meta">
-                            <span><i class="fas fa-calendar me-1"></i>{{ story.created_at.strftime('%d %b %Y') }}</span>
+                            <span><i class="fas fa-calendar me-1"></i>{{ story.created_at|format_date('%d %b %Y') }}</span>
                             <span><i class="fas fa-book me-1"></i>{{ story.category }}</span>
                         </div>
                     </div>
@@ -495,7 +495,7 @@
                     <div class="comment-content">
                         <div class="comment-header">
                             <span class="comment-author">{{ comment.user.full_name }}</span>
-                            <span class="comment-time">{{ comment.created_at.strftime('%d %b %Y, %I:%M %p') }}</span>
+                            <span class="comment-time">{{ comment.created_at|format_date('%d %b %Y, %I:%M %p') }}</span>
                         </div>
                         <p class="comment-text">
                             {{ comment.content }}

@@ -87,7 +87,7 @@
                                 {% endif %}
 
                                 <small class="message-time">
-                                    {{ message.created_at.strftime('%I:%M %p') }}
+                                    {{ message.created_at|format_date('%I:%M %p') }}
                                     {% if message.sender_id == session.user_id %}
                                         <i class="fas fa-check-double text-primary"></i>
                                     {% endif %}

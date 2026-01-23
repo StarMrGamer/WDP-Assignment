@@ -96,8 +96,8 @@
                     </td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.age }}</td>
-                    <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
-                    <td>{{ user.last_active.strftime('%b %d, %Y') }}</td>
+                    <td>{{ user.created_at|format_date('%b %d, %Y') }}</td>
+                    <td>{{ user.last_active|format_date('%b %d, %Y') }}</td>
                     <td>
                         {% if user.is_active %}
                         <span class="status-badge active">Active</span>

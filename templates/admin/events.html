@@ -97,8 +97,8 @@
                         {% endif %}
                     </td>
                     <td>
-                        <div>{{ event.date.strftime('%b %d, %Y') }}</div>
-                        <small class="text-muted">{{ event.date.strftime('%I:%M %p') }}</small>
+                        <div>{{ event.date|format_date('%b %d, %Y') }}</div>
+                        <small class="text-muted">{{ event.date|format_date('%I:%M %p') }}</small>
                     </td>
                     <td>{{ event.location or 'TBA' }}</td>
                     <td>{{ event.capacity or 'Unlimited' }}</td>
@@ -164,7 +164,7 @@
                         {% endif %}
                     </div>
                     <p class="card-text small text-muted">
-                        <i class="fas fa-calendar me-1"></i>{{ event.date.strftime('%b %d, %Y at %I:%M %p') }}
+                        <i class="fas fa-calendar me-1"></i>{{ event.date|format_date('%b %d, %Y at %I:%M %p') }}
                     </p>
                     <p class="card-text small text-muted">
                         <i class="fas fa-map-marker-alt me-1"></i>{{ event.location or 'TBA' }}

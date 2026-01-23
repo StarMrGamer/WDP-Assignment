@@ -358,11 +358,11 @@
                 {% for event in my_events %}
                 <div class="my-event-card">
                     <div class="my-event-date">
-                        <i class="fas fa-calendar me-2"></i>{{ event.date.strftime('%B %d, %Y') }}
+                        <i class="fas fa-calendar me-2"></i>{{ event.date|format_date('%B %d, %Y') }}
                     </div>
                     <div class="my-event-title">{{ event.title }}</div>
                     <div class="my-event-time">
-                        <i class="fas fa-clock me-2"></i>{{ event.date.strftime('%I:%M %p') }}
+                        <i class="fas fa-clock me-2"></i>{{ event.date|format_date('%I:%M %p') }}
                     </div>
                 </div>
                 {% endfor %}
@@ -394,8 +394,8 @@
             <div class="event-card" data-category="{{ event.event_type }}">
                 <div class="event-image {{ event.event_type }}">
                     <div class="event-date-badge">
-                        <div class="day">{{ event.date.strftime('%d') }}</div>
-                        <div class="month">{{ event.date.strftime('%b') }}</div>
+                        <div class="day">{{ event.date|format_date('%d') }}</div>
+                        <div class="month">{{ event.date|format_date('%b') }}</div>
                     </div>
                     <div class="event-icon">
                         <i class="fas {% if event.event_type == 'online' %}fa-desktop{% else %}fa-map-marker-alt{% endif %}"></i>
@@ -413,11 +413,11 @@
                     <div class="event-details">
                         <div class="event-detail-item">
                             <i class="fas fa-calendar"></i>
-                            <span>{{ event.date.strftime('%A, %B %d, %Y') }}</span>
+                            <span>{{ event.date|format_date('%A, %B %d, %Y') }}</span>
                         </div>
                         <div class="event-detail-item">
                             <i class="fas fa-clock"></i>
-                            <span>{{ event.date.strftime('%I:%M %p') }}</span>
+                            <span>{{ event.date|format_date('%I:%M %p') }}</span>
                         </div>
                         <div class="event-detail-item">
                             <i class="fas fa-map-marker-alt"></i>

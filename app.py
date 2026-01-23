@@ -16,6 +16,7 @@ from flask import Flask, render_template, session, redirect, url_for, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from config import get_config
 from models import db
+from datetime import timedelta
 import os
 
 # Initialize Flask application
@@ -268,7 +269,7 @@ def timeago_filter(date):
         days = int(seconds / 86400)
         return f'{days} day{"s" if days != 1 else ""} ago'
     else:
-        return date.strftime('%B %d, %Y')
+        return (date + timedelta(hours=8)).strftime('%B %d, %Y')
 
 
 @app.template_filter('format_date')
@@ -284,7 +285,7 @@ def format_date_filter(date, format='%B %d, %Y'):
         str: Formatted date string
     """
     if date:
-        return date.strftime(format)
+        return (date + timedelta(hours=8)).strftime(format)
     return ''
 
 
@@ -316,7 +317,10 @@ def date_filter(value, format='%B %d, %Y'):
 
     # If value is the string "now", use current datetime
     if value == "now":
-        value = datetime.now()
+        value = datetime.utcnow() + timedelta(hours=8)
+    elif value:
+        # Assume it's a UTC datetime object from DB
+        value = value + timedelta(hours=8)
 
     # Format the datetime object
     if value:

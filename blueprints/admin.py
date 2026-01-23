@@ -309,7 +309,7 @@ def create_event():
         capacity = request.form.get('capacity')
 
         # Parse date
-        event_date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
+        event_date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M') - timedelta(hours=8)
 
         # Create event
         new_event = Event(

@@ -237,7 +237,7 @@
                         <div class="event-card">
                             <div class="event-date">
                                 <i class="fas fa-calendar me-2"></i>
-                                {{ event.date.strftime('%b %d, %Y') }}
+                                {{ event.date|format_date('%b %d, %Y') }}
                             </div>
                             <h6 class="mb-2">{{ event.title }}</h6>
                             <p class="text-muted small mb-2">
