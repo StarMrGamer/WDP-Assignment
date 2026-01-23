@@ -191,6 +191,26 @@ def index():
     return render_template('index.html')
 
 
+# ==================== SECURITY HEADERS ====================
+@app.after_request
+def add_security_headers(response):
+    """
+    Add security headers to response.
+    Specifically enables unsafe-eval for third-party libraries that require it.
+    """
+    csp = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
+        "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; "
+        "img-src 'self' data: blob: https:; "
+        "connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+        "worker-src 'self' blob:;"
+    )
+    response.headers['Content-Security-Policy'] = csp
+    return response
+
+
 # ==================== ERROR HANDLERS ====================
 @app.errorhandler(404)
 def not_found_error(error):
@@ -367,6 +387,38 @@ def dismiss_notification(notification_id):
     notif.is_read = True
     db.session.commit()
     return {'success': True}
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('images/default-avatar.png')
+
+
+# ==================== STREAK API ====================
+@app.route('/api/streak')
+def get_streak():
+    """
+    Get user's current streak status.
+    Returns JSON with current streak count and any new rewards.
+    """
+    if 'user_id' not in session:
+        return {'currentStreak': 0}
+    
+    from models import Streak
+    user_id = session['user_id']
+    
+    streak = Streak.query.filter_by(user_id=user_id).first()
+    
+    if not streak:
+        return {'currentStreak': 0}
+        
+    return {
+        'currentStreak': streak.current_streak,
+        'points': streak.points,
+        # Future: Add logic for new badges/daily rewards
+        'newBadge': None,
+        'dailyReward': False
+    }
 
 
 # ==================== MAIN EXECUTION ====================
