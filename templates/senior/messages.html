@@ -175,38 +175,6 @@
     </div>
 </div>
 
-<!-- Report Modal -->
-<div class="modal fade" id="reportModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Report Inappropriate Content</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="#">
-                    <div class="mb-3">
-                        <label class="form-label">Reason for Report</label>
-                        <select class="form-select" name="reason" required>
-                            <option value="">Select a reason...</option>
-                            <option value="harassment">Harassment</option>
-                            <option value="inappropriate">Inappropriate Language</option>
-                            <option value="spam">Spam</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Additional Details (Optional)</label>
-                        <textarea class="form-control" name="description" rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-flag me-2"></i>Submit Report
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_css %}
