@@ -1,372 +1,126 @@
 {% extends "base.html" %}
-<!--
-    File: report_detail.html
-    Purpose: Admin page to review individual chat reports
-    Author: Asher
-    Date: December 2025
-    Feature: Review and take action on reported messages
--->
-
-{% block title %}Report #{{ report.id }} - Admin - GenCon SG{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-<style>
-    .report-detail-container {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-
-    .report-status-banner {
-        padding: 1rem 1.5rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .report-status-banner.pending {
-        background: #FFF3CD;
-        border: 1px solid #FFEAA7;
-        color: #856404;
-    }
-
-    .report-status-banner.under_review {
-        background: #D1ECF1;
-        border: 1px solid #BEE5EB;
-        color: #0C5460;
-    }
-
-    .report-status-banner.resolved {
-        background: #D4EDDA;
-        border: 1px solid #C3E6CB;
-        color: #155724;
-    }
-
-    .report-status-banner.dismissed {
-        background: #E2E3E5;
-        border: 1px solid #D6D8DB;
-        color: #383D41;
-    }
-
-    .detail-card {
-        background: white;
-        border-radius: 0.75rem;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        margin-bottom: 1.5rem;
-    }
-
-    .detail-card h5 {
-        color: #2C3E50;
-        margin-bottom: 1.25rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid #E9ECEF;
-    }
-
-    .message-bubble {
-        background: #F8F9FA;
-        border-left: 4px solid #E74C3C;
-        padding: 1.25rem;
-        border-radius: 0 0.5rem 0.5rem 0;
-        margin: 1rem 0;
-    }
-
-    .message-bubble .message-content {
-        font-size: 1.1rem;
-        color: #2C3E50;
-        margin-bottom: 0.5rem;
-    }
-
-    .message-bubble .message-meta {
-        font-size: 0.875rem;
-        color: #6C757D;
-    }
-
-    .user-card {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        background: #F8F9FA;
-        border-radius: 0.5rem;
-    }
-
-    .user-card img {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .user-card .user-info h6 {
-        margin-bottom: 0.25rem;
-    }
-
-    .action-card {
-        background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%);
-        color: white;
-        border-radius: 0.75rem;
-        padding: 1.5rem;
-    }
-
-    .action-card h5 {
-        border-bottom-color: rgba(255,255,255,0.2);
-        color: white;
-    }
-
-    .timeline-item {
-        display: flex;
-        gap: 1rem;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #E9ECEF;
-    }
-
-    .timeline-item:last-child {
-        border-bottom: none;
-    }
-
-    .timeline-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.875rem;
-        flex-shrink: 0;
-    }
-
-    .timeline-icon.reported {
-        background: #FADBD8;
-        color: #E74C3C;
-    }
-
-    .timeline-icon.review {
-        background: #D4E6F1;
-        color: #3498DB;
-    }
-
-    .timeline-icon.resolved {
-        background: #D5F5E3;
-        color: #27AE60;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Back Button -->
-    <div class="mb-3">
-        <a href="{{ url_for('admin.reports') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Reports
-        </a>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="{{ url_for('admin.reports') }}" class="btn btn-outline-secondary mb-2">
+                <i class="fas fa-arrow-left me-2"></i>Back to Reports
+            </a>
+            <h2>Report Details #{{ report.id }}</h2>
+        </div>
+        <div>
+            <span class="badge bg-{{ 'warning' if report.status == 'pending' else 'success' if report.status == 'resolved' else 'secondary' }} fs-5">
+                {{ report.status|capitalize }}
+            </span>
+        </div>
     </div>
 
-    <div class="report-detail-container">
-        <!-- Status Banner -->
-        <div class="report-status-banner {{ report.status }}">
-            <div>
-                <strong>
-                    {% if report.status == 'pending' %}
-                    <i class="fas fa-clock me-2"></i>Pending Review
-                    {% elif report.status == 'under_review' %}
-                    <i class="fas fa-search me-2"></i>Under Review
-                    {% elif report.status == 'resolved' %}
-                    <i class="fas fa-check-circle me-2"></i>Resolved
-                    {% else %}
-                    <i class="fas fa-times-circle me-2"></i>Dismissed
-                    {% endif %}
-                </strong>
-                <span class="ms-2">Report #{{ report.id }}</span>
-            </div>
-            <span class="badge bg-danger">{{ report.reason }}</span>
-        </div>
-
-        <!-- Reported Message -->
-        <div class="detail-card">
-            <h5><i class="fas fa-comment-slash me-2 text-danger"></i>Reported Message</h5>
-
-            <div class="message-bubble">
-                <div class="message-content">"{{ report.message.content }}"</div>
-                <div class="message-meta">
-                    <i class="fas fa-clock me-1"></i>Sent on {{ report.message.created_at|format_date('%B %d, %Y at %I:%M %p') }}
+    <div class="row">
+        <!-- Report Info -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Report Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Reason:</strong> <span class="text-danger">{{ report.reason }}</span></p>
+                    <p><strong>Description:</strong> {{ report.description or 'No description provided.' }}</p>
+                    <p><strong>Reported By:</strong> {{ report.reporter.full_name }} ({{ report.reporter.role }})</p>
+                    <p><strong>Reported User:</strong> {{ report.reported_user.full_name }} ({{ report.reported_user.role }})</p>
+                    <p><strong>Date:</strong> {{ report.created_at|timeago }}</p>
                 </div>
             </div>
 
-            {% if report.description %}
-            <div class="mt-3">
-                <strong>Additional Context from Reporter:</strong>
-                <p class="text-muted mt-1">{{ report.description }}</p>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Users Involved -->
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <div class="detail-card h-100">
-                    <h5><i class="fas fa-user-slash me-2 text-danger"></i>Reported User</h5>
-                    <div class="user-card">
-                        <img src="{{ url_for('static', filename='images/' + (report.reported_user.profile_picture or 'default-avatar.png')) }}"
-                             alt="Avatar"
-                             onerror="this.src='https://ui-avatars.com/api/?name={{ report.reported_user.full_name }}&background=E74C3C&color=fff'">
-                        <div class="user-info">
-                            <h6>{{ report.reported_user.full_name }}</h6>
-                            <small class="text-muted">@{{ report.reported_user.username }}</small><br>
-                            <span class="badge {% if report.reported_user.role == 'senior' %}bg-warning text-dark{% else %}bg-info{% endif %} mt-1">
-                                {{ report.reported_user.role|capitalize }}
-                            </span>
+            <!-- Actions -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Admin Notes</label>
+                            <textarea name="admin_notes" class="form-control" rows="3">{{ report.admin_notes or '' }}</textarea>
                         </div>
-                    </div>
-                    <div class="mt-3">
-                        <a href="{{ url_for('admin.user_detail', user_id=report.reported_user.id) }}"
-                           class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-eye me-1"></i>View Profile
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 mb-3">
-                <div class="detail-card h-100">
-                    <h5><i class="fas fa-flag me-2 text-warning"></i>Reported By</h5>
-                    <div class="user-card">
-                        <img src="{{ url_for('static', filename='images/' + (report.reporter.profile_picture or 'default-avatar.png')) }}"
-                             alt="Avatar"
-                             onerror="this.src='https://ui-avatars.com/api/?name={{ report.reporter.full_name }}&background=3498DB&color=fff'">
-                        <div class="user-info">
-                            <h6>{{ report.reporter.full_name }}</h6>
-                            <small class="text-muted">@{{ report.reporter.username }}</small><br>
-                            <span class="badge {% if report.reporter.role == 'senior' %}bg-warning text-dark{% else %}bg-info{% endif %} mt-1">
-                                {{ report.reporter.role|capitalize }}
-                            </span>
+                        
+                        <div class="d-grid gap-2">
+                            {% if report.status != 'resolved' %}
+                            <button type="submit" name="action" value="resolve" class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>Mark as Resolved
+                            </button>
+                            {% endif %}
+                            
+                            {% if report.status != 'dismissed' %}
+                            <button type="submit" name="action" value="dismiss" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Dismiss Report
+                            </button>
+                            {% endif %}
+                            
+                            {% if report.status != 'under_review' %}
+                            <button type="submit" name="action" value="under_review" class="btn btn-warning">
+                                <i class="fas fa-search me-2"></i>Mark Under Review
+                            </button>
+                            {% endif %}
                         </div>
+                    </form>
+                    
+                    <hr>
+                    
+                    <!-- User Moderation -->
+                    <h6 class="text-danger mb-3">User Moderation</h6>
+                    <form action="{{ url_for('admin.toggle_user_status', user_id=report.reported_user.id) }}" method="POST" onsubmit="return confirm('Are you sure? This will prevent the user from logging in.');">
+                        <input type="hidden" name="reason" value="Account disabled due to report #{{ report.id }}: {{ report.reason }}">
+                        {% if report.reported_user.is_active %}
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-ban me-2"></i>Disable User Account
+                        </button>
+                        {% else %}
+                        <button type="submit" class="btn btn-outline-success w-100">
+                            <i class="fas fa-check-circle me-2"></i>Enable User Account
+                        </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Context -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Conversation Context</h5>
+                    <small class="text-muted">Last 20 messages</small>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" style="max-height: 600px; overflow-y: auto;">
+                        {% for msg in history %}
+                        <div class="list-group-item {{ 'bg-warning bg-opacity-10' if msg.id == report.message_id else '' }}">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>
+                                        {% if msg.sender_id == report.reported_user_id %}
+                                            <span class="text-danger">{{ msg.sender.full_name }} (Reported)</span>
+                                        {% else %}
+                                            <span class="text-primary">{{ msg.sender.full_name }}</span>
+                                        {% endif %}
+                                    </strong>
+                                    <small class="text-muted ms-2">{{ msg.created_at|timeago }}</small>
+                                </div>
+                                {% if msg.id == report.message_id %}
+                                <span class="badge bg-danger">Reported Message</span>
+                                {% endif %}
+                            </div>
+                            <p class="mb-1 mt-1">{{ msg.content }}</p>
+                            {% if msg.is_flagged %}
+                            <div class="text-warning small"><i class="fas fa-exclamation-triangle"></i> Flagged by system</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
                     </div>
-                    <div class="mt-3">
-                        <a href="{{ url_for('admin.user_detail', user_id=report.reporter.id) }}"
-                           class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-eye me-1"></i>View Profile
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Report Timeline -->
-        <div class="detail-card">
-            <h5><i class="fas fa-history me-2"></i>Report Timeline</h5>
-
-            <div class="timeline-item">
-                <div class="timeline-icon reported">
-                    <i class="fas fa-flag"></i>
-                </div>
-                <div>
-                    <strong>Report Submitted</strong>
-                    <div class="text-muted small">{{ report.created_at|format_date('%B %d, %Y at %I:%M %p') }}</div>
-                </div>
-            </div>
-
-            {% if report.status in ['under_review', 'resolved', 'dismissed'] %}
-            <div class="timeline-item">
-                <div class="timeline-icon review">
-                    <i class="fas fa-search"></i>
-                </div>
-                <div>
-                    <strong>Review Started</strong>
-                    <div class="text-muted small">Admin began reviewing this report</div>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if report.status in ['resolved', 'dismissed'] %}
-            <div class="timeline-item">
-                <div class="timeline-icon resolved">
-                    <i class="fas {% if report.status == 'resolved' %}fa-check{% else %}fa-times{% endif %}"></i>
-                </div>
-                <div>
-                    <strong>{{ report.status|capitalize }}</strong>
-                    <div class="text-muted small">Report was {{ report.status }}</div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Admin Notes -->
-        {% if report.admin_notes %}
-        <div class="detail-card">
-            <h5><i class="fas fa-sticky-note me-2"></i>Admin Notes</h5>
-            <p>{{ report.admin_notes }}</p>
-        </div>
-        {% endif %}
-
-        <!-- Action Form -->
-        {% if report.status in ['pending', 'under_review'] %}
-        <div class="action-card">
-            <h5><i class="fas fa-gavel me-2"></i>Take Action</h5>
-
-            <form method="POST" action="{{ url_for('admin.report_detail', report_id=report.id) }}">
-                <div class="mb-3">
-                    <label for="admin_notes" class="form-label">Admin Notes</label>
-                    <textarea class="form-control" id="admin_notes" name="admin_notes"
-                              rows="3" placeholder="Add notes about your decision...">{{ report.admin_notes or '' }}</textarea>
-                </div>
-
-                <div class="d-flex gap-2 flex-wrap">
-                    {% if report.status == 'pending' %}
-                    <button type="submit" name="action" value="under_review" class="btn btn-info">
-                        <i class="fas fa-search me-1"></i>Mark Under Review
-                    </button>
-                    {% endif %}
-                    <button type="submit" name="action" value="resolve" class="btn btn-success">
-                        <i class="fas fa-check me-1"></i>Resolve Report
-                    </button>
-                    <button type="submit" name="action" value="dismiss" class="btn btn-secondary">
-                        <i class="fas fa-times me-1"></i>Dismiss Report
-                    </button>
-                </div>
-            </form>
-
-            <hr class="my-3 opacity-25">
-
-            <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-outline-light btn-sm" onclick="alert('Feature coming soon: Warn user')">
-                    <i class="fas fa-exclamation-triangle me-1"></i>Warn User
-                </button>
-                <form action="{{ url_for('admin.toggle_user_status', user_id=report.reported_user.id) }}" method="POST" class="d-inline">
-                    <button type="submit" class="btn btn-outline-light btn-sm">
-                        <i class="fas fa-ban me-1"></i>{{ 'Deactivate' if report.reported_user.is_active else 'Activate' }} User
-                    </button>
-                </form>
-                <button class="btn btn-outline-light btn-sm" onclick="alert('Feature coming soon: Delete message')">
-                    <i class="fas fa-trash me-1"></i>Delete Message
-                </button>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    function warnUser(userId) {
-        if (confirm('Send a warning to this user?')) {
-            alert('Feature coming soon: Warn user');
-        }
-    }
-
-    function suspendUser(userId) {
-        if (confirm('Are you sure you want to suspend this user? They will not be able to access their account.')) {
-            alert('Feature coming soon: Suspend user');
-        }
-    }
-
-    function deleteMessage(messageId) {
-        if (confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
-            alert('Feature coming soon: Delete message');
-        }
-    }
-</script>
 {% endblock %}

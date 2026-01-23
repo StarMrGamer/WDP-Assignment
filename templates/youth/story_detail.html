@@ -1,593 +1,117 @@
 {% extends "base.html" %}
-<!--
-    File: story_detail.html
-    Purpose: Full story view with reactions and comments
-    Author: Rai (Team Lead)
-    Date: December 2025
-    Feature: Detailed story display for youth volunteers
--->
 
-{% block title %}Story Details - GenCon SG{% endblock %}
-
-{% block extra_css %}
-<style>
-    .story-container {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-
-    .back-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: #9B59B6;
-        text-decoration: none;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .back-button:hover {
-        color: #8E44AD;
-        transform: translateX(-5px);
-    }
-
-    .story-detail-card {
-        background: white;
-        border-radius: 1.5rem;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
-    }
-
-    .story-header {
-        padding: 2.5rem;
-        border-bottom: 2px solid #E9ECEF;
-    }
-
-    .author-info {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .author-avatar {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #9B59B6;
-    }
-
-    .author-details h3 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #2C3E50;
-        margin-bottom: 0.25rem;
-    }
-
-    .author-meta {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        font-size: 0.95rem;
-        color: #6C757D;
-    }
-
-    .story-title {
-        font-size: 2.25rem;
-        font-weight: 700;
-        color: #2C3E50;
-        margin-bottom: 1rem;
-        line-height: 1.3;
-    }
-
-    .story-tags {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    .story-tag {
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
-        color: white;
-        padding: 0.5rem 1.25rem;
-        border-radius: 2rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-    }
-
-    .story-body {
-        padding: 2.5rem;
-        font-size: 1.125rem;
-        line-height: 1.8;
-        color: #2C3E50;
-    }
-
-    .story-content {
-        margin-bottom: 2rem;
-    }
-
-    .story-content p {
-        margin-bottom: 1.5rem;
-    }
-
-    .translation-toggle {
-        text-align: center;
-        padding: 1.5rem;
-        background: #F8F9FA;
-        border-radius: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .btn-translate {
-        padding: 0.875rem 2rem;
-        background: #3498DB;
-        color: white;
-        border: none;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-translate:hover {
-        background: #2980B9;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-    }
-
-    .story-footer {
-        padding: 2rem 2.5rem;
-        background: #F8F9FA;
-        border-top: 2px solid #E9ECEF;
-    }
-
-    .reaction-bar {
-        display: flex;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid #DEE2E6;
-    }
-
-    .reaction-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1.5rem;
-        background: white;
-        border: 2px solid #E9ECEF;
-        border-radius: 2rem;
-        font-weight: 600;
-        color: #6C757D;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .reaction-btn:hover {
-        border-color: #9B59B6;
-        color: #9B59B6;
-        background: #F8F5FB;
-    }
-
-    .reaction-btn.active {
-        border-color: #9B59B6;
-        background: #9B59B6;
-        color: white;
-    }
-
-    .reaction-btn .emoji {
-        font-size: 1.5rem;
-    }
-
-    .story-stats {
-        display: flex;
-        gap: 2rem;
-        font-size: 0.95rem;
-        color: #6C757D;
-    }
-
-    .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .stat-item i {
-        color: #9B59B6;
-    }
-
-    .comments-section {
-        background: white;
-        border-radius: 1.5rem;
-        padding: 2.5rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    .comments-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #E9ECEF;
-    }
-
-    .comments-header h3 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #2C3E50;
-    }
-
-    .comment-form {
-        margin-bottom: 2.5rem;
-    }
-
-    .comment-input-wrapper {
-        display: flex;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .comment-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #9B59B6;
-    }
-
-    .comment-input-box {
-        flex: 1;
-    }
-
-    .comment-input-box textarea {
-        width: 100%;
-        min-height: 100px;
-        padding: 1rem;
-        border: 2px solid #E9ECEF;
-        border-radius: 1rem;
-        font-size: 1rem;
-        font-family: inherit;
-        resize: vertical;
-        transition: all 0.3s ease;
-    }
-
-    .comment-input-box textarea:focus {
-        border-color: #9B59B6;
-        box-shadow: 0 0 0 0.2rem rgba(155, 89, 182, 0.25);
-        outline: none;
-    }
-
-    .comment-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1rem;
-    }
-
-    .btn-comment {
-        padding: 0.75rem 2rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        border: none;
-        transition: all 0.3s ease;
-    }
-
-    .btn-post-comment {
-        background: #9B59B6;
-        color: white;
-    }
-
-    .btn-post-comment:hover {
-        background: #8E44AD;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
-    }
-
-    .btn-cancel-comment {
-        background: white;
-        color: #6C757D;
-        border: 2px solid #E9ECEF;
-    }
-
-    .btn-cancel-comment:hover {
-        background: #F8F9FA;
-    }
-
-    .comments-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .comment-item {
-        display: flex;
-        gap: 1rem;
-        padding: 1.5rem;
-        background: #F8F9FA;
-        border-radius: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .comment-item:hover {
-        background: #EEEFF1;
-    }
-
-    .comment-content {
-        flex: 1;
-    }
-
-    .comment-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
-
-    .comment-author {
-        font-weight: 700;
-        color: #2C3E50;
-        font-size: 1.05rem;
-    }
-
-    .comment-time {
-        font-size: 0.875rem;
-        color: #6C757D;
-    }
-
-    .comment-text {
-        color: #2C3E50;
-        line-height: 1.6;
-        margin-bottom: 0.75rem;
-    }
-
-    .comment-footer {
-        display: flex;
-        gap: 1.5rem;
-        font-size: 0.9rem;
-    }
-
-    .comment-action {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: #6C757D;
-        cursor: pointer;
-        transition: color 0.3s ease;
-    }
-
-    .comment-action:hover {
-        color: #9B59B6;
-    }
-
-    @media (max-width: 768px) {
-        .story-title {
-            font-size: 1.75rem;
-        }
-
-        .story-body {
-            font-size: 1rem;
-            padding: 1.5rem;
-        }
-
-        .reaction-bar {
-            flex-wrap: wrap;
-        }
-
-        .comment-input-wrapper {
-            flex-direction: column;
-        }
-
-        .comment-avatar {
-            display: none;
-        }
-    }
-</style>
-{% endblock %}
+{% block body_class %}youth-dashboard{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <div class="story-container">
-        <a href="{{ url_for('youth.story_feed') }}" class="back-button">
-            <i class="fas fa-arrow-left"></i>
-            <span>Back to Stories</span>
+    <div class="mb-4">
+        <a href="{{ url_for('youth.story_feed') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Stories
         </a>
+    </div>
 
-        <!-- Story Detail Card -->
-        <div class="story-detail-card">
-            <!-- Story Header -->
-            <div class="story-header">
-                <div class="author-info">
-                    <img src="{{ url_for('static', filename='images/' + story.user.profile_picture) }}"
-                         alt="{{ story.user.full_name }}" class="author-avatar">
-                    <div class="author-details">
-                        <h3>{{ story.user.full_name }}</h3>
-                        <div class="author-meta">
-                            <span><i class="fas fa-calendar me-1"></i>{{ story.created_at|format_date('%d %b %Y') }}</span>
-                            <span><i class="fas fa-book me-1"></i>{{ story.category }}</span>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <!-- User Info -->
+                    <div class="d-flex align-items-center mb-4">
+                        <a href="{{ url_for('youth.public_profile', user_id=story.user.id) }}">
+                            <img src="{{ url_for('static', filename=story.user.profile_picture|fix_pfp) }}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        </a>
+                        <div>
+                            <a href="{{ url_for('youth.public_profile', user_id=story.user.id) }}" class="text-decoration-none text-dark">
+                                <h5 class="mb-0 fw-bold">{{ story.user.full_name }}</h5>
+                            </a>
+                            <small class="text-muted">{{ story.created_at|timeago }} • {{ story.category }}</small>
                         </div>
                     </div>
-                </div>
-                <h1 class="story-title">{{ story.title }}</h1>
-                <div class="story-tags">
-                    <span class="story-tag"><i class="fas fa-tag me-2"></i>{{ story.category }}</span>
-                </div>
-            </div>
 
-            <!-- Story Body -->
-            <div class="story-body">
-                <!-- Optional Photo -->
-                {% if story.photo_url %}
-                <div class="mb-4 text-center">
-                    <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" 
-                         class="img-fluid rounded" style="max-height: 500px;" alt="{{ story.title }}">
-                </div>
-                {% endif %}
+                    <!-- Title -->
+                    <h2 class="h3 fw-bold mb-3">{{ story.title }}</h2>
 
-                <div class="story-content" id="originalContent">
-                    {{ story.content | replace('\n', '<br>') | safe }}
-                </div>
+                    <!-- Image -->
+                    {% if story.photo_url %}
+                    <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" class="img-fluid rounded mb-4 w-100">
+                    {% endif %}
 
-                <!-- Translation Toggle -->
-                <div class="translation-toggle">
-                    <button class="btn btn-translate" onclick="toggleTranslation()">
-                        <i class="fas fa-language me-2"></i>Translate
-                    </button>
-                    <div id="translatedContent" class="d-none mt-3 text-start">
-                        <p class="text-muted">Translation feature coming soon...</p>
+                    <!-- Content -->
+                    <div class="card-text mb-4" style="white-space: pre-line;">{{ story.content }}</div>
+
+                    <!-- Interactions -->
+                    <div class="d-flex gap-2 mb-4">
+                        <button class="btn btn-outline-danger flex-grow-1" onclick="reactToStory({{ story.id }}, 'heart')">
+                            <i class="far fa-heart me-2"></i>Like
+                        </button>
+                        <button class="btn btn-outline-primary flex-grow-1" onclick="document.getElementById('commentInput').focus()">
+                            <i class="far fa-comment me-2"></i>Comment
+                        </button>
                     </div>
-                </div>
-            </div>
 
-            <!-- Story Footer -->
-            <div class="story-footer">
-                <div class="reaction-bar">
-                    {% for type, icon in [('heart', '❤️'), ('clap', '👏'), ('smile', '😊'), ('hug', '🤗')] %}
-                    {% set count = story.reactions.filter_by(reaction_type=type).count() %}
-                    {% set user_reacted = story.reactions.filter_by(reaction_type=type, user_id=session.user_id).first() %}
-                    <button class="reaction-btn {{ 'active' if user_reacted else '' }}" 
-                            onclick="reactToStory({{ story.id }}, '{{ type }}', this)">
-                        <span class="emoji">{{ icon }}</span>
-                        <span class="count-text">{{ count }} {{ type|capitalize }}s</span>
-                    </button>
-                    {% endfor %}
-                </div>
-                <div class="story-stats">
-                    <div class="stat-item">
-                        <i class="fas fa-comment"></i>
-                        <span>{{ story.comments.count() }} comments</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Comments Section -->
-        <div class="comments-section">
-            <div class="comments-header">
-                <h3><i class="fas fa-comments me-2"></i>Comments ({{ story.comments.count() }})</h3>
-            </div>
-
-            <!-- Comment Form -->
-            <div class="comment-form">
-                <div class="comment-input-wrapper">
-                    <!-- Current User Avatar -->
-                    <div class="comment-input-box">
-                        <textarea placeholder="Share your thoughts about this story..."
-                                  id="commentInput"></textarea>
-                        <div class="comment-actions">
-                            <button class="btn btn-comment btn-cancel-comment">Cancel</button>
-                            <button class="btn btn-comment btn-post-comment" onclick="postComment({{ story.id }})">
-                                <i class="fas fa-paper-plane me-2"></i>Post Comment
-                            </button>
+                    <!-- Comments -->
+                    <div class="bg-light p-3 rounded">
+                        <h5 class="mb-3">Comments ({{ story.comments.count() }})</h5>
+                        <div class="comments-list mb-3">
+                            {% for comment in story.comments %}
+                            <div class="d-flex mb-3">
+                                <img src="{{ url_for('static', filename=comment.user.profile_picture|fix_pfp) }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                <div class="bg-white p-2 rounded w-100">
+                                    <div class="d-flex justify-content-between">
+                                        <strong class="small">{{ comment.user.full_name }}</strong>
+                                        <small class="text-muted" style="font-size: 0.7rem;">{{ comment.created_at|timeago }}</small>
+                                    </div>
+                                    <p class="mb-0 small">{{ comment.content }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
+                        
+                        <form onsubmit="postComment(event, {{ story.id }})">
+                            <div class="input-group">
+                                <input type="text" id="commentInput" class="form-control" placeholder="Write a comment..." required>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </div>
-
-            <!-- Comments List -->
-            <div class="comments-list">
-                {% for comment in story.comments %}
-                <div class="comment-item">
-                    <img src="{{ url_for('static', filename='images/' + comment.user.profile_picture) }}"
-                         alt="{{ comment.user.full_name }}" class="comment-avatar">
-                    <div class="comment-content">
-                        <div class="comment-header">
-                            <span class="comment-author">{{ comment.user.full_name }}</span>
-                            <span class="comment-time">{{ comment.created_at|format_date('%d %b %Y, %I:%M %p') }}</span>
-                        </div>
-                        <p class="comment-text">
-                            {{ comment.content }}
-                        </p>
-                    </div>
-                </div>
-                {% else %}
-                <div class="text-center text-muted py-4">
-                    <p>No comments yet. Be the first to share your thoughts!</p>
-                </div>
-                {% endfor %}
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    // Translation toggle
-    function toggleTranslation() {
-        const content = document.getElementById('translatedContent');
-        content.classList.toggle('d-none');
-    }
-
-    // React to story
-    function reactToStory(storyId, reactionType, btnElement) {
-        fetch(`/youth/api/stories/${storyId}/react`, {
+async function reactToStory(storyId, type) {
+    try {
+        const response = await fetch(`/youth/api/stories/${storyId}/react`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ reaction_type: reactionType })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update UI
-                const countSpan = btnElement.querySelector('.count-text');
-                const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
-                countSpan.textContent = `${data.count} ${capitalize(reactionType)}s`;
-                
-                if (data.action === 'added' || data.action === 'updated') {
-                    // Remove active class from other buttons if we want single choice
-                    // But current logic allows multiple? The backend logic:
-                    // "If it's a DIFFERENT type, update it to the new type."
-                    // So it IS single choice per user.
-                    // We should remove 'active' from all other buttons
-                    document.querySelectorAll('.reaction-btn').forEach(b => b.classList.remove('active'));
-                    btnElement.classList.add('active');
-                } else if (data.action === 'removed') {
-                    btnElement.classList.remove('active');
-                }
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    // Post comment
-    function postComment(storyId) {
-        const input = document.getElementById('commentInput');
-        const content = input.value.trim();
-
-        if (!content) {
-            alert('Please write a comment first.');
-            return;
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({reaction_type: type})
+        });
+        if (response.ok) {
+            location.reload();
         }
-
-        fetch(`/youth/api/stories/${storyId}/comment`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ content: content })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Reload page to show new comment
-                window.location.reload();
-            } else {
-                alert(data.message || 'Error posting comment');
-            }
-        })
-        .catch(error => console.error('Error:', error));
+    } catch (error) {
+        console.error('Error:', error);
     }
+}
 
-    // Cancel comment
-    document.querySelector('.btn-cancel-comment')?.addEventListener('click', function() {
-        document.getElementById('commentInput').value = '';
-    });
-
-    console.log('Story detail page loaded');
+async function postComment(event, storyId) {
+    event.preventDefault();
+    const input = document.getElementById('commentInput');
+    try {
+        const response = await fetch(`/youth/api/stories/${storyId}/comment`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({content: input.value})
+        });
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
 </script>
 {% endblock %}

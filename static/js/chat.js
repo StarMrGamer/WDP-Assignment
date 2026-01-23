@@ -62,6 +62,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const messageClass = msg.is_me ? 'message-sent' : 'message-received';
             const checkIcon = msg.is_me ? '<i class="fas fa-check-double text-primary"></i>' : '';
             
+            // Report button for received messages
+            const reportBtn = !msg.is_me ? `
+                <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal(${msg.id})" title="Report Message">
+                    <i class="fas fa-flag"></i>
+                </button>
+            ` : '';
+
             // Flagged content warning
             const flaggedAlert = msg.is_flagged ? `
                 <div class="alert alert-warning alert-sm mb-2">
@@ -85,7 +92,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="message ${messageClass}">
                     <div class="message-content">
                         ${flaggedAlert}
-                        <p class="mb-1">${msg.content}</p>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <p class="mb-1">${msg.content}</p>
+                            ${reportBtn}
+                        </div>
                         ${translationBox}
                         <small class="message-time">
                             ${msg.created_at}
@@ -113,4 +123,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Poll every 3 seconds for new messages
     setInterval(fetchMessages, 3000);
+
 });
+
+// ==================== REPORTING LOGIC ====================
+// Defined globally to ensure onclick handlers work
+window.openReportModal = function(messageId) {
+    document.getElementById('reportMessageId').value = messageId;
+    const modalEl = document.getElementById('reportModal');
+    if (modalEl) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+};
+
+window.submitReport = async function() {
+    const messageId = document.getElementById('reportMessageId').value;
+    const reason = document.getElementById('reportReason').value;
+    const description = document.getElementById('reportDescription').value;
+
+    if (!reason) {
+        alert('Please select a reason for reporting');
+        return;
+    }
+
+    try {
+        // Determine role from URL to use correct blueprint
+        const role = window.location.pathname.split('/')[1]; 
+        const response = await fetch(`/${role}/api/messages/${messageId}/report`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason, description })
+        });
+
+        if (response.ok) {
+            alert('Report submitted successfully. Admins will review it.');
+            const modalEl = document.getElementById('reportModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+            
+            document.getElementById('reportForm').reset();
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Failed to submit report');
+        }
+    } catch (error) {
+        console.error('Error submitting report:', error);
+        alert('An error occurred while submitting the report');
+    }
+};

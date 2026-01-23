@@ -524,6 +524,7 @@ class CommunityMember(db.Model):
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), nullable=False, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     joined_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    last_viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
     community = db.relationship('Community', back_populates='members')

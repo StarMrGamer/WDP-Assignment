@@ -9,7 +9,7 @@ Description: Handles all routes for senior users including story creation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, Badge
+from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, Badge, ChatReport
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -234,6 +234,30 @@ def get_messages_json():
     return {'messages': messages_data}
 
 
+@senior_bp.route('/api/messages/<int:message_id>/report', methods=['POST'])
+@login_required
+def report_message(message_id):
+    """API to report a message."""
+    data = request.get_json()
+    reason = data.get('reason')
+    description = data.get('description')
+    
+    msg = Message.query.get_or_404(message_id)
+    
+    report = ChatReport(
+        message_id=msg.id,
+        reported_by=session['user_id'],
+        reported_user_id=msg.sender_id,
+        reason=reason,
+        description=description,
+        status='pending'
+    )
+    db.session.add(report)
+    db.session.commit()
+    
+    return {'success': True}, 200
+
+
 # ==================== EVENTS ====================
 @senior_bp.route('/events')
 @login_required
@@ -311,22 +335,41 @@ def register_event(event_id):
 @senior_bp.route('/communities')
 @login_required
 def communities():
-    """Display all communities."""
-    all_communities = Community.query.all()
+    """Display all communities with search and unread counts."""
+    search_query = request.args.get('q', '')
     user_id = session['user_id']
     
-    # Process communities for display (Attach attributes to objects)
+    query = Community.query
+    if search_query:
+        query = query.filter(Community.name.ilike(f'%{search_query}%') | 
+                             Community.description.ilike(f'%{search_query}%'))
+    
+    all_communities = query.all()
+    
+    my_communities = []
+    other_communities = []
+    
     for comm in all_communities:
-        # Check if user is member
-        comm.is_joined = CommunityMember.query.filter_by(
-            community_id=comm.id, 
-            user_id=user_id
-        ).first() is not None
-        
-        # Helper attributes for template
+        member = CommunityMember.query.filter_by(community_id=comm.id, user_id=user_id).first()
+        comm.is_joined = member is not None
         comm.post_count = comm.posts.count()
+        
+        if comm.is_joined:
+            # Calculate unread posts
+            last_viewed = member.last_viewed_at or member.joined_at
+            unread = CommunityPost.query.filter(
+                CommunityPost.community_id == comm.id,
+                CommunityPost.created_at > last_viewed
+            ).count()
+            comm.unread_count = unread
+            my_communities.append(comm)
+        else:
+            other_communities.append(comm)
 
-    return render_template('senior/communities.html', communities=all_communities)
+    return render_template('senior/communities.html', 
+                         my_communities=my_communities, 
+                         other_communities=other_communities,
+                         search_query=search_query)
 
 
 @senior_bp.route('/communities/<int:community_id>')
@@ -337,14 +380,18 @@ def view_community(community_id):
     user_id = session['user_id']
     
     # Check membership
-    is_member = CommunityMember.query.filter_by(
+    member = CommunityMember.query.filter_by(
         community_id=community_id, 
         user_id=user_id
-    ).first() is not None
+    ).first()
     
-    if not is_member:
+    if not member:
         flash('You must join this community to view the chat.', 'warning')
         return redirect(url_for('senior.communities'))
+        
+    # Update last_viewed_at
+    member.last_viewed_at = datetime.utcnow()
+    db.session.commit()
         
     # Get recent posts for the chat history
     posts = CommunityPost.query.filter_by(community_id=community_id)\

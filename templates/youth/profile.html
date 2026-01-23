@@ -385,9 +385,7 @@
                         </div>
                         <img src="" alt="{{ user.full_name }}" class="profile-avatar-large d-none" id="headerProfilePreview">
                     {% else %}
-                        {% set pfp = user.profile_picture %}
-                        {% if not pfp.startswith('images/') %}{% set pfp = 'images/' + pfp %}{% endif %}
-                        <img src="{{ url_for('static', filename=pfp) }}"
+                        <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
                              alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
                     {% endif %}
                     <div>

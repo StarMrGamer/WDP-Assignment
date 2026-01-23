@@ -1,246 +1,76 @@
 {% extends "base.html" %}
-<!--
-    File: youth/story_feed.html
-    Purpose: Instagram-style story feed for youth volunteers
-    Author: Rai (Team Lead)
-    Date: December 2025
-    Feature: Story Engagement
--->
 
-{% block title %}Story Feed - GenCon SG{% endblock %}
+{% block body_class %}youth-dashboard{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <div class="row">
-        <!-- Main Feed Column -->
-        <div class="col-lg-8 mx-auto">
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>
-                    <i class="fas fa-book-open me-2"></i>
-                    Story Feed
-                </h2>
+    <!-- Header and Filters -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Stories</h2>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-filter me-2"></i>{{ current_filter|capitalize }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='all') }}">All Stories</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Childhood') }}">Childhood</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Work Life') }}">Work Life</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Family') }}">Family</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Hobbies') }}">Hobbies</a></li>
+            </ul>
+        </div>
+    </div>
 
-                <!-- Filter Dropdown -->
-                <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fas fa-filter me-2"></i>
-                        {{ current_filter|capitalize if current_filter != 'all' else 'All Categories' }}
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="?category=all">
-                            <i class="fas fa-list me-2"></i>All Categories
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="?category=Childhood">
-                            <i class="fas fa-child me-2"></i>Childhood
-                        </a></li>
-                        <li><a class="dropdown-item" href="?category=Work Life">
-                            <i class="fas fa-briefcase me-2"></i>Work Life
-                        </a></li>
-                        <li><a class="dropdown-item" href="?category=Family">
-                            <i class="fas fa-heart me-2"></i>Family
-                        </a></li>
-                        <li><a class="dropdown-item" href="?category=Hobbies">
-                            <i class="fas fa-palette me-2"></i>Hobbies
-                        </a></li>
-                        <li><a class="dropdown-item" href="?category=Other">
-                            <i class="fas fa-ellipsis-h me-2"></i>Other
-                        </a></li>
-                    </ul>
+    <!-- Stories Feed -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            {% for story in stories %}
+            <div class="card shadow-sm mb-4">
+                <!-- Story Header: Creator Info -->
+                <div class="card-header bg-white p-3 border-bottom-0">
+                    <div class="d-flex align-items-center">
+                        <a href="{{ url_for('youth.public_profile', user_id=story.user.id) }}" class="text-decoration-none">
+                            <img src="{{ url_for('static', filename=story.user.profile_picture|fix_pfp) }}" class="rounded-circle me-2" style="width: 45px; height: 45px; object-fit: cover;">
+                        </a>
+                        <div>
+                            <a href="{{ url_for('youth.public_profile', user_id=story.user.id) }}" class="text-decoration-none text-dark">
+                                <div class="fw-bold">{{ story.user.full_name }}</div>
+                            </a>
+                            <small class="text-muted">{{ story.created_at|timeago }} • <span class="badge bg-light text-primary border">{{ story.category }}</span></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Story Image (if any) -->
+                {% if story.photo_url %}
+                <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" class="card-img-top" alt="Story image" style="max-height: 500px; object-fit: cover;">
+                {% endif %}
+                
+                <!-- Story Content -->
+                <div class="card-body">
+                    <h4 class="card-title fw-bold mb-2">{{ story.title }}</h4>
+                    <p class="card-text">{{ story.content[:150] }}...</p>
+                    
+                    <!-- Interactions -->
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <div class="text-muted">
+                            <span class="me-3"><i class="fas fa-heart text-danger me-1"></i> {{ story.reactions.count() }}</span>
+                            <span><i class="fas fa-comment text-primary me-1"></i> {{ story.comments.count() }}</span>
+                        </div>
+                        <a href="{{ url_for('youth.story_detail', story_id=story.id) }}" class="btn btn-primary btn-sm">Read More</a>
+                    </div>
                 </div>
             </div>
-
-            <!-- Story Cards -->
-            {% if stories %}
-                {% for story in stories %}
-                <div class="card story-card mb-4 fade-in">
-                    <!-- Story Header -->
-                    <div class="story-header">
-                        <div class="d-flex align-items-center">
-                            <img src="{{ url_for('static', filename='images/' + story.user.profile_picture) }}"
-                                 alt="{{ story.user.full_name }}"
-                                 class="rounded-circle me-3"
-                                 style="width: 48px; height: 48px; object-fit: cover;">
-                            <div class="flex-grow-1">
-                                <strong>{{ story.user.full_name }}</strong>
-                                <br>
-                                <small class="text-muted">
-                                    <i class="fas fa-clock me-1"></i>
-                                    {{ story.created_at|timeago }}
-                                </small>
-                            </div>
-                            <span class="category-badge">{{ story.category }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Story Image (if exists) -->
-                    {% if story.photo_url %}
-                    <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}"
-                         class="story-image"
-                         alt="{{ story.title }}">
-                    {% endif %}
-
-                    <!-- Story Content -->
-                    <div class="story-content">
-                        <h5 class="story-title">{{ story.title }}</h5>
-                        <p class="story-text">
-                            {{ story.content[:300] }}{% if story.content|length > 300 %}...{% endif %}
-                        </p>
-
-                        {% if story.content|length > 300 %}
-                        <a href="{{ url_for('youth.story_detail', story_id=story.id) }}" class="read-more">
-                            Read full story <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                        {% endif %}
-                    </div>
-
-                    <!-- Reaction Bar -->
-                    <div class="reaction-bar">
-                        <button class="reaction-btn heart" onclick="reactToStory({{ story.id }}, 'heart')">
-                            <i class="fas fa-heart"></i>
-                            <span class="count">{{ story.reactions.filter_by(reaction_type='heart').count() }}</span>
-                        </button>
-
-                        <button class="reaction-btn smile" onclick="reactToStory({{ story.id }}, 'smile')">
-                            <i class="fas fa-smile"></i>
-                            <span class="count">{{ story.reactions.filter_by(reaction_type='smile').count() }}</span>
-                        </button>
-
-                        <button class="reaction-btn clap" onclick="reactToStory({{ story.id }}, 'clap')">
-                            <i class="fas fa-hands-helping"></i>
-                            <span class="count">{{ story.reactions.filter_by(reaction_type='clap').count() }}</span>
-                        </button>
-
-                        <button class="reaction-btn hug" onclick="reactToStory({{ story.id }}, 'hug')">
-                            <i class="fas fa-hand-holding-heart"></i>
-                            <span class="count">{{ story.reactions.filter_by(reaction_type='hug').count() }}</span>
-                        </button>
-
-                        <button class="reaction-btn comment" onclick="window.location='{{ url_for('youth.story_detail', story_id=story.id) }}'">
-                            <i class="fas fa-comment"></i>
-                            <span class="count">{{ story.comments.count() }}</span>
-                        </button>
-                    </div>
-
-                    <!-- Comments Preview -->
-                    {% if story.comments.limit(2).all() %}
-                    <div class="comments-preview">
-                        {% for comment in story.comments.limit(2).all() %}
-                        <div class="comment-preview">
-                            <strong>{{ comment.user.username }}</strong>
-                            {{ comment.content[:80] }}{% if comment.content|length > 80 %}...{% endif %}
-                        </div>
-                        {% endfor %}
-
-                        {% if story.comments.count() > 2 %}
-                        <a href="{{ url_for('youth.story_detail', story_id=story.id) }}" class="view-all-comments">
-                            View all {{ story.comments.count() }} comments
-                        </a>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-
-                    <!-- Add Comment -->
-                    <div class="add-comment">
-                        <input type="text"
-                               class="comment-input"
-                               placeholder="Add a thoughtful comment..."
-                               data-story-id="{{ story.id }}">
-                        <button class="btn btn-sm btn-primary" onclick="postComment({{ story.id }})">
-                            Post
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
-
-                <!-- Load More Button -->
-                <div class="text-center my-4">
-                    <button class="btn btn-outline-primary btn-lg">
-                        <i class="fas fa-chevron-down me-2"></i>
-                        Load More Stories
-                    </button>
-                </div>
-
             {% else %}
-                <!-- No Stories -->
-                <div class="card">
-                    <div class="card-body text-center py-5">
-                        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-                        <h4>No Stories Yet</h4>
-                        <p class="text-muted">Check back soon for inspiring stories from seniors!</p>
-                    </div>
-                </div>
-            {% endif %}
+            <div class="text-center py-5">
+                <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No stories found</h4>
+                <p class="text-muted">Try changing the filter or check back later.</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-    // React to a story
-    function reactToStory(storyId, reactionType) {
-        fetch(`/api/stories/${storyId}/react`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                reaction_type: reactionType
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update reaction count
-                const btn = event.target.closest('.reaction-btn');
-                const countSpan = btn.querySelector('.count');
-                countSpan.textContent = data.count;
-
-                // Add active class and animation
-                btn.classList.add('active');
-                showToast(`Reacted with ${reactionType}!`, 'success');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('Failed to add reaction', 'danger');
-        });
-    }
-
-    // Post a comment
-    function postComment(storyId) {
-        const input = document.querySelector(`input[data-story-id="${storyId}"]`);
-        const content = input.value.trim();
-
-        if (!content) {
-            showToast('Please write a comment', 'warning');
-            return;
-        }
-
-        fetch(`/api/stories/${storyId}/comment`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                content: content
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToast('Comment posted!', 'success');
-                input.value = '';
-                // Reload to show new comment
-                location.reload();
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('Failed to post comment', 'danger');
-        });
-    }
-</script>
 {% endblock %}

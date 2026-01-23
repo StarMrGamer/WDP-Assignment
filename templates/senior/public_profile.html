@@ -13,9 +13,7 @@
     <div class="row">
         <div class="col-md-5 mb-4">
             <div class="card shadow-sm text-center p-4 border-2" style="border-color: var(--senior-border);">
-                {% set pfp = profile_user.profile_picture %}
-                {% if not pfp.startswith('images/') %}{% set pfp = 'images/' + pfp %}{% endif %}
-                <img src="{{ url_for('static', filename=pfp) }}" class="rounded-circle mb-3 mx-auto d-block" style="width: 180px; height: 180px; object-fit: cover; border: 4px solid var(--senior-primary);">
+                <img src="{{ url_for('static', filename=profile_user.profile_picture|fix_pfp) }}" class="rounded-circle mb-3 mx-auto d-block" style="width: 180px; height: 180px; object-fit: cover; border: 4px solid var(--senior-primary);">
                 
                 <h2 class="fw-bold mb-2">{{ profile_user.full_name }}</h2>
                 <div class="mb-3">

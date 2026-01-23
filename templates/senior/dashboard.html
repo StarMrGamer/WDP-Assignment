@@ -87,7 +87,7 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-auto">
-                            <img src="{{ url_for('static', filename='images/' + buddy.profile_picture) }}"
+                            <img src="{{ url_for('static', filename=buddy.profile_picture|fix_pfp) }}"
                                  alt="{{ buddy.full_name }}"
                                  class="rounded-circle"
                                  style="width: 100px; height: 100px; object-fit: cover;">

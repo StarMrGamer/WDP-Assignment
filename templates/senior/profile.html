@@ -343,9 +343,7 @@
                         </div>
                         <img src="" alt="{{ user.full_name }}" class="profile-avatar-large d-none" id="headerProfilePreview">
                     {% else %}
-                        {% set pfp = user.profile_picture %}
-                        {% if not pfp.startswith('images/') %}{% set pfp = 'images/' + pfp %}{% endif %}
-                        <img src="{{ url_for('static', filename=pfp) }}"
+                        <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
                              alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
                     {% endif %}
                     <div>
@@ -491,9 +489,7 @@
         <div class="profile-card">
             <h3><i class="fas fa-user-friends me-2"></i>My Buddy</h3>
             <div class="d-flex align-items-center">
-                {% set buddy_pfp = buddy.profile_picture %}
-                {% if not buddy_pfp.startswith('images/') %}{% set buddy_pfp = 'images/' + buddy_pfp %}{% endif %}
-                <img src="{{ url_for('static', filename=buddy_pfp) }}" alt="{{ buddy.full_name }}" class="rounded-circle me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                <img src="{{ url_for('static', filename=buddy.profile_picture|fix_pfp) }}" alt="{{ buddy.full_name }}" class="rounded-circle me-3" style="width: 80px; height: 80px; object-fit: cover;">
                 <div>
                     <h4 class="mb-1">{{ buddy.full_name }}</h4>
                     <p class="text-muted mb-2">Youth Volunteer</p>

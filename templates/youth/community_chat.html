@@ -27,14 +27,10 @@
                 <div class="card-body p-0">
                     <div id="chat-messages" class="p-4" style="height: 60vh; overflow-y: auto; background-color: #f8f9fa;">
                         {% for post in posts %}
-                            {% set pfp = post.user.profile_picture %}
-                            {% if not pfp.startswith('images/') %}
-                                {% set pfp = 'images/' + pfp %}
-                            {% endif %}
                             <div class="d-flex mb-3 {% if post.user_id == user_id %}justify-content-end{% endif %}">
                                 {% if post.user_id != user_id %}
                                     <a href="{{ url_for('youth.public_profile', user_id=post.user_id) }}">
-                                        <img src="{{ url_for('static', filename=pfp) }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                        <img src="{{ url_for('static', filename=post.user.profile_picture|fix_pfp) }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
                                     </a>
                                 {% endif %}
                                 
@@ -60,7 +56,7 @@
                                 </div>
 
                                 {% if post.user_id == user_id %}
-                                    <img src="{{ url_for('static', filename=pfp) }}" class="rounded-circle ms-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <img src="{{ url_for('static', filename=post.user.profile_picture|fix_pfp) }}" class="rounded-circle ms-2" style="width: 40px; height: 40px; object-fit: cover;">
                                 {% endif %}
                             </div>
                         {% endfor %}
@@ -101,11 +97,9 @@
                 <div class="card-body p-0" style="max-height: 70vh; overflow-y: auto;">
                     <ul class="list-group list-group-flush">
                         {% for member in members %}
-                            {% set mpfp = member.user.profile_picture %}
-                            {% if not mpfp.startswith('images/') %}{% set mpfp = 'images/' + mpfp %}{% endif %}
                             <li class="list-group-item d-flex align-items-center">
                                 <a href="{{ url_for('youth.public_profile', user_id=member.user_id) }}" class="d-flex align-items-center text-decoration-none text-dark w-100">
-                                    <img src="{{ url_for('static', filename=mpfp) }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                    <img src="{{ url_for('static', filename=member.user.profile_picture|fix_pfp) }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
                                     <span>{{ member.user.full_name }}</span>
                                 </a>
                                 {% if member.user.role == 'senior' %}

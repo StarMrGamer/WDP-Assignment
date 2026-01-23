@@ -15,7 +15,7 @@ Description: This is the entry point for the Flask application. It:
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from config import get_config
-from models import db
+from models import db, ChatReport
 from datetime import timedelta
 from sqlalchemy import text
 import os
@@ -219,6 +219,49 @@ with app.app_context():
             conn.execute(text("ALTER TABLE communities ADD COLUMN photo_url VARCHAR(255)"))
             conn.commit()
             print("Database patched: Added photo_url to communities")
+    except Exception:
+        pass
+
+    # Auto-patch: Add missing last_viewed_at column to community_members if it doesn't exist
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE community_members ADD COLUMN last_viewed_at DATETIME"))
+            conn.commit()
+            print("Database patched: Added last_viewed_at to community_members")
+    except Exception:
+        pass
+
+    # Auto-patch: Ensure chat_reports table exists
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("SELECT count(*) FROM chat_reports"))
+    except Exception:
+        print("Creating chat_reports table...")
+        db.create_all()
+
+    # Auto-patch: Ensure chat_reports table exists (Double check)
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("SELECT count(*) FROM chat_reports"))
+    except Exception:
+        print("Creating chat_reports table...")
+        db.create_all()
+
+    # Auto-patch: Add missing status column to chat_reports if it doesn't exist
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE chat_reports ADD COLUMN status VARCHAR(20) DEFAULT 'pending'"))
+            conn.commit()
+            print("Database patched: Added status to chat_reports")
+    except Exception:
+        pass
+
+    # Auto-patch: Add missing admin_notes column to chat_reports if it doesn't exist
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE chat_reports ADD COLUMN admin_notes TEXT"))
+            conn.commit()
+            print("Database patched: Added admin_notes to chat_reports")
     except Exception:
         pass
 

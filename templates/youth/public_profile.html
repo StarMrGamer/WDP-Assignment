@@ -13,9 +13,7 @@
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm text-center p-4">
-                {% set pfp = profile_user.profile_picture %}
-                {% if not pfp.startswith('images/') %}{% set pfp = 'images/' + pfp %}{% endif %}
-                <img src="{{ url_for('static', filename=pfp) }}" class="rounded-circle mb-3 mx-auto d-block" style="width: 150px; height: 150px; object-fit: cover;">
+                <img src="{{ url_for('static', filename=profile_user.profile_picture|fix_pfp) }}" class="rounded-circle mb-3 mx-auto d-block" style="width: 150px; height: 150px; object-fit: cover;">
                 
                 <h3 class="fw-bold">{{ profile_user.full_name }}</h3>
                 <div class="mb-3">

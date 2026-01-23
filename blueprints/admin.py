@@ -558,7 +558,19 @@ def report_detail(report_id):
 
         return redirect(url_for('admin.reports'))
 
-    return render_template('admin/report_detail.html', report=report)
+    # Get conversation history (last 20 messages between the two users)
+    sender_id = report.message.sender_id
+    recipient_id = report.message.recipient_id
+    
+    conversation_history = Message.query.filter(
+        ((Message.sender_id == sender_id) & (Message.recipient_id == recipient_id)) |
+        ((Message.sender_id == recipient_id) & (Message.recipient_id == sender_id))
+    ).order_by(Message.created_at.desc()).limit(20).all()
+    
+    # Reverse to show chronological order
+    conversation_history.reverse()
+
+    return render_template('admin/report_detail.html', report=report, history=conversation_history)
 
 
 # ==================== ANALYTICS ====================

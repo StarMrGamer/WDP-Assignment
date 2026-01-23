@@ -7,9 +7,60 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Communities</h2>
     </div>
+    
+    <!-- Search Bar -->
+    <div class="mb-4">
+        <form action="{{ url_for('youth.communities') }}" method="GET" class="d-flex gap-2">
+            <input type="text" name="q" class="form-control" placeholder="Search communities..." value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+            {% if search_query %}
+                <a href="{{ url_for('youth.communities') }}" class="btn btn-outline-secondary">Clear</a>
+            {% endif %}
+        </form>
+    </div>
 
+    <!-- My Communities -->
+    {% if my_communities %}
+    <h4 class="mb-3 text-primary">My Communities</h4>
+    <div class="row g-4 mb-5">
+        {% for community in my_communities %}
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-primary">
+                <div class="card-body text-center p-4">
+                    <div class="position-relative d-inline-block">
+                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                            <i class="{{ community.icon }}"></i>
+                        </div>
+                        {% if community.unread_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ community.unread_count }}
+                            <span class="visually-hidden">unread messages</span>
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <h5 class="card-title fw-bold">{{ community.name }}</h5>
+                    <p class="card-text text-muted small mb-3">{{ community.description }}</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('youth.view_community', community_id=community.id) }}" class="btn btn-primary">
+                            <i class="fas fa-comments me-2"></i>View Chat
+                        </a>
+                        <button onclick="toggleJoin({{ community.id }})" class="btn btn-outline-danger btn-sm">
+                            Leave Community
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Other Communities -->
+    <h4 class="mb-3 text-muted">Explore Communities</h4>
     <div class="row g-4">
-        {% for community in communities %}
+        {% for community in other_communities %}
         <div class="col-md-4">
             <div class="card h-100 shadow-sm">
                 <div class="card-body text-center p-4">
@@ -30,19 +81,9 @@
                     </div>
 
                     <div class="d-grid gap-2">
-                        {% if community.is_joined %}
-                            <a href="{{ url_for('youth.view_community', community_id=community.id) }}" class="btn btn-primary">
-                                <i class="fas fa-comments me-2"></i>View Chat
-                            </a>
-                            <button onclick="toggleJoin({{ community.id }})" class="btn btn-outline-danger btn-sm">
-                                Leave Community
-                            </button>
-                        {% else %}
-                            <button class="btn btn-secondary disabled mb-1" disabled>Join to View Chat</button>
-                            <button onclick="toggleJoin({{ community.id }})" class="btn btn-outline-primary">
-                                Join Community
-                            </button>
-                        {% endif %}
+                        <button onclick="toggleJoin({{ community.id }})" class="btn btn-outline-primary">
+                            Join Community
+                        </button>
                     </div>
                 </div>
             </div>
