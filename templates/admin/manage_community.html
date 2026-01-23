@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header and Back Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('admin.communities') }}" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <div>
+                <h2 class="mb-0">Manage Community: {{ community.name }}</h2>
+                <p class="text-muted mb-0">{{ community.description }}</p>
+            </div>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editCommunityModal">
+                <i class="fas fa-edit me-2"></i>Edit Details
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Chat Monitoring -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Chat Monitor</h5>
+                    <span class="badge bg-secondary">{{ posts|length }} Messages</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" style="max-height: 600px; overflow-y: auto;">
+                        {% for post in posts %}
+                        {% set pfp = post.user.profile_picture %}
+                        {% if not pfp.startswith('images/') %}{% set pfp = 'images/' + pfp %}{% endif %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex">
+                                    <img src="{{ url_for('static', filename=pfp) }}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <div>
+                                        <div class="d-flex align-items-center">
+                                            <strong class="me-2">{{ post.user.full_name }}</strong>
+                                            <span class="badge bg-light text-dark border">{{ post.user.role }}</span>
+                                            <small class="text-muted ms-2">{{ post.created_at|timeago }}</small>
+                                        </div>
+                                        
+                                        {% if post.photo_url %}
+                                            <div class="mt-2">
+                                                <img src="{{ url_for('static', filename=post.photo_url) }}" class="img-fluid rounded" style="max-height: 200px;">
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <p class="mb-0 mt-1">{{ post.content }}</p>
+                                    </div>
+                                </div>
+                                <form action="{{ url_for('admin.delete_community_post', post_id=post.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this message?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="p-4 text-center text-muted">
+                            No messages in this community yet.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Member Management -->
+        <div class="col-lg-4">
+            <!-- Add Member -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Add Member</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin.add_community_member', community_id=community.id) }}" method="POST">
+                        <div class="mb-3">
+                            <select name="user_id" class="form-select" required>
+                                <option value="" selected disabled>Select user to add...</option>
+                                {% for user in non_members %}
+                                <option value="{{ user.id }}">{{ user.full_name }} ({{ user.role }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-user-plus me-2"></i>Add to Community
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Member List -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Members</h5>
+                    <span class="badge bg-primary">{{ members|length }}</span>
+                </div>
+                <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                    {% for member in members %}
+                    {% set mpfp = member.user.profile_picture %}
+                    {% if not mpfp.startswith('images/') %}{% set mpfp = 'images/' + mpfp %}{% endif %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ url_for('static', filename=mpfp) }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                            <div>
+                                <div class="fw-bold" style="font-size: 0.9rem;">{{ member.user.full_name }}</div>
+                                <small class="text-muted" style="font-size: 0.8rem;">{{ member.user.role|capitalize }}</small>
+                            </div>
+                        </div>
+                        <form action="{{ url_for('admin.remove_community_member', community_id=community.id, user_id=member.user.id) }}" method="POST" onsubmit="return confirm('Remove this user from the community?');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2" title="Remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="p-3 text-center text-muted">
+                        No members yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Community Modal -->
+<div class="modal fade" id="editCommunityModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Community Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin.update_community', community_id=community.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Community Name</label>
+                            <input type="text" name="name" class="form-control" value="{{ community.name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Type</label>
+                            <select name="type" class="form-select" required>
+                                <option value="Story" {% if community.type == 'Story' %}selected{% endif %}>Story</option>
+                                <option value="Hobby" {% if community.type == 'Hobby' %}selected{% endif %}>Hobby</option>
+                                <option value="Learning" {% if community.type == 'Learning' %}selected{% endif %}>Learning</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3">{{ community.description }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Theme Color (Banner Class)</label>
+                            <input type="text" name="banner_class" class="form-control" value="{{ community.banner_class }}" placeholder="e.g., bg-primary, bg-warning">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Icon Class (FontAwesome)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="{{ community.icon }}"></i></span>
+                                <input type="text" name="icon" class="form-control" value="{{ community.icon }}" placeholder="e.g., fas fa-users">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Tags (Comma separated)</label>
+                            <input type="text" name="tags" class="form-control" value="{{ community.tags or '' }}" placeholder="e.g., music, art, history">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Community Photo</label>
+                            <input type="file" name="photo" class="form-control" accept="image/*">
+                            {% if community.photo_url %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Current Photo:</small><br>
+                                    <img src="{{ url_for('static', filename=community.photo_url) }}" alt="Community Photo" class="img-thumbnail" style="height: 100px;">
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

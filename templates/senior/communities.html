@@ -1,503 +1,67 @@
 {% extends "base.html" %}
-<!--
-    File: communities.html
-    Purpose: Browse and join interest-based communities
-    Author: Rai (Team Lead)
-    Date: December 2025
-    Feature: Community discovery and membership for seniors
--->
 
-{% block title %}Communities - GenCon SG{% endblock %}
-
-{% block extra_css %}
-<style>
-    .communities-header {
-        background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
-        color: white;
-        padding: 2.5rem 0;
-        margin-bottom: 2rem;
-        border-radius: 1rem;
-    }
-
-    .communities-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .communities-header p {
-        font-size: 1.125rem;
-        opacity: 0.95;
-        margin: 0;
-    }
-
-    .search-filter-bar {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
-    }
-
-    .search-filter-bar .form-control {
-        border-radius: 0.75rem;
-        border: 2px solid #E9ECEF;
-        padding: 0.875rem 1rem;
-        font-size: 1rem;
-    }
-
-    .search-filter-bar .form-control:focus {
-        border-color: #E67E22;
-        box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.25);
-    }
-
-    .filter-buttons {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    .filter-btn {
-        padding: 0.625rem 1.25rem;
-        border-radius: 2rem;
-        border: 2px solid #E9ECEF;
-        background: white;
-        color: #6C757D;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .filter-btn:hover {
-        border-color: #E67E22;
-        color: #E67E22;
-        background: #FFF5EE;
-    }
-
-    .filter-btn.active {
-        background: #E67E22;
-        border-color: #E67E22;
-        color: white;
-    }
-
-    .communities-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .community-card {
-        background: white;
-        border-radius: 1rem;
-        overflow: hidden;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-    }
-
-    .community-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        border-color: #E67E22;
-    }
-
-    .community-banner {
-        height: 150px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .community-banner.arts {
-        background: linear-gradient(135deg, #F093FB 0%, #F5576C 100%);
-    }
-
-    .community-banner.culture {
-        background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%);
-    }
-
-    .community-banner.cooking {
-        background: linear-gradient(135deg, #FA709A 0%, #FEE140 100%);
-    }
-
-    .community-banner.gardening {
-        background: linear-gradient(135deg, #30CFD0 0%, #330867 100%);
-    }
-
-    .community-banner.music {
-        background: linear-gradient(135deg, #A8EDEA 0%, #FED6E3 100%);
-    }
-
-    .community-banner.sports {
-        background: linear-gradient(135deg, #FF9A56 0%, #FF6A88 100%);
-    }
-
-    .community-banner .icon {
-        font-size: 4rem;
-        color: white;
-        opacity: 0.9;
-    }
-
-    .community-body {
-        padding: 1.5rem;
-    }
-
-    .community-header {
-        margin-bottom: 1rem;
-    }
-
-    .community-header h3 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #2C3E50;
-        margin-bottom: 0.5rem;
-    }
-
-    .community-meta {
-        display: flex;
-        gap: 1.5rem;
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-        color: #6C757D;
-    }
-
-    .community-meta-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .community-meta-item i {
-        color: #E67E22;
-    }
-
-    .community-description {
-        color: #6C757D;
-        font-size: 0.95rem;
-        margin-bottom: 1rem;
-        line-height: 1.6;
-    }
-
-    .community-tags {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 1rem;
-    }
-
-    .community-tag {
-        background: #F8F9FA;
-        color: #6C757D;
-        padding: 0.375rem 0.875rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-
-    .community-footer {
-        display: flex;
-        gap: 0.75rem;
-        padding-top: 1rem;
-        border-top: 1px solid #E9ECEF;
-    }
-
-    .btn-join {
-        flex: 1;
-        padding: 0.75rem;
-        background: #E67E22;
-        color: white;
-        border: none;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-join:hover {
-        background: #D35400;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
-    }
-
-    .btn-join.joined {
-        background: #27AE60;
-    }
-
-    .btn-join.joined:hover {
-        background: #229954;
-    }
-
-    .btn-view {
-        flex: 1;
-        padding: 0.75rem;
-        background: white;
-        color: #E67E22;
-        border: 2px solid #E67E22;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-view:hover {
-        background: #E67E22;
-        color: white;
-    }
-
-    .my-communities-section {
-        background: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        margin-bottom: 2rem;
-    }
-
-    .my-communities-section h2 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #2C3E50;
-        margin-bottom: 1.5rem;
-    }
-
-    .my-communities-list {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .my-community-pill {
-        background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
-        color: white;
-        padding: 0.875rem 1.5rem;
-        border-radius: 2rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        transition: all 0.3s ease;
-    }
-
-    .my-community-pill:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
-    }
-
-    .my-community-pill i {
-        font-size: 1.25rem;
-    }
-
-    @media (max-width: 768px) {
-        .communities-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .communities-header h1 {
-            font-size: 2rem;
-        }
-
-        .filter-buttons {
-            justify-content: center;
-        }
-
-        .community-footer {
-            flex-direction: column;
-        }
-    }
-</style>
-{% endblock %}
+{% block body_class %}senior-dashboard{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <!-- Page Header -->
-    <div class="communities-header text-center">
-        <h1>
-            <i class="fas fa-users me-3"></i>Communities
-        </h1>
-        <p>Connect with others who share your interests and passions</p>
-    </div>
-
-    <!-- My Communities Section -->
-    <div class="my-communities-section">
-        <h2><i class="fas fa-star me-2 text-warning"></i>My Communities</h2>
-        <div class="my-communities-list">
-            {% for community in communities if community.is_joined %}
-            <div class="my-community-pill">
-                <i class="{{ community.icon }}"></i>
-                <span>{{ community.name }}</span>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Search and Filter Bar -->
-    <div class="search-filter-bar">
-        <div class="row g-3 align-items-center">
-            <div class="col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="fas fa-search text-muted"></i>
-                    </span>
-                    <input type="text" class="form-control border-start-0"
-                           placeholder="Search communities..." id="searchInput">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">
-                        <i class="fas fa-th me-1"></i>All
-                    </button>
-                    <button class="filter-btn" data-filter="arts">
-                        <i class="fas fa-palette me-1"></i>Arts
-                    </button>
-                    <button class="filter-btn" data-filter="culture">
-                        <i class="fas fa-landmark me-1"></i>Culture
-                    </button>
-                    <button class="filter-btn" data-filter="cooking">
-                        <i class="fas fa-utensils me-1"></i>Cooking
-                    </button>
-                    <button class="filter-btn" data-filter="other">
-                        <i class="fas fa-ellipsis-h me-1"></i>Other
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Communities Grid -->
-    <div class="communities-grid">
+    <h1 class="mb-4" style="color: var(--senior-text);">Communities</h1>
+    
+    <div class="row g-4">
         {% for community in communities %}
-        <div class="community-card" data-category="{{ community.banner_class }}">
-            <div class="community-banner {{ community.banner_class }}">
-                <div class="icon">
-                    <i class="{{ community.icon }}"></i>
-                </div>
-            </div>
-            <div class="community-body">
-                <div class="community-header">
-                    <h3>{{ community.name }}</h3>
-                </div>
-                <div class="community-meta">
-                    <div class="community-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>{{ community.member_count }} members</span>
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-2" style="border-color: var(--senior-border);">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px; font-size: 2.5rem;">
+                        <i class="{{ community.icon }}"></i>
                     </div>
-                    <div class="community-meta-item">
-                        <i class="fas fa-comment"></i>
-                        <span>{{ community.post_count }} posts</span>
+                    <h3 class="card-title mb-3">{{ community.name }}</h3>
+                    <p class="card-text mb-4" style="font-size: 1.1rem;">{{ community.description }}</p>
+                    
+                    <div class="d-flex justify-content-center gap-3 mb-4">
+                        <span class="badge bg-light text-dark border border-2 p-2" style="font-size: 1rem;">
+                            <i class="fas fa-users me-1"></i> {{ community.member_count }} Members
+                        </span>
                     </div>
-                </div>
-                <p class="community-description">
-                    {{ community.description }}
-                </p>
-                <div class="community-tags">
-                    {% for tag in community.tags %}
-                    <span class="community-tag">{{ tag }}</span>
-                    {% endfor %}
-                </div>
-                <div class="community-footer">
-                    <button class="btn btn-join {{ 'joined' if community.is_joined else '' }}" data-id="{{ community.id }}">
+
+                    <div class="d-grid gap-3">
                         {% if community.is_joined %}
-                        <i class="fas fa-check me-2"></i>Joined
+                            <a href="{{ url_for('senior.view_community', community_id=community.id) }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-comments me-2"></i>Enter Chat
+                            </a>
+                            <button onclick="toggleJoin({{ community.id }})" class="btn btn-outline-danger">
+                                Leave Community
+                            </button>
                         {% else %}
-                        <i class="fas fa-plus me-2"></i>Join
+                            <button class="btn btn-secondary btn-lg disabled" disabled>
+                                <i class="fas fa-lock me-2"></i>Join to Chat
+                            </button>
+                            <button onclick="toggleJoin({{ community.id }})" class="btn btn-outline-primary btn-lg">
+                                Join Community
+                            </button>
                         {% endif %}
-                    </button>
-                    <button class="btn btn-view">
-                        <i class="fas fa-arrow-right me-2"></i>View
-                    </button>
+                    </div>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    // Filter functionality
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Update active button
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-
-            // Filter cards
-            const filter = this.getAttribute('data-filter');
-            document.querySelectorAll('.community-card').forEach(card => {
-                if (filter === 'all' || card.getAttribute('data-category') === filter) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+async function toggleJoin(communityId) {
+    try {
+        const response = await fetch(`/senior/communities/${communityId}/join`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
         });
-    });
-
-    // Search functionality
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        document.querySelectorAll('.community-card').forEach(card => {
-            const title = card.querySelector('h3').textContent.toLowerCase();
-            const description = card.querySelector('.community-description').textContent.toLowerCase();
-            if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-
-    // Join/Leave functionality
-    document.querySelectorAll('.btn-join').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const communityId = this.getAttribute('data-id');
-            const originalContent = this.innerHTML;
-            
-            // Disable button during request
-            this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>...';
-
-            try {
-                const response = await fetch(`/senior/communities/${communityId}/join`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    if (data.status === 'joined') {
-                        this.classList.add('joined');
-                        this.innerHTML = '<i class="fas fa-check me-2"></i>Joined';
-                    } else {
-                        this.classList.remove('joined');
-                        this.innerHTML = '<i class="fas fa-plus me-2"></i>Join';
-                    }
-                    
-                    // Update member count
-                    const card = this.closest('.community-card');
-                    const memberCountSpan = card.querySelector('.community-meta-item i.fa-users').nextElementSibling;
-                    if (memberCountSpan) {
-                        memberCountSpan.textContent = `${data.member_count} members`;
-                    }
-                } else {
-                    alert('Error updating membership');
-                    this.innerHTML = originalContent;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred');
-                this.innerHTML = originalContent;
-            } finally {
-                this.disabled = false;
-            }
-        });
-    });
-
-    console.log('Communities page loaded');
+        const data = await response.json();
+        if (data.success) {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Something went wrong. Please try again.');
+    }
+}
 </script>
 {% endblock %}

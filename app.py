@@ -17,6 +17,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from config import get_config
 from models import db
 from datetime import timedelta
+from sqlalchemy import text
 import os
 
 # Initialize Flask application
@@ -108,6 +109,54 @@ def on_move(data):
     emit('move', data, room=room, include_self=False)
     print(f"Move received in room {room}: {data['move']}")
 
+@socketio.on('join_community')
+def on_join_community(data):
+    room = f"community_{data['community_id']}"
+    join_room(room)
+    print(f"DEBUG: User {session.get('username')} joined community room {room}")
+
+@socketio.on('leave_community')
+def on_leave_community(data):
+    room = f"community_{data['community_id']}"
+    leave_room(room)
+
+@socketio.on('community_message')
+def on_community_message(data):
+    from models import CommunityPost, User, db
+    from datetime import datetime
+    
+    user_id = session.get('user_id')
+    if not user_id: return
+
+    # Save to DB
+    new_post = CommunityPost(
+        community_id=data['community_id'],
+        user_id=user_id,
+        content=data.get('content', ''),
+        photo_url=data.get('photo_url')
+    )
+    db.session.add(new_post)
+    db.session.commit()
+    
+    user = User.query.get(user_id)
+    
+    avatar = user.profile_picture
+    if avatar and not avatar.startswith('images/'):
+        avatar = f'images/{avatar}'
+    
+    # Broadcast to room
+    room = f"community_{data['community_id']}"
+    emit('new_community_post', {
+        'id': new_post.id,
+        'user_id': user.id,
+        'username': user.full_name,
+        'avatar': avatar,
+        'content': new_post.content,
+        'photo_url': new_post.photo_url,
+        'created_at': (new_post.created_at + timedelta(hours=8)).strftime('%I:%M %p'),
+        'is_me': False 
+    }, room=room)
+
 @socketio.on('connect')
 def on_connect():
     # Join a private room for the user to receive challenges
@@ -154,6 +203,25 @@ with app.app_context():
     Note: In production, database migrations should be handled by Flask-Migrate
     """
     db.create_all()
+
+    # Auto-patch: Add missing photo_url column if it doesn't exist
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE community_posts ADD COLUMN photo_url VARCHAR(255)"))
+            conn.commit()
+            print("Database patched: Added photo_url to community_posts")
+    except Exception:
+        pass # Column likely already exists or another error occurred
+
+    # Auto-patch: Add missing photo_url column to communities if it doesn't exist
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE communities ADD COLUMN photo_url VARCHAR(255)"))
+            conn.commit()
+            print("Database patched: Added photo_url to communities")
+    except Exception:
+        pass
+
     print("Database tables created successfully")
 
 
@@ -353,6 +421,21 @@ def date_filter(value, format='%B %d, %Y'):
     if value:
         return value.strftime(format)
     return ''
+
+
+@app.template_filter('fix_pfp')
+def fix_pfp_filter(path):
+    """
+    Ensure profile picture path has correct prefix.
+    Usage: {{ user.profile_picture|fix_pfp }}
+    """
+    if not path:
+        return 'images/default-avatar.png'
+    if path.startswith('images/'):
+        return path
+    if path.startswith('http'):
+        return path
+    return f'images/{path}'
 
 
 # ==================== NOTIFICATION API ====================

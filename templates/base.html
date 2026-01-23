@@ -48,8 +48,8 @@
         <div class="container-fluid">
             <!-- Brand/Logo -->
             <a class="navbar-brand d-flex align-items-center" href="{% if session.role %}{{ url_for(session.role + '.dashboard') }}{% else %}{{ url_for('index') }}{% endif %}">
-                <i class="fas fa-hands-helping text-primary me-2 fs-4"></i>
-                <span class="fw-bold">GenCon SG</span>
+                <i class="fas fa-hands-helping text-primary me-2 fs-2"></i>
+                <span class="fw-bold fs-3">GenCon SG</span>
             </a>
 
             <!-- Mobile hamburger toggle button -->
@@ -63,32 +63,32 @@
                     <!-- Senior Navigation -->
                     {% if session.role == 'senior' %}
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('senior.dashboard') }}">
                                 <i class="fas fa-home"></i> Dashboard
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('senior.stories') }}">
                                 <i class="fas fa-book"></i> My Stories
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('senior.messages') }}">
                                 <i class="fas fa-comments"></i> Messages
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('senior.events') }}">
                                 <i class="fas fa-calendar"></i> Events
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('senior.communities') }}">
                                 <i class="fas fa-users"></i> Communities
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('senior.games') }}">
                                 <i class="fas fa-gamepad"></i> Games
                             </a>
@@ -98,37 +98,37 @@
                     <!-- Youth Navigation -->
                     {% elif session.role == 'youth' %}
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('youth.dashboard') }}">
                                 <i class="fas fa-home"></i> Dashboard
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('youth.story_feed') }}">
                                 <i class="fas fa-book-open"></i> Stories
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('youth.messages') }}">
                                 <i class="fas fa-comments"></i> Messages
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('youth.events') }}">
                                 <i class="fas fa-calendar"></i> Events
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('youth.communities') }}">
                                 <i class="fas fa-users"></i> Communities
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('youth.badges') }}">
                                 <i class="fas fa-trophy"></i> Badges
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('youth.games') }}">
                                 <i class="fas fa-gamepad"></i> Games
                             </a>
@@ -138,33 +138,33 @@
                     <!-- Admin Navigation -->
                     {% elif session.role == 'admin' %}
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                        <li class="nav-item me-3">
+                            <a class="nav-link fs-5" href="{{ url_for('admin.dashboard') }}">
                                 <i class="fas fa-chart-line"></i> Dashboard
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin.users') }}">
+                        <li class="nav-item me-3">
+                            <a class="nav-link fs-5" href="{{ url_for('admin.users') }}">
                                 <i class="fas fa-user-friends"></i> Users
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin.pairs') }}">
+                        <li class="nav-item me-3">
+                            <a class="nav-link fs-5" href="{{ url_for('admin.pairs') }}">
                                 <i class="fas fa-link"></i> Pairs
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin.events') }}">
+                        <li class="nav-item me-3">
+                            <a class="nav-link fs-5" href="{{ url_for('admin.events') }}">
                                 <i class="fas fa-calendar-alt"></i> Events
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin.communities') }}">
+                        <li class="nav-item me-3">
+                            <a class="nav-link fs-5" href="{{ url_for('admin.communities') }}">
                                 <i class="fas fa-users-cog"></i> Communities
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin.reports') }}">
+                        <li class="nav-item me-3">
+                            <a class="nav-link fs-5" href="{{ url_for('admin.reports') }}">
                                 <i class="fas fa-flag"></i> Reports
                             </a>
                         </li>
@@ -175,7 +175,7 @@
                     <ul class="navbar-nav ms-auto">
                         <!-- Event Notifications Bell (for seniors and youth only) -->
                         {% if session.role in ['senior', 'youth'] %}
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown d-flex align-items-center me-3">
                             <a class="nav-link position-relative" href="#" id="notificationDropdown"
                                role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-bell fs-5"></i>
@@ -202,64 +202,6 @@
                             <i class="fas fa-fire text-warning me-1"></i>
                             <span class="fw-bold" id="streakCount">{{ user_streak|default(0) }}</span>
                             <small class="text-muted ms-1">day streak</small>
-                        </li>
-                        {% endif %}
-
-                        <!-- Accessibility Controls (seniors only) -->
-                        {% if session.role == 'senior' %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link" href="#" id="accessibilityDropdown"
-                               role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-universal-access fs-5"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li class="dropdown-header">Accessibility Settings</li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li class="px-3 py-2">
-                                    <label class="form-label small">Font Size</label>
-                                    <div class="btn-group btn-group-sm d-flex" role="group">
-                                        <button type="button" class="btn btn-outline-primary" onclick="setFontSize('normal')">Normal</button>
-                                        <button type="button" class="btn btn-outline-primary" onclick="setFontSize('large')">Large</button>
-                                        <button type="button" class="btn btn-outline-primary" onclick="setFontSize('xlarge')">X-Large</button>
-                                    </div>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li class="px-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="highContrastToggle"
-                                               onchange="toggleHighContrast()">
-                                        <label class="form-check-label small" for="highContrastToggle">
-                                            High Contrast
-                                        </label>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                        {% endif %}
-
-                        <!-- Theme Selector (youth only) -->
-                        {% if session.role == 'youth' %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link" href="#" id="themeDropdown"
-                               role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-palette fs-5"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li class="dropdown-header">Choose Theme</li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" onclick="setTheme('light')">
-                                    <i class="fas fa-sun text-warning"></i> Light
-                                </a></li>
-                                <li><a class="dropdown-item" href="#" onclick="setTheme('dark')">
-                                    <i class="fas fa-moon text-info"></i> Dark
-                                </a></li>
-                                <li><a class="dropdown-item" href="#" onclick="setTheme('blue')">
-                                    <i class="fas fa-water text-primary"></i> Blue Ocean
-                                </a></li>
-                                <li><a class="dropdown-item" href="#" onclick="setTheme('purple')">
-                                    <i class="fas fa-star text-purple"></i> Purple Dream
-                                </a></li>
-                            </ul>
                         </li>
                         {% endif %}
 

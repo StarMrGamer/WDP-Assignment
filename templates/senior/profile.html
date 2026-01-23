@@ -9,291 +9,649 @@
 
 {% block title %}My Profile - GenCon SG{% endblock %}
 
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #F39C12 0%, #D35400 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 1rem;
+    }
+
+    .profile-header-content {
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+    }
+
+    .profile-avatar-section {
+        text-align: center;
+    }
+
+    .profile-avatar-large {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        margin-bottom: 1rem;
+    }
+
+    .btn-change-photo {
+        background: white;
+        color: #D35400;
+        padding: 0.625rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-change-photo:hover {
+        background: #FFF3E0;
+        transform: translateY(-2px);
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-role {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+    }
+
+    .profile-stats {
+        display: flex;
+        gap: 2rem;
+        font-size: 1.125rem;
+    }
+
+    .profile-stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .profile-stat-item i {
+        font-size: 1.5rem;
+    }
+
+    .profile-tabs {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .tab-buttons {
+        display: flex;
+        gap: 1rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .tab-btn {
+        padding: 1rem 2rem;
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: #6C757D;
+        font-weight: 600;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: -2px;
+    }
+
+    .tab-btn:hover {
+        color: #D35400;
+    }
+
+    .tab-btn.active {
+        color: #D35400;
+        border-bottom-color: #D35400;
+    }
+
+    .tab-content-area {
+        display: none;
+    }
+
+    .tab-content-area.active {
+        display: block;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .profile-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .profile-card h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        padding: 0.875rem 1rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #D35400;
+        box-shadow: 0 0 0 0.2rem rgba(211, 84, 0, 0.25);
+        outline: none;
+    }
+
+    .btn-save {
+        padding: 0.875rem 2.5rem;
+        background: linear-gradient(135deg, #F39C12 0%, #D35400 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+        background: linear-gradient(135deg, #D35400 0%, #F39C12 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(211, 84, 0, 0.3);
+    }
+
+    .volunteer-history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .history-item {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1.25rem;
+        background: #F8F9FA;
+        border-radius: 0.75rem;
+        border-left: 4px solid #D35400;
+    }
+
+    .history-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, #F39C12 0%, #D35400 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.75rem;
+    }
+
+    .history-content {
+        flex: 1;
+    }
+
+    .history-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.25rem;
+    }
+
+    .history-details {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 0.95rem;
+        color: #6C757D;
+        margin-bottom: 0.5rem;
+    }
+
+    .preferences-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .preference-item {
+        padding: 1.25rem;
+        background: #F8F9FA;
+        border-radius: 0.75rem;
+        border: 2px solid #E9ECEF;
+        transition: all 0.3s ease;
+    }
+
+    .preference-item:hover {
+        border-color: #D35400;
+        background: #FFF3E0;
+    }
+
+    .preference-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .preference-title {
+        font-weight: 700;
+        color: #2C3E50;
+        font-size: 1.05rem;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+        background: #E9ECEF;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .toggle-switch.active {
+        background: #27AE60;
+    }
+
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: white;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.3s ease;
+    }
+
+    .toggle-switch.active::after {
+        transform: translateX(30px);
+    }
+
+    .preference-description {
+        color: #6C757D;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .profile-header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        .profile-stats {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .tab-buttons {
+            overflow-x: auto;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1>
-                <i class="fas fa-user-circle me-2"></i>
-                My Profile
-            </h1>
-            <p class="text-muted">Manage your account information and settings</p>
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="container">
+            <div class="profile-header-content">
+                <div class="profile-avatar-section">
+                    {% if 'default-avatar' in user.profile_picture %}
+                        <div class="avatar-placeholder lg mb-3 mx-auto" id="profilePreviewPlaceholder">
+                            {{ user.full_name[0] | upper }}
+                        </div>
+                        <img src="" alt="{{ user.full_name }}" class="profile-avatar-large d-none" id="headerProfilePreview">
+                    {% else %}
+                        {% set pfp = user.profile_picture %}
+                        {% if not pfp.startswith('images/') %}{% set pfp = 'images/' + pfp %}{% endif %}
+                        <img src="{{ url_for('static', filename=pfp) }}"
+                             alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
+                    {% endif %}
+                    <div>
+                        <button type="button" class="btn btn-change-photo" onclick="document.getElementById('profilePictureInput').click()">
+                            <i class="fas fa-camera me-2"></i>Change Photo
+                        </button>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name">{{ user.full_name }}</h1>
+                    <p class="profile-role">
+                        <i class="fas fa-star me-2"></i>Senior Member
+                    </p>
+                    <div class="profile-stats">
+                        <div class="profile-stat-item">
+                            <i class="fas fa-book"></i>
+                            <span>{{ user.stories.count() }} stories</span>
+                        </div>
+                        <div class="profile-stat-item">
+                            <i class="fas fa-comments"></i>
+                            <span>{{ user.sent_messages.count() }} messages</span>
+                        </div>
+                        <div class="profile-stat-item">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Member since {{ user.created_at.strftime('%b %Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Left Column - Profile Info -->
-        <div class="col-lg-8 mb-4">
-            <!-- Profile Information Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-id-card me-2"></i>
-                        Profile Information
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ url_for('senior.profile') }}" enctype="multipart/form-data">
-                        <!-- Profile Picture -->
-                        <div class="text-center mb-4">
-                            {% if 'default-avatar' in user.profile_picture %}
-                                <div class="avatar-placeholder lg mb-3 mx-auto" id="profilePreviewPlaceholder">
-                                    {{ user.full_name[0] | upper }}
-                                </div>
-                                <img src=""
-                                     alt="{{ user.full_name }}"
-                                     class="rounded-circle mb-3 d-none"
-                                     id="profilePreview"
-                                     style="width: 150px; height: 150px; object-fit: cover; border: 4px solid var(--senior-primary);">
-                            {% else %}
-                                <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
-                                     alt="{{ user.full_name }}"
-                                     class="rounded-circle mb-3"
-                                     id="profilePreview"
-                                     style="width: 150px; height: 150px; object-fit: cover; border: 4px solid var(--senior-primary);">
-                            {% endif %}
+    <!-- Profile Tabs -->
+    <div class="profile-tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab('info')">
+                <i class="fas fa-user me-2"></i>Personal Info
+            </button>
+            <button class="tab-btn" onclick="switchTab('history')">
+                <i class="fas fa-history me-2"></i>Activity Log
+            </button>
+            <button class="tab-btn" onclick="switchTab('settings')">
+                <i class="fas fa-cog me-2"></i>Settings
+            </button>
+        </div>
+    </div>
 
-                            <div>
-                                <label for="profilePicture" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-camera me-2"></i>Change Photo
-                                </label>
-                                <input type="file"
-                                       id="profilePicture"
-                                       name="profile_picture"
-                                       accept="image/*"
-                                       style="display: none;"
-                                       onchange="previewProfilePicture(this)">
+    <!-- Tab Content: Personal Info -->
+    <div class="tab-content-area active" id="infoTab">
+        <div class="profile-card">
+            <h3><i class="fas fa-id-card me-2"></i>Personal Information</h3>
+            <form method="POST" action="{{ url_for('senior.profile') }}" enctype="multipart/form-data">
+                <!-- Hidden file input for profile picture -->
+                <input type="file" id="profilePictureInput" name="profile_picture" accept="image/*" style="display: none;" onchange="previewProfilePicture(this)">
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" value="{{ user.full_name }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" value="{{ user.username }}" readonly style="background-color: #e9ecef;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone" value="{{ user.phone }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-control" name="age" value="{{ user.age }}" min="60" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Interests & Hobbies</label>
+                    <textarea class="form-control" name="interests" rows="3" placeholder="Share your interests...">{{ user.interests|join(', ') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Languages Spoken</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="languages" value="English" id="langEnglish" {% if 'English' in user.languages %}checked{% endif %}>
+                                <label class="form-check-label" for="langEnglish">English</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="languages" value="Mandarin" id="langMandarin" {% if 'Mandarin' in user.languages %}checked{% endif %}>
+                                <label class="form-check-label" for="langMandarin">Mandarin</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="languages" value="Malay" id="langMalay" {% if 'Malay' in user.languages %}checked{% endif %}>
+                                <label class="form-check-label" for="langMalay">Malay</label>
                             </div>
                         </div>
-
-                        <!-- Full Name -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-user me-2"></i>Full Name
-                            </label>
-                            <input type="text"
-                                   class="form-control form-control-lg"
-                                   name="full_name"
-                                   value="{{ user.full_name }}"
-                                   required>
-                        </div>
-
-                        <!-- Email -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-envelope me-2"></i>Email Address
-                            </label>
-                            <input type="email"
-                                   class="form-control form-control-lg"
-                                   name="email"
-                                   value="{{ user.email }}"
-                                   required>
-                        </div>
-
-                        <!-- Phone -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-phone me-2"></i>Phone Number
-                            </label>
-                            <input type="tel"
-                                   class="form-control form-control-lg"
-                                   name="phone"
-                                   value="{{ user.phone }}"
-                                   required>
-                        </div>
-
-                        <!-- Age -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-birthday-cake me-2"></i>Age
-                            </label>
-                            <input type="number"
-                                   class="form-control form-control-lg"
-                                   name="age"
-                                   value="{{ user.age }}"
-                                   min="60"
-                                   required>
-                        </div>
-
-                        <!-- Interests -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-heart me-2"></i>Interests & Hobbies
-                            </label>
-                            <textarea class="form-control"
-                                      name="interests"
-                                      rows="3"
-                                      placeholder="Share your interests, hobbies, and passions...">{{ user.interests|join(', ') }}</textarea>
-                            <small class="text-muted">Help us match you with youth volunteers who share similar interests</small>
-                        </div>
-
-                        <!-- Languages -->
-                        <div class="mb-4">
-                            <label class="form-label">
-                                <i class="fas fa-language me-2"></i>Languages Spoken
-                            </label>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-check form-check-lg mb-2">
-                                        <input class="form-check-input" type="checkbox" name="languages" value="English" id="langEnglish" {% if 'English' in user.languages %}checked{% endif %}>
-                                        <label class="form-check-label" for="langEnglish">English</label>
-                                    </div>
-                                    <div class="form-check form-check-lg mb-2">
-                                        <input class="form-check-input" type="checkbox" name="languages" value="Mandarin" id="langMandarin" {% if 'Mandarin' in user.languages %}checked{% endif %}>
-                                        <label class="form-check-label" for="langMandarin">Mandarin</label>
-                                    </div>
-                                    <div class="form-check form-check-lg mb-2">
-                                        <input class="form-check-input" type="checkbox" name="languages" value="Malay" id="langMalay" {% if 'Malay' in user.languages %}checked{% endif %}>
-                                        <label class="form-check-label" for="langMalay">Malay</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-check form-check-lg mb-2">
-                                        <input class="form-check-input" type="checkbox" name="languages" value="Tamil" id="langTamil" {% if 'Tamil' in user.languages %}checked{% endif %}>
-                                        <label class="form-check-label" for="langTamil">Tamil</label>
-                                    </div>
-                                    <div class="form-check form-check-lg mb-2">
-                                        <input class="form-check-input" type="checkbox" name="languages" value="Hokkien" id="langHokkien" {% if 'Hokkien' in user.languages %}checked{% endif %}>
-                                        <label class="form-check-label" for="langHokkien">Hokkien</label>
-                                    </div>
-                                    <div class="form-check form-check-lg mb-2">
-                                        <input class="form-check-input" type="checkbox" name="languages" value="Cantonese" id="langCantonese" {% if 'Cantonese' in user.languages %}checked{% endif %}>
-                                        <label class="form-check-label" for="langCantonese">Cantonese</label>
-                                    </div>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="languages" value="Tamil" id="langTamil" {% if 'Tamil' in user.languages %}checked{% endif %}>
+                                <label class="form-check-label" for="langTamil">Tamil</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="languages" value="Hokkien" id="langHokkien" {% if 'Hokkien' in user.languages %}checked{% endif %}>
+                                <label class="form-check-label" for="langHokkien">Hokkien</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="languages" value="Cantonese" id="langCantonese" {% if 'Cantonese' in user.languages %}checked{% endif %}>
+                                <label class="form-check-label" for="langCantonese">Cantonese</label>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-save me-2"></i>Save Profile Changes
-                        </button>
-                    </form>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
                 </div>
-            </div>
-
-            <!-- Change Password Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">
-                        <i class="fas fa-lock me-2"></i>
-                        Change Password
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form id="passwordForm" onsubmit="changePassword(event)">
-                        <div class="mb-3">
-                            <label class="form-label">Current Password</label>
-                            <input type="password" class="form-control form-control-lg" id="currentPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">New Password</label>
-                            <input type="password" class="form-control form-control-lg" id="newPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Confirm New Password</label>
-                            <input type="password" class="form-control form-control-lg" id="confirmPassword" required>
-                        </div>
-                        <button type="submit" class="btn btn-warning btn-lg w-100">
-                            <i class="fas fa-key me-2"></i>Update Password
-                        </button>
-                    </form>
-                </div>
-            </div>
+            </form>
         </div>
 
-        <!-- Right Column - Settings -->
-        <div class="col-lg-4">
-            <!-- Account Stats Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-line me-2"></i>
-                        Account Stats
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-3">
-                        <span><i class="fas fa-book text-primary me-2"></i>Stories Shared</span>
-                        <strong>{{ user.stories.count() if user.stories else 0 }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                        <span><i class="fas fa-comments text-success me-2"></i>Messages Sent</span>
-                        <strong>{{ user.sent_messages.count() if user.sent_messages else 0 }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                        <span><i class="fas fa-calendar-check text-warning me-2"></i>Check-Ins</span>
-                        <strong>{{ user.checkins.count() if user.checkins else 0 }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span><i class="fas fa-calendar text-muted me-2"></i>Member Since</span>
-                        <strong>{{ user.created_at.strftime("%b %Y") if user.created_at else "N/A" }}</strong>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Buddy Info Card -->
-            {% if buddy %}
-            <div class="card">
-                <div class="card-header" style="background: var(--youth-primary); color: white;">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user-friends me-2"></i>
-                        My Buddy
-                    </h5>
-                </div>
-                <div class="card-body text-center">
-                    <img src="{{ url_for('static', filename='images/' + buddy.profile_picture) }}"
-                         alt="{{ buddy.full_name }}"
-                         class="rounded-circle mb-3"
-                         style="width: 80px; height: 80px; object-fit: cover;">
-                    <h6>{{ buddy.full_name }}</h6>
-                    <p class="text-muted small mb-3">Youth Volunteer</p>
-                    <a href="{{ url_for('senior.messages') }}" class="btn btn-sm btn-primary w-100">
+        {% if buddy %}
+        <div class="profile-card">
+            <h3><i class="fas fa-user-friends me-2"></i>My Buddy</h3>
+            <div class="d-flex align-items-center">
+                {% set buddy_pfp = buddy.profile_picture %}
+                {% if not buddy_pfp.startswith('images/') %}{% set buddy_pfp = 'images/' + buddy_pfp %}{% endif %}
+                <img src="{{ url_for('static', filename=buddy_pfp) }}" alt="{{ buddy.full_name }}" class="rounded-circle me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                <div>
+                    <h4 class="mb-1">{{ buddy.full_name }}</h4>
+                    <p class="text-muted mb-2">Youth Volunteer</p>
+                    <a href="{{ url_for('senior.messages') }}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-comment me-2"></i>Send Message
                     </a>
                 </div>
             </div>
-            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="profile-card">
+            <h3><i class="fas fa-lock me-2"></i>Security</h3>
+            <form id="passwordForm" onsubmit="changePassword(event)">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-key me-2"></i>Change Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tab Content: Activity Log -->
+    <div class="tab-content-area" id="historyTab">
+        <div class="profile-card">
+            <h3><i class="fas fa-history me-2"></i>Recent Activity</h3>
+            <div class="volunteer-history-list">
+                <div class="history-item">
+                    <div class="history-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="history-content">
+                        <h4 class="history-title">Shared a Story</h4>
+                        <div class="history-details">
+                            <span><i class="fas fa-calendar me-1"></i>Recently</span>
+                        </div>
+                        <p class="history-description">
+                            You shared a new memory in your story collection.
+                        </p>
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="history-content">
+                        <h4 class="history-title">Played a Game</h4>
+                        <div class="history-details">
+                            <span><i class="fas fa-calendar me-1"></i>Recently</span>
+                        </div>
+                        <p class="history-description">
+                            You enjoyed a game session in the arcade.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content: Settings -->
+    <div class="tab-content-area" id="settingsTab">
+        <div class="profile-card">
+            <h3><i class="fas fa-universal-access me-2"></i>Accessibility Settings</h3>
+            <div class="preferences-grid">
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">Font Size</span>
+                    </div>
+                    <div class="btn-group w-100 mt-2" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="setFontSize('normal')">Normal</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="setFontSize('large')">Large</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="setFontSize('xlarge')">X-Large</button>
+                    </div>
+                    <p class="preference-description mt-2">Adjust text size for better readability</p>
+                </div>
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">High Contrast</span>
+                        <div class="toggle-switch" id="highContrastProfileToggle" onclick="toggleHighContrastProfile()"></div>
+                    </div>
+                    <p class="preference-description">Increase contrast between text and background</p>
+                </div>
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">Screen Reader Friendly</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <p class="preference-description">Optimize layout for screen readers</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <h3><i class="fas fa-bell me-2"></i>Notifications</h3>
+            <div class="preferences-grid">
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">Message Alerts</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <p class="preference-description">Get notified when you receive a message</p>
+                </div>
+                <div class="preference-item">
+                    <div class="preference-header">
+                        <span class="preference-title">Event Reminders</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <p class="preference-description">Reminders for upcoming events</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-    .form-control-lg {
-        font-size: 1.125rem;
-        padding: 0.75rem 1rem;
-    }
-
-    .form-check-lg {
-        font-size: 1.125rem;
-    }
-
-    .form-check-lg .form-check-input {
-        width: 1.5em;
-        height: 1.5em;
-        margin-top: 0.125em;
-    }
-
-    .card-header {
-        font-weight: 600;
-    }
-
-    .btn-group .btn {
-        font-size: 0.875rem;
-    }
-</style>
-{% endblock %}
-
 {% block extra_js %}
 <script>
+    // High Contrast Toggle Logic
+    function toggleHighContrastProfile() {
+        toggleHighContrast(); // Call global function
+        const toggle = document.getElementById('highContrastProfileToggle');
+        if (toggle) toggle.classList.toggle('active');
+    }
+
+    // Initialize toggle state
+    document.addEventListener('DOMContentLoaded', () => {
+        const isHighContrast = document.body.getAttribute('data-high-contrast') === 'true';
+        const toggle = document.getElementById('highContrastProfileToggle');
+        if (toggle && isHighContrast) toggle.classList.add('active');
+    });
+
     // Preview profile picture
     function previewProfilePicture(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const preview = document.getElementById('profilePreview');
+                const preview = document.getElementById('headerProfilePreview');
                 const placeholder = document.getElementById('profilePreviewPlaceholder');
                 
                 preview.src = e.target.result;
@@ -307,8 +665,21 @@
         }
     }
 
+    // Tab switching
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content-area').forEach(area => area.classList.remove('active'));
+        event.target.closest('.tab-btn').classList.add('active');
+        document.getElementById(tab + 'Tab').classList.add('active');
+    }
+
+    // Toggle switch
+    function toggleSwitch(element) {
+        element.classList.toggle('active');
+    }
+
     // Change password
-    function changePassword(event) {
+    async function changePassword(event) {
         event.preventDefault();
 
         const currentPassword = document.getElementById('currentPassword').value;
@@ -317,21 +688,40 @@
 
         // Validate passwords match
         if (newPassword !== confirmPassword) {
-            showToast('New passwords do not match', 'warning');
+            alert('New passwords do not match');
             return;
         }
 
         // Validate password strength
         if (newPassword.length < 6) {
-            showToast('Password must be at least 6 characters long', 'warning');
+            alert('Password must be at least 6 characters long');
             return;
         }
 
-        // Send to server (mock for now)
-        showToast('Password change feature will be implemented in backend', 'info');
+        try {
+            const response = await fetch('/auth/change_password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword
+                })
+            });
 
-        // Clear form
-        document.getElementById('passwordForm').reset();
+            const data = await response.json();
+
+            if (data.success) {
+                alert(data.message);
+                document.getElementById('passwordForm').reset();
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
     }
 </script>
 {% endblock %}

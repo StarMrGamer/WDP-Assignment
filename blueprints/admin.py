@@ -9,10 +9,12 @@ Description: Handles all administrative functions including user moderation,
              pair monitoring, event creation, and chat report management
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from models import db, User, Pair, Event, Community, ChatReport, Story, Message
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember
 from datetime import datetime, timedelta
 from functools import wraps
+from werkzeug.utils import secure_filename
+import os
 
 # Create admin blueprint
 admin_bp = Blueprint('admin', __name__)
@@ -391,6 +393,123 @@ def delete_community(community_id):
         flash('Error deleting community. It may have active members or posts.', 'danger')
         
     return redirect(url_for('admin.communities'))
+
+
+@admin_bp.route('/communities/<int:community_id>/manage')
+@admin_required
+def manage_community(community_id):
+    """Manage community: monitor chat and members."""
+    community = Community.query.get_or_404(community_id)
+    
+    # Get chat history
+    posts = CommunityPost.query.filter_by(community_id=community_id)\
+        .order_by(CommunityPost.created_at.desc()).all()
+        
+    # Get members
+    members = community.members.all()
+    member_user_ids = [m.user_id for m in members]
+    
+    # Get non-members for the "Add Member" dropdown
+    if member_user_ids:
+        non_members = User.query.filter(User.role != 'admin', ~User.id.in_(member_user_ids)).all()
+    else:
+        non_members = User.query.filter(User.role != 'admin').all()
+        
+    return render_template('admin/manage_community.html', 
+                           community=community, 
+                           posts=posts, 
+                           members=members,
+                           non_members=non_members)
+
+
+@admin_bp.route('/communities/<int:community_id>/update', methods=['POST'])
+@admin_required
+def update_community(community_id):
+    """Update community details."""
+    community = Community.query.get_or_404(community_id)
+    
+    # Update text fields
+    community.name = request.form.get('name')
+    community.description = request.form.get('description')
+    community.type = request.form.get('type')
+    community.banner_class = request.form.get('banner_class')
+    community.icon = request.form.get('icon')
+    community.tags = request.form.get('tags')
+    
+    # Handle photo upload
+    if 'photo' in request.files:
+        file = request.files['photo']
+        if file and file.filename != '':
+            filename = secure_filename(file.filename)
+            ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+            if ext in current_app.config['ALLOWED_EXTENSIONS']:
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
+                unique_filename = f"comm_{community.id}_{timestamp}{filename}"
+                
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+                community.photo_url = f"images/uploads/{unique_filename}"
+
+    try:
+        db.session.commit()
+        flash('Community updated successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error updating community. Name might already be taken.', 'danger')
+        
+    return redirect(url_for('admin.manage_community', community_id=community_id))
+
+
+@admin_bp.route('/communities/posts/<int:post_id>/delete', methods=['POST'])
+@admin_required
+def delete_community_post(post_id):
+    """Delete a message from the community chat."""
+    post = CommunityPost.query.get_or_404(post_id)
+    community_id = post.community_id
+    
+    db.session.delete(post)
+    db.session.commit()
+    
+    flash('Message deleted successfully.', 'success')
+    return redirect(url_for('admin.manage_community', community_id=community_id))
+
+
+@admin_bp.route('/communities/<int:community_id>/members/<int:user_id>/remove', methods=['POST'])
+@admin_required
+def remove_community_member(community_id, user_id):
+    """Remove a user from the community."""
+    member = CommunityMember.query.filter_by(community_id=community_id, user_id=user_id).first_or_404()
+    
+    db.session.delete(member)
+    community = Community.query.get(community_id)
+    community.member_count = max(0, community.member_count - 1)
+    db.session.commit()
+    
+    flash('Member removed from community.', 'success')
+    return redirect(url_for('admin.manage_community', community_id=community_id))
+
+
+@admin_bp.route('/communities/<int:community_id>/members/add', methods=['POST'])
+@admin_required
+def add_community_member(community_id):
+    """Add a user to the community."""
+    user_id = request.form.get('user_id')
+    if user_id:
+        # Logic reuses the join_community logic but forced by admin
+        # We can just create the record directly
+        if not CommunityMember.query.filter_by(community_id=community_id, user_id=user_id).first():
+            new_member = CommunityMember(community_id=community_id, user_id=user_id)
+            db.session.add(new_member)
+            
+            community = Community.query.get(community_id)
+            community.member_count += 1
+            db.session.commit()
+            flash('User added to community.', 'success')
+        else:
+            flash('User is already a member.', 'warning')
+            
+    return redirect(url_for('admin.manage_community', community_id=community_id))
 
 
 # ==================== REPORT MANAGEMENT ====================

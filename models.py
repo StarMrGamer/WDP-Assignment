@@ -82,7 +82,7 @@ class User(db.Model):
     role = db.Column(db.String(20), nullable=False)  # 'senior', 'youth', or 'admin'
 
     # Profile customization
-    profile_picture = db.Column(db.String(255), default='default-avatar.png')
+    profile_picture = db.Column(db.String(255), default='images/default-avatar.png')
 
     # Disabkle Account #
     disable_reason = db.Column(db.Text)
@@ -486,6 +486,7 @@ class Community(db.Model):
     icon = db.Column(db.String(50), default='fas fa-users')
     banner_class = db.Column(db.String(50), default='default')
     tags = db.Column(db.String(255))  # Comma separated tags
+    photo_url = db.Column(db.String(255))
     
     member_count = db.Column(db.Integer, default=0)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -556,7 +557,8 @@ class CommunityPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), nullable=False, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
-    content = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=True)
+    photo_url = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationships

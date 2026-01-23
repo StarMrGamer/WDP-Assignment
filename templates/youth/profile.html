@@ -385,7 +385,9 @@
                         </div>
                         <img src="" alt="{{ user.full_name }}" class="profile-avatar-large d-none" id="headerProfilePreview">
                     {% else %}
-                        <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}"
+                        {% set pfp = user.profile_picture %}
+                        {% if not pfp.startswith('images/') %}{% set pfp = 'images/' + pfp %}{% endif %}
+                        <img src="{{ url_for('static', filename=pfp) }}"
                              alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
                     {% endif %}
                     <div>
@@ -617,6 +619,40 @@
     <!-- Tab Content: Settings -->
     <div class="tab-content-area" id="settingsTab">
         <div class="profile-card">
+            <h3><i class="fas fa-palette me-2"></i>Theme Settings</h3>
+            <div class="preferences-grid">
+                <div class="preference-item" onclick="setThemeProfile('light')" style="cursor: pointer;">
+                    <div class="preference-header">
+                        <span class="preference-title"><i class="fas fa-sun text-warning me-2"></i>Light</span>
+                        <i class="fas fa-check-circle text-success theme-check light-check d-none"></i>
+                    </div>
+                    <p class="preference-description">Clean and bright interface</p>
+                </div>
+                <div class="preference-item" onclick="setThemeProfile('dark')" style="cursor: pointer;">
+                    <div class="preference-header">
+                        <span class="preference-title"><i class="fas fa-moon text-info me-2"></i>Dark</span>
+                        <i class="fas fa-check-circle text-success theme-check dark-check d-none"></i>
+                    </div>
+                    <p class="preference-description">Easy on the eyes in low light</p>
+                </div>
+                <div class="preference-item" onclick="setThemeProfile('blue')" style="cursor: pointer;">
+                    <div class="preference-header">
+                        <span class="preference-title"><i class="fas fa-water text-primary me-2"></i>Blue Ocean</span>
+                        <i class="fas fa-check-circle text-success theme-check blue-check d-none"></i>
+                    </div>
+                    <p class="preference-description">Calming blue tones</p>
+                </div>
+                <div class="preference-item" onclick="setThemeProfile('purple')" style="cursor: pointer;">
+                    <div class="preference-header">
+                        <span class="preference-title"><i class="fas fa-star text-purple me-2"></i>Purple Dream</span>
+                        <i class="fas fa-check-circle text-success theme-check purple-check d-none"></i>
+                    </div>
+                    <p class="preference-description">Vibrant purple accents</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card">
             <h3><i class="fas fa-bell me-2"></i>Notification Preferences</h3>
             <div class="preferences-grid">
                 <div class="preference-item">
@@ -716,6 +752,21 @@
 
 {% block extra_js %}
 <script>
+    // Theme Selection Logic
+    function updateThemeUI() {
+        const currentTheme = document.body.getAttribute('data-theme') || 'light';
+        document.querySelectorAll('.theme-check').forEach(el => el.classList.add('d-none'));
+        const activeCheck = document.querySelector(`.${currentTheme}-check`);
+        if (activeCheck) activeCheck.classList.remove('d-none');
+    }
+
+    window.setThemeProfile = function(theme) {
+        setTheme(theme); // Call global function
+        updateThemeUI();
+    }
+    
+    document.addEventListener('DOMContentLoaded', updateThemeUI);
+
     // Preview profile picture
     function previewProfilePicture(input) {
         if (input.files && input.files[0]) {
@@ -751,26 +802,48 @@
         element.classList.toggle('active');
     }
 
-    // Password form validation
-    document.getElementById('passwordForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
+    // Change password
+    async function changePassword(event) {
+        event.preventDefault();
 
         const newPassword = document.getElementById('newPassword').value;
+        const currentPassword = document.getElementById('currentPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
         if (newPassword !== confirmPassword) {
             alert('New password and confirm password do not match!');
-            return false;
+            return;
         }
 
         if (newPassword.length < 6) {
             alert('Password must be at least 6 characters long!');
-            return false;
+            return;
         }
 
-        alert('Password changed successfully!');
-        this.reset();
-    });
+        try {
+            const response = await fetch('/auth/change_password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert(data.message);
+                document.getElementById('passwordForm').reset();
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+
+    // Attach listener if using onsubmit in HTML, or add event listener here
+    const pwdForm = document.getElementById('passwordForm');
+    if (pwdForm) {
+        pwdForm.onsubmit = changePassword;
+    }
 
     console.log('Profile page loaded');
 </script>

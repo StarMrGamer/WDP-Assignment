@@ -168,7 +168,7 @@ def register():
             phone=phone,
             age=age,
             role=role,
-            profile_picture='default-avatar.png' # Default value
+            profile_picture='images/default-avatar.png' # Default value
         )
 
         # === NEW CODE: Handle Profile Picture Upload ===
@@ -190,7 +190,7 @@ def register():
                     file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
                     
                     # Update user object (Store with 'uploads/' prefix)
-                    new_user.profile_picture = f"uploads/{unique_filename}"
+                    new_user.profile_picture = f"images/uploads/{unique_filename}"
         # ===============================================
 
         new_user.set_password(password)
@@ -250,6 +250,33 @@ def logout():
     session.clear()
     flash(f'Goodbye, {username}! You have been logged out.', 'info')
     return redirect(url_for('index'))
+
+
+# ==================== API ROUTES ====================
+@auth_bp.route('/change_password', methods=['POST'])
+def change_password():
+    """
+    API endpoint to change user password.
+    """
+    if 'user_id' not in session:
+        return {'success': False, 'message': 'Please login to change password'}, 401
+        
+    data = request.get_json()
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+    
+    if not current_password or not new_password:
+        return {'success': False, 'message': 'Missing required fields'}, 400
+        
+    user = User.query.get(session['user_id'])
+    
+    if not user.check_password(current_password):
+        return {'success': False, 'message': 'Incorrect current password'}, 400
+        
+    user.set_password(new_password)
+    db.session.commit()
+    
+    return {'success': True, 'message': 'Password updated successfully'}
 
 
 # ==================== HELPER FUNCTIONS ====================

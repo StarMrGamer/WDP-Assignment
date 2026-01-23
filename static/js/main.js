@@ -576,6 +576,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load accessibility preferences
     loadAccessibilityPreferences();
 
+    // Fix navbar profile picture display
+    fixNavbarProfile();
+
     // Load notifications (if user is logged in)
     const notificationBadge = document.getElementById('notificationBadge');
     if (notificationBadge) {
@@ -608,6 +611,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('GenCon SG initialized successfully');
 });
+
+/**
+ * Fix navbar profile picture display and styling
+ * Ensures circle shape, proper object fit, and spacing from name
+ * Also handles broken image links due to path issues
+ */
+function fixNavbarProfile() {
+    // Target profile pictures in navbar/header
+    // We look for images that are likely user avatars (small, rounded)
+    const navImages = document.querySelectorAll('.navbar img, nav img, header img');
+    
+    navImages.forEach(img => {
+        // Apply styling if it looks like a profile pic (or just apply to all small nav images)
+        if (img.classList.contains('rounded-circle') || (img.width > 0 && img.width < 60)) {
+            img.style.width = '40px';
+            img.style.height = '40px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '50%';
+            img.style.marginRight = '10px'; // Padding so it doesn't overlap with name
+            
+            // Handle broken image paths
+            img.onerror = function() {
+                const src = this.src;
+                if (src.includes('images/images/')) {
+                    this.src = src.replace('images/images/', 'images/');
+                } else if (!src.includes('images/') && src.includes('/static/')) {
+                    this.src = src.replace('/static/', '/static/images/');
+                } else {
+                    this.src = '/static/images/default-avatar.png';
+                }
+            };
+            
+            // Check immediately
+            if (img.complete && img.naturalWidth === 0) {
+                img.onerror();
+            }
+        }
+    });
+}
 
 // ==================== EXPORT FUNCTIONS FOR GLOBAL USE ====================
 // Make functions available globally

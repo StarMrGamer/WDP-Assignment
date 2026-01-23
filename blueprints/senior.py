@@ -9,7 +9,7 @@ Description: Handles all routes for senior users including story creation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession
+from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, Badge
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -315,42 +315,67 @@ def communities():
     all_communities = Community.query.all()
     user_id = session['user_id']
     
-    # Process communities for display
-    communities_data = []
-    
+    # Process communities for display (Attach attributes to objects)
     for comm in all_communities:
         # Check if user is member
-        is_member = CommunityMember.query.filter_by(
+        comm.is_joined = CommunityMember.query.filter_by(
             community_id=comm.id, 
             user_id=user_id
         ).first() is not None
         
-        # Parse tags
-        tags_list = []
-        if comm.tags:
-            tags_list = [t.strip() for t in comm.tags.split(',') if t.strip()]
-            
-        # Create display object (can attach attributes to object or create dict)
-        # Using dict for flexibility or attaching to object if allowed. 
-        # Attaching to object is risky if session is active, better create a wrapper or dict.
-        # But for template convenience, let's just add attributes to the object if possible, 
-        # or better, create a rich dict.
-        
-        comm_data = {
-            'id': comm.id,
-            'name': comm.name,
-            'type': comm.type, # e.g. 'Story', 'Hobby'
-            'icon': comm.icon,
-            'banner_class': comm.banner_class,
-            'description': comm.description,
-            'member_count': comm.member_count,
-            'post_count': comm.posts.count(), # derived from relationship
-            'tags': tags_list,
-            'is_joined': is_member
-        }
-        communities_data.append(comm_data)
+        # Helper attributes for template
+        comm.post_count = comm.posts.count()
 
-    return render_template('senior/communities.html', communities=communities_data)
+    return render_template('senior/communities.html', communities=all_communities)
+
+
+@senior_bp.route('/communities/<int:community_id>')
+@login_required
+def view_community(community_id):
+    """View community chat and details."""
+    community = Community.query.get_or_404(community_id)
+    user_id = session['user_id']
+    
+    # Check membership
+    is_member = CommunityMember.query.filter_by(
+        community_id=community_id, 
+        user_id=user_id
+    ).first() is not None
+    
+    if not is_member:
+        flash('You must join this community to view the chat.', 'warning')
+        return redirect(url_for('senior.communities'))
+        
+    # Get recent posts for the chat history
+    posts = CommunityPost.query.filter_by(community_id=community_id)\
+        .order_by(CommunityPost.created_at.asc()).all()
+        
+    members = community.members.all()
+    return render_template('senior/community_chat.html', community=community, posts=posts, user_id=user_id, members=members)
+
+
+@senior_bp.route('/communities/<int:community_id>/upload_photo', methods=['POST'])
+@login_required
+def upload_community_photo(community_id):
+    """Handle photo upload for community chat."""
+    if 'photo' not in request.files:
+        return {'error': 'No file part'}, 400
+    
+    file = request.files['photo']
+    if file.filename == '':
+        return {'error': 'No selected file'}, 400
+        
+    if file and file.filename:
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
+        unique_filename = f"chat_{community_id}_{timestamp}{filename}"
+        
+        os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+        
+        return {'url': f"images/uploads/{unique_filename}"}
+    
+    return {'error': 'Upload failed'}, 500
 
 
 @senior_bp.route('/communities/<int:community_id>/join', methods=['POST'])
@@ -574,7 +599,7 @@ def profile():
                                 
                     # SAVE TO DB WITH 'uploads/' PREFIX
                     # This tells the template to look inside the uploads folder
-                    user.profile_picture = f"uploads/{unique_filename}"
+                    user.profile_picture = f"images/uploads/{unique_filename}"
                     session['profile_picture'] = user.profile_picture
 
         # 5. Commit changes
@@ -593,6 +618,37 @@ def profile():
     buddy = User.query.get(pair.youth_id) if pair else None
 
     return render_template('senior/profile.html', user=user, buddy=buddy)
+
+
+@senior_bp.route('/users/<int:user_id>')
+@login_required
+def public_profile(user_id):
+    """View another user's public profile."""
+    user = User.query.get_or_404(user_id)
+    
+    # Get public stats
+    stories_count = Story.query.filter_by(user_id=user.id).count()
+    
+    # Get badges if youth
+    badges = []
+    if user.role == 'youth':
+        earned_badges = Badge.query.filter_by(user_id=user.id).all()
+        BADGE_ICONS = {
+            'First Steps': '🌟', 'Story Keeper': '📖', 'Tech Wizard': '💻',
+            'Game Master': '🎮', 'Community Builder': '🏘️', 'Event Organizer': '📅',
+            'Heritage Champion': '🏛️', 'Conversation Partner': '💬',
+            'Week Warrior': '🔥', 'Month Master': '🏆', 'Century Champion': '💯', 'Year Legend': '👑'
+        }
+        badges = [{'title': b.badge_type, 'icon': BADGE_ICONS.get(b.badge_type, '🏅')} for b in earned_badges]
+    
+    # Get recent stories
+    recent_stories = Story.query.filter_by(user_id=user.id).order_by(Story.created_at.desc()).limit(5).all()
+    
+    return render_template('senior/public_profile.html', 
+                         profile_user=user, 
+                         stories_count=stories_count,
+                         badges=badges,
+                         recent_stories=recent_stories)
 
 # ==================== CHECKIN ====================
 @senior_bp.route('/checkin', methods=['GET', 'POST'])

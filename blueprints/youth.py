@@ -9,9 +9,11 @@ Description: Handles all routes for youth volunteers including story engagement,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment, EventParticipant, CommunityMember, Game, GameSession
+from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment, EventParticipant, CommunityMember, Game, GameSession, CommunityPost
 from datetime import datetime, timedelta
 from functools import wraps
+from werkzeug.utils import secure_filename
+import os
 
 # Create youth blueprint
 youth_bp = Blueprint('youth', __name__)
@@ -278,52 +280,80 @@ def communities():
     all_communities = Community.query.all()
     user_id = session['user_id']
     
-    # Process communities for display
-    communities_data = []
-
+    # Process communities for display (Attach attributes to objects)
     for comm in all_communities:
         # Check if user is member
-        is_member = CommunityMember.query.filter_by(
+        comm.is_joined = CommunityMember.query.filter_by(
             community_id=comm.id, 
             user_id=user_id
         ).first() is not None
         
-        # Parse tags
-        tags_list = []
-        if comm.tags:
-            tags_list = [t.strip() for t in comm.tags.split(',') if t.strip()]
-            
         # Determine stats label/icon based on type
         if comm.type == 'Story':
-            stat_label = 'stories'
-            stat_icon = 'fas fa-book'
+            comm.stat_label = 'stories'
+            comm.stat_icon = 'fas fa-book'
         elif comm.type == 'Learning':
-            stat_label = 'sessions'
-            stat_icon = 'fas fa-laptop'
+            comm.stat_label = 'sessions'
+            comm.stat_icon = 'fas fa-laptop'
         elif comm.type == 'Hobby':
-            stat_label = 'activities'
-            stat_icon = 'fas fa-star'
+            comm.stat_label = 'activities'
+            comm.stat_icon = 'fas fa-star'
         else:
-            stat_label = 'posts'
-            stat_icon = 'fas fa-comment'
+            comm.stat_label = 'posts'
+            comm.stat_icon = 'fas fa-comment'
+            
+        comm.stat_count = comm.posts.count()
 
-        comm_data = {
-            'id': comm.id,
-            'name': comm.name,
-            'type': comm.type,
-            'icon': comm.icon,
-            'banner_class': comm.banner_class,
-            'description': comm.description,
-            'member_count': comm.member_count,
-            'stat_count': comm.posts.count(), # derived
-            'stat_label': stat_label,
-            'stat_icon': stat_icon,
-            'tags': tags_list,
-            'is_joined': is_member
-        }
-        communities_data.append(comm_data)
+    return render_template('youth/communities.html', communities=all_communities)
 
-    return render_template('youth/communities.html', communities=communities_data)
+
+@youth_bp.route('/communities/<int:community_id>')
+@login_required
+def view_community(community_id):
+    """View community chat and details."""
+    community = Community.query.get_or_404(community_id)
+    user_id = session['user_id']
+    
+    # Check membership
+    is_member = CommunityMember.query.filter_by(
+        community_id=community_id, 
+        user_id=user_id
+    ).first() is not None
+    
+    if not is_member:
+        flash('You must join this community to view the chat.', 'warning')
+        return redirect(url_for('youth.communities'))
+        
+    # Get recent posts for the chat history
+    posts = CommunityPost.query.filter_by(community_id=community_id)\
+        .order_by(CommunityPost.created_at.asc()).all()
+        
+    members = community.members.all()
+    return render_template('youth/community_chat.html', community=community, posts=posts, user_id=user_id, members=members)
+
+
+@youth_bp.route('/communities/<int:community_id>/upload_photo', methods=['POST'])
+@login_required
+def upload_community_photo(community_id):
+    """Handle photo upload for community chat."""
+    if 'photo' not in request.files:
+        return {'error': 'No file part'}, 400
+    
+    file = request.files['photo']
+    if file.filename == '':
+        return {'error': 'No selected file'}, 400
+        
+    if file and file.filename:
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
+        unique_filename = f"chat_{community_id}_{timestamp}{filename}"
+        
+        os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+        
+        return {'url': f"images/uploads/{unique_filename}"}
+    
+    return {'error': 'Upload failed'}, 500
 
 
 @youth_bp.route('/communities/<int:community_id>/join', methods=['POST'])
@@ -492,7 +522,7 @@ def profile():
                                 pass
                                 
                     # SAVE TO DB WITH 'uploads/' PREFIX
-                    user.profile_picture = f"uploads/{unique_filename}"
+                    user.profile_picture = f"images/uploads/{unique_filename}"
                     session['profile_picture'] = user.profile_picture
 
         # 3. Commit changes
@@ -523,6 +553,37 @@ def profile():
                          reactions_count=reactions_count,
                          comments_count=comments_count,
                          messages_count=messages_count)
+
+
+@youth_bp.route('/users/<int:user_id>')
+@login_required
+def public_profile(user_id):
+    """View another user's public profile."""
+    user = User.query.get_or_404(user_id)
+    
+    # Get public stats
+    stories_count = Story.query.filter_by(user_id=user.id).count()
+    badges_count = Badge.query.filter_by(user_id=user.id).count()
+    
+    # Get badges
+    earned_badges = Badge.query.filter_by(user_id=user.id).all()
+    BADGE_ICONS = {
+        'First Steps': '🌟', 'Story Keeper': '📖', 'Tech Wizard': '💻',
+        'Game Master': '🎮', 'Community Builder': '🏘️', 'Event Organizer': '📅',
+        'Heritage Champion': '🏛️', 'Conversation Partner': '💬',
+        'Week Warrior': '🔥', 'Month Master': '🏆', 'Century Champion': '💯', 'Year Legend': '👑'
+    }
+    badges = [{'title': b.badge_type, 'icon': BADGE_ICONS.get(b.badge_type, '🏅')} for b in earned_badges]
+    
+    # Get recent stories
+    recent_stories = Story.query.filter_by(user_id=user.id).order_by(Story.created_at.desc()).limit(5).all()
+    
+    return render_template('youth/public_profile.html', 
+                         profile_user=user, 
+                         stories_count=stories_count,
+                         badges_count=badges_count,
+                         badges=badges,
+                         recent_stories=recent_stories)
 
 
 # ==================== STORY INTERACTIONS API ====================

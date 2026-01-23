@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block body_class %}youth-dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm text-center p-4">
+                {% set pfp = profile_user.profile_picture %}
+                {% if not pfp.startswith('images/') %}{% set pfp = 'images/' + pfp %}{% endif %}
+                <img src="{{ url_for('static', filename=pfp) }}" class="rounded-circle mb-3 mx-auto d-block" style="width: 150px; height: 150px; object-fit: cover;">
+                
+                <h3 class="fw-bold">{{ profile_user.full_name }}</h3>
+                <div class="mb-3">
+                    {% if profile_user.role == 'senior' %}
+                        <span class="badge bg-warning text-dark">Senior</span>
+                    {% elif profile_user.role == 'youth' %}
+                        <span class="badge bg-info text-white">Youth Volunteer</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ profile_user.role|capitalize }}</span>
+                    {% endif %}
+                </div>
+                
+                {% if profile_user.bio %}
+                    <p class="text-muted">{{ profile_user.bio }}</p>
+                {% endif %}
+                
+                <div class="d-flex justify-content-center gap-3 mt-3">
+                    <div class="text-center">
+                        <h5 class="mb-0 fw-bold">{{ stories_count }}</h5>
+                        <small class="text-muted">Stories</small>
+                    </div>
+                    {% if profile_user.role == 'youth' %}
+                    <div class="text-center">
+                        <h5 class="mb-0 fw-bold">{{ badges_count }}</h5>
+                        <small class="text-muted">Badges</small>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if profile_user.role == 'youth' and badges %}
+                <div class="mt-4 pt-3 border-top">
+                    <h6 class="fw-bold mb-3">Earned Badges</h6>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        {% for badge in badges %}
+                        <div class="badge-item text-center p-2" title="{{ badge.title }}">
+                            <div class="fs-2">{{ badge.icon }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">About</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Age</label>
+                            <p class="fw-bold">{{ profile_user.age }} years old</p>
+                        </div>
+                        {% if profile_user.school %}
+                        <div class="col-sm-6">
+                            <label class="text-muted small">School/Organization</label>
+                            <p class="fw-bold">{{ profile_user.school }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="col-12">
+                            <label class="text-muted small d-block mb-2">Interests</label>
+                            {% if profile_user.interests %}
+                                {% for interest in profile_user.interests %}
+                                    <span class="badge bg-light text-dark border me-1">{{ interest }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted fst-italic">No interests listed</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="text-muted small d-block mb-2">Languages</label>
+                            {% if profile_user.languages %}
+                                {% for lang in profile_user.languages %}
+                                    <span class="badge bg-light text-dark border me-1">{{ lang }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted fst-italic">No languages listed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if recent_stories %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Recent Stories</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for story in recent_stories %}
+                    <a href="{{ url_for('youth.story_detail', story_id=story.id) }}" class="list-group-item list-group-item-action p-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 fw-bold">{{ story.title }}</h6>
+                            <small class="text-muted">{{ story.created_at|timeago }}</small>
+                        </div>
+                        <p class="mb-1 text-muted small">{{ story.content[:100] }}...</p>
+                        <small class="text-primary">{{ story.category }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

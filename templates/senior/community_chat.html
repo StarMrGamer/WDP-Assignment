@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block body_class %}senior-dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('senior.communities') }}" class="btn btn-outline-secondary btn-lg me-3">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; font-size: 2rem;">
+                <i class="{{ community.icon }}"></i>
+            </div>
+            <div>
+                <h1 class="h2 mb-0">{{ community.name }}</h1>
+                <p class="text-muted mb-0" style="font-size: 1.2rem;">{{ community.member_count }} members</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Chat Area -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-2" style="border-color: var(--senior-border);">
+                <div class="card-body p-0">
+                    <div id="chat-messages" class="p-4" style="height: 55vh; overflow-y: auto; background-color: #FFF9F0;">
+                        {% for post in posts %}
+                            {% set pfp = post.user.profile_picture %}
+                            {% if not pfp.startswith('images/') %}
+                                {% set pfp = 'images/' + pfp %}
+                            {% endif %}
+                            <div class="d-flex mb-4 {% if post.user_id == user_id %}justify-content-end{% endif %}">
+                                {% if post.user_id != user_id %}
+                                    <a href="{{ url_for('senior.public_profile', user_id=post.user_id) }}">
+                                        <img src="{{ url_for('static', filename=pfp) }}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--senior-primary);">
+                                    </a>
+                                {% endif %}
+                                
+                                <div class="{% if post.user_id == user_id %}message-sent{% else %}message-received{% endif %}" style="max-width: 75%;">
+                                    {% if post.user_id != user_id %}
+                                        <a href="{{ url_for('senior.public_profile', user_id=post.user_id) }}" class="text-decoration-none" style="color: var(--senior-text);">
+                                            <strong class="d-block mb-2">{{ post.user.full_name }}</strong>
+                                        </a>
+                                    {% endif %}
+                                    
+                                    {% if post.photo_url %}
+                                        <img src="{{ url_for('static', filename=post.photo_url) }}" class="img-fluid rounded mb-3 border border-2 border-white">
+                                    {% endif %}
+                                    
+                                    {% if post.content %}
+                                        <p class="mb-1">{{ post.content }}</p>
+                                    {% endif %}
+                                    <small class="d-block mt-2 text-muted text-end">
+                                        {{ post.created_at|timeago }}
+                                    </small>
+                                </div>
+
+                                {% if post.user_id == user_id %}
+                                    <img src="{{ url_for('static', filename=pfp) }}" class="rounded-circle ms-3" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--senior-primary);">
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Input Area -->
+                    <div class="card-footer bg-white p-4 border-top-2" style="border-color: var(--senior-border);">
+                        <form id="chat-form" class="d-flex align-items-center gap-3">
+                            <button type="button" class="btn btn-outline-primary btn-lg" onclick="document.getElementById('photo-upload').click()" title="Upload Photo">
+                                <i class="fas fa-camera fa-lg"></i>
+                            </button>
+                            <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+                            
+                            <input type="text" id="message-input" class="form-control message-input" placeholder="Type your message here..." autocomplete="off">
+                            
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                        </form>
+                        
+                        <div id="upload-preview" class="mt-3" style="display: none;">
+                            <div class="position-relative d-inline-block">
+                                <img src="" id="preview-img" class="rounded border border-2 border-warning" style="height: 100px;">
+                                <button type="button" class="btn btn-danger position-absolute top-0 start-100 translate-middle rounded-circle" onclick="clearUpload()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <span class="ms-2 text-muted">Photo ready to send</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Members Sidebar -->
+        <div class="col-lg-4 d-none d-lg-block">
+            <div class="card shadow-sm h-100 border-2" style="border-color: var(--senior-border);">
+                <div class="card-header bg-white border-bottom-2" style="border-color: var(--senior-border);">
+                    <h3 class="h4 mb-0">Members</h3>
+                </div>
+                <div class="card-body p-0" style="max-height: 70vh; overflow-y: auto;">
+                    <ul class="list-group list-group-flush">
+                        {% for member in members %}
+                            {% set mpfp = member.user.profile_picture %}
+                            {% if not mpfp.startswith('images/') %}{% set mpfp = 'images/' + mpfp %}{% endif %}
+                            <li class="list-group-item d-flex align-items-center p-3">
+                                <a href="{{ url_for('senior.public_profile', user_id=member.user_id) }}" class="d-flex align-items-center text-decoration-none text-dark w-100">
+                                    <img src="{{ url_for('static', filename=mpfp) }}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover; border: 1px solid var(--senior-border);">
+                                    <span style="font-size: 1.1rem;">{{ member.user.full_name }}</span>
+                                </a>
+                                {% if member.user.role == 'senior' %}
+                                    <span class="badge bg-warning text-dark ms-auto" style="font-size: 0.9rem;">Senior</span>
+                                {% else %}
+                                    <span class="badge bg-info text-white ms-auto" style="font-size: 0.9rem;">Youth</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Socket.IO Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    const socket = io();
+    const communityId = {{ community.id }};
+    const userId = {{ user_id }};
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Scroll to bottom on load
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Join room
+    socket.emit('join_community', { community_id: communityId });
+
+    // Handle Photo Upload Preview
+    const photoInput = document.getElementById('photo-upload');
+    const previewContainer = document.getElementById('upload-preview');
+    const previewImg = document.getElementById('preview-img');
+
+    photoInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    function clearUpload() {
+        photoInput.value = '';
+        previewContainer.style.display = 'none';
+    }
+
+    // Handle Form Submit
+    document.getElementById('chat-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const input = document.getElementById('message-input');
+        const content = input.value.trim();
+        const file = photoInput.files[0];
+
+        if (!content && !file) return;
+
+        // Show loading state if needed, but for now just proceed
+        let photoUrl = null;
+
+        // Upload photo if exists
+        if (file) {
+            const formData = new FormData();
+            formData.append('photo', file);
+            
+            try {
+                const response = await fetch(`/senior/communities/${communityId}/upload_photo`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.url) {
+                    photoUrl = data.url;
+                }
+            } catch (error) {
+                console.error('Upload failed', error);
+                alert('Failed to upload photo');
+                return;
+            }
+        }
+
+        // Send socket message
+        socket.emit('community_message', {
+            community_id: communityId,
+            content: content,
+            photo_url: photoUrl
+        });
+
+        // Clear input
+        input.value = '';
+        clearUpload();
+    });
+
+    // Listen for messages
+    socket.on('new_community_post', function(data) {
+        const isMe = data.user_id == userId;
+        const alignClass = isMe ? 'justify-content-end' : '';
+        const msgClass = isMe ? 'message-sent' : 'message-received';
+        
+        let photoHtml = '';
+        if (data.photo_url) {
+            photoHtml = `<img src="/static/${data.photo_url}" class="img-fluid rounded mb-3 border border-2 border-white">`;
+        }
+
+        let avatarHtml = '';
+        if (!isMe) {
+            avatarHtml = `<a href="/senior/users/${data.user_id}"><img src="/static/${data.avatar}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--senior-primary);"></a>`;
+        }
+        let myAvatarHtml = '';
+        if (isMe) {
+            myAvatarHtml = `<img src="/static/${data.avatar}" class="rounded-circle ms-3" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--senior-primary);">`;
+        }
+        
+        let nameHtml = '';
+        if (!isMe) {
+            nameHtml = `<a href="/senior/users/${data.user_id}" class="text-decoration-none" style="color: var(--senior-text);"><strong class="d-block mb-2">${data.username}</strong></a>`;
+        }
+
+        const html = `
+            <div class="d-flex mb-4 ${alignClass}">
+                ${avatarHtml}
+                <div class="${msgClass}" style="max-width: 75%;">
+                    ${nameHtml}
+                    ${photoHtml}
+                    <p class="mb-1">${data.content}</p>
+                    <small class="d-block mt-2 text-muted text-end">
+                        ${data.created_at}
+                    </small>
+                </div>
+                ${myAvatarHtml}
+            </div>
+        `;
+        
+        chatMessages.insertAdjacentHTML('beforeend', html);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+</script>
+{% endblock %}
