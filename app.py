@@ -168,6 +168,39 @@ def on_disconnect():
     print(f"User {session.get('username')} disconnected")
 
 
+# ==================== NOTIFICATION EVENT LISTENER ====================
+from sqlalchemy import event
+from models import Notification
+
+def push_notification(mapper, connection, target):
+    """
+    SQLAlchemy event listener to push notifications via Socket.IO
+    whenever a new Notification record is inserted.
+    """
+    try:
+        # target is the Notification instance
+        room = f"user_{target.user_id}"
+        
+        # Prepare data matching the API response format
+        notif_data = {
+            'id': target.id,
+            'title': target.title,
+            'message': target.message,
+            'type': target.type,
+            'link': target.link,
+            'timeAgo': 'Just now',
+            'created_at': target.created_at.isoformat()
+        }
+        
+        socketio.emit('new_notification', notif_data, room=room)
+        # print(f"DEBUG: Pushed notification {target.id} to {room}")
+    except Exception as e:
+        print(f"ERROR: Failed to push notification: {e}")
+
+# Register the event listener
+event.listen(Notification, 'after_insert', push_notification)
+
+
 # ==================== BLUEPRINT REGISTRATION ====================
 # Blueprints organize routes into modules (auth, senior, youth, admin)
 # Each blueprint handles routes for its specific user role
@@ -519,6 +552,20 @@ def dismiss_notification(notification_id):
     
     notif.is_read = True
     db.session.commit()
+    return {'success': True}
+
+@app.route('/api/notifications/mark-read', methods=['POST'])
+def mark_all_notifications_read():
+    if 'user_id' not in session:
+        return {'success': False}, 403
+    
+    from models import Notification, db
+    user_id = session['user_id']
+    
+    # Update all unread notifications for this user
+    Notification.query.filter_by(user_id=user_id, is_read=False).update({'is_read': True})
+    db.session.commit()
+    
     return {'success': True}
 
 

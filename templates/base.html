@@ -341,6 +341,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <script>
         const globalSocket = io();
+        
+        // Initialize notification listener
+        if (window.initNotificationSocket) {
+            window.initNotificationSocket(globalSocket);
+        }
+
         globalSocket.on('game_challenge', function(data) {
             console.log("Received challenge:", data);
             // Refresh navbar notifications

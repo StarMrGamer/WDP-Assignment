@@ -696,3 +696,23 @@ p {
 .youth-theme .avatar-placeholder {
     background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
 }
+
+/* ==================== NOTIFICATIONS ==================== */
+/* Ensure notifications text fits */
+.notification-dropdown {
+    width: 350px !important;
+}
+
+.notification-item {
+    white-space: normal; /* Allow text wrapping */
+    word-wrap: break-word; /* Break long words */
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: var(--gray-100);
+}

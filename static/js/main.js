@@ -144,14 +144,14 @@ async function loadNotifications() {
             } else {
                 listElement.innerHTML = data.notifications.map(notif => `
                     <li>
-                        <a class="dropdown-item notification-item" href="#" data-notif-id="${notif.id}">
+                        <a class="dropdown-item notification-item" href="${notif.link || '#'}" data-notif-id="${notif.id}">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <strong>${notif.title}</strong>
                                     <p class="mb-0 small text-muted">${notif.message}</p>
                                     <small class="text-muted">${notif.timeAgo}</small>
                                 </div>
-                                <button class="btn btn-sm btn-link" onclick="dismissNotification(${notif.id})">
+                                <button class="btn btn-sm btn-link" onclick="event.preventDefault(); event.stopPropagation(); dismissNotification(${notif.id})">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
@@ -605,8 +605,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const notificationBadge = document.getElementById('notificationBadge');
     if (notificationBadge) {
         loadNotifications();
-        // Refresh notifications every 5 minutes
-        setInterval(loadNotifications, 300000);
+        
+        // Clear badge on dropdown open
+        const dropdownToggle = document.getElementById('notificationDropdown');
+        if (dropdownToggle) {
+            dropdownToggle.addEventListener('show.bs.dropdown', function () {
+                // Visual clear
+                notificationBadge.textContent = '0';
+                notificationBadge.style.display = 'none';
+                
+                // Server-side mark as read
+                fetch('/api/notifications/mark-read', { method: 'POST' })
+                    .catch(err => console.error('Error marking notifications as read:', err));
+            });
+        }
     }
 
     // Load streak data (if user is logged in)
@@ -633,6 +645,62 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('GenCon SG initialized successfully');
 });
+
+/**
+ * Initialize Socket.IO notification listener
+ * @param {object} socket - Socket.IO instance
+ */
+window.initNotificationSocket = function(socket) {
+    if (!socket) return;
+
+    socket.on('new_notification', function(data) {
+        console.log('New notification received:', data);
+
+        // Update badge count
+        const badge = document.getElementById('notificationBadge');
+        if (badge) {
+            let count = parseInt(badge.textContent) || 0;
+            count++;
+            badge.textContent = count;
+            badge.style.display = 'inline';
+            badge.classList.add('pulse'); // Add animation
+            setTimeout(() => badge.classList.remove('pulse'), 2000);
+        }
+
+        // Add to list
+        const listElement = document.getElementById('notificationList');
+        if (listElement) {
+            // Remove "No new notifications" message if it exists
+            const noNotifMsg = listElement.querySelector('.text-muted.text-center');
+            if (noNotifMsg && listElement.children.length === 1) {
+                noNotifMsg.remove();
+            }
+
+            // Create new item
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <a class="dropdown-item notification-item slide-up" href="${data.link || '#'}" data-notif-id="${data.id}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>${data.title}</strong>
+                            <p class="mb-0 small text-muted">${data.message}</p>
+                            <small class="text-muted">${data.timeAgo}</small>
+                        </div>
+                        <button class="btn btn-sm btn-link" onclick="event.preventDefault(); event.stopPropagation(); dismissNotification(${data.id})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </a>
+            `;
+            
+            // Prepend to list
+            listElement.insertBefore(li, listElement.firstChild);
+        }
+
+        // Show toast
+        showToast(data.title + ': ' + data.message, 'info', data.link);
+    });
+};
 
 /**
  * Fix navbar profile picture display and styling
