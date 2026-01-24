@@ -716,3 +716,413 @@ p {
 .notification-item:hover {
     background-color: var(--gray-100);
 }
+
+/* ==================== SOCIAL MEDIA BUTTONS ==================== */
+.social-media-icons {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  justify-content: flex-start;
+}
+
+.social-media-icons li {
+  list-style: none;
+}
+
+.social-media-icons li a {
+  width: 40px;
+  height: 40px;
+  background-color: #fff;
+  text-align: center;
+  line-height: 40px;
+  font-size: 18px;
+  margin: 0 10px 0 0;
+  display: block;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #ddd;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.social-media-icons li a .icon {
+  position: relative;
+  color: #262626;
+  transition: .5s;
+  z-index: 3;
+}
+
+.social-media-icons li a:hover .icon {
+  color: #fff;
+  transform: rotateY(360deg);
+}
+
+.social-media-icons li a:before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f00;
+  transition: .5s;
+  z-index: 2;
+}
+
+.social-media-icons li a:hover:before {
+  top: 0;
+}
+
+.social-media-icons li:nth-child(1) a:before{
+  background: #3b5999;
+}
+
+.social-media-icons li:nth-child(2) a:before{
+  background: #55acee;
+}
+
+.social-media-icons li:nth-child(3) a:before {
+  background: #0077b5;
+}
+
+.social-media-icons li:nth-child(4) a:before {
+  background: #dd4b39;
+}
+/* ==================== REVIEWS SECTION ==================== */
+.reviews-container {
+    margin-top: 5rem;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 3rem;
+}
+
+.reviews-list {
+    position: relative;
+    transform-style: preserve-3d;
+    perspective: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    transition: 500ms;
+    padding: 0;
+    width: 450px;
+}
+
+.reviews-list:hover {
+    gap: 20px;
+}
+
+.reviews-list li {
+    position: relative;
+    list-style: none;
+    width: 100%;
+    height: 120px;
+    padding: 16px;
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    gap: 20px;
+    justify-content: flex-start;
+    align-items: center;
+    box-shadow: 0 0 12px rgba(0, 0, 0, .24);
+    transition: 500ms;
+    transition-delay: calc(var(--i) * 50ms);
+    cursor: pointer;
+    text-align: left;
+}
+
+.reviews-list li:nth-child(1) {
+    transform: translateZ(-75px) translateY(20px);
+    opacity: .6;
+    filter: blur(4px);
+}
+
+.reviews-list li:nth-child(2) {
+    opacity: .8;
+    filter: blur(2px);
+}
+
+.reviews-list li:nth-child(3) {
+    transform: translateZ(65px) translateY(-30px);
+}
+
+.reviews-list li:nth-child(4) {
+    transform: translateZ(125px) translateY(-68px);
+    filter: blur(1px);
+}
+
+.reviews-list:hover li {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateZ(0) translateY(0);
+}
+
+.reviews-list li img {
+    max-width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.reviews-list li .content {
+    width: 100%;
+}
+
+.reviews-list li .content h3 {
+    font-weight: 600;
+    margin-bottom: 2px;
+    line-height: 1;
+    font-size: 1.125rem;
+    color: #212529;
+}
+
+.reviews-list li .content .stars {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.reviews-list li .content p {
+    opacity: .8;
+    line-height: 1.4;
+    margin: 0;
+    font-size: 0.9rem;
+    color: #495057;
+    font-style: italic;
+}
+
+/* ==================== LANDING SPLIT LAYOUT ==================== */
+.landing-split-layout {
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Vertically align centers */
+    gap: 8rem; /* Increased gap to prevent overlapping */
+    flex-wrap: wrap;
+    margin-top: 4rem;
+    width: 100%;
+    max-width: 1400px; /* Increased max-width to accommodate spacing */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Techy Header Style */
+.tech-header {
+    background: linear-gradient(to right, #00f260, #0575E6); /* Green to Blue Tech Gradient */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0px 0px 10px rgba(0, 242, 96, 0.3);
+    font-family: 'Courier New', Courier, monospace; /* Monospace for tech feel */
+    letter-spacing: -4px;
+    font-size: 8rem; /* Much larger and prominent */
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+/* ==================== GLASS CARDS (New Features Section) ==================== */
+.glass-cards-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 700px; /* Increased for 300px cards */
+}
+
+.glass-cards-container .box {
+    position: relative;
+    width: 300px; /* Increased size */
+    height: 300px; /* Increased size */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+    transition: 0.5s;
+}
+
+.glass-cards-container .box::before {
+    content: ' ';
+    position: absolute;
+    top: 0;
+    left: 50px;
+    width: 50%;
+    height: 100%;
+    text-decoration: none;
+    background: #fff;
+    border-radius: 8px;
+    transform: skewX(15deg);
+    transition: 0.5s;
+}
+
+.glass-cards-container .box::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50px;
+    width: 50%;
+    height: 100%;
+    background: #fff;
+    border-radius: 8px;
+    transform: skewX(15deg);
+    transition: 0.5s;
+    filter: blur(30px);
+}
+
+.glass-cards-container .box:hover:before,
+.glass-cards-container .box:hover:after {
+    transform: skewX(0deg);
+    left: 20px;
+    width: calc(100% - 40px);
+}
+
+/* Card Gradients */
+.glass-cards-container .box:nth-child(1):before,
+.glass-cards-container .box:nth-child(1):after {
+    background: linear-gradient(315deg, #ffbc00, #ff0058);
+}
+
+.glass-cards-container .box:nth-child(2):before,
+.glass-cards-container .box:nth-child(2):after {
+    background: linear-gradient(315deg, #03a9f4, #ff0058);
+}
+
+.glass-cards-container .box:nth-child(3):before,
+.glass-cards-container .box:nth-child(3):after {
+    background: linear-gradient(315deg, #4dff03, #00d0ff);
+}
+
+.glass-cards-container .box:nth-child(4):before,
+.glass-cards-container .box:nth-child(4):after {
+    background: linear-gradient(315deg, #f1c40f, #8e44ad);
+}
+
+.glass-cards-container .box span {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.glass-cards-container .box span::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transition: 0.1s;
+    animation: animate 2s ease-in-out infinite;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.glass-cards-container .box:hover span::before {
+    top: -40px; /* Adjusted for smaller size */
+    left: 40px;
+    width: 80px;
+    height: 80px;
+    opacity: 1;
+}
+
+.glass-cards-container .box span::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transition: 0.5s;
+    animation: animate 2s ease-in-out infinite;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    animation-delay: -1s;
+}
+
+.glass-cards-container .box:hover span:after {
+    bottom: -40px; /* Adjusted for smaller size */
+    right: 40px;
+    width: 80px;
+    height: 80px;
+    opacity: 1;
+}
+
+@keyframes animate {
+    0%, 100% { transform: translateY(10px); }
+    50% { transform: translate(-10px); }
+}
+
+.glass-cards-container .box .content {
+    position: relative;
+    left: 0;
+    padding: 15px 20px; /* Reduced padding */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 1;
+    transition: 0.5s;
+    color: #fff;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.glass-cards-container .box:hover .content {
+    left: -15px; /* Reduced shift */
+    padding: 20px 20px;
+}
+
+.glass-cards-container .box .content h2 {
+    font-size: 1.4em; /* Smaller font */
+    color: #fff;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.glass-cards-container .box .content p {
+    font-size: 0.9em; /* Smaller font */
+    margin-bottom: 15px;
+    line-height: 1.3em;
+    color: rgba(255,255,255,0.9);
+}
+
+.glass-cards-container .box .content a {
+    display: inline-block;
+    font-size: 0.9em;
+    color: #111;
+    background: #fff;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 700;
+    margin-top: 5px;
+    align-self: flex-start;
+}
+
+.glass-cards-container .box .content a:hover {
+    background: #ffcf4d;
+    border: 1px solid rgba(255, 0, 88, 0.4);
+    box-shadow: 0 1px 15px rgba(1, 1, 1, 0.2);
+}
+
+/* Override Reviews Container when in split layout */
+.landing-split-layout .reviews-container {
+    margin-top: 0;
+    width: auto;
+    transform: scale(1.0); /* Restore to full size */
+    margin-left: 0; 
+    flex-shrink: 0; /* Prevent shrinking too much */
+}
+
+

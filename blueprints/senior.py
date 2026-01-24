@@ -494,6 +494,8 @@ def games():
         'streak': streak_info.current_streak if streak_info else 0
     }
 
+    user = User.query.get(user_id)
+
     # Fetch games from DB
     db_games = Game.query.all()
     games_data = []
@@ -514,7 +516,7 @@ def games():
             'type_icon': g.type_icon
         })
 
-    return render_template('senior/games.html', buddy=buddy, games=games_data, stats=stats, active_session=active_session)
+    return render_template('senior/games.html', user=user, buddy=buddy, games=games_data, stats=stats, active_session=active_session)
 
 
 @senior_bp.route('/games/challenge/<int:game_id>')

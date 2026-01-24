@@ -319,6 +319,180 @@
         .active-game-item { flex-direction: column; text-align: center; gap: 1rem; }
         .active-game-info { flex-direction: column; }
     }
+
+    /* Gamer Card Styles */
+    .gamer-card {
+        color: #e5e5e5;
+        max-width: 30rem;
+        border-radius: 4rem;
+        overflow: hidden;
+        padding: 1rem;
+        background: rgba(53, 53, 53, 0.4);
+        box-shadow: inset 0 0 4px -2px rgba(255, 255, 255, 0.33), 0 0 4px -2px rgba(255, 255, 255, 0.33);
+        backdrop-filter: blur(20px);
+        position: relative;
+        font-size: 1.5rem;
+        font-weight: 200;
+        margin: 0 auto;
+    }
+
+    /* Mini Variant for Stats Bar */
+    .gamer-card.mini {
+        max-width: 280px;
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 0.5rem;
+        border-radius: 2rem;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .gamer-card.mini .gamer-card__inner {
+        border-radius: 1.5rem;
+    }
+
+    .gamer-card.mini .gamer-card__inner:after {
+        border-radius: 1.5rem;
+    }
+
+    .gamer-card.mini .gamer-card__body {
+        padding: 0.75rem 1.25rem;
+    }
+
+    .gamer-card.mini .gamer-card__header {
+        font-size: 1.4rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .gamer-card.mini p {
+        margin-block: 0.5rem;
+        font-size: 0.85rem !important;
+    }
+
+    .gamer-card.mini .gamer-chips {
+        font-size: 0.9rem;
+    }
+
+    .gamer-card.mini .gamer-button {
+        padding: 0.4em 0.8em;
+        font-size: 0.8rem;
+    }
+
+    .gamer-card p {
+        margin-block: 1rem;
+    }
+
+    .gamer-card img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .gamer-card__inner {
+        grid-template-areas: "stack";
+        position: relative;
+        border-radius: 3rem;
+        overflow: hidden;
+        display: grid;
+        box-shadow: inset 0 0 4px -2px rgba(255, 255, 255, 0.33), 0 0 4px -2px rgba(255, 255, 255, 0.33);
+    }
+
+    .gamer-card__inner:after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 3rem;
+        backdrop-filter: blur(100px);
+        mask: linear-gradient(-14deg, black 30%, transparent 66%);
+        -webkit-mask: linear-gradient(-14deg, black 30%, transparent 66%);
+    }
+
+    .gamer-card__cover {
+        grid-area: stack;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .gamer-card__body {
+        z-index: 1;
+        grid-area: stack;
+        margin-top: auto;
+        padding: 1rem 2rem;
+        background: transparent;
+    }
+
+    .gamer-card__header {
+        font-size: 2.2rem;
+        font-weight: 300;
+        margin-top: 0;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .gamer-icon {
+        width: 1em;
+        height: 1em;
+        vertical-align: middle;
+    }
+
+    .gamer-button {
+        text-decoration: none;
+        font: inherit;
+        font-weight: 500;
+        color: #151515;
+        padding: .75em 1.25em;
+        border-radius: 5rem;
+        display: flex;
+        background: #fff;
+        gap: 0.5rem;
+        align-items: center;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .gamer-chips {
+        font-weight: 400;
+        gap: .5em;
+        display: flex;
+        align-items: center;
+        font-size: 1.2rem;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .gamer-flex {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+    }
+
+    /* Stats Bar Layout */
+    .stats-bar-layout {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .stats-grid {
+        flex-grow: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 992px) {
+        .stats-bar-layout {
+            flex-direction: column;
+        }
+        .gamer-card.mini {
+            max-width: 100%;
+        }
+        .stats-grid {
+            width: 100%;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -332,31 +506,81 @@
         <p>Challenge your senior buddy to traditional Singapore games!</p>
     </div>
 
-    <!-- Stats Bar -->
+    <!-- Stats Bar & Profile Hotbar -->
     <div class="stats-bar">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="icon"><i class="fas fa-trophy"></i></div>
-                <div class="value">{{ stats.played }}</div>
-                <div class="label">Games Played</div>
+        <div class="stats-bar-layout">
+            <!-- Mini Gamer Profile Card -->
+            <div class="gamer-card mini">
+              <div class="gamer-card__inner">
+                <img class="gamer-card__cover" src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}" alt="{{ user.full_name }}">
+
+                <div class="gamer-card__body">
+                  <h2 class="gamer-card__header">
+                    <span class="gamer-chips">{{ user.full_name }} 
+                      <svg class="gamer-icon">
+                        <use xlink:href="#icon-check"></use>
+                      </svg>
+                    </span>
+                  </h2>
+                  <p style="font-size: 1rem; opacity: 0.9; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">{{ user.bio or "Ready to play!" }}</p>
+
+                  <div class="gamer-flex">
+                    <span class="gamer-chips">
+                      <svg class="gamer-icon">
+                        <use xlink:href="#icon-user"></use>
+                      </svg>
+                      {{ user.stories.count() }}
+                    </span>
+                    <span class="gamer-chips">
+                      <svg class="gamer-icon">
+                        <use xlink:href="#icon-cards"></use>
+                      </svg>
+                      {{ stats.played }}
+                    </span>
+                    <a href="{{ url_for('youth.profile') }}" class="gamer-button">Edit
+                      <svg class="gamer-icon">
+                        <use xlink:href="#icon-plus"></use>
+                      </svg>
+                    </a>
+                  </div>
+
+                </div>
+              </div>
             </div>
-            <div class="stat-item">
-                <div class="icon"><i class="fas fa-star"></i></div>
-                <div class="value">{{ stats.won }}</div>
-                <div class="label">Games Won</div>
-            </div>
-            <div class="stat-item">
-                <div class="icon"><i class="fas fa-medal"></i></div>
-                <div class="value">{{ stats.points }}</div>
-                <div class="label">Total Points</div>
-            </div>
-            <div class="stat-item">
-                <div class="icon"><i class="fas fa-fire"></i></div>
-                <div class="value">{{ stats.streak }}</div>
-                <div class="label">Day Streak</div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="icon"><i class="fas fa-trophy"></i></div>
+                    <div class="value">{{ stats.played }}</div>
+                    <div class="label">Games Played</div>
+                </div>
+                <div class="stat-item">
+                    <div class="icon"><i class="fas fa-star"></i></div>
+                    <div class="value">{{ stats.won }}</div>
+                    <div class="label">Games Won</div>
+                </div>
+                <div class="stat-item">
+                    <div class="icon"><i class="fas fa-medal"></i></div>
+                    <div class="value">{{ stats.points }}</div>
+                    <div class="label">Total Points</div>
+                </div>
+                <div class="stat-item">
+                    <div class="icon"><i class="fas fa-fire"></i></div>
+                    <div class="value">{{ stats.streak }}</div>
+                    <div class="label">Day Streak</div>
+                </div>
             </div>
         </div>
     </div>
+    
+    <!-- SVG Symbols -->
+    <svg width="0" height="0" class="d-none">
+      <symbol id="icon-plus" viewBox="0 -960 960 960" fill="currentColor"><path d="M453-140v-313H140v-54h313v-313h54v313h313v54H507v313h-54Z"/></symbol>
+      <symbol id="icon-user" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-524q-54.55 0-92.27-37.72Q350-599.45 350-654q0-54.55 37.73-92.28Q425.45-784 480-784t92.28 37.72Q610-708.55 610-654q0 54.55-37.72 92.28Q534.55-524 480-524ZM182-171v-83q0-29 15.69-52.85Q213.38-330.71 240-344q59-29 119.41-43.5t120.5-14.5q60.09 0 120.59 14.5T720-344q26.63 13.29 42.31 37.15Q778-283 778-254v83H182Zm54-54h488v-29q0-14-7.5-24.5T695-296q-49-23-105.19-37.5Q533.63-348 480-348t-109.81 14Q314-320 265-296q-14 6-21.5 17t-7.5 25v29Zm244-353q32 0 54-22t22-54q0-32-22-54t-54-22q-32 0-54 22t-22 54q0 32 22 54t54 22Zm0-76Zm0 429Z"/></symbol>
+      <symbol id="icon-cards" viewBox="0 -960 960 960" fill="currentColor"><path d="m493-469 87-52 87 52-24-98 77-67-101-9-39-92-39 92-101 9 77 67-24 98Zm129 257h118q9 18-10.5 28.5T691-170l-447 58q-36 3-63.4-18.65Q153.19-152.3 149-188l-49-382q-4-36 18.35-64.86Q140.7-663.71 177-667l33-1v54l-28 1q-14 1-22 11.5t-6 24.5l48 383q2 14 12 22t24 6l384-46Zm-246-80q-36.73 0-61.36-24.64Q290-341.27 290-378v-408q0-36.72 24.64-61.36Q339.27-872 376-872h408q36.72 0 61.36 24.64T870-786v408q0 36.73-24.64 61.36Q820.72-292 784-292H376Zm0-54h408q14 0 23-9t9-23v-408q0-14-9-23t-23-9H376q-14 0-23 9t-9 23v408q0 14 9 23t23 9Zm204-236ZM196-162Z"/></symbol>
+      <symbol id="icon-check" viewBox="0 -960 960 960" fill="currentColor"><path d="m443-429 169-169-38-39-131 132-57-56-38 38 95 94ZM222-160v-578q0-36.72 24.64-61.36Q271.27-824 308-824h344q36.72 0 61.36 24.64T738-738v578L480-270 222-160Zm54-82 204-87.66L684-242v-496q0-12-10-22t-22-10H308q-12 0-22 10t-10 22v496Zm0-528h408-408Z"/></symbol>
+    </svg>
 
     <!-- Available Games Grid -->
     <div class="section-header mb-4">

@@ -13,33 +13,37 @@
 <style>
     /* Custom styles for landing page */
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); /* Dark Tech Gradient */
         background-attachment: fixed;
         min-height: 100vh;
     }
 
     .main-content {
         display: flex;
-        align-items: center;
-        justify-content: center;
+        align-items: center; /* Center content horizontally */
+        justify-content: flex-start; /* Align to top vertically */
         min-height: calc(100vh - 80px); /* Account for navbar height */
-        padding: 2rem 0;
+        padding: 4rem 0; /* Add top padding */
+        flex-direction: column; /* Ensure vertical stacking */
     }
 
     .landing-container {
-        text-align: center;
+        text-align: center; /* Center text */
         color: white;
         padding: 2rem;
-        max-width: 800px;
-        margin: auto;
+        max-width: 1200px; /* Allow more width */
+        margin: 0 auto; /* Center container */
         width: 100%;
     }
 
     .logo-icon {
-        font-size: 6rem;
+        font-size: 8rem; /* Increased size */
         margin-bottom: 2rem;
         opacity: 0.9;
         animation: pulse 2s infinite;
+        color: #00f260; /* Techy Green */
+        text-shadow: 0 0 20px rgba(0, 242, 96, 0.5);
+        display: inline-block; /* Keep icon with text if needed, or block */
     }
 
     @keyframes pulse {
@@ -48,10 +52,10 @@
     }
 
     .landing-container h1 {
-        font-size: 4rem;
+        /* font-size handled by .tech-header class now */
         font-weight: 700;
         margin-bottom: 1rem;
-        text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        /* Text shadow removed here as it conflicts with text-fill-color in .tech-header */
         animation: slideDown 0.8s ease-out;
     }
 
@@ -67,26 +71,31 @@
     }
 
     .tagline {
-        font-size: 1.75rem;
+        font-size: 2rem; /* Slightly larger tagline */
         font-weight: 300;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem; /* Increased spacing */
         opacity: 0.95;
         animation: slideDown 0.8s ease-out 0.2s both;
+        max-width: 800px;
+        margin-left: auto; /* Center tagline */
+        margin-right: auto;
+        letter-spacing: 2px; /* Spread text */
     }
 
     .description {
         font-size: 1.25rem;
-        max-width: 600px;
-        margin: 0 auto 3rem;
+        max-width: 700px;
+        margin: 0 auto 4rem auto; /* Increased spacing */
         opacity: 0.9;
         line-height: 1.8;
         animation: slideDown 0.8s ease-out 0.4s both;
+        letter-spacing: 1px; /* Spread text */
     }
 
     .action-buttons {
         display: flex;
-        gap: 1.5rem;
-        justify-content: center;
+        gap: 4rem; /* Increased button spacing */
+        justify-content: center; /* Center buttons */
         flex-wrap: wrap;
         animation: slideDown 0.8s ease-out 0.6s both;
     }
@@ -112,6 +121,7 @@
     .btn-login:hover {
         transform: translateY(-5px);
         box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        background: #e6e6e6; /* Darker shade of white */
         color: #667eea;
     }
 
@@ -125,29 +135,6 @@
         box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         background: linear-gradient(135deg, #D35400 0%, #E67E22 100%);
         color: white;
-    }
-
-    .features-preview {
-        margin-top: 4rem;
-        display: flex;
-        justify-content: center;
-        gap: 3rem;
-        flex-wrap: wrap;
-        animation: slideDown 0.8s ease-out 0.8s both;
-    }
-
-    .feature-pill {
-        background: rgba(255,255,255,0.2);
-        backdrop-filter: blur(10px);
-        padding: 1rem 2rem;
-        border-radius: 2rem;
-        font-size: 1rem;
-        font-weight: 500;
-    }
-
-    .feature-pill i {
-        margin-right: 0.75rem;
-        font-size: 1.25rem;
     }
 
     @media (max-width: 768px) {
@@ -184,7 +171,7 @@
     </div>
 
     <!-- Main Heading -->
-    <h1>GenCon SG</h1>
+    <h1 class="tech-header">GenCon SG</h1>
 
     <!-- Tagline -->
     <p class="tagline">Bridging Generations Through Meaningful Connections</p>
@@ -204,31 +191,115 @@
             <i class="fas fa-user-plus me-2"></i>Sign Up
         </a>
     </div>
+</div>
 
-    <!-- Features Preview -->
-    <div class="features-preview">
-        <div class="feature-pill">
-            <i class="fas fa-book-open"></i>
-            Story Sharing
+    <div class="landing-split-layout">
+        <!-- New Features Section (Glass Cards) -->
+        <div class="glass-cards-container">
+            <!-- Story Sharing -->
+            <div class="box">
+                <span></span>
+                <div class="content">
+                    <h2>Story Sharing</h2>
+                    <p>Share your unique life stories and experiences with the younger generation.</p>
+                    <a href="#">Read More</a>
+                </div>
+            </div>
+            <!-- Translation Support -->
+            <div class="box">
+                <span></span>
+                <div class="content">
+                    <h2>Translation</h2>
+                    <p>Communicate without barriers using our real-time translation support.</p>
+                    <a href="#">Read More</a>
+                </div>
+            </div>
+            <!-- Safe & Secure -->
+            <div class="box">
+                <span></span>
+                <div class="content">
+                    <h2>Safe & Secure</h2>
+                    <p>Your privacy and safety are our top priority with verified profiles.</p>
+                    <a href="#">Read More</a>
+                </div>
+            </div>
+            <!-- Cultural Games -->
+            <div class="box">
+                <span></span>
+                <div class="content">
+                    <h2>Cultural Games</h2>
+                    <p>Engage in fun cultural exchange activities and traditional games.</p>
+                    <a href="#">Read More</a>
+                </div>
+            </div>
         </div>
-        <div class="feature-pill">
-            <i class="fas fa-language"></i>
-            Translation Support
-        </div>
-        <div class="feature-pill">
-            <i class="fas fa-shield-alt"></i>
-            Safe & Secure
-        </div>
-        <div class="feature-pill">
-            <i class="fas fa-gamepad"></i>
-            Cultural Games
+
+        <!-- Reviews Section -->
+        <div class="reviews-container">
+            <ul class="reviews-list">
+                <li style="--i: 1;">
+                    <img src="https://i.postimg.cc/ZRCLqjNq/user-img1.jpg" alt="user image">
+                    <div class="content">
+                        <h3>Denny Davis</h3>
+                        <div class="stars text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"Amazing platform! Connected with great mentors."</p>
+                    </div>
+                </li>
+                <li style="--i: 2;">
+                    <img src="https://i.postimg.cc/C1XsnDCs/user-img2.jpg" alt="user image">
+                    <div class="content">
+                        <h3>Elira Eloise</h3>
+                        <div class="stars text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p>"Love sharing my stories with the youth."</p>
+                    </div>
+                </li>
+                <li style="--i: 3;">
+                    <img src="https://i.postimg.cc/qqKXsRjV/user-img3.jpg" alt="user image">
+                    <div class="content">
+                        <h3>Fabio Franklin</h3>
+                        <div class="stars text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p>"The cultural exchange games are so fun!"</p>
+                    </div>
+                </li>
+                <li style="--i: 4;">
+                    <img src="https://i.postimg.cc/QNKbG4s4/user-img4.jpg" alt="user image">
+                    <div class="content">
+                        <h3>Gillian Gardner</h3>
+                        <div class="stars text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                        </div>
+                        <p>"Safe, secure, and very easy to use."</p>
+                    </div>
+                </li>
+            </ul>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script type="text/javascript">
     console.log('GenCon SG Landing Page loaded');
 </script>
 {% endblock %}
