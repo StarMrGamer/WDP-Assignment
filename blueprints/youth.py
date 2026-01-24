@@ -779,11 +779,28 @@ def challenge_buddy(game_id):
         flash('You need a buddy to play!', 'warning')
         return redirect(url_for('youth.games'))
     
-    # Close any existing waiting sessions
-    existing = GameSession.query.filter_by(player1_id=user_id, player2_id=pair.senior_id, status='waiting').first()
-    if existing:
-        db.session.delete(existing)
+    # Check for ANY existing waiting session for this game between the pair
+    # This ensures that if the buddy already created a session, we join it instead of creating a duplicate
+    existing_sessions = GameSession.query.filter(
+        GameSession.game_id == game_id,
+        GameSession.status == 'waiting',
+        ((GameSession.player1_id == user_id) & (GameSession.player2_id == pair.senior_id)) |
+        ((GameSession.player1_id == pair.senior_id) & (GameSession.player2_id == user_id))
+    ).order_by(GameSession.created_at.desc()).all()
 
+    if existing_sessions:
+        # Use the most recent one
+        session_to_use = existing_sessions[0]
+        
+        # Clean up any duplicates
+        for gs in existing_sessions[1:]:
+            db.session.delete(gs)
+        db.session.commit()
+        
+        flash('Entering existing game lobby.', 'info')
+        return redirect(url_for('youth.chess_game', session_id=session_to_use.id))
+
+    # No existing session found, create a new one
     game = Game.query.get(game_id)
     new_session = GameSession(
         game_id=game_id,

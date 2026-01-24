@@ -11,6 +11,16 @@
         align-items: center;
         margin-top: 2rem;
     }
+    
+    .board-layout {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
     #myBoard {
         width: 600px;
         max-width: 90vw;
@@ -19,13 +29,16 @@
         overflow: hidden;
     }
     .game-info {
-        margin-top: 1.5rem;
+        margin-top: 0; /* Reset margin since it's side by side now */
         background: white;
         padding: 1.5rem;
         border-radius: 1rem;
-        width: 600px;
+        width: 300px; /* Narrower for side panel */
         max-width: 90vw;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        height: 600px; /* Match board height roughly */
+        display: flex;
+        flex-direction: column;
     }
     .status-label {
         font-weight: bold;
@@ -41,8 +54,37 @@
         padding: 0.5rem;
         border-radius: 0.5rem;
         font-size: 0.9rem;
-        max-height: 100px;
+        flex-grow: 1; /* Fill remaining height */
         overflow-y: auto;
+    }
+
+    /* Dynamic Themes */
+    body.theme-black-move {
+        background-color: #222 !important;
+        color: #fff !important;
+    }
+    body.theme-black-move .card, 
+    body.theme-black-move .game-info {
+        background-color: #333;
+        color: #fff;
+    }
+    body.theme-black-move .status-label {
+        color: #ccc;
+    }
+    body.theme-black-move #pgn {
+        background-color: #444;
+        color: #fff;
+    }
+    body.theme-black-move h1, 
+    body.theme-black-move h2, 
+    body.theme-black-move h3, 
+    body.theme-black-move h4 {
+        color: #fff !important;
+    }
+
+    body.theme-white-move {
+        background-color: #f4f6f9 !important; /* Default light bg */
+        color: #212529 !important;
     }
 </style>
 {% endblock %}
@@ -72,14 +114,18 @@
             <p class="mb-0">The game will start automatically when both players click "Ready".</p>
         </div>
 
-        <div id="myBoard" class="{% if active_session.status != 'active' %}opacity-50{% endif %}"></div>
-        
-        <div class="game-info">
-            <div class="status-label">Status:</div>
-            <div id="status"></div>
+        <div class="board-layout">
+            <div id="myBoard" class="{% if active_session.status != 'active' %}opacity-50{% endif %}"></div>
             
-            <div class="status-label">Moves:</div>
-            <div id="pgn"></div>
+                    <div class="game-info">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="status-label">Status:</div>
+                            <small class="text-muted">Game #{{ game_session_id }}</small>
+                        </div>
+                        <div id="status"></div>                
+                <div class="status-label">History:</div>
+                <div id="pgn"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -94,6 +140,7 @@
     var gameSessionId = {{ game_session_id }};
     var playerColor = "{{ color }}";
     var currentUserId = {{ session.user_id }};
+    var userRole = "{{ session.role }}";
 </script>
 <script src="{{ url_for('static', filename='js/socket_chess.js') }}"></script>
 {% endblock %}

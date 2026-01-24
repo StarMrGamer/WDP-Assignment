@@ -347,9 +347,24 @@
             if (typeof loadNotifications === 'function') {
                 loadNotifications();
             }
-            // Also show a toast for immediate feedback
+            
+            // Construct redirect URL based on role
+            var role = document.body.getAttribute('data-role');
+            var gameUrl = '';
+            if (role === 'senior') {
+                gameUrl = "{{ url_for('senior.chess_game') }}?session_id=" + data.session_id;
+            } else if (role === 'youth') {
+                gameUrl = "{{ url_for('youth.chess_game') }}?session_id=" + data.session_id;
+            }
+
+            // Show interactive toast
             if (typeof showToast === 'function') {
-                showToast(data.challenger_name + ' challenged you to ' + data.game_title + '!', 'info');
+                showToast(
+                    data.challenger_name + ' challenged you to ' + data.game_title + '!', 
+                    'info',
+                    gameUrl,
+                    'Join Game'
+                );
             }
         });
     </script>

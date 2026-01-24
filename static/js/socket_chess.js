@@ -11,8 +11,14 @@ let gameActive = false; // Will be set to true when game_start received
 
 console.log("Chess script starting... Session ID:", gameSessionId);
 
-// Join the specific game room
+// Join the specific game room on load
 socket.emit('join', { game_id: gameSessionId });
+
+// Also join on reconnect to ensure room membership is maintained
+socket.on('connect', function() {
+    console.log("Socket connected/reconnected. Joining room...");
+    socket.emit('join', { game_id: gameSessionId });
+});
 
 function initButtons() {
     const readyBtn = document.getElementById('readyBtn');
@@ -31,7 +37,7 @@ function initButtons() {
         forfeitBtn.onclick = function() {
             if (confirm('Are you sure you want to forfeit? This will end the game.')) {
                 socket.emit('forfeit', { session_id: gameSessionId });
-                window.location.href = (window.location.pathname.includes('senior')) ? '/senior/games' : '/youth/games';
+                window.location.href = (userRole === 'senior') ? '/senior/games' : '/youth/games';
             }
         };
     }
@@ -75,7 +81,7 @@ socket.on('game_start', function(data) {
 socket.on('opponent_forfeit', function(data) {
     gameActive = false;
     alert(data.winner_name + ' has left the game. You win by forfeit!');
-    window.location.href = (window.location.pathname.includes('senior')) ? '/senior/games' : '/youth/games';
+    window.location.href = (userRole === 'senior') ? '/senior/games' : '/youth/games';
 });
 
 function onDragStart (source, piece, position, orientation) {
@@ -164,6 +170,13 @@ function updateStatus () {
         if (game.in_check()) {
             status += ', ' + moveColor + ' is in check'
         }
+    }
+
+    // Toggle theme based on turn
+    if (game.turn() === 'w') {
+        $('body').addClass('theme-white-move').removeClass('theme-black-move');
+    } else {
+        $('body').addClass('theme-black-move').removeClass('theme-white-move');
     }
 
     $status.html(status)

@@ -277,8 +277,10 @@ function showDailyRewardModal(streakDays) {
  * Show toast notification
  * @param {string} message - Message to display
  * @param {string} type - 'success', 'danger', 'warning', 'info'
+ * @param {string|null} actionLink - URL to redirect to on click (optional)
+ * @param {string} actionText - Text for the action button (optional)
  */
-function showToast(message, type = 'info') {
+function showToast(message, type = 'info', actionLink = null, actionText = 'View') {
     // Create toast element
     const toast = document.createElement('div');
     toast.className = `alert alert-${type} toast-notification fade-in`;
@@ -289,6 +291,7 @@ function showToast(message, type = 'info') {
         z-index: 9999;
         min-width: 300px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: ${actionLink ? 'pointer' : 'default'};
     `;
 
     // Add icon based on type
@@ -300,18 +303,37 @@ function showToast(message, type = 'info') {
         default: icon = '<i class="fas fa-info-circle me-2"></i>';
     }
 
+    let actionButton = '';
+    if (actionLink) {
+        actionButton = `<a href="${actionLink}" class="btn btn-sm btn-light ms-3" style="text-decoration:none; color:inherit; font-weight:bold;">${actionText}</a>`;
+        // Make the whole toast clickable if it's a link, except the close button
+        toast.onclick = function(e) {
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+                window.location.href = actionLink;
+            }
+        };
+    }
+
     toast.innerHTML = `
-        ${icon}${message}
-        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>${icon}${message}</div>
+            ${actionButton}
+            <button type="button" class="btn-close ms-2" onclick="this.closest('.alert').remove(); event.stopPropagation();"></button>
+        </div>
     `;
 
     document.body.appendChild(toast);
 
-    // Auto-remove after 4 seconds
+    // Auto-remove after 5 seconds (slightly longer for interactive toasts)
+    const duration = actionLink ? 6000 : 4000;
     setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
+        if (document.body.contains(toast)) {
+            toast.style.opacity = '0';
+            setTimeout(() => { 
+                if (document.body.contains(toast)) toast.remove(); 
+            }, 300);
+        }
+    }, duration);
 }
 
 // ==================== FORM VALIDATION ====================
