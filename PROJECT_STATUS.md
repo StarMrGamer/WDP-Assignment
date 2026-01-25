@@ -1,7 +1,7 @@
 # GenCon SG - Project Status Report
-**Last Updated:** January 18, 2026
+**Last Updated:** January 26, 2026
 **Updated By:** Gemini Code Assist
-**Reason for Update:** Implemented Community features (browsing, chat, management), Profile pages (private & public), and Admin Report management.
+**Reason for Update:** Adjusted Chinese Chess board size and alignment, integrated Xiangqi into Game Lobby.
 
 ---
 
@@ -36,7 +36,7 @@
 - ✅ `templates/senior/create_story.html` - Story creation wizard (Logic connected)
 - ✅ `templates/senior/communities.html` - Community browsing
 - ✅ `templates/senior/community_chat.html` - Community chat interface
-- ⏳ `templates/senior/games.html` - Game lobby
+- ✅ `templates/senior/games.html` - Game lobby (Xiangqi integrated)
 - ✅ `templates/senior/profile.html` - Profile management
 - ✅ `templates/senior/public_profile.html` - Public profile view
 - ⏳ `templates/senior/checkin.html` - Weekly mood check-in
@@ -49,6 +49,7 @@
 - ⏳ `templates/youth/events.html` - Event browsing
 - ✅ `templates/youth/communities.html` - Community browsing
 - ✅ `templates/youth/community_chat.html` - Community chat interface
+- ✅ `templates/youth/games.html` - Game lobby (Xiangqi integrated)
 - ⏳ `templates/youth/badges.html` - Achievements showcase
 - ✅ `templates/youth/profile.html` - Profile management
 - ✅ `templates/youth/public_profile.html` - Public profile view

@@ -823,17 +823,26 @@ def challenge_buddy(game_id):
 
     # CREATE NOTIFICATION RECORD
     from models import Notification
+    
+    # Determine target URL based on game type
+    target_url = 'youth.chess_game'
+    senior_url = 'senior.chess_game'
+    
+    if 'Xiangqi' in game.title:
+        target_url = 'youth.xiangqi_game'
+        senior_url = 'senior.xiangqi_game'
+
     notif = Notification(
         user_id=pair.senior_id,
         title='Game Challenge!',
         message=f"{session.get('full_name')} has challenged you to a game of {game.title}!",
         type='game',
-        link=url_for('senior.chess_game', session_id=new_session.id)
+        link=url_for(senior_url, session_id=new_session.id)
     )
     db.session.add(notif)
     db.session.commit()
     
-    return redirect(url_for('youth.chess_game', session_id=new_session.id))
+    return redirect(url_for(target_url, session_id=new_session.id))
 
 
 @youth_bp.route('/game/chess')
@@ -863,4 +872,20 @@ def chess_game():
 @login_required
 def xiangqi_game():
     """Render the Chinese chess (Xiangqi) game page."""
-    return render_template('youth/xiangqi.html')
+    user_id = session['user_id']
+    session_id = request.args.get('session_id')
+    
+    active_session = None
+    if session_id:
+        active_session = GameSession.query.get_or_404(session_id)
+        # Validate user participation
+        if active_session.player1_id != user_id and active_session.player2_id != user_id:
+            flash('You are not part of this game.', 'danger')
+            return redirect(url_for('youth.games'))
+            
+    # Default to Red (Player 1) if session exists, else Red (Bot mode default)
+    color = 'red'
+    if active_session:
+        color = 'red' if active_session.player1_id == user_id else 'black'
+
+    return render_template('youth/xiangqi.html', active_session=active_session, game_session_id=session_id, color=color)

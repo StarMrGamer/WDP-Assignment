@@ -374,14 +374,24 @@
                 loadNotifications();
             }
             
-            // Construct redirect URL based on role
+            // Construct redirect URL based on role and game title
             var role = document.body.getAttribute('data-role');
             var gameUrl = '';
-            if (role === 'senior') {
-                gameUrl = "{{ url_for('senior.chess_game') }}?session_id=" + data.session_id;
-            } else if (role === 'youth') {
-                gameUrl = "{{ url_for('youth.chess_game') }}?session_id=" + data.session_id;
+            var gameEndpoint = 'chess_game';
+            
+            if (data.game_title && data.game_title.includes('Xiangqi')) {
+                gameEndpoint = 'xiangqi_game';
             }
+            
+            if (role === 'senior') {
+                // We construct the URL manually because url_for is server-side
+                // Using a base path assumption or if possible injecting both URLs
+                gameUrl = (gameEndpoint === 'xiangqi_game') ? "{{ url_for('senior.xiangqi_game') }}" : "{{ url_for('senior.chess_game') }}";
+            } else if (role === 'youth') {
+                gameUrl = (gameEndpoint === 'xiangqi_game') ? "{{ url_for('youth.xiangqi_game') }}" : "{{ url_for('youth.chess_game') }}";
+            }
+            
+            gameUrl += "?session_id=" + data.session_id;
 
             // Show interactive toast
             if (typeof showToast === 'function') {

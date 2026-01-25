@@ -615,9 +615,14 @@
                         <i class="fas fa-hand-sparkles me-2"></i>Challenge Buddy
                     </button>
                     {% elif game.name == 'Chinese Chess (Xiangqi)' %}
-                    <a href="{{ url_for('senior.xiangqi_game') }}" class="btn btn-play">
-                        <i class="fas fa-play me-2"></i>Play Now
-                    </a>
+                    <div class="d-flex gap-2 w-100">
+                        <a href="{{ url_for('senior.xiangqi_game') }}" class="btn btn-play mb-0" style="font-size: 1rem;">
+                            <i class="fas fa-robot me-1"></i>Vs Bot
+                        </a>
+                        <button class="btn btn-play btn-challenge mb-0 d-flex justify-content-center align-items-center" data-game-id="{{ game.id }}" style="font-size: 1rem;">
+                            <i class="fas fa-user-friends me-1"></i>Vs Buddy
+                        </button>
+                    </div>
                     {% else %}
                     <button class="btn btn-play">
                         <i class="fas fa-play me-2"></i>Play Now
@@ -637,7 +642,7 @@
 {% block extra_js %}
 <script>
     // Play button functionality
-    document.querySelectorAll('.btn-play').forEach(btn => {
+    document.querySelectorAll('button.btn-play:not(.btn-challenge)').forEach(btn => {
         btn.addEventListener('click', function() {
             const gameName = this.closest('.game-card').querySelector('h3').textContent;
             alert(`Starting ${gameName}...\n\nGame functionality will be implemented in Phase 2!`);

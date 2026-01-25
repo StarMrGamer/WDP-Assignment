@@ -539,6 +539,17 @@ def challenge_buddy(game_id):
         ((GameSession.player1_id == pair.youth_id) & (GameSession.player2_id == user_id))
     ).order_by(GameSession.created_at.desc()).all()
 
+    # Fetch game details first to determine type
+    game = Game.query.get_or_404(game_id)
+
+    # Determine target URL based on game type
+    target_url = 'senior.chess_game'
+    buddy_url = 'youth.chess_game'
+    
+    if 'Xiangqi' in game.title:
+        target_url = 'senior.xiangqi_game'
+        buddy_url = 'youth.xiangqi_game'
+
     if existing_sessions:
         # Use the most recent one
         session_to_use = existing_sessions[0]
@@ -549,10 +560,9 @@ def challenge_buddy(game_id):
         db.session.commit()
         
         flash('Entering existing game lobby.', 'info')
-        return redirect(url_for('senior.chess_game', session_id=session_to_use.id))
+        return redirect(url_for(target_url, session_id=session_to_use.id))
 
     # No existing session found, create a new one
-    game = Game.query.get(game_id)
     new_session = GameSession(
         game_id=game_id,
         player1_id=user_id,
@@ -572,17 +582,18 @@ def challenge_buddy(game_id):
 
     # CREATE NOTIFICATION RECORD
     from models import Notification
+        
     notif = Notification(
         user_id=pair.youth_id,
         title='Game Challenge!',
         message=f"{session.get('full_name')} has challenged you to a game of {game.title}!",
         type='game',
-        link=url_for('youth.chess_game', session_id=new_session.id)
+        link=url_for(buddy_url, session_id=new_session.id)
     )
     db.session.add(notif)
     db.session.commit()
     
-    return redirect(url_for('senior.chess_game', session_id=new_session.id))
+    return redirect(url_for(target_url, session_id=new_session.id))
 
 
 @senior_bp.route('/game/chess')
@@ -612,7 +623,23 @@ def chess_game():
 @login_required
 def xiangqi_game():
     """Render the Chinese chess (Xiangqi) game page."""
-    return render_template('senior/xiangqi.html')
+    user_id = session['user_id']
+    session_id = request.args.get('session_id')
+    
+    active_session = None
+    if session_id:
+        active_session = GameSession.query.get_or_404(session_id)
+        # Validate user participation
+        if active_session.player1_id != user_id and active_session.player2_id != user_id:
+            flash('You are not part of this game.', 'danger')
+            return redirect(url_for('senior.games'))
+            
+    # Default to Red (Player 1) if session exists, else Red (Bot mode default)
+    color = 'red'
+    if active_session:
+        color = 'red' if active_session.player1_id == user_id else 'black'
+
+    return render_template('senior/xiangqi.html', active_session=active_session, game_session_id=session_id, color=color)
 
 
 # ==================== PROFILE ====================

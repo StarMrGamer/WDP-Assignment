@@ -43,8 +43,8 @@ const MOVE_SOUND = new Audio('/static/sounds/xiangqi/move.wav');
 const CAPTURE_SOUND = new Audio('/static/sounds/xiangqi/capture.wav');
 
 // square size
-const CELL_WIDTH = 46;
-const CELL_HEIGHT = 46;
+const CELL_WIDTH = 70;
+const CELL_HEIGHT = 70;
 
 // select color
 const SELECT_COLOR = 'brown';
@@ -80,7 +80,7 @@ function drawBoard() {
       
       let square = rank * 11 + file;
       let piece = engine.getPiece(square);
-      var pieceImage = '<img style="width: 44px" draggable="true"';
+      var pieceImage = '<img style="width: 60px" draggable="true"';
       pieceImage += 'src="/static/images/xiangqi/' + pieceFolder + '/' + piece + (isCCBridge ? '.png' : '.svg') + '"></img>';
 
       if (engine.squareToString(square) != 'xx') {
@@ -115,11 +115,15 @@ function highlightMoves(square) {
     if (square == sourceSquare) {
       let parent = document.getElementById(targetSquare);
       parent.style.backgroundImage = 'url("/static/images/xiangqi/misc/legal_move.png")';
+      parent.style.backgroundRepeat = 'no-repeat';
+      parent.style.backgroundPosition = 'center';
       parent.style.opacity = '0.50';
       if (parent.childNodes.length) {
         parent.childNodes[0].style.opacity = '0.5';
         parent.style.opacity = '1';
         parent.style.backgroundImage = 'url("/static/images/xiangqi/misc/legal_capture.png")';
+        parent.style.backgroundRepeat = 'no-repeat';
+        parent.style.backgroundPosition = 'center';
       }
     }
   }

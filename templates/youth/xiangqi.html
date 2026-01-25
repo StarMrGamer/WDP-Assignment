@@ -9,6 +9,7 @@
         flex-direction: column;
         align-items: center;
         margin-top: 2rem;
+        position: relative;
     }
     
     .board-layout {
@@ -21,12 +22,13 @@
     }
 
     #xiangqiboard {
+        /* Default board */
         background-image: url('/static/images/xiangqi/boards/board_light.svg');
         background-size: cover;
         background-repeat: no-repeat;
         border-radius: 8px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        padding: 20px;
+        padding: 0;
     }
 
     #xiangqiboard table {
@@ -98,25 +100,10 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    .btn-primary {
-        background: #007bff;
-        color: white;
-    }
-
-    .btn-secondary {
-        background: #6c757d;
-        color: white;
-    }
-
-    .btn-success {
-        background: #28a745;
-        color: white;
-    }
-
-    .btn-danger {
-        background: #dc3545;
-        color: white;
-    }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-danger { background: #dc3545; color: white; }
 
     .settings {
         display: flex;
@@ -147,16 +134,25 @@
         border: 2px solid #ddd;
     }
 
-    .difficulty-info {
-        font-size: 0.8rem;
-        color: #666;
-        margin-top: 0.5rem;
+    /* Multiplayer Overlay */
+    #waitingOverlay {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        background: rgba(255,255,255,0.95);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        z-index: 100;
+        text-align: center;
+        min-width: 300px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container position-relative">
     <div class="d-flex align-items-center mb-4">
         <a href="{{ url_for('youth.games') }}" class="btn btn-outline-secondary me-3">
             <i class="fas fa-arrow-left"></i> Back to Lobby
@@ -164,9 +160,30 @@
         <h1 class="mb-0">Chinese Chess (Xiangqi)</h1>
     </div>
 
+    <!-- Multiplayer Waiting Overlay -->
+    {% if active_session and active_session.status != 'active' %}
+    <div id="waitingOverlay">
+        <h4 class="text-primary"><i class="fas fa-clock fa-spin me-2"></i>Waiting for buddy...</h4>
+        <p class="mb-3">Game will start when both players are ready.</p>
+        
+        {% if (active_session.player1_id == session.user_id and not active_session.player1_ready) or 
+              (active_session.player2_id == session.user_id and not active_session.player2_ready) %}
+        <button id="readyBtn" class="btn btn-lg btn-success">
+            <i class="fas fa-check me-2"></i>I'm Ready
+        </button>
+        {% else %}
+        <button class="btn btn-lg btn-secondary" disabled>
+            <i class="fas fa-spinner fa-spin me-2"></i>Waiting for opponent...
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <div class="game-container">
         <!-- Game Controls -->
         <div class="controls">
+            {% if not active_session %}
+            <!-- Bot Mode Controls -->
             <button onclick="newGame()" class="btn-primary">
                 <i class="fas fa-plus me-2"></i>New Game
             </button>
@@ -176,9 +193,16 @@
             <button onclick="flipBoard()" class="btn-secondary">
                 <i class="fas fa-sync me-2"></i>Flip Board
             </button>
+            {% else %}
+            <!-- Multiplayer Controls -->
+            <button id="forfeitBtn" class="btn-danger">
+                <i class="fas fa-flag me-2"></i>Forfeit Game
+            </button>
+            {% endif %}
         </div>
 
-        <!-- Bot Selection -->
+        <!-- Bot Selection (Only in Bot Mode) -->
+        {% if not active_session %}
         <div class="bot-selection">
             <label for="botSelect">Play against:</label>
             <select id="botSelect" onchange="setBot(this.value)" class="form-select" style="width: auto;">
@@ -187,6 +211,7 @@
             </select>
             <img id="current-bot-image" src="/static/images/xiangqi/bots/wukong.png" alt="Bot" class="bot-avatar">
         </div>
+        {% endif %}
 
         <!-- Settings -->
         <div class="settings">
@@ -194,16 +219,20 @@
                 <input type="checkbox" id="showMoves" checked>
                 Show Legal Moves
             </label>
+            {% if not active_session %}
             <label>
                 <input type="checkbox" id="editMode">
                 Edit Mode
             </label>
+            {% endif %}
+            
             <label for="boardTheme">Board:</label>
             <select id="boardTheme" onchange="setBoardTheme(this.value)" class="form-select" style="width: auto;">
                 <option value="/static/images/xiangqi/boards/board_light.svg">Light</option>
                 <option value="/static/images/xiangqi/boards/board_dark.svg">Dark</option>
-                <option value="/static/images/xiangqi/boards/board-ccbridge.png">CCBridge</option>
+                <option value="/static/images/xiangqi/boards/board-ccbridge.png" {% if active_session %}selected{% endif %}>Wooden</option>
             </select>
+            
             <label for="pieceTheme">Pieces:</label>
             <select id="pieceTheme" onchange="setPieceTheme(this.value)" class="form-select" style="width: auto;">
                 <option value="traditional_pieces">Traditional</option>
@@ -212,12 +241,14 @@
         </div>
 
         <div class="board-layout">
-            <div id="xiangqiboard"></div>
+            <!-- Board container (JS renders here) -->
+            <!-- If multiplayer, we set default BG to wooden via inline style to prevent flash -->
+            <div id="xiangqiboard" {% if active_session %}style="background-image: url('/static/images/xiangqi/boards/board-ccbridge.png');"{% endif %}></div>
             
             <div class="game-info">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="status-label">Game Status:</div>
-                    <small class="text-muted">Wukong v1.0</small>
+                    <small class="text-muted">{% if active_session %}Multiplayer{% else %}Wukong v1.0{% endif %}</small>
                 </div>
                 <div id="status">Red to move</div>
                 
@@ -239,4 +270,21 @@
 <script src="{{ url_for('static', filename='js/wukong.js') }}"></script>
 <script src="{{ url_for('static', filename='js/xiangqi_bots.js') }}"></script>
 <script src="{{ url_for('static', filename='js/xiangqi_game.js') }}"></script>
+
+{% if active_session %}
+<script src="{{ url_for('static', filename='js/jquery-3.7.0.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+<script>
+    var gameSessionId = {{ game_session_id }};
+    var playerColor = "{{ color }}"; // 'red' or 'black'
+    var currentUserId = {{ session.user_id }};
+    var userRole = "{{ session.role }}";
+    var isMultiplayer = true;
+</script>
+<script src="{{ url_for('static', filename='js/xiangqi_socket.js') }}"></script>
+{% else %}
+<script>
+    var isMultiplayer = false;
+</script>
+{% endif %}
 {% endblock %}
