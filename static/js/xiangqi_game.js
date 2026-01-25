@@ -371,8 +371,15 @@ function movePiece(userSource, userTarget) {
   let moveString = engine.squareToString(userSource) +
                    engine.squareToString(userTarget);
 
-  if (isGameOver() == 0) engine.loadMoves(moveString);
-  else updatePgn();
+  if (isGameOver() == 0) {
+    engine.loadMoves(moveString);
+    if (isGameOver()) {
+      updatePgn();
+      setTimeout(function() { alert("Game Over: " + gameResult); }, 200);
+    }
+  } else {
+    updatePgn();
+  }
   drawBoard();
 }
 
