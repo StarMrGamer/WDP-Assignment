@@ -857,3 +857,10 @@ def chess_game():
 
     color = 'white' if active_session.player1_id == user_id else 'black'
     return render_template('youth/chess.html', color=color, game_session_id=active_session.id, active_session=active_session)
+
+
+@youth_bp.route('/game/xiangqi')
+@login_required
+def xiangqi_game():
+    """Render the Chinese chess (Xiangqi) game page."""
+    return render_template('youth/xiangqi.html')

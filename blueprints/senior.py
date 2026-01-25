@@ -608,6 +608,13 @@ def chess_game():
     return render_template('senior/chess.html', color=color, game_session_id=active_session.id, active_session=active_session)
 
 
+@senior_bp.route('/game/xiangqi')
+@login_required
+def xiangqi_game():
+    """Render the Chinese chess (Xiangqi) game page."""
+    return render_template('senior/xiangqi.html')
+
+
 # ==================== PROFILE ====================
 @senior_bp.route('/profile', methods=['GET', 'POST'])
 @login_required

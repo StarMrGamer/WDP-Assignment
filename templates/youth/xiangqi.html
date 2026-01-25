@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Chinese Chess (Xiangqi) - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    .game-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 2rem;
+    }
+    
+    .board-layout {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    #xiangqiboard {
+        background-image: url('/static/images/xiangqi/boards/board_light.svg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        padding: 20px;
+    }
+
+    #xiangqiboard table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    #xiangqiboard td {
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    #xiangqiboard td:hover {
+        background-color: rgba(255, 255, 0, 0.3);
+    }
+
+    .game-info {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        width: 300px;
+        max-width: 90vw;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        height: 600px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .status-label {
+        font-weight: bold;
+        color: #2C3E50;
+    }
+
+    #status {
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+    }
+
+    #pgn {
+        font-family: monospace;
+        background: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        flex-grow: 1;
+        overflow-y: auto;
+        white-space: pre-wrap;
+    }
+
+    .controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .controls button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.2s;
+    }
+
+    .controls button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+    .settings {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .settings label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .bot-selection {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .bot-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #ddd;
+    }
+
+    .difficulty-info {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('youth.games') }}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i> Back to Lobby
+        </a>
+        <h1 class="mb-0">Chinese Chess (Xiangqi)</h1>
+    </div>
+
+    <div class="game-container">
+        <!-- Game Controls -->
+        <div class="controls">
+            <button onclick="newGame()" class="btn-primary">
+                <i class="fas fa-plus me-2"></i>New Game
+            </button>
+            <button onclick="undo()" class="btn-secondary">
+                <i class="fas fa-undo me-2"></i>Undo Move
+            </button>
+            <button onclick="flipBoard()" class="btn-secondary">
+                <i class="fas fa-sync me-2"></i>Flip Board
+            </button>
+        </div>
+
+        <!-- Bot Selection -->
+        <div class="bot-selection">
+            <label for="botSelect">Play against:</label>
+            <select id="botSelect" onchange="setBot(this.value)" class="form-select" style="width: auto;">
+                <option value="Wukong">Wukong (Strong)</option>
+                <option value="Baihua">Baihua (Random)</option>
+            </select>
+            <img id="current-bot-image" src="/static/images/xiangqi/bots/wukong.png" alt="Bot" class="bot-avatar">
+        </div>
+
+        <!-- Settings -->
+        <div class="settings">
+            <label>
+                <input type="checkbox" id="showMoves" checked>
+                Show Legal Moves
+            </label>
+            <label>
+                <input type="checkbox" id="editMode">
+                Edit Mode
+            </label>
+            <label for="boardTheme">Board:</label>
+            <select id="boardTheme" onchange="setBoardTheme(this.value)" class="form-select" style="width: auto;">
+                <option value="/static/images/xiangqi/boards/board_light.svg">Light</option>
+                <option value="/static/images/xiangqi/boards/board_dark.svg">Dark</option>
+                <option value="/static/images/xiangqi/boards/board-ccbridge.png">CCBridge</option>
+            </select>
+            <label for="pieceTheme">Pieces:</label>
+            <select id="pieceTheme" onchange="setPieceTheme(this.value)" class="form-select" style="width: auto;">
+                <option value="traditional_pieces">Traditional</option>
+                <option value="romanized_pieces">Romanized</option>
+            </select>
+        </div>
+
+        <div class="board-layout">
+            <div id="xiangqiboard"></div>
+            
+            <div class="game-info">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="status-label">Game Status:</div>
+                    <small class="text-muted">Wukong v1.0</small>
+                </div>
+                <div id="status">Red to move</div>
+                
+                <div class="status-label">Move History:</div>
+                <textarea id="pgn" readonly></textarea>
+                
+                <div class="mt-2">
+                    <button onclick="downloadPgn()" class="btn-success" style="width: 100%;">
+                        <i class="fas fa-download me-2"></i>Download Game
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/wukong.js') }}"></script>
+<script src="{{ url_for('static', filename='js/xiangqi_bots.js') }}"></script>
+<script src="{{ url_for('static', filename='js/xiangqi_game.js') }}"></script>
+{% endblock %}
