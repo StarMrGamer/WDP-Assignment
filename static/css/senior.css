@@ -62,49 +62,44 @@ body[data-role="senior"][data-font-size="xlarge"] h3 { font-size: 2.5rem; }
 body[data-role="senior"][data-font-size="xlarge"] .btn { font-size: 1.25rem; }
 body[data-role="senior"][data-font-size="xlarge"] .nav-link { font-size: 1.25rem; }
 
-/* ==================== HIGH CONTRAST MODE (Dark Grey) ==================== */
+/* ==================== HIGH CONTRAST MODE (Revised for Readability) ==================== */
 body[data-role="senior"][data-high-contrast="true"] {
-    background-color: #222222 !important;       /* Soft Dark Grey (easier on eyes than pure black) */
-    color: #FFFFFF !important;                  /* Pure White text for maximum contrast */
-}
-
-/* Cards: Slightly lighter grey to stand out from background */
-body[data-role="senior"][data-high-contrast="true"] .card,
-body[data-role="senior"][data-high-contrast="true"] .dashboard-card,
-body[data-role="senior"][data-high-contrast="true"] .stat-card,
-body[data-role="senior"][data-high-contrast="true"] .buddy-card,
-body[data-role="senior"][data-high-contrast="true"] .game-card,
-body[data-role="senior"][data-high-contrast="true"] .story-card,
-body[data-role="senior"][data-high-contrast="true"] .mood-option {
-    background-color: #333333 !important;       /* Lighter grey container */
+    background-color: #222222 !important;
     color: #FFFFFF !important;
-    border: 3px solid #FFD700 !important;       /* Gold border for clear definition */
-    box-shadow: none !important;
 }
 
-/* Inputs and Forms */
-body[data-role="senior"][data-high-contrast="true"] .form-control {
+/* Force ALL text inside high contrast mode to be white, overriding Bootstrap */
+body[data-role="senior"][data-high-contrast="true"] * {
+    color: #FFFFFF !important;
+    border-color: #FFD700 !important; /* Gold borders for visibility */
+}
+
+/* Except buttons and inputs, which need their own specific styling */
+body[data-role="senior"][data-high-contrast="true"] .btn {
+    color: #000000 !important; /* Black text on buttons */
+    background-color: #FFD700 !important; /* Yellow buttons */
+    font-weight: 800 !important;
+}
+
+/* Links should be bright Cyan to stand out */
+body[data-role="senior"][data-high-contrast="true"] a {
+    color: #00FFFF !important;
+    text-decoration: underline !important;
+}
+
+/* Input fields - ensure they aren't white text on white bg */
+body[data-role="senior"][data-high-contrast="true"] .form-control,
+body[data-role="senior"][data-high-contrast="true"] input,
+body[data-role="senior"][data-high-contrast="true"] textarea {
     background-color: #333333 !important;
     color: #FFFFFF !important;
     border: 2px solid #FFD700 !important;
 }
 
-/* Navigation */
-body[data-role="senior"][data-high-contrast="true"] .navbar {
+/* Cards */
+body[data-role="senior"][data-high-contrast="true"] .card,
+body[data-role="senior"][data-high-contrast="true"] .list-group-item {
     background-color: #333333 !important;
-    border-bottom: 3px solid #FFD700 !important;
-}
-
-body[data-role="senior"][data-high-contrast="true"] .nav-link {
-    color: #FFFFFF !important;
-}
-
-/* Text adjustments */
-body[data-role="senior"][data-high-contrast="true"] h1,
-body[data-role="senior"][data-high-contrast="true"] h2,
-body[data-role="senior"][data-high-contrast="true"] h3,
-body[data-role="senior"][data-high-contrast="true"] p {
-    color: #FFFFFF !important;
 }
 
 /* ==================== TOUCH-OPTIMIZED ELEMENTS ==================== */

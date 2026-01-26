@@ -35,39 +35,62 @@ body[data-role="youth"][data-theme="light"] {
     color: var(--youth-text);
 }
 
-/* Dark Theme (Soft Grey) */
+/* Dark Theme (Fixed Readability) */
 body[data-role="youth"][data-theme="dark"] {
-    --youth-primary: #BB86FC;        /* Light Purple (stays visible on dark) */
-    --youth-secondary: #03DAC6;      /* Teal Accent */
-    --youth-bg: #222222;             /* Soft Dark Grey Background */
-    --youth-text: #FFFFFF;           /* Pure White Text */
-    --youth-card-bg: #333333;        /* Lighter Grey Cards */
+    --youth-primary: #BB86FC;
+    --youth-secondary: #03DAC6;
+    --youth-bg: #121212;
+    --youth-text: #FFFFFF;
+    --youth-card-bg: #1E1E1E;
     
     background-color: var(--youth-bg);
     color: var(--youth-text);
 }
 
-/* Ensure Navbar matches the soft grey theme */
+/* Force standard text elements to match the theme */
+body[data-role="youth"][data-theme="dark"] h1,
+body[data-role="youth"][data-theme="dark"] h2,
+body[data-role="youth"][data-theme="dark"] h3,
+body[data-role="youth"][data-theme="dark"] h4,
+body[data-role="youth"][data-theme="dark"] h5,
+body[data-role="youth"][data-theme="dark"] h6,
+body[data-role="youth"][data-theme="dark"] p,
+body[data-role="youth"][data-theme="dark"] span,
+body[data-role="youth"][data-theme="dark"] div {
+    color: var(--youth-text);
+}
+
+/* FIX: Make "muted" text (gray text) lighter so it's readable on dark bg */
+body[data-role="youth"][data-theme="dark"] .text-muted,
+body[data-role="youth"][data-theme="dark"] .small {
+    color: #AAAAAA !important;
+}
+
+/* FIX: Ensure cards are dark */
+body[data-role="youth"][data-theme="dark"] .card {
+    background-color: var(--youth-card-bg);
+    border: 1px solid #333333;
+    color: var(--youth-text);
+}
+
+/* FIX: Navbar text */
 body[data-role="youth"][data-theme="dark"] .navbar {
-    background-color: #333333 !important;
+    background-color: #1E1E1E !important;
     border-bottom: 1px solid #444444;
 }
-
-/* Ensure Cards match */
-body[data-role="youth"][data-theme="dark"] .card,
-body[data-role="youth"][data-theme="dark"] .story-card,
-body[data-role="youth"][data-theme="dark"] .stat-card {
-    background-color: var(--youth-card-bg);
-    color: var(--youth-text);
-    border: 1px solid #444444;
+body[data-role="youth"][data-theme="dark"] .navbar-brand,
+body[data-role="youth"][data-theme="dark"] .nav-link {
+    color: #FFFFFF !important;
 }
 
-/* Fix Input fields in dark mode */
-body[data-role="youth"][data-theme="dark"] .form-control,
-body[data-role="youth"][data-theme="dark"] .message-input input {
-    background-color: #404040;
+/* FIX: Inputs */
+body[data-role="youth"][data-theme="dark"] .form-control {
+    background-color: #2D2D2D;
+    border-color: #404040;
     color: #FFFFFF;
-    border-color: #555555;
+}
+body[data-role="youth"][data-theme="dark"] .form-control::placeholder {
+    color: #888888;
 }
 
 /* Blue Ocean Theme */
