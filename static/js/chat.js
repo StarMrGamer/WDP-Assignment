@@ -49,9 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (messages.length === 0) {
             chatMessages.innerHTML = `
-                <div class="text-center py-5 text-muted">
-                    <i class="fas fa-comments fa-3x mb-3"></i>
-                    <p>No messages yet. Start a conversation!</p>
+                <div class="empty-chat-state text-center py-5">
+                    <div class="icon-circle mb-3"><i class="fas fa-comments"></i></div>
+                    <p class="text-muted">No messages yet. Start a conversation!</p>
                 </div>
             `;
             return;
@@ -59,48 +59,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Build HTML string for all messages
         const messagesHtml = messages.map(msg => {
-            const messageClass = msg.is_me ? 'message-sent' : 'message-received';
-            const checkIcon = msg.is_me ? '<i class="fas fa-check-double text-primary"></i>' : '';
+            const sideClass = msg.is_me ? 'me' : 'other';
             
-            // Report button for received messages
-            const reportBtn = !msg.is_me ? `
-                <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal(${msg.id})" title="Report Message">
-                    <i class="fas fa-flag"></i>
-                </button>
-            ` : '';
-
             // Flagged content warning
             const flaggedAlert = msg.is_flagged ? `
-                <div class="alert alert-warning alert-sm mb-2">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <small>This message contains potentially unkind language</small>
+                <div class="flagged-warning">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    <small>Unkind language detected</small>
                 </div>
             ` : '';
 
             // Translation box (if applicable)
             const translationBox = msg.translated_content ? `
-                <div class="translation-box mt-2">
-                    <small class="text-muted">
-                        <i class="fas fa-language me-1"></i>
-                        Translation:
-                    </small>
-                    <p class="mb-0">${msg.translated_content}</p>
+                <div class="translation-text">
+                    <i class="fas fa-language"></i> ${msg.translated_content}
                 </div>
             ` : '';
 
             return `
-                <div class="message ${messageClass}">
-                    <div class="message-content">
+                <div class="message-wrapper ${sideClass}">
+                    <div class="message-bubble">
                         ${flaggedAlert}
-                        <div class="d-flex justify-content-between align-items-start">
-                            <p class="mb-1">${msg.content}</p>
-                            ${reportBtn}
-                        </div>
+                        <div class="content-text">${msg.content}</div>
                         ${translationBox}
-                        <small class="message-time">
-                            ${msg.created_at}
-                            ${checkIcon}
-                        </small>
+                        <div class="time-stamp">${msg.created_at}</div>
                     </div>
                 </div>
             `;

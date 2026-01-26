@@ -1,0 +1,60 @@
+/* 
+    File: animated-nav.css
+    Purpose: Modern animated navigation bar styling
+    Theme: White themed with prominent bottom slider
+*/
+
+:root {
+    --accent-color: #9B59B6;
+    --nav-text: #40464e;
+}
+
+[data-role="youth"] {
+    --accent-color: #3498DB;
+}
+
+.animated-nav-container {
+    position: relative;
+    height: 50px;
+    display: flex;
+    align-items: center;
+}
+
+.border-effect {
+    position: absolute;
+    width: 60px;
+    height: 8px; /* Prominent height */
+    background-color: var(--accent-color);
+    border-radius: 0 0 10px 10px; /* Rounded at bottom */
+    filter: drop-shadow(0px 4px 6px var(--accent-color)); /* Glow effect going down */
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    top: -12px; /* Positioned at the top of the white navbar */
+    left: 0;
+    z-index: 10;
+}
+
+.animated-nav-list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0 !important;
+    padding: 0;
+}
+
+.animated-nav-item {
+    padding: 0 15px;
+}
+
+.animated-nav-item .nav-link {
+    color: var(--nav-text) !important;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.animated-nav-item.active .nav-link {
+    color: var(--accent-color) !important;
+}
+
+.animated-nav-item i {
+    margin-right: 5px;
+}

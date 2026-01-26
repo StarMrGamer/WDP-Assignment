@@ -1,0 +1,176 @@
+<!-- 
+    File: includes/game_chat.html
+    Purpose: Reusable chat component for game pages - Stretched version
+-->
+<div class="game-chat-wrapper d-flex flex-column h-100">
+    <div class="chat-header d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0 fw-bold"><i class="fas fa-comment-dots text-primary me-2"></i>Game Chat</h6>
+        <span class="badge bg-light text-dark border">Buddy</span>
+    </div>
+    
+    <div id="gameChatMessages" class="flex-grow-1 p-3 overflow-y-auto mb-3" style="background: #f8f9fa; border-radius: 0.5rem; border: 1px solid #eee;">
+        <!-- Messages will appear here -->
+        <div class="text-center py-4 text-muted small">
+            <p>Start chatting with your buddy!</p>
+        </div>
+    </div>
+    
+    <div class="chat-input-area">
+        <form id="gameChatForm" class="d-flex gap-2">
+            <input type="text" id="gameChatMessageInput" class="form-control" placeholder="Type a message..." required>
+            <button type="submit" class="btn btn-primary px-3">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .game-chat-wrapper {
+        width: 100%;
+    }
+    
+    #gameChatMessages {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .game-msg {
+        max-width: 85%;
+        padding: 0.5rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        position: relative;
+    }
+    
+    .game-msg-me {
+        align-self: flex-end;
+        background: #007bff;
+        color: white;
+        border-bottom-right-radius: 0.2rem;
+    }
+    
+    .game-msg-other {
+        align-self: flex-start;
+        background: #e9ecef;
+        color: #212529;
+        border-bottom-left-radius: 0.2rem;
+    }
+    
+    .game-msg-time {
+        font-size: 0.65rem;
+        opacity: 0.8;
+        display: block;
+        margin-top: 2px;
+        text-align: right;
+    }
+    
+    .game-msg-flagged {
+        border: 1px solid #ffc107;
+        background: #fff3cd !important;
+        color: #856404 !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const gameChatForm = document.getElementById('gameChatForm');
+        const gameChatInput = document.getElementById('gameChatMessageInput');
+        const gameChatMessages = document.getElementById('gameChatMessages');
+        
+        // Use the global socket variable from the game script
+        // Note: socket is expected to be initialized in the parent template
+        
+        if (!gameChatForm) return;
+        
+        // Render existing messages from API
+        async function loadExistingMessages() {
+            try {
+                const role = window.location.pathname.split('/')[1];
+                const response = await fetch(`/${role}/api/messages`);
+                const data = await response.json();
+                
+                if (data.messages && data.messages.length > 0) {
+                    gameChatMessages.innerHTML = '';
+                    // Only show last 20 messages for game chat to keep it clean
+                    data.messages.slice(-20).forEach(msg => {
+                        appendMessage(msg);
+                    });
+                    scrollToBottom();
+                }
+            } catch (err) {
+                console.error("Error loading chat history:", err);
+            }
+        }
+        
+        function appendMessage(data) {
+            const isMe = data.is_me || data.sender_id == currentUserId;
+            const msgClass = isMe ? 'game-msg-me' : 'game-msg-other';
+            const flaggedClass = data.is_flagged ? 'game-msg-flagged' : '';
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `game-msg ${msgClass} ${flaggedClass}`;
+            
+            let content = data.content;
+            if (data.is_flagged) {
+                content = `<i class="fas fa-exclamation-triangle me-1"></i> ${content}`;
+            }
+            
+            msgDiv.innerHTML = `
+                <div>${content}</div>
+                <small class="game-msg-time">${data.created_at}</small>
+            `;
+            
+            gameChatMessages.appendChild(msgDiv);
+            scrollToBottom();
+        }
+        
+        function scrollToBottom() {
+            gameChatMessages.scrollTop = gameChatMessages.scrollHeight;
+        }
+        
+        gameChatForm.onsubmit = function(e) {
+            e.preventDefault();
+            const content = gameChatInput.value.trim();
+            if (!content) return;
+            
+            // recipient_id is needed. We can get it from the opponent's ID in the game
+            const opponentId = {% if active_session %}{{ player2.id if active_session.player1_id == session.user_id else player1.id }}{% else %}null{% endif %};
+            
+            if (!opponentId) {
+                alert("Cannot send message: Opponent not found.");
+                return;
+            }
+            
+            // Emit to server
+            socket.emit('game_chat', {
+                game_id: typeof gameSessionId !== 'undefined' ? gameSessionId : (typeof tictactoeSessionId !== 'undefined' ? tictactoeSessionId : null),
+                recipient_id: opponentId,
+                content: content
+            });
+            
+            // Append immediately for better UX
+            appendMessage({
+                sender_id: currentUserId,
+                content: content,
+                is_me: true,
+                created_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                is_flagged: false // Initially false, server will handle flagging in DB
+            });
+            
+            gameChatInput.value = '';
+        };
+        
+        // Listen for new messages
+        socket.on('new_game_message', function(data) {
+            // Check if it's from me (already appended) or other
+            if (data.sender_id != currentUserId) {
+                appendMessage(data);
+            }
+        });
+        
+        // Initial load
+        loadExistingMessages();
+    });
+</script>

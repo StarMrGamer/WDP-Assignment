@@ -13,7 +13,25 @@
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm text-center p-4">
-                <img src="{{ url_for('static', filename=profile_user.profile_picture|fix_pfp) }}" class="rounded-circle mb-3 mx-auto d-block" style="width: 150px; height: 150px; object-fit: cover;">
+                <!-- Stats above profile picture -->
+                <div class="d-flex justify-content-center gap-3 mb-4 border-bottom pb-3">
+                    <div class="text-center">
+                        <h5 class="mb-0 fw-bold">{{ stories_count }}</h5>
+                        <small class="text-muted">Stories</small>
+                    </div>
+                    {% if profile_user.role == 'youth' %}
+                    <div class="text-center">
+                        <h5 class="mb-0 fw-bold">{{ badges_count }}</h5>
+                        <small class="text-muted">Badges</small>
+                    </div>
+                    <div class="text-center">
+                        <h5 class="mb-0 fw-bold">{{ user_rank }}</h5>
+                        <small class="text-muted">Rank</small>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <img src="{{ url_for('static', filename=profile_user.profile_picture|fix_pfp) }}" class="rounded-circle mb-3 mx-auto d-block" style="width: 150px; height: 150px; object-fit: cover; border: 4px solid var(--youth-primary, #9B59B6);">
                 
                 <h3 class="fw-bold">{{ profile_user.full_name }}</h3>
                 <div class="mb-3">
@@ -29,19 +47,6 @@
                 {% if profile_user.bio %}
                     <p class="text-muted">{{ profile_user.bio }}</p>
                 {% endif %}
-                
-                <div class="d-flex justify-content-center gap-3 mt-3">
-                    <div class="text-center">
-                        <h5 class="mb-0 fw-bold">{{ stories_count }}</h5>
-                        <small class="text-muted">Stories</small>
-                    </div>
-                    {% if profile_user.role == 'youth' %}
-                    <div class="text-center">
-                        <h5 class="mb-0 fw-bold">{{ badges_count }}</h5>
-                        <small class="text-muted">Badges</small>
-                    </div>
-                    {% endif %}
-                </div>
                 
                 {% if profile_user.role == 'youth' and badges %}
                 <div class="mt-4 pt-3 border-top">

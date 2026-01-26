@@ -27,6 +27,9 @@
 
     <!-- Main global CSS - contains CSS variables, utility classes, and base styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
+    <!-- Animated Navigation CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animated-nav.css') }}">
 
     <!-- Role-specific CSS - loaded based on user role (senior, youth, admin) -->
     {% if session.role == 'senior' %}
@@ -39,6 +42,15 @@
 
     <!-- Additional CSS block for child templates -->
     {% block extra_css %}{% endblock %}
+    <style>
+        .navbar .nav-link {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .animated-nav-container {
+            margin-top: -10px; /* Align container top with navbar top */
+        }
+    </style>
 </head>
 
 <!-- Body class changes based on user role and theme settings -->
@@ -65,130 +77,67 @@
             <!-- Navigation links - only show if user is logged in -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 {% if session.user_id %}
-                    <!-- Senior Navigation -->
-                    {% if session.role == 'senior' %}
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('senior.dashboard') }}">
-                                <i class="fas fa-home"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('senior.stories') }}">
-                                <i class="fas fa-book"></i> My Stories
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('senior.messages') }}">
-                                <i class="fas fa-comments"></i> Messages
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('senior.events') }}">
-                                <i class="fas fa-calendar"></i> Events
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('senior.communities') }}">
-                                <i class="fas fa-users"></i> Communities
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('senior.games') }}">
-                                <i class="fas fa-gamepad"></i> Games
-                            </a>
-                        </li>
-                    </ul>
+                    <!-- Center: Animated Navigation -->
+                    <div class="mx-auto">
+                        <div class="animated-nav-container" data-role="{{ session.role }}">
+                            <div class="border-effect"></div>
+                            <ul class="navbar-nav animated-nav-list">
+                                <li class="nav-item animated-nav-item" id="nav-dashboard">
+                                    <a class="nav-link" href="{{ url_for(session.role + '.dashboard') }}">
+                                        <i class="fas fa-home"></i> Home
+                                    </a>
+                                </li>
+                                <li class="nav-item animated-nav-item" id="nav-stories">
+                                    <a class="nav-link" href="{% if session.role == 'senior' %}{{ url_for('senior.stories') }}{% else %}{{ url_for('youth.story_feed') }}{% endif %}">
+                                        <i class="fas fa-book-open"></i> Stories
+                                    </a>
+                                </li>
+                                <li class="nav-item animated-nav-item" id="nav-messages">
+                                    <a class="nav-link" href="{{ url_for(session.role + '.messages') }}">
+                                        <i class="fas fa-comments"></i> Messages
+                                    </a>
+                                </li>
+                                <li class="nav-item animated-nav-item" id="nav-events">
+                                    <a class="nav-link" href="{{ url_for(session.role + '.events') }}">
+                                        <i class="fas fa-calendar-alt"></i> Events
+                                    </a>
+                                </li>
+                                <li class="nav-item animated-nav-item" id="nav-communities">
+                                    <a class="nav-link" href="{{ url_for(session.role + '.communities') }}">
+                                        <i class="fas fa-users"></i> Communities
+                                    </a>
+                                </li>
+                                {% if session.role == 'youth' %}
+                                <li class="nav-item animated-nav-item" id="nav-badges">
+                                    <a class="nav-link" href="{{ url_for('youth.badges') }}">
+                                        <i class="fas fa-trophy"></i> Badges
+                                    </a>
+                                </li>
+                                {% endif %}
+                                <li class="nav-item animated-nav-item" id="nav-games">
+                                    <a class="nav-link" href="{{ url_for(session.role + '.games') }}">
+                                        <i class="fas fa-gamepad"></i> Games
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
 
-                    <!-- Youth Navigation -->
-                    {% elif session.role == 'youth' %}
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('youth.dashboard') }}">
-                                <i class="fas fa-home"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('youth.story_feed') }}">
-                                <i class="fas fa-book-open"></i> Stories
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('youth.messages') }}">
-                                <i class="fas fa-comments"></i> Messages
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('youth.events') }}">
-                                <i class="fas fa-calendar"></i> Events
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('youth.communities') }}">
-                                <i class="fas fa-users"></i> Communities
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('youth.badges') }}">
-                                <i class="fas fa-trophy"></i> Badges
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link" href="{{ url_for('youth.games') }}">
-                                <i class="fas fa-gamepad"></i> Games
-                            </a>
-                        </li>
-                    </ul>
-
-                    <!-- Admin Navigation -->
-                    {% elif session.role == 'admin' %}
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-5" href="{{ url_for('admin.dashboard') }}">
-                                <i class="fas fa-chart-line"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-5" href="{{ url_for('admin.users') }}">
-                                <i class="fas fa-user-friends"></i> Users
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-5" href="{{ url_for('admin.pairs') }}">
-                                <i class="fas fa-link"></i> Pairs
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-5" href="{{ url_for('admin.events') }}">
-                                <i class="fas fa-calendar-alt"></i> Events
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-5" href="{{ url_for('admin.communities') }}">
-                                <i class="fas fa-users-cog"></i> Communities
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-5" href="{{ url_for('admin.reports') }}">
-                                <i class="fas fa-flag"></i> Reports
-                            </a>
-                        </li>
-                    </ul>
-                    {% endif %}
-
-                    <!-- Right-side navigation items (notifications, profile, etc.) -->
-                    <ul class="navbar-nav ms-auto">
+                    <!-- Right-side navigation items -->
+                    <ul class="navbar-nav ms-auto align-items-center">
                         <!-- Event Notifications Bell (for seniors and youth only) -->
                         {% if session.role in ['senior', 'youth'] %}
                         <li class="nav-item dropdown d-flex align-items-center me-3">
-                            <a class="nav-link position-relative" href="#" id="notificationDropdown"
+                            <a class="nav-link" href="#" id="notificationDropdown"
                                role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-bell fs-5"></i>
-                                <!-- Notification badge - shows count of unread notifications -->
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                      id="notificationBadge" style="font-size: 0.7rem;">
-                                    0
-                                </span>
+                                <div class="position-relative">
+                                    <i class="fas fa-bell fs-5"></i>
+                                    <!-- Notification badge - shows count of unread notifications -->
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                          id="notificationBadge" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
+                                        0
+                                    </span>
+                                </div>
                             </a>
                             <!-- Notification dropdown menu -->
                             <ul class="dropdown-menu dropdown-menu-end notification-dropdown"
@@ -357,6 +306,9 @@
 
     <!-- Main JavaScript file with global utility functions -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Animated Navigation JavaScript -->
+    <script src="{{ url_for('static', filename='js/animated-nav.js') }}"></script>
     
     <!-- Socket.IO Global Notifications -->
     {% if session.user_id %}

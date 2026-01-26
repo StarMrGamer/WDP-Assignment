@@ -489,6 +489,26 @@
         gap: .5rem;
     }
 
+    .games-header {
+        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        color: white;
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-radius: 1rem;
+    }
+
+    .games-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .games-header p {
+        font-size: 1.125rem;
+        opacity: 0.95;
+        margin: 0;
+    }
+
     /* Stats Bar Layout */
     .stats-bar-layout {
         display: flex;
@@ -602,6 +622,32 @@
       <symbol id="icon-cards" viewBox="0 -960 960 960" fill="currentColor"><path d="m493-469 87-52 87 52-24-98 77-67-101-9-39-92-39 92-101 9 77 67-24 98Zm129 257h118q9 18-10.5 28.5T691-170l-447 58q-36 3-63.4-18.65Q153.19-152.3 149-188l-49-382q-4-36 18.35-64.86Q140.7-663.71 177-667l33-1v54l-28 1q-14 1-22 11.5t-6 24.5l48 383q2 14 12 22t24 6l384-46Zm-246-80q-36.73 0-61.36-24.64Q290-341.27 290-378v-408q0-36.72 24.64-61.36Q339.27-872 376-872h408q36.72 0 61.36 24.64T870-786v408q0 36.73-24.64 61.36Q820.72-292 784-292H376Zm0-54h408q14 0 23-9t9-23v-408q0-14-9-23t-23-9H376q-14 0-23 9t-9 23v408q0 14 9 23t23 9Zm204-236ZM196-162Z"/></symbol>
       <symbol id="icon-check" viewBox="0 -960 960 960" fill="currentColor"><path d="m443-429 169-169-38-39-131 132-57-56-38 38 95 94ZM222-160v-578q0-36.72 24.64-61.36Q271.27-824 308-824h344q36.72 0 61.36 24.64T738-738v578L480-270 222-160Zm54-82 204-87.66L684-242v-496q0-12-10-22t-22-10H308q-12 0-22 10t-10 22v496Zm0-528h408-408Z"/></symbol>
     </svg>
+
+    <!-- Active Match Section -->
+    {% if active_session %}
+    <div class="active-games-section mb-4 border border-warning border-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0 text-warning"><i class="fas fa-play-circle me-2"></i>Current Match</h2>
+            <span class="badge bg-warning text-dark pulse">Active Now</span>
+        </div>
+        <div class="active-game-item">
+            <div class="active-game-info">
+                <div class="active-game-icon">
+                    <i class="{{ active_session.game.icon }}"></i>
+                </div>
+                <div class="active-game-details">
+                    <h4>{{ active_session.game.title }}</h4>
+                    {% set opponent = active_session.player2 if active_session.player1_id == session.user_id else active_session.player1 %}
+                    <p>Playing against <strong>{{ opponent.full_name }}</strong></p>
+                </div>
+            </div>
+            {% set game_url_part = 'xiangqi' if 'Xiangqi' in active_session.game.title or 'Chinese' in active_session.game.title else ('chess' if 'International' in active_session.game.title or 'Chess' in active_session.game.title else 'tictactoe') %}
+            <a href="{{ url_for('senior.' + game_url_part + '_game', session_id=active_session.id) }}" class="btn btn-continue" style="background-color: var(--senior-primary);">
+                <i class="fas fa-sign-in-alt me-2"></i>Return to Match
+            </a>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Recent Games Section -->
     {% if game_history %}
@@ -861,9 +907,6 @@
         });
     });
 
-    document.querySelector('.btn-continue')?.addEventListener('click', function() {
-        const gameName = this.getAttribute('data-game');
-        alert(`Resuming your ${gameName} match...\n\nGame state will be loaded in Phase 2!`);
-    });
+    // The btn-continue is a link, no JS alert needed
 </script>
 {% endblock %}

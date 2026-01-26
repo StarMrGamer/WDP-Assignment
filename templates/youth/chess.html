@@ -14,23 +14,69 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-top: 2rem;
-        position: relative; /* Added for absolute overlay */
+        margin-top: 1rem;
+        position: relative;
     }
     
-    .board-layout {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: flex-start;
+    .game-main-layout {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
         gap: 2rem;
-        flex-wrap: wrap;
+        width: 100%;
+        margin: 0 auto;
+        align-items: stretch;
     }
 
-    /* Multiplayer Overlay - Standardized */
+    .side-panel {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 100%;
+    }
+
+    /* Limit history width but keep it in the 1fr column */
+    .side-panel-left {
+        max-width: 350px;
+        justify-self: end;
+        width: 100%;
+    }
+
+    /* Chat takes full 1fr column */
+    .side-panel-right {
+        justify-self: start;
+        width: 100%;
+    }
+
+    #myBoard {
+        width: 600px;
+        height: 600px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .player-card {
+        width: 100%;
+    }
+
+    #pgn {
+        font-family: monospace;
+        background: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    /* Standardized Overlay */
     #waitingOverlay {
         position: absolute;
-        top: 20%;
+        top: 10%;
         left: 50%;
         transform: translate(-50%, 0);
         background: rgba(255,255,255,0.95);
@@ -42,76 +88,22 @@
         min-width: 300px;
     }
 
-    #myBoard {
-        width: 600px;
-        max-width: 90vw;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    .game-info {
-        margin-top: 0; /* Reset margin since it's side by side now */
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        width: 300px; /* Narrower for side panel */
-        max-width: 90vw;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        height: 600px; /* Match board height roughly */
-        display: flex;
-        flex-direction: column;
-    }
-    .status-label {
-        font-weight: bold;
-        color: #2C3E50;
-    }
-    #status {
-        margin-bottom: 1rem;
-        font-size: 1.25rem;
-    }
-    #pgn {
-        font-family: monospace;
-        background: #f8f9fa;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        font-size: 0.9rem;
-        flex-grow: 1; /* Fill remaining height */
-        overflow-y: auto;
-    }
-
-    /* Dynamic Themes */
-    body.theme-black-move {
-        background-color: #222 !important;
-        color: #fff !important;
-    }
-    body.theme-black-move .card, 
-    body.theme-black-move .game-info {
-        background-color: #333;
-        color: #fff;
-    }
-    body.theme-black-move .status-label {
-        color: #ccc;
-    }
-    body.theme-black-move #pgn {
-        background-color: #444;
-        color: #fff;
-    }
-    body.theme-black-move h1, 
-    body.theme-black-move h2, 
-    body.theme-black-move h3, 
-    body.theme-black-move h4 {
-        color: #fff !important;
-    }
-
-    body.theme-white-move {
-        background-color: #f4f6f9 !important; /* Default light bg */
-        color: #212529 !important;
+    @media (max-width: 1250px) {
+        .game-main-layout {
+            grid-template-columns: 1fr;
+            width: auto;
+        }
+        .side-panel {
+            height: auto;
+            width: 600px;
+            max-width: 90vw;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid px-4">
     <div class="d-flex align-items-center mb-4">
         <a href="{{ url_for('youth.games') }}" class="btn btn-outline-secondary me-3">
             <i class="fas fa-arrow-left"></i> Back to Lobby
@@ -121,8 +113,8 @@
 
     <!-- Game Controls -->
     <div class="mb-3 d-flex justify-content-center gap-2">
-        <button id="readyBtn" class="btn btn-success" {% if (active_session.player1_id == session.user_id and active_session.player1_ready) or (active_session.player2_id == session.user_id and active_session.player2_ready) %}disabled{% endif %}>
-            <i class="fas fa-check me-2"></i>{% if (active_session.player1_id == session.user_id and active_session.player1_ready) or (active_session.player2_id == session.user_id and active_session.player2_ready) %}Ready!{% else %}I'm Ready{% endif %}
+        <button id="readyBtn" class="btn btn-success" {% if (active_session.player1_id == session.user_id|int and active_session.player1_ready) or (active_session.player2_id == session.user_id|int and active_session.player2_ready) %}disabled{% endif %}>
+            <i class="fas fa-check me-2"></i>{% if (active_session.player1_id == session.user_id|int and active_session.player1_ready) or (active_session.player2_id == session.user_id|int and active_session.player2_ready) %}Ready!{% else %}I'm Ready{% endif %}
         </button>
         <button id="forfeitBtn" class="btn btn-danger">
             <i class="fas fa-flag me-2"></i>Forfeit Game
@@ -132,50 +124,63 @@
     <div class="game-container">
         <!-- Multiplayer Waiting Overlay -->
         {% if active_session and active_session.status != 'active' %}
-        <div id="waitingOverlay" class="text-center p-4 bg-light rounded mb-3">
-            <h4 class="text-primary"><i class="fas fa-clock fa-spin me-2"></i>Waiting for buddy to be ready...</h4>
-            <p class="mb-0">The game will start automatically when both players click "Ready".</p>
+        <div id="waitingOverlay">
+            <h4 class="text-primary"><i class="fas fa-clock fa-spin me-2"></i>Waiting for buddy...</h4>
+            <p class="mb-0">The game will start when both players click "Ready".</p>
         </div>
         {% endif %}
 
-        <div class="board-layout">
-            <div class="player-info-container d-flex flex-column gap-3">
-                <!-- Opponent info (at the top) -->
+        <div class="game-main-layout">
+            <!-- Left Panel: Status & History -->
+            <div class="side-panel side-panel-left">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="status-label">Game Status</div>
+                    <small class="text-muted">#{{ game_session_id }}</small>
+                </div>
+                <div id="status" class="alert alert-info py-2 px-3 mb-3">Loading...</div>
+                
+                <div class="status-label mb-2">Move History</div>
+                <div id="pgn"></div>
+            </div>
+
+            <!-- Center: Board -->
+            <div class="d-flex flex-column gap-3 align-items-center">
+                <!-- Opponent info -->
                 {% set opponent = player2 if active_session.player1_id == session.user_id else player1 %}
-                <div class="player-card p-3 bg-white rounded shadow-sm d-flex align-items-center gap-3">
-                    <img src="{{ url_for('static', filename=opponent.profile_picture|fix_pfp) }}" alt="{{ opponent.full_name }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                <div class="player-card p-2 bg-white rounded shadow-sm d-flex align-items-center gap-3">
+                    <img src="{{ url_for('static', filename=opponent.profile_picture|fix_pfp) }}" alt="{{ opponent.full_name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                     <div>
-                        <div class="fw-bold">{{ opponent.full_name }}</div>
-                        <div class="text-muted small">Elo: {{ opponent.elo }}</div>
+                        <div class="fw-bold small">{{ opponent.full_name }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">Elo: {{ opponent.elo }}</div>
                     </div>
                     <div class="ms-auto">
-                        <span class="badge {% if (active_session.player1_id == opponent.id and active_session.player1_ready) or (active_session.player2_id == opponent.id and active_session.player2_ready) %}bg-success{% else %}bg-secondary{% endif %}">
+                        <span id="opponentBadge" class="badge {% if (active_session.player1_id == opponent.id and active_session.player1_ready) or (active_session.player2_id == opponent.id and active_session.player2_ready) %}bg-success{% else %}bg-secondary{% endif %}">
                             {% if (active_session.player1_id == opponent.id and active_session.player1_ready) or (active_session.player2_id == opponent.id and active_session.player2_ready) %}Ready{% else %}Waiting{% endif %}
                         </span>
                     </div>
                 </div>
 
-                <div id="myBoard" class="{% if active_session.status != 'active' %}opacity-50{% endif %}"></div>
+                <div id="myBoard" class="{% if active_session.status != 'active' %}opacity-50{% endif %} shadow-lg"></div>
 
-                <!-- My info (at the bottom) -->
+                <!-- My info -->
                 {% set me = player1 if active_session.player1_id == session.user_id else player2 %}
-                <div class="player-card p-3 bg-white rounded shadow-sm d-flex align-items-center gap-3 border border-primary">
-                    <img src="{{ url_for('static', filename=me.profile_picture|fix_pfp) }}" alt="{{ me.full_name }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                <div class="player-card p-2 bg-white rounded shadow-sm d-flex align-items-center gap-3 border border-primary">
+                    <img src="{{ url_for('static', filename=me.profile_picture|fix_pfp) }}" alt="{{ me.full_name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                     <div>
-                        <div class="fw-bold">{{ me.full_name }} (You)</div>
-                        <div class="text-muted small">Elo: {{ me.elo }}</div>
+                        <div class="fw-bold small">{{ me.full_name }} (You)</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">Elo: {{ me.elo }}</div>
+                    </div>
+                    <div class="ms-auto">
+                        <span id="myBadge" class="badge {% if (active_session.player1_id == session.user_id|int and active_session.player1_ready) or (active_session.player2_id == session.user_id|int and active_session.player2_ready) %}bg-success{% else %}bg-secondary{% endif %}">
+                            {% if (active_session.player1_id == session.user_id|int and active_session.player1_ready) or (active_session.player2_id == session.user_id|int and active_session.player2_ready) %}Ready{% else %}Waiting{% endif %}
+                        </span>
                     </div>
                 </div>
             </div>
-            
-            <div class="game-info">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="status-label">Status:</div>
-                            <small class="text-muted">Game #{{ game_session_id }}</small>
-                        </div>
-                        <div id="status"></div>                
-                <div class="status-label">History:</div>
-                <div id="pgn"></div>
+
+            <!-- Right Panel: Chat -->
+            <div class="side-panel side-panel-right">
+                {% include 'includes/game_chat.html' %}
             </div>
         </div>
     </div>

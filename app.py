@@ -132,6 +132,12 @@ def handle_game_over(session_id, winner_id=None, winner_color=None, is_draw=Fals
 @socketio.on('game_over')
 def on_game_over(data):
     session_id = data.get('session_id')
+    if session_id is not None:
+        try:
+            session_id = int(session_id)
+        except (ValueError, TypeError):
+            pass
+            
     winner_id = data.get('winner_id') 
     winner_color = data.get('winner_color')
     is_draw = data.get('is_draw', False)
@@ -146,15 +152,29 @@ def on_game_over(data):
 @socketio.on('join')
 def on_join(data):
     from models import GameSession
-    room = f"game_{data['game_id']}"
+    game_id = data.get('game_id')
+    if game_id is not None:
+        try:
+            game_id = int(game_id)
+        except (ValueError, TypeError):
+            pass
+            
+    room = f"game_{game_id}"
     join_room(room)
     print(f"DEBUG: User {session.get('username')} (ID: {session.get('user_id')}) joined room {room}")
     
     # Send initial status
-    gs = GameSession.query.get(data['game_id'])
+    gs = GameSession.query.get(game_id)
     if gs:
-        emit('init_game', {'status': gs.status})
-        print(f"DEBUG: Sent init_game with status {gs.status} to {session.get('username')}")
+        emit('init_game', {
+            'status': gs.status, 
+            'game_state': gs.game_state,
+            'p1_ready': gs.player1_ready,
+            'p2_ready': gs.player2_ready,
+            'p1_id': gs.player1_id,
+            'p2_id': gs.player2_id
+        })
+        print(f"DEBUG: Sent init_game with status {gs.status} and state to {session.get('username')}")
 
 @socketio.on('challenge')
 def on_challenge(data):
@@ -173,19 +193,33 @@ def on_ready(data):
     from models import GameSession, db
     session_id = data.get('session_id')
     user_id = session.get('user_id')
-    print(f"DEBUG: Ready event from {user_id} for session {session_id}")
+    
+    if session_id is not None:
+        try:
+            session_id = int(session_id)
+        except (ValueError, TypeError):
+            pass
+            
+    if user_id is not None:
+        user_id = int(user_id)
+        
+    print(f"DEBUG: Ready event received. Session: {session_id}, User: {user_id} (Type: {type(user_id)})")
     
     gs = GameSession.query.get(session_id)
     if not gs: 
-        print(f"DEBUG: Session {session_id} not found")
+        print(f"DEBUG: Session {session_id} not found in DB")
         return
+
+    print(f"DEBUG: Session found. P1: {gs.player1_id} (Ready: {gs.player1_ready}), P2: {gs.player2_id} (Ready: {gs.player2_ready})")
 
     if gs.player1_id == user_id:
         gs.player1_ready = True
-        print(f"DEBUG: Player 1 ({user_id}) is ready")
+        print(f"DEBUG: Player 1 ({user_id}) is now ready")
     elif gs.player2_id == user_id:
         gs.player2_ready = True
-        print(f"DEBUG: Player 2 ({user_id}) is ready")
+        print(f"DEBUG: Player 2 ({user_id}) is now ready")
+    else:
+        print(f"DEBUG: User {user_id} is not part of this session")
     
     db.session.commit()
     
@@ -203,7 +237,15 @@ def on_ready(data):
 def on_forfeit(data):
     from models import GameSession, User, db
     session_id = data.get('session_id')
+    if session_id is not None:
+        try:
+            session_id = int(session_id)
+        except (ValueError, TypeError):
+            pass
+            
     user_id = session.get('user_id')
+    if user_id is not None:
+        user_id = int(user_id)
     
     gs = GameSession.query.get(session_id)
     if gs and gs.status != 'completed':
@@ -234,10 +276,65 @@ def on_forfeit(data):
 
 @socketio.on('move')
 def on_move(data):
-    room = f"game_{data['game_id']}"
+    from models import GameSession, db
+    game_id = data.get('game_id')
+    room = f"game_{game_id}"
+    
+    # Save state to DB
+    gs = GameSession.query.get(game_id)
+    if gs:
+        # Chess uses 'fen', TicTacToe uses 'board', Xiangqi uses move list?
+        # Let's save whatever 'state' is provided or infer from data
+        new_state = data.get('fen') or data.get('board') or data.get('game_state')
+        if new_state:
+            gs.game_state = str(new_state)
+            db.session.commit()
+            print(f"DEBUG: Saved game state for session {game_id}")
+
     # Broadcast the move to the other player in the room
     emit('move', data, room=room, include_self=False)
-    print(f"Move received in room {room}: {data['move']}")
+    print(f"Move received in room {room}: {data.get('move')}")
+
+@socketio.on('game_chat')
+def on_game_chat(data):
+    from models import Message, User, db
+    
+    sender_id = session.get('user_id')
+    recipient_id = data.get('recipient_id')
+    content = data.get('content')
+    game_id = data.get('game_id')
+    
+    if not sender_id or not recipient_id or not content:
+        return
+
+    # Check for unkind words
+    is_flagged = False
+    unkind_words = app.config.get('UNKIND_WORDS', [])
+    for word in unkind_words:
+        if word.lower() in content.lower():
+            is_flagged = True
+            break
+
+    # Save message to database
+    new_msg = Message(
+        sender_id=sender_id,
+        recipient_id=recipient_id,
+        content=content,
+        is_flagged=is_flagged
+    )
+    db.session.add(new_msg)
+    db.session.commit()
+
+    # Broadcast to the game room
+    room = f"game_{game_id}"
+    emit('new_game_message', {
+        'id': new_msg.id,
+        'sender_id': sender_id,
+        'content': content,
+        'is_flagged': is_flagged,
+        'created_at': (new_msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'),
+        'is_me': False # Frontend will check this
+    }, room=room)
 
 @socketio.on('join_community')
 def on_join_community(data):

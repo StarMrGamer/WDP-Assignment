@@ -30,6 +30,15 @@ function initButtons() {
             console.log("Ready button clicked");
             this.disabled = true;
             this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Waiting...';
+            
+            // Update my badge locally
+            const myBadge = document.getElementById('myBadge');
+            if (myBadge) {
+                myBadge.innerText = 'Ready';
+                myBadge.classList.remove('bg-secondary');
+                myBadge.classList.add('bg-success');
+            }
+            
             socket.emit('ready', { session_id: gameSessionId });
         };
     }
@@ -46,8 +55,35 @@ function initButtons() {
 
 // Listen for initial state
 socket.on('init_game', function(data) {
-    console.log("Initial game status:", data.status);
+    console.log("Initial game status:", data.status, "State:", data.game_state);
+    
+    // Update readiness badges if game is still waiting
+    if (data.status === 'waiting') {
+        const isP1 = data.p1_id == currentUserId;
+        const myReady = isP1 ? data.p1_ready : data.p2_ready;
+        const opponentReady = isP1 ? data.p2_ready : data.p1_ready;
+        
+        const myBadge = document.getElementById('myBadge');
+        if (myBadge && myReady) {
+            myBadge.innerText = 'Ready';
+            myBadge.classList.remove('bg-secondary');
+            myBadge.classList.add('bg-success');
+        }
+        
+        const opponentBadge = document.getElementById('opponentBadge');
+        if (opponentBadge && opponentReady) {
+            opponentBadge.innerText = 'Ready';
+            opponentBadge.classList.remove('bg-secondary');
+            opponentBadge.classList.add('bg-success');
+            
+            $status.html('Buddy is ready! Waiting for you...');
+        }
+    }
+
     if (data.status === 'active') {
+        if (data.game_state && data.game_state !== 'null') {
+            savedState = data.game_state;
+        }
         startGame();
     }
 });
@@ -57,8 +93,18 @@ socket.on('player_ready', function(data) {
     if (data.user_id != currentUserId) {
         console.log("Buddy is ready!");
         $status.html('Buddy is ready! Waiting for you...');
+        
+        // Update opponent badge
+        const opponentBadge = document.getElementById('opponentBadge');
+        if (opponentBadge) {
+            opponentBadge.innerText = 'Ready';
+            opponentBadge.classList.remove('bg-secondary');
+            opponentBadge.classList.add('bg-success');
+        }
     }
 });
+
+let savedState = null;
 
 function startGame() {
     console.log("Starting game UI...");
@@ -70,6 +116,14 @@ function startGame() {
     if (overlay) overlay.classList.add('d-none');
     if (boardEl) boardEl.classList.remove('opacity-50');
     if (readyBtn) readyBtn.classList.add('d-none');
+    
+    // Apply saved state if it exists
+    if (savedState) {
+        game.load(savedState);
+        board.position(savedState);
+        savedState = null;
+    }
+    
     updateStatus();
 }
 
@@ -120,7 +174,7 @@ function onDrop (source, target) {
     socket.emit('move', {
         game_id: gameSessionId,
         move: theMove,
-        fen: game.fen()
+        game_state: game.fen() // Explicitly use game_state key for app.py
     });
 
     updateStatus()

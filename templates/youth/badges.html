@@ -493,7 +493,7 @@
                                 {{ item.name[0] | upper }}
                             </div>
                         {% else %}
-                            <img src="{{ url_for('static', filename='images/' + item.avatar) }}"
+                            <img src="{{ url_for('static', filename=item.avatar|fix_pfp) }}"
                                  alt="{{ item.name }}" class="leaderboard-avatar">
                         {% endif %}
 

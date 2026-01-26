@@ -543,11 +543,12 @@ def challenge_buddy(game_id):
         flash('You need a buddy to play!', 'warning')
         return redirect(url_for('senior.games'))
     
-    # Check for ANY existing waiting session for this game between the pair
+    # Check for ANY existing waiting or active session for this game between the pair
     # This ensures that if the buddy already created a session, we join it instead of creating a duplicate
+    # Also allows rejoining an already active match
     existing_sessions = GameSession.query.filter(
         GameSession.game_id == game_id,
-        GameSession.status == 'waiting',
+        GameSession.status.in_(['waiting', 'active']),
         ((GameSession.player1_id == user_id) & (GameSession.player2_id == pair.youth_id)) |
         ((GameSession.player1_id == pair.youth_id) & (GameSession.player2_id == user_id))
     ).order_by(GameSession.created_at.desc()).all()
@@ -575,7 +576,12 @@ def challenge_buddy(game_id):
             db.session.delete(gs)
         db.session.commit()
         
-        flash('Entering existing game lobby.', 'info')
+        # Check if the game is already active or waiting
+        if session_to_use.status == 'active':
+            flash('Resuming active match.', 'info')
+        else:
+            flash('Entering existing game lobby.', 'info')
+            
         return redirect(url_for(target_url, session_id=session_to_use.id))
 
     # No existing session found, create a new one
@@ -670,7 +676,7 @@ def xiangqi_game():
 
     return render_template('senior/xiangqi.html', 
                          active_session=active_session, 
-                         game_session_id=session_id, 
+                         game_session_id=active_session.id if active_session else None, 
                          color=color,
                          player1=player1,
                          player2=player2)

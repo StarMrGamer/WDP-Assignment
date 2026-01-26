@@ -13,7 +13,7 @@
 <style>
     /* Custom styles for landing page */
     body {
-        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); /* Dark Tech Gradient */
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Blue-Purple Gradient like login */
         background-attachment: fixed;
         min-height: 100vh;
     }
@@ -41,8 +41,8 @@
         margin-bottom: 2rem;
         opacity: 0.9;
         animation: pulse 2s infinite;
-        color: #00f260; /* Techy Green */
-        text-shadow: 0 0 20px rgba(0, 242, 96, 0.5);
+        color: white; 
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
         display: inline-block; /* Keep icon with text if needed, or block */
     }
 
@@ -52,10 +52,10 @@
     }
 
     .landing-container h1 {
-        /* font-size handled by .tech-header class now */
-        font-weight: 700;
+        color: white;
+        font-weight: 800;
         margin-bottom: 1rem;
-        /* Text shadow removed here as it conflicts with text-fill-color in .tech-header */
+        text-shadow: 0 4px 15px rgba(0,0,0,0.2);
         animation: slideDown 0.8s ease-out;
     }
 
@@ -115,26 +115,28 @@
 
     .btn-login {
         background: white;
-        color: #667eea;
+        color: #764ba2;
     }
 
     .btn-login:hover {
         transform: translateY(-5px);
         box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        background: #e6e6e6; /* Darker shade of white */
+        background: #f8f9fa;
         color: #667eea;
     }
 
     .btn-signup {
-        background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 2px solid white;
         color: white;
     }
 
     .btn-signup:hover {
         transform: translateY(-5px);
         box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        background: linear-gradient(135deg, #D35400 0%, #E67E22 100%);
-        color: white;
+        background: white;
+        color: #764ba2;
     }
 
     @media (max-width: 768px) {

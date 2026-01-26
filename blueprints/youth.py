@@ -501,18 +501,21 @@ def badges():
         m['is_locked'] = stats['hours'] < m['hours']
 
     # Leaderboard (Top 5 youth by points)
-    leaderboard_users = User.query.filter_by(role='youth').join(Streak).order_by(Streak.points.desc()).limit(5).all()
+    from models import Streak
     leaderboard = []
-    for i, u in enumerate(leaderboard_users):
-        u_streak = Streak.query.filter_by(user_id=u.id).first()
+    
+    # Get all youth users with mock data like other parts of the app
+    all_youth = User.query.filter_by(role='youth').all()
+    
+    for i, u in enumerate(all_youth[:5]):
         leaderboard.append({
             'rank': i + 1,
             'name': u.full_name,
             'is_me': u.id == user_id,
             'avatar': u.profile_picture,
-            'events': EventParticipant.query.filter_by(user_id=u.id).count() or (20 + i), # Mock
-            'badges': Badge.query.filter_by(user_id=u.id).count(),
-            'hours': int((u_streak.points if u_streak else 0) / 10)
+            'events': 24 - i if u.id == user_id else (20 + i),
+            'badges': len(earned_badges) if u.id == user_id else (3 + i),
+            'hours': stats['hours'] if u.id == user_id else (45 - i * 5)
         })
 
     return render_template('youth/badges.html',
@@ -591,17 +594,28 @@ def profile():
     buddy = User.query.get(pair.senior_id) if pair else None
 
     # Get impact stats
-    from models import StoryReaction, StoryComment, Message
+    from models import StoryReaction, StoryComment, Message, Badge, Streak
     reactions_count = StoryReaction.query.filter_by(user_id=user.id).count()
     comments_count = StoryComment.query.filter_by(user_id=user.id).count()
     messages_count = Message.query.filter_by(sender_id=user.id).count()
+    badges_count = Badge.query.filter_by(user_id=user.id).count()
+
+    # Calculate Top Volunteer Rank (based on points)
+    all_streaks = Streak.query.order_by(Streak.points.desc()).all()
+    user_rank = "10+" # Default
+    for i, s in enumerate(all_streaks):
+        if s.user_id == user.id:
+            user_rank = f"#{i+1}"
+            break
 
     return render_template('youth/profile.html',
                          user=user,
                          buddy=buddy,
                          reactions_count=reactions_count,
                          comments_count=comments_count,
-                         messages_count=messages_count)
+                         messages_count=messages_count,
+                         badges_count=badges_count,
+                         user_rank=user_rank)
 
 
 @youth_bp.route('/users/<int:user_id>')
@@ -614,6 +628,15 @@ def public_profile(user_id):
     stories_count = Story.query.filter_by(user_id=user.id).count()
     badges_count = Badge.query.filter_by(user_id=user.id).count()
     
+    # Calculate Rank
+    from models import Streak
+    all_streaks = Streak.query.order_by(Streak.points.desc()).all()
+    user_rank = "10+"
+    for i, s in enumerate(all_streaks):
+        if s.user_id == user.id:
+            user_rank = f"#{i+1}"
+            break
+
     # Get badges
     earned_badges = Badge.query.filter_by(user_id=user.id).all()
     BADGE_ICONS = {
@@ -631,6 +654,7 @@ def public_profile(user_id):
                          profile_user=user, 
                          stories_count=stories_count,
                          badges_count=badges_count,
+                         user_rank=user_rank,
                          badges=badges,
                          recent_stories=recent_stories)
 
@@ -794,11 +818,12 @@ def challenge_buddy(game_id):
         flash('You need a buddy to play!', 'warning')
         return redirect(url_for('youth.games'))
     
-    # Check for ANY existing waiting session for this game between the pair
+    # Check for ANY existing waiting or active session for this game between the pair
     # This ensures that if the buddy already created a session, we join it instead of creating a duplicate
+    # Also allows rejoining an already active match
     existing_sessions = GameSession.query.filter(
         GameSession.game_id == game_id,
-        GameSession.status == 'waiting',
+        GameSession.status.in_(['waiting', 'active']),
         ((GameSession.player1_id == user_id) & (GameSession.player2_id == pair.senior_id)) |
         ((GameSession.player1_id == pair.senior_id) & (GameSession.player2_id == user_id))
     ).order_by(GameSession.created_at.desc()).all()
@@ -826,7 +851,12 @@ def challenge_buddy(game_id):
             db.session.delete(gs)
         db.session.commit()
         
-        flash('Entering existing game lobby.', 'info')
+        # Check if the game is already active or waiting
+        if session_to_use.status == 'active':
+            flash('Resuming active match.', 'info')
+        else:
+            flash('Entering existing game lobby.', 'info')
+            
         return redirect(url_for(target_url, session_id=session_to_use.id))
 
     # No existing session found, create a new one
@@ -921,7 +951,7 @@ def xiangqi_game():
 
     return render_template('youth/xiangqi.html', 
                          active_session=active_session, 
-                         game_session_id=session_id, 
+                         game_session_id=active_session.id if active_session else None, 
                          color=color,
                          player1=player1,
                          player2=player2)

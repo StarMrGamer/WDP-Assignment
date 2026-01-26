@@ -2,9 +2,8 @@
 // Socket.IO logic for Xiangqi Multiplayer
 
 var socket = io();
-var $status = $('#status'); // Assuming jQuery is available or we use document.getElementById
-// xiangqi_game.js doesn't seem to use jQuery, so we should be careful.
-// Let's use vanilla JS where possible to match xiangqi_game.js style.
+var $status = $('#status');
+let gameActive = false;
 
 console.log("Xiangqi Socket Script Loaded. Session:", gameSessionId, "Color:", playerColor);
 
@@ -23,6 +22,15 @@ if (readyBtn) {
         console.log("Ready clicked");
         this.disabled = true;
         this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Waiting...';
+        
+        // Update my badge locally
+        const myBadge = document.getElementById('myBadge');
+        if (myBadge) {
+            myBadge.innerText = 'Ready';
+            myBadge.classList.remove('bg-secondary');
+            myBadge.classList.add('bg-success');
+        }
+        
         socket.emit('ready', { session_id: gameSessionId });
     };
 }
@@ -39,15 +47,54 @@ if (forfeitBtn) {
 
 // Game State Listeners
 socket.on('init_game', function(data) {
+    console.log("Initial status:", data.status, "State:", data.game_state);
+    
+    // Update readiness badges if game is still waiting
+    if (data.status === 'waiting') {
+        const isP1 = data.p1_id == currentUserId;
+        const myReady = isP1 ? data.p1_ready : data.p2_ready;
+        const opponentReady = isP1 ? data.p2_ready : data.p1_ready;
+        
+        const myBadge = document.getElementById('myBadge');
+        if (myBadge && myReady) {
+            myBadge.innerText = 'Ready';
+            myBadge.classList.remove('bg-secondary');
+            myBadge.classList.add('bg-success');
+        }
+        
+        const opponentBadge = document.getElementById('opponentBadge');
+        if (opponentBadge && opponentReady) {
+            opponentBadge.innerText = 'Ready';
+            opponentBadge.classList.remove('bg-secondary');
+            opponentBadge.classList.add('bg-success');
+            
+            let statusEl = document.getElementById('status');
+            if(statusEl) statusEl.innerText = "Buddy is ready! Waiting for you...";
+        }
+    }
+
     if (data.status === 'active') {
+        if (data.game_state && data.game_state !== 'null') {
+            savedState = data.game_state;
+        }
         startGame();
     }
 });
+
+let savedState = null;
 
 socket.on('player_ready', function(data) {
     if (data.user_id != currentUserId) {
         let statusEl = document.getElementById('status');
         if(statusEl) statusEl.innerText = "Buddy is ready! Waiting for you...";
+        
+        // Update opponent badge
+        const opponentBadge = document.getElementById('opponentBadge');
+        if (opponentBadge) {
+            opponentBadge.innerText = 'Ready';
+            opponentBadge.classList.remove('bg-secondary');
+            opponentBadge.classList.add('bg-success');
+        }
     }
 });
 
@@ -57,6 +104,7 @@ socket.on('game_start', function(data) {
 });
 
 socket.on('opponent_forfeit', function(data) {
+    gameActive = false;
     alert(data.winner_name + ' has left the game. You win!');
     window.location.href = (userRole === 'senior') ? '/senior/games' : '/youth/games';
 });
@@ -77,8 +125,26 @@ socket.on('move', function(data) {
 });
 
 function startGame() {
+    console.log("Starting game UI...");
+    gameActive = true;
     const overlay = document.getElementById('waitingOverlay');
-    if (overlay) overlay.style.display = 'none';
+    const boardEl = document.getElementById('xiangqiboard');
+    const readyBtn = document.getElementById('readyBtn');
+    
+    if (overlay) {
+        overlay.style.display = 'none';
+        overlay.classList.add('d-none');
+    }
+    if (boardEl) boardEl.classList.remove('opacity-50');
+    if (readyBtn) readyBtn.classList.add('d-none');
+    
+    // Apply saved state if it exists
+    if (savedState) {
+        engine.loadMoves(savedState);
+        drawBoard();
+        updatePgn();
+        savedState = null;
+    }
     
     // If we are black, flip board
     if (playerColor === 'black') {
@@ -97,6 +163,7 @@ function startGame() {
 
 // Stats listener
 socket.on('game_over_stats', function(data) {
+    gameActive = false;
     let message = "Game Over! ";
     if (data.is_draw) {
         message += "It's a draw.";
@@ -195,7 +262,8 @@ window.movePiece = function(source, target) {
         console.log("Emitting move:", source, target);
         socket.emit('move', {
             game_id: gameSessionId,
-            move: { from: source, to: target }
+            move: { from: source, to: target },
+            game_state: engine.getMoves().join(' ') // Send current move list as state
         });
     }
     
@@ -224,7 +292,7 @@ function applyRemoteMove(source, target) {
 var originalTapPiece = window.tapPiece;
 window.tapPiece = function(square) {
     if (isMultiplayer) {
-        if (!gameActive()) return;
+        if (!isGameUIActive()) return;
         if (!isMyTurn()) return;
         // Also check if piece belongs to me (Red vs Black)
         // engine.getPiece(square) -> returns int.
@@ -237,16 +305,16 @@ window.tapPiece = function(square) {
 var originalDragPiece = window.dragPiece;
 window.dragPiece = function(event, square) {
     if (isMultiplayer) {
-        if (!gameActive()) { event.preventDefault(); return; }
+        if (!isGameUIActive()) { event.preventDefault(); return; }
         if (!isMyTurn()) { event.preventDefault(); return; }
         if (!isMyPiece(square)) { event.preventDefault(); return; }
     }
     originalDragPiece(event, square);
 }
 
-function gameActive() {
+function isGameUIActive() {
     let overlay = document.getElementById('waitingOverlay');
-    return !overlay || overlay.style.display === 'none';
+    return !overlay || overlay.style.display === 'none' || overlay.classList.contains('d-none');
 }
 
 function isMyTurn() {

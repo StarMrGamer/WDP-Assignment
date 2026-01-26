@@ -712,6 +712,32 @@
       <symbol id="icon-check" viewBox="0 -960 960 960" fill="currentColor"><path d="m443-429 169-169-38-39-131 132-57-56-38 38 95 94ZM222-160v-578q0-36.72 24.64-61.36Q271.27-824 308-824h344q36.72 0 61.36 24.64T738-738v578L480-270 222-160Zm54-82 204-87.66L684-242v-496q0-12-10-22t-22-10H308q-12 0-22 10t-10 22v496Zm0-528h408-408Z"/></symbol>
     </svg>
 
+    <!-- Active Match Section -->
+    {% if active_session %}
+    <div class="active-games-section mb-4 border border-primary border-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0 text-primary"><i class="fas fa-play-circle me-2"></i>Current Match</h2>
+            <span class="badge bg-primary pulse">Active Now</span>
+        </div>
+        <div class="active-game-item">
+            <div class="active-game-info">
+                <div class="active-game-icon">
+                    <i class="{{ active_session.game.icon }}"></i>
+                </div>
+                <div class="active-game-details">
+                    <h4>{{ active_session.game.title }}</h4>
+                    {% set opponent = active_session.player2 if active_session.player1_id == session.user_id else active_session.player1 %}
+                    <p>Playing against <strong>{{ opponent.full_name }}</strong></p>
+                </div>
+            </div>
+            {% set game_url_part = 'xiangqi' if 'Xiangqi' in active_session.game.title or 'Chinese' in active_session.game.title else ('chess' if 'International' in active_session.game.title or 'Chess' in active_session.game.title else 'tictactoe') %}
+            <a href="{{ url_for('youth.' + game_url_part + '_game', session_id=active_session.id) }}" class="btn btn-continue">
+                <i class="fas fa-sign-in-alt me-2"></i>Return to Match
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Recent Games Section -->
     {% if game_history %}
     <div class="active-games-section mb-4">
@@ -970,9 +996,6 @@
         });
     });
 
-    document.querySelector('.btn-continue')?.addEventListener('click', function() {
-        const gameName = this.getAttribute('data-game');
-        alert(`Resuming your ${gameName} match...\n\nGame state will be loaded in Phase 2!`);
-    });
+    // The btn-continue is a link, no JS alert needed
 </script>
 {% endblock %}

@@ -70,6 +70,29 @@
         margin-bottom: 1rem;
     }
 
+    .stat-bubble {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem 2rem;
+        border-radius: 1.5rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        min-width: 140px;
+    }
+
+    .stat-bubble-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .stat-bubble-label {
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.9;
+        font-weight: 600;
+    }
+
     .profile-stats {
         display: flex;
         gap: 2rem;
@@ -376,42 +399,53 @@
 <div class="container py-4">
     <!-- Profile Header -->
     <div class="profile-header">
-        <div class="container">
-            <div class="profile-header-content">
-                <div class="profile-avatar-section">
-                    {% if 'default-avatar' in user.profile_picture %}
-                        <div class="avatar-placeholder lg mb-3 mx-auto" id="profilePreviewPlaceholder">
-                            {{ user.full_name[0] | upper }}
-                        </div>
-                        <img src="" alt="{{ user.full_name }}" class="profile-avatar-large d-none" id="headerProfilePreview">
-                    {% else %}
-                        <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
-                             alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
-                    {% endif %}
-                    <div>
-                        <button type="button" class="btn btn-change-photo" onclick="document.getElementById('profilePictureInput').click()">
-                            <i class="fas fa-camera me-2"></i>Change Photo
-                        </button>
-                    </div>
+        <div class="container text-center">
+            <!-- Badges and Top Volunteer stats above profile picture -->
+            <div class="d-flex justify-content-center gap-4 mb-4">
+                <div class="stat-bubble">
+                    <div class="stat-bubble-value">{{ badges_count }}</div>
+                    <div class="stat-bubble-label">Badges</div>
                 </div>
-                <div class="profile-info">
-                    <h1 class="profile-name">{{ user.full_name }}</h1>
-                    <p class="profile-role">
-                        <i class="fas fa-heart me-2"></i>Youth Volunteer
-                    </p>
-                    <div class="profile-stats">
-                        <div class="profile-stat-item">
-                            <i class="fas fa-comments"></i>
-                            <span>{{ messages_count }} messages</span>
-                        </div>
-                        <div class="profile-stat-item">
-                            <i class="fas fa-heart"></i>
-                            <span>{{ reactions_count }} reactions</span>
-                        </div>
-                        <div class="profile-stat-item">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Member since {{ user.created_at.strftime('%b %Y') }}</span>
-                        </div>
+                <div class="stat-bubble">
+                    <div class="stat-bubble-value">{{ user_rank }}</div>
+                    <div class="stat-bubble-label">Top Volunteer</div>
+                </div>
+            </div>
+
+            <div class="profile-avatar-section">
+                {% if 'default-avatar' in user.profile_picture %}
+                    <div class="avatar-placeholder lg mb-3 mx-auto" id="profilePreviewPlaceholder">
+                        {{ user.full_name[0] | upper }}
+                    </div>
+                    <img src="" alt="{{ user.full_name }}" class="profile-avatar-large d-none" id="headerProfilePreview">
+                {% else %}
+                    <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
+                         alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
+                {% endif %}
+                <div>
+                    <button type="button" class="btn btn-change-photo" onclick="document.getElementById('profilePictureInput').click()">
+                        <i class="fas fa-camera me-2"></i>Change Photo
+                    </button>
+                </div>
+            </div>
+            
+            <div class="profile-info mt-4">
+                <h1 class="profile-name">{{ user.full_name }}</h1>
+                <p class="profile-role">
+                    <i class="fas fa-heart me-2"></i>Youth Volunteer
+                </p>
+                <div class="profile-stats justify-content-center">
+                    <div class="profile-stat-item">
+                        <i class="fas fa-comments"></i>
+                        <span>{{ messages_count }} messages</span>
+                    </div>
+                    <div class="profile-stat-item">
+                        <i class="fas fa-heart"></i>
+                        <span>{{ reactions_count }} reactions</span>
+                    </div>
+                    <div class="profile-stat-item">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Member since {{ user.created_at.strftime('%b %Y') }}</span>
                     </div>
                 </div>
             </div>

@@ -331,6 +331,8 @@ body[data-role="senior"] .event-card .event-date {
     font-weight: 700;
     color: var(--senior-primary);
     margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
 }
 
 body[data-role="senior"] .event-card .event-title {
