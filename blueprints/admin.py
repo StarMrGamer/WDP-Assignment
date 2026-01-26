@@ -127,6 +127,8 @@ def user_detail(user_id):
                          stories_count=stories_count,
                          messages_sent=messages_sent,
                          pair=pair)
+
+
 @admin_bp.route('/users/<int:user_id>/toggle_status', methods=['POST'])
 @admin_required
 def toggle_user_status(user_id):

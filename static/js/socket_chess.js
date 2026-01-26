@@ -1,3 +1,4 @@
+/* global io, gameSessionId, userRole, currentUserId, playerColor, Chess, Chessboard, $ */
 
 var board = null
 var game = new Chess()

@@ -170,7 +170,7 @@ def seed_data():
         
         # Add Youth Communities
         for c in youth_comms:
-             if not Community.query.filter_by(name=c['name']).first():
+            if not Community.query.filter_by(name=c['name']).first():
                 comm = Community(
                     name=c['name'],
                     type=c['type'],
