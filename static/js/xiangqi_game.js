@@ -375,7 +375,11 @@ function movePiece(userSource, userTarget) {
     engine.loadMoves(moveString);
     if (isGameOver()) {
       updatePgn();
-      setTimeout(function() { alert("Game Over: " + gameResult); }, 200);
+      setTimeout(function() { 
+        alert("Game Over: " + gameResult);
+        const role = window.location.pathname.split('/')[1];
+        window.location.href = '/' + role + '/games';
+      }, 200);
     }
   } else {
     updatePgn();

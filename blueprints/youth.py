@@ -790,6 +790,17 @@ def challenge_buddy(game_id):
         ((GameSession.player1_id == pair.senior_id) & (GameSession.player2_id == user_id))
     ).order_by(GameSession.created_at.desc()).all()
 
+    # Fetch game details first to determine type
+    game = Game.query.get_or_404(game_id)
+
+    # Determine target URL based on game type
+    target_url = 'youth.chess_game'
+    senior_url = 'senior.chess_game'
+    
+    if 'Xiangqi' in game.title:
+        target_url = 'youth.xiangqi_game'
+        senior_url = 'senior.xiangqi_game'
+
     if existing_sessions:
         # Use the most recent one
         session_to_use = existing_sessions[0]
@@ -800,10 +811,9 @@ def challenge_buddy(game_id):
         db.session.commit()
         
         flash('Entering existing game lobby.', 'info')
-        return redirect(url_for('youth.chess_game', session_id=session_to_use.id))
+        return redirect(url_for(target_url, session_id=session_to_use.id))
 
     # No existing session found, create a new one
-    game = Game.query.get(game_id)
     new_session = GameSession(
         game_id=game_id,
         player1_id=user_id,
@@ -824,14 +834,6 @@ def challenge_buddy(game_id):
     # CREATE NOTIFICATION RECORD
     from models import Notification
     
-    # Determine target URL based on game type
-    target_url = 'youth.chess_game'
-    senior_url = 'senior.chess_game'
-    
-    if 'Xiangqi' in game.title:
-        target_url = 'youth.xiangqi_game'
-        senior_url = 'senior.xiangqi_game'
-
     notif = Notification(
         user_id=pair.senior_id,
         title='Game Challenge!',
