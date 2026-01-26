@@ -631,7 +631,7 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <img src="{{ opponent.profile_picture|fix_pfp }}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                <img src="{{ url_for('static', filename=opponent.profile_picture|fix_pfp) }}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
                                 <span>{{ opponent.full_name }}</span>
                             </div>
                         </td>

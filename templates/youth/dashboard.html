@@ -89,7 +89,7 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-auto">
-                            <img src="{{ url_for('static', filename='images/' + buddy.profile_picture) }}"
+                            <img src="{{ url_for('static', filename=buddy.profile_picture|fix_pfp) }}"
                                  alt="{{ buddy.full_name }}"
                                  class="rounded-circle"
                                  style="width: 100px; height: 100px; object-fit: cover;">
@@ -152,7 +152,7 @@
                         {% for story in recent_stories[:5] %}
                         <div class="story-card p-3 mb-3">
                             <div class="story-header-compact d-flex align-items-center mb-3">
-                                <img src="{{ url_for('static', filename='images/' + story.user.profile_picture) }}"
+                                <img src="{{ url_for('static', filename=story.user.profile_picture|fix_pfp) }}"
                                      alt="{{ story.user.full_name }}"
                                      class="rounded-circle me-2"
                                      style="width: 40px; height: 40px; object-fit: cover; border: 1px solid var(--youth-primary);">

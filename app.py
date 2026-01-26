@@ -71,21 +71,15 @@ def calculate_elo(winner_id, p1_id, p2_id, is_draw=False):
     db.session.commit()
     return p1_old_elo, p1.elo, p2_old_elo, p2.elo
 
-# ==================== SOCKET.IO EVENTS ====================
-@socketio.on('game_over')
-def on_game_over(data):
+def handle_game_over(session_id, winner_id=None, winner_color=None, is_draw=False):
     from models import GameSession, GameHistory, Streak, db, User
-    session_id = data.get('session_id')
-    winner_id = data.get('winner_id') 
-    winner_color = data.get('winner_color')
-    is_draw = data.get('is_draw', False)
     
     gs = GameSession.query.get(session_id)
     if not gs or gs.status == 'completed':
-        return
+        return None
         
     if not winner_id and winner_color:
-        if winner_color == 'w' or winner_color == 'red' or winner_color == 'X':
+        if winner_color in ['w', 'red', 'X']:
             winner_id = gs.player1_id
         else:
             winner_id = gs.player2_id
@@ -127,14 +121,27 @@ def on_game_over(data):
             
     db.session.commit()
     
-    # Notify room
-    room = f"game_{session_id}"
-    emit('game_over_stats', {
+    return {
         'winner_id': winner_id,
         'is_draw': is_draw,
         'p1': {'id': gs.player1_id, 'old_elo': p1_old, 'new_elo': p1_new},
         'p2': {'id': gs.player2_id, 'old_elo': p2_old, 'new_elo': p2_new}
-    }, room=room)
+    }
+
+# ==================== SOCKET.IO EVENTS ====================
+@socketio.on('game_over')
+def on_game_over(data):
+    session_id = data.get('session_id')
+    winner_id = data.get('winner_id') 
+    winner_color = data.get('winner_color')
+    is_draw = data.get('is_draw', False)
+    
+    stats = handle_game_over(session_id, winner_id, winner_color, is_draw)
+    
+    if stats:
+        # Notify room
+        room = f"game_{session_id}"
+        emit('game_over_stats', stats, room=room)
 
 @socketio.on('join')
 def on_join(data):
@@ -194,15 +201,36 @@ def on_ready(data):
 
 @socketio.on('forfeit')
 def on_forfeit(data):
-    from models import GameSession, db
+    from models import GameSession, User, db
     session_id = data.get('session_id')
+    user_id = session.get('user_id')
+    
     gs = GameSession.query.get(session_id)
-    if gs:
-        gs.status = 'abandoned'
-        db.session.commit()
-        room = f"game_{session_id}"
-        print(f"DEBUG: Game {session_id} forfeited by {session.get('username')}. Notifying room {room}")
-        socketio.emit('opponent_forfeit', {'winner_name': session.get('full_name')}, room=room, include_self=False)
+    if gs and gs.status != 'completed':
+        # If the game hasn't started yet, just end it without Elo changes
+        if gs.status == 'waiting':
+            gs.status = 'abandoned'
+            db.session.commit()
+            room = f"game_{session_id}"
+            socketio.emit('opponent_forfeit', {'winner_name': session.get('full_name')}, room=room, include_self=False)
+            return
+
+        # The person who triggered this event is the forfeiter
+        forfeiter_name = session.get('full_name')
+        
+        # Determine winner (the other player)
+        winner_id = gs.player2_id if user_id == gs.player1_id else gs.player1_id
+        
+        # End game and update Elo
+        stats = handle_game_over(session_id, winner_id=winner_id)
+        
+        if stats:
+            room = f"game_{session_id}"
+            # Notify opponent that this user forfeited
+            socketio.emit('opponent_forfeit', {'winner_name': forfeiter_name}, room=room, include_self=False)
+            
+            # Send Elo stats to everyone in the room
+            socketio.emit('game_over_stats', stats, room=room)
 
 @socketio.on('move')
 def on_move(data):

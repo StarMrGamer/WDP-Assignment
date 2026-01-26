@@ -14,9 +14,24 @@
         flex-direction: column;
         align-items: center;
         margin-top: 2rem;
-        position: relative;
+        position: relative; /* Added for absolute overlay */
     }
-    
+
+    /* Multiplayer Overlay - Standardized */
+    #waitingOverlay {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        background: rgba(255,255,255,0.95);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        z-index: 100;
+        text-align: center;
+        min-width: 300px;
+    }
+
     .board-layout {
         display: flex;
         flex-direction: row;
@@ -165,46 +180,38 @@
         <h1 class="mb-0">Chinese Chess (Xiangqi)</h1>
     </div>
 
-    <!-- Multiplayer Waiting Overlay -->
-    {% if active_session and active_session.status != 'active' %}
-    <div id="waitingOverlay">
-        <h4 class="text-primary"><i class="fas fa-clock fa-spin me-2"></i>Waiting for buddy...</h4>
-        <p class="mb-3">Game will start when both players are ready.</p>
-        
-        {% if (active_session.player1_id == session.user_id and not active_session.player1_ready) or 
-              (active_session.player2_id == session.user_id and not active_session.player2_ready) %}
-        <button id="readyBtn" class="btn btn-lg btn-success">
-            <i class="fas fa-check me-2"></i>I'm Ready
+    <!-- Game Controls -->
+    <div class="controls d-flex justify-content-center gap-2 mb-3">
+        {% if active_session %}
+        <!-- Multiplayer Controls -->
+        <button id="readyBtn" class="btn btn-success" {% if (active_session.player1_id == session.user_id and active_session.player1_ready) or (active_session.player2_id == session.user_id and active_session.player2_ready) %}disabled{% endif %}>
+            <i class="fas fa-check me-2"></i>{% if (active_session.player1_id == session.user_id and active_session.player1_ready) or (active_session.player2_id == session.user_id and active_session.player2_ready) %}Ready!{% else %}I'm Ready{% endif %}
+        </button>
+        <button id="forfeitBtn" class="btn btn-danger">
+            <i class="fas fa-flag me-2"></i>Forfeit Game
         </button>
         {% else %}
-        <button class="btn btn-lg btn-secondary" disabled>
-            <i class="fas fa-spinner fa-spin me-2"></i>Waiting for opponent...
+        <!-- Bot Mode Controls -->
+        <button onclick="newGame()" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>New Game
+        </button>
+        <button onclick="undo()" class="btn btn-secondary">
+            <i class="fas fa-undo me-2"></i>Undo Move
+        </button>
+        <button onclick="flipBoard()" class="btn-secondary">
+            <i class="fas fa-sync me-2"></i>Flip Board
         </button>
         {% endif %}
     </div>
-    {% endif %}
 
     <div class="game-container">
-        <!-- Game Controls -->
-        <div class="controls">
-            {% if not active_session %}
-            <!-- Bot Mode Controls -->
-            <button onclick="newGame()" class="btn-primary">
-                <i class="fas fa-plus me-2"></i>New Game
-            </button>
-            <button onclick="undo()" class="btn-secondary">
-                <i class="fas fa-undo me-2"></i>Undo Move
-            </button>
-            <button onclick="flipBoard()" class="btn-secondary">
-                <i class="fas fa-sync me-2"></i>Flip Board
-            </button>
-            {% else %}
-            <!-- Multiplayer Controls -->
-            <button id="forfeitBtn" class="btn-danger">
-                <i class="fas fa-flag me-2"></i>Forfeit Game
-            </button>
-            {% endif %}
+        <!-- Multiplayer Waiting Overlay -->
+        {% if active_session and active_session.status != 'active' %}
+        <div id="waitingOverlay" class="text-center p-4 bg-light rounded mb-3">
+            <h4 class="text-primary"><i class="fas fa-clock fa-spin me-2"></i>Waiting for buddy to be ready...</h4>
+            <p class="mb-0">The game will start automatically when both players click "Ready".</p>
         </div>
+        {% endif %}
 
         <!-- Bot Selection (Only in Bot Mode) -->
         {% if not active_session %}
@@ -251,7 +258,7 @@
                 <!-- Opponent info (at the top) -->
                 {% set opponent = player2 if active_session.player1_id == session.user_id else player1 %}
                 <div class="player-card p-3 bg-white rounded shadow-sm d-flex align-items-center gap-3">
-                    <img src="{{ opponent.profile_picture|fix_pfp }}" alt="{{ opponent.full_name }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                    <img src="{{ url_for('static', filename=opponent.profile_picture|fix_pfp) }}" alt="{{ opponent.full_name }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
                     <div>
                         <div class="fw-bold">{{ opponent.full_name }}</div>
                         <div class="text-muted small">Elo: {{ opponent.elo }}</div>
@@ -272,7 +279,7 @@
                 <!-- My info (at the bottom) -->
                 {% set me = player1 if active_session.player1_id == session.user_id else player2 %}
                 <div class="player-card p-3 bg-white rounded shadow-sm d-flex align-items-center gap-3 border border-primary">
-                    <img src="{{ me.profile_picture|fix_pfp }}" alt="{{ me.full_name }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                    <img src="{{ url_for('static', filename=me.profile_picture|fix_pfp) }}" alt="{{ me.full_name }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
                     <div>
                         <div class="fw-bold">{{ me.full_name }} (You)</div>
                         <div class="text-muted small">Elo: {{ me.elo }}</div>
