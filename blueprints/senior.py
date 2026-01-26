@@ -1,7 +1,7 @@
 """
 File: senior.py
 Purpose: Senior user routes blueprint
-Author: Rai (Team Lead)
+Author: to be assigned
 Date: December 2025
 Features: Senior Dashboard, Story Sharing, Messages, Events, Communities, Games, Profile
 Description: Handles all routes for senior users including story creation,

@@ -1,7 +1,7 @@
 /**
  * File: chat.js
  * Purpose: Handles real-time messaging functionality
- * Author: Rai (Team Lead)
+ * Author: to be assigned
  * Date: January 2026
  * Description: 
  *   - Polls the server for new messages every 3 seconds

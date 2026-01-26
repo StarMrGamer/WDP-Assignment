@@ -1,13 +1,13 @@
 """
 File: auth.py
 Purpose: Authentication blueprint for login, registration, and logout
-Author: Rai (Team Lead)
+Author: to be assigned
 Date: December 2025
 Feature: Authentication & User Management
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from models import db, User, Streak
+from models import db, User, Streak, RegistrationCode
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -119,10 +119,17 @@ def register():
         username = request.form.get('username')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
+        registration_code = request.form.get('registration_code')
 
         # Validate all fields are filled
-        if not all([full_name, email, age, username, password, confirm_password]):
-            flash('Please fill in all required fields', 'danger')
+        if not all([full_name, email, age, username, password, confirm_password, registration_code]):
+            flash('Please fill in all required fields including Registration Code', 'danger')
+            return render_template('auth/register.html', role=role)
+
+        # Validate Registration Code
+        code_record = RegistrationCode.query.filter_by(code=registration_code, is_used=False).first()
+        if not code_record:
+            flash('Invalid or already used registration code', 'danger')
             return render_template('auth/register.html', role=role)
 
         # Convert age to integer
@@ -217,6 +224,11 @@ def register():
             # Create initial streak record
             streak = Streak(user_id=new_user.id)
             db.session.add(streak)
+            
+            # Mark registration code as used
+            code_record.is_used = True
+            code_record.used_by = new_user
+            
             db.session.commit()
 
             # Auto-login the user
