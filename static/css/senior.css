@@ -64,37 +64,44 @@ body[data-role="senior"][data-font-size="xlarge"] h3 { font-size: 2.5rem; }
 body[data-role="senior"][data-font-size="xlarge"] .btn { font-size: 1.25rem; }
 body[data-role="senior"][data-font-size="xlarge"] .nav-link { font-size: 1.25rem; }
 
-/* ==================== HIGH CONTRAST MODE ==================== */
+/* ==================== SENIOR HIGH CONTRAST (Standard: Black on White) ==================== */
 body[data-role="senior"][data-high-contrast="true"] {
-    background-color: #000000;       /* Pure black background */
-    color: #FFFFFF;                  /* Pure white text */
+    background-color: #FFFFFF !important;  /* Pure White Background */
+    color: #000000 !important;             /* Pure Black Text */
 }
 
-body[data-role="senior"][data-high-contrast="true"] .card {
-    background-color: #1A1A1A;       /* Very dark gray cards */
-    color: #FFFFFF;
-    border: 2px solid #FFD700;       /* Gold border for visibility */
+/* Force specific containers to be white with black text */
+body[data-role="senior"][data-high-contrast="true"] .card,
+body[data-role="senior"][data-high-contrast="true"] .community-card,
+body[data-role="senior"][data-high-contrast="true"] .dashboard-card,
+body[data-role="senior"][data-high-contrast="true"] .stat-card {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 3px solid #000000 !important; /* Thick border for definition */
+    box-shadow: none !important;
 }
 
-body[data-role="senior"][data-high-contrast="true"] .btn-primary {
-    background-color: #FFD700;       /* Bright gold buttons */
-    color: #000000;
-    border: 2px solid #FFFFFF;
+/* Force Headers and Text to Black */
+body[data-role="senior"][data-high-contrast="true"] h1,
+body[data-role="senior"][data-high-contrast="true"] h2,
+body[data-role="senior"][data-high-contrast="true"] h3,
+body[data-role="senior"][data-high-contrast="true"] h4,
+body[data-role="senior"][data-high-contrast="true"] h5,
+body[data-role="senior"][data-high-contrast="true"] p,
+body[data-role="senior"][data-high-contrast="true"] .card-text,
+body[data-role="senior"][data-high-contrast="true"] .text-muted {
+    color: #000000 !important;
+    font-weight: bold !important;
 }
 
+/* Fix Navbar for Senior */
 body[data-role="senior"][data-high-contrast="true"] .navbar {
-    background-color: #1A1A1A !important;
-    border-bottom: 3px solid #FFD700;
+    background-color: #FFFFFF !important;
+    border-bottom: 3px solid #000000 !important;
 }
-
 body[data-role="senior"][data-high-contrast="true"] .nav-link {
-    color: #FFFFFF !important;
-}
-
-body[data-role="senior"][data-high-contrast="true"] .form-control {
-    background-color: #2A2A2A;
-    color: #FFFFFF;
-    border: 2px solid #FFD700;
+    color: #000000 !important;
+    font-weight: bold;
 }
 
 /* ==================== TOUCH-OPTIMIZED ELEMENTS ==================== */

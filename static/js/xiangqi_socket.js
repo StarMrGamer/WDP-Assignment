@@ -1,3 +1,4 @@
+/* global io, gameSessionId, playerColor, userRole, currentUserId, flipBoard, movePiece, playSound, engine, clickLock, isMultiplayer */
 // Socket.IO logic for Xiangqi Multiplayer
 
 var socket = io();

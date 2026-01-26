@@ -150,8 +150,12 @@
             <div class="community-card {{ community.type|lower }}">
                 <!-- Community Header -->
                 <div class="d-flex justify-content-between align-items-start">
-                    <div class="community-icon {{ community.type|lower }}">
-                        <i class="{{ community.icon }}"></i>
+                    <div class="community-icon {{ community.type|lower }}" style="overflow: hidden; padding: 0;">
+                        {% if community.photo_url %}
+                            <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <i class="{{ community.icon }}"></i>
+                        {% endif %}
                     </div>
                     <span class="badge {% if community.type == 'Story' %}bg-purple{% elif community.type == 'Hobby' %}bg-success{% else %}bg-warning text-dark{% endif %}">
                         {{ community.type }}

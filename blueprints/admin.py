@@ -127,6 +127,8 @@ def user_detail(user_id):
                          stories_count=stories_count,
                          messages_sent=messages_sent,
                          pair=pair)
+
+
 @admin_bp.route('/users/<int:user_id>/toggle_status', methods=['POST'])
 @admin_required
 def toggle_user_status(user_id):
@@ -359,6 +361,22 @@ def create_community():
             flash('Community with this name already exists', 'danger')
             return redirect(url_for('admin.create_community'))
 
+        # Handle photo upload
+        photo_url = None
+        if 'photo' in request.files:
+            file = request.files['photo']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                if ext in current_app.config['ALLOWED_EXTENSIONS']:
+                    os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                    
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
+                    unique_filename = f"comm_new_{timestamp}{filename}"
+                    
+                    file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+                    photo_url = f"images/uploads/{unique_filename}"
+
         new_community = Community(
             name=name,
             description=description,
@@ -366,6 +384,7 @@ def create_community():
             icon=icon,
             banner_class=banner_class,
             tags=tags,
+            photo_url=photo_url,
             created_by=session['user_id']
         )
 
@@ -385,6 +404,16 @@ def delete_community(community_id):
     community = Community.query.get_or_404(community_id)
     
     try:
+        # Clean up photo if exists
+        if community.photo_url:
+            try:
+                old_filename = os.path.basename(community.photo_url)
+                old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], old_filename)
+                if os.path.exists(old_path):
+                    os.remove(old_path)
+            except Exception:
+                pass
+
         db.session.delete(community)
         db.session.commit()
         flash('Community deleted successfully.', 'success')
@@ -445,6 +474,16 @@ def update_community(community_id):
             if ext in current_app.config['ALLOWED_EXTENSIONS']:
                 os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
                 
+                # Clean up old photo if exists
+                if community.photo_url:
+                    try:
+                        old_filename = os.path.basename(community.photo_url)
+                        old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], old_filename)
+                        if os.path.exists(old_path):
+                            os.remove(old_path)
+                    except Exception:
+                        pass
+
                 timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
                 unique_filename = f"comm_{community.id}_{timestamp}{filename}"
                 
