@@ -62,44 +62,37 @@ body[data-role="senior"][data-font-size="xlarge"] h3 { font-size: 2.5rem; }
 body[data-role="senior"][data-font-size="xlarge"] .btn { font-size: 1.25rem; }
 body[data-role="senior"][data-font-size="xlarge"] .nav-link { font-size: 1.25rem; }
 
-/* ==================== HIGH CONTRAST MODE (Revised for Readability) ==================== */
+/* ==================== HIGH CONTRAST MODE ==================== */
 body[data-role="senior"][data-high-contrast="true"] {
-    background-color: #222222 !important;
+    background-color: #000000;       /* Pure black background */
+    color: #FFFFFF;                  /* Pure white text */
+}
+
+body[data-role="senior"][data-high-contrast="true"] .card {
+    background-color: #1A1A1A;       /* Very dark gray cards */
+    color: #FFFFFF;
+    border: 2px solid #FFD700;       /* Gold border for visibility */
+}
+
+body[data-role="senior"][data-high-contrast="true"] .btn-primary {
+    background-color: #FFD700;       /* Bright gold buttons */
+    color: #000000;
+    border: 2px solid #FFFFFF;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .navbar {
+    background-color: #1A1A1A !important;
+    border-bottom: 3px solid #FFD700;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .nav-link {
     color: #FFFFFF !important;
 }
 
-/* Force ALL text inside high contrast mode to be white, overriding Bootstrap */
-body[data-role="senior"][data-high-contrast="true"] * {
-    color: #FFFFFF !important;
-    border-color: #FFD700 !important; /* Gold borders for visibility */
-}
-
-/* Except buttons and inputs, which need their own specific styling */
-body[data-role="senior"][data-high-contrast="true"] .btn {
-    color: #000000 !important; /* Black text on buttons */
-    background-color: #FFD700 !important; /* Yellow buttons */
-    font-weight: 800 !important;
-}
-
-/* Links should be bright Cyan to stand out */
-body[data-role="senior"][data-high-contrast="true"] a {
-    color: #00FFFF !important;
-    text-decoration: underline !important;
-}
-
-/* Input fields - ensure they aren't white text on white bg */
-body[data-role="senior"][data-high-contrast="true"] .form-control,
-body[data-role="senior"][data-high-contrast="true"] input,
-body[data-role="senior"][data-high-contrast="true"] textarea {
-    background-color: #333333 !important;
-    color: #FFFFFF !important;
-    border: 2px solid #FFD700 !important;
-}
-
-/* Cards */
-body[data-role="senior"][data-high-contrast="true"] .card,
-body[data-role="senior"][data-high-contrast="true"] .list-group-item {
-    background-color: #333333 !important;
+body[data-role="senior"][data-high-contrast="true"] .form-control {
+    background-color: #2A2A2A;
+    color: #FFFFFF;
+    border: 2px solid #FFD700;
 }
 
 /* ==================== TOUCH-OPTIMIZED ELEMENTS ==================== */

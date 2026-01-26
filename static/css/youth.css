@@ -43,54 +43,37 @@ body[data-role="youth"][data-theme="dark"] {
     --youth-text: #FFFFFF;
     --youth-card-bg: #1E1E1E;
     
-    background-color: var(--youth-bg);
-    color: var(--youth-text);
+    background-color: var(--youth-bg) !important;
+    color: var(--youth-text) !important;
 }
 
-/* Force standard text elements to match the theme */
-body[data-role="youth"][data-theme="dark"] h1,
-body[data-role="youth"][data-theme="dark"] h2,
-body[data-role="youth"][data-theme="dark"] h3,
-body[data-role="youth"][data-theme="dark"] h4,
-body[data-role="youth"][data-theme="dark"] h5,
-body[data-role="youth"][data-theme="dark"] h6,
-body[data-role="youth"][data-theme="dark"] p,
-body[data-role="youth"][data-theme="dark"] span,
-body[data-role="youth"][data-theme="dark"] div {
-    color: var(--youth-text);
+/* FORCE all known cards to be dark in this theme */
+body[data-role="youth"][data-theme="dark"] .card,
+body[data-role="youth"][data-theme="dark"] .stat-card,
+body[data-role="youth"][data-theme="dark"] .story-card,
+body[data-role="youth"][data-theme="dark"] .event-card,
+body[data-role="youth"][data-theme="dark"] .badge-item,
+body[data-role="youth"][data-theme="dark"] .message-received,
+body[data-role="youth"][data-theme="dark"] .sticker-picker,
+body[data-role="youth"][data-theme="dark"] .impact-stat,
+body[data-role="youth"][data-theme="dark"] .comment,
+body[data-role="youth"][data-theme="dark"] .list-group-item {
+    background-color: #1E1E1E !important; 
+    color: #FFFFFF !important;
+    border: 1px solid #444444 !important;
 }
 
-/* FIX: Make "muted" text (gray text) lighter so it's readable on dark bg */
-body[data-role="youth"][data-theme="dark"] .text-muted,
-body[data-role="youth"][data-theme="dark"] .small {
-    color: #AAAAAA !important;
-}
-
-/* FIX: Ensure cards are dark */
-body[data-role="youth"][data-theme="dark"] .card {
-    background-color: var(--youth-card-bg);
-    border: 1px solid #333333;
-    color: var(--youth-text);
-}
-
-/* FIX: Navbar text */
-body[data-role="youth"][data-theme="dark"] .navbar {
-    background-color: #1E1E1E !important;
-    border-bottom: 1px solid #444444;
-}
-body[data-role="youth"][data-theme="dark"] .navbar-brand,
-body[data-role="youth"][data-theme="dark"] .nav-link {
+/* Fix Inputs */
+body[data-role="youth"][data-theme="dark"] .form-control,
+body[data-role="youth"][data-theme="dark"] input {
+    background-color: #2D2D2D !important;
+    border-color: #444444 !important;
     color: #FFFFFF !important;
 }
 
-/* FIX: Inputs */
-body[data-role="youth"][data-theme="dark"] .form-control {
-    background-color: #2D2D2D;
-    border-color: #404040;
-    color: #FFFFFF;
-}
-body[data-role="youth"][data-theme="dark"] .form-control::placeholder {
-    color: #888888;
+body[data-role="youth"][data-theme="dark"] .navbar {
+    background-color: #1E1E1E !important;
+    border-bottom: 1px solid #444444;
 }
 
 /* Blue Ocean Theme */
