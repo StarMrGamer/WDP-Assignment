@@ -35,32 +35,39 @@ body[data-role="youth"][data-theme="light"] {
     color: var(--youth-text);
 }
 
-/* Dark Theme */
+/* Dark Theme (Soft Grey) */
 body[data-role="youth"][data-theme="dark"] {
-    --youth-primary: #BB86FC;        /* Lighter purple for dark mode */
-    --youth-secondary: #03DAC6;      /* Teal accent */
-    --youth-bg: #121212;             /* Almost black */
-    --youth-text: #E1E1E1;           /* Light gray text */
-    --youth-card-bg: #1E1E1E;        /* Dark gray cards */
+    --youth-primary: #BB86FC;        /* Light Purple (stays visible on dark) */
+    --youth-secondary: #03DAC6;      /* Teal Accent */
+    --youth-bg: #222222;             /* Soft Dark Grey Background */
+    --youth-text: #FFFFFF;           /* Pure White Text */
+    --youth-card-bg: #333333;        /* Lighter Grey Cards */
+    
     background-color: var(--youth-bg);
     color: var(--youth-text);
 }
 
+/* Ensure Navbar matches the soft grey theme */
 body[data-role="youth"][data-theme="dark"] .navbar {
-    background-color: #1E1E1E !important;
-    border-bottom: 1px solid #333333;
+    background-color: #333333 !important;
+    border-bottom: 1px solid #444444;
 }
 
-body[data-role="youth"][data-theme="dark"] .card {
+/* Ensure Cards match */
+body[data-role="youth"][data-theme="dark"] .card,
+body[data-role="youth"][data-theme="dark"] .story-card,
+body[data-role="youth"][data-theme="dark"] .stat-card {
     background-color: var(--youth-card-bg);
     color: var(--youth-text);
-    border: 1px solid #333333;
+    border: 1px solid #444444;
 }
 
-body[data-role="youth"][data-theme="dark"] .form-control {
-    background-color: #2A2A2A;
-    color: var(--youth-text);
-    border-color: #444444;
+/* Fix Input fields in dark mode */
+body[data-role="youth"][data-theme="dark"] .form-control,
+body[data-role="youth"][data-theme="dark"] .message-input input {
+    background-color: #404040;
+    color: #FFFFFF;
+    border-color: #555555;
 }
 
 /* Blue Ocean Theme */

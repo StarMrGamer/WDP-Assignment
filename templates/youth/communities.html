@@ -28,9 +28,13 @@
             <div class="card h-100 shadow-sm border-primary">
                 <div class="card-body text-center p-4">
                     <div class="position-relative d-inline-block">
+                        {% if community.photo_url %}
+                        <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+                        {% else %}
                         <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
                             <i class="{{ community.icon }}"></i>
                         </div>
+                        {% endif %}
                         {% if community.unread_count > 0 %}
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             {{ community.unread_count }}
@@ -64,9 +68,13 @@
         <div class="col-md-4">
             <div class="card h-100 shadow-sm">
                 <div class="card-body text-center p-4">
+                    {% if community.photo_url %}
+                    <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+                    {% else %}
                     <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
                         <i class="{{ community.icon }}"></i>
                     </div>
+                    {% endif %}
                     
                     <h5 class="card-title fw-bold">{{ community.name }}</h5>
                     <p class="card-text text-muted small mb-3">{{ community.description }}</p>

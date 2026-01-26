@@ -62,37 +62,49 @@ body[data-role="senior"][data-font-size="xlarge"] h3 { font-size: 2.5rem; }
 body[data-role="senior"][data-font-size="xlarge"] .btn { font-size: 1.25rem; }
 body[data-role="senior"][data-font-size="xlarge"] .nav-link { font-size: 1.25rem; }
 
-/* ==================== HIGH CONTRAST MODE ==================== */
+/* ==================== HIGH CONTRAST MODE (Dark Grey) ==================== */
 body[data-role="senior"][data-high-contrast="true"] {
-    background-color: #000000;       /* Pure black background */
-    color: #FFFFFF;                  /* Pure white text */
+    background-color: #222222 !important;       /* Soft Dark Grey (easier on eyes than pure black) */
+    color: #FFFFFF !important;                  /* Pure White text for maximum contrast */
 }
 
-body[data-role="senior"][data-high-contrast="true"] .card {
-    background-color: #1A1A1A;       /* Very dark gray cards */
-    color: #FFFFFF;
-    border: 2px solid #FFD700;       /* Gold border for visibility */
+/* Cards: Slightly lighter grey to stand out from background */
+body[data-role="senior"][data-high-contrast="true"] .card,
+body[data-role="senior"][data-high-contrast="true"] .dashboard-card,
+body[data-role="senior"][data-high-contrast="true"] .stat-card,
+body[data-role="senior"][data-high-contrast="true"] .buddy-card,
+body[data-role="senior"][data-high-contrast="true"] .game-card,
+body[data-role="senior"][data-high-contrast="true"] .story-card,
+body[data-role="senior"][data-high-contrast="true"] .mood-option {
+    background-color: #333333 !important;       /* Lighter grey container */
+    color: #FFFFFF !important;
+    border: 3px solid #FFD700 !important;       /* Gold border for clear definition */
+    box-shadow: none !important;
 }
 
-body[data-role="senior"][data-high-contrast="true"] .btn-primary {
-    background-color: #FFD700;       /* Bright gold buttons */
-    color: #000000;
-    border: 2px solid #FFFFFF;
+/* Inputs and Forms */
+body[data-role="senior"][data-high-contrast="true"] .form-control {
+    background-color: #333333 !important;
+    color: #FFFFFF !important;
+    border: 2px solid #FFD700 !important;
 }
 
+/* Navigation */
 body[data-role="senior"][data-high-contrast="true"] .navbar {
-    background-color: #1A1A1A !important;
-    border-bottom: 3px solid #FFD700;
+    background-color: #333333 !important;
+    border-bottom: 3px solid #FFD700 !important;
 }
 
 body[data-role="senior"][data-high-contrast="true"] .nav-link {
     color: #FFFFFF !important;
 }
 
-body[data-role="senior"][data-high-contrast="true"] .form-control {
-    background-color: #2A2A2A;
-    color: #FFFFFF;
-    border: 2px solid #FFD700;
+/* Text adjustments */
+body[data-role="senior"][data-high-contrast="true"] h1,
+body[data-role="senior"][data-high-contrast="true"] h2,
+body[data-role="senior"][data-high-contrast="true"] h3,
+body[data-role="senior"][data-high-contrast="true"] p {
+    color: #FFFFFF !important;
 }
 
 /* ==================== TOUCH-OPTIMIZED ELEMENTS ==================== */

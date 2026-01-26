@@ -16,7 +16,7 @@
                     <h4 class="mb-0"><i class="fas fa-users me-2"></i>Create New Community</h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('admin.create_community') }}">
+                    <form method="POST" action="{{ url_for('admin.create_community') }}" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="name" class="form-label">Community Name</label>
                             <input type="text" class="form-control" id="name" name="name" required>
@@ -63,6 +63,11 @@
                         <div class="mb-3">
                             <label for="tags" class="form-label">Tags (Comma separated)</label>
                             <input type="text" class="form-control" id="tags" name="tags" placeholder="Art, Creative, Fun">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Community Photo (Optional)</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
                         </div>
 
                         <div class="d-grid gap-2">
