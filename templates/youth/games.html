@@ -956,12 +956,7 @@
         });
     });
 
-    document.querySelectorAll('.btn-learn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const gameName = this.closest('.game-card').querySelector('h3').textContent;
-            alert(`${gameName} Rules:\n\nDetailed rules and tutorials will be available in the full version!`);
-        });
-    });
+
 
     document.querySelectorAll('.btn-challenge').forEach(btn => {
         btn.addEventListener('click', function() {
