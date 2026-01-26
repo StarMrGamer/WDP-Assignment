@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Tic Tac Toe - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    .game-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 2rem;
+        position: relative;
+    }
+    
+    .board-layout {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    #board {
+        width: 450px;
+        height: 450px;
+        background-color: #333;
+        border-radius: 10px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .tile {
+        width: 150px;
+        height: 150px;
+        border: 3px solid #333;
+        background-color: #fff;
+        color: #333;
+        font-size: 80px;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tile:hover {
+        background-color: #f0f0f0;
+    }
+
+    .tile.x {
+        color: #e74c3c;
+    }
+
+    .tile.o {
+        color: #3498db;
+    }
+
+    .tile.winner {
+        background-color: #2ecc71;
+        color: white;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .game-info {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        width: 300px;
+        max-width: 90vw;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .status-label {
+        font-weight: bold;
+        color: #2C3E50;
+    }
+
+    #winner {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-align: center;
+        color: #2C3E50;
+    }
+
+    .controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .controls button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.2s;
+    }
+
+    .btn-primary { background: #007bff; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-danger { background: #dc3545; color: white; }
+
+    /* Multiplayer Overlay */
+    #waitingOverlay {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        background: rgba(255,255,255,0.95);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        z-index: 100;
+        text-align: center;
+        min-width: 300px;
+    }
+
+    @media (max-width: 768px) {
+        #board {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .tile {
+            width: 100px;
+            height: 100px;
+            font-size: 50px;
+        }
+        
+        .board-layout {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container position-relative">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('youth.games') }}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i> Back to Lobby
+        </a>
+        <h1 class="mb-0">Tic Tac Toe</h1>
+    </div>
+
+    <!-- Multiplayer Waiting Overlay -->
+    {% if active_session and active_session.status != 'active' %}
+    <div id="waitingOverlay">
+        <h4 class="text-primary"><i class="fas fa-clock fa-spin me-2"></i>Waiting for buddy...</h4>
+        <p class="mb-3">Game will start when both players are ready.</p>
+        
+        {% if (active_session.player1_id == session.user_id and not active_session.player1_ready) or 
+              (active_session.player2_id == session.user_id and not active_session.player2_ready) %}
+        <button id="readyBtn" class="btn btn-lg btn-success">
+            <i class="fas fa-check me-2"></i>I'm Ready
+        </button>
+        {% else %}
+        <button class="btn btn-lg btn-secondary" disabled>
+            <i class="fas fa-spinner fa-spin me-2"></i>Waiting for opponent...
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="game-container">
+        <!-- Game Controls -->
+        <div class="controls">
+            {% if active_session %}
+            <!-- Multiplayer Controls -->
+            <button id="forfeitBtn" class="btn-danger">
+                <i class="fas fa-flag me-2"></i>Forfeit Game
+            </button>
+            {% else %}
+            <!-- Single Player Controls -->
+            <button onclick="resetGame()" class="btn-primary">
+                <i class="fas fa-redo me-2"></i>New Game
+            </button>
+            {% endif %}
+        </div>
+
+        <div class="board-layout">
+            <div id="board" class="{% if active_session and active_session.status != 'active' %}opacity-50{% endif %}"></div>
+            
+            <div class="game-info">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="status-label">Game Status:</div>
+                    <small class="text-muted">{% if active_session %}Multiplayer{% else %}Single Player{% endif %}</small>
+                </div>
+                <div id="winner">X's Turn</div>
+                
+                {% if active_session %}
+                <div class="mt-3">
+                    <div class="status-label">You are:</div>
+                    <div class="text-center mt-2">
+                        <span class="badge bg-primary fs-6">{{ color.upper() }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if active_session %}
+<script src="{{ url_for('static', filename='js/jquery-3.7.0.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+<script>
+    var gameSessionId = {{ game_session_id }};
+    var playerColor = "{{ color }}"; // 'X' or 'O'
+    var currentUserId = {{ session.user_id }};
+    var userRole = "{{ session.role }}";
+</script>
+<script src="{{ url_for('static', filename='js/socket_tictactoe.js') }}"></script>
+{% else %}
+<script src="{{ url_for('static', filename='js/tictactoe.js') }}"></script>
+{% endif %}
+{% endblock %}

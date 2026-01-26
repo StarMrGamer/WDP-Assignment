@@ -549,6 +549,9 @@ def challenge_buddy(game_id):
     if 'Xiangqi' in game.title:
         target_url = 'senior.xiangqi_game'
         buddy_url = 'youth.xiangqi_game'
+    elif 'Tic Tac Toe' in game.title or 'Tic-Tac-Toe' in game.title:
+        target_url = 'senior.tictactoe_game'
+        buddy_url = 'youth.tictactoe_game'
 
     if existing_sessions:
         # Use the most recent one
@@ -640,6 +643,28 @@ def xiangqi_game():
         color = 'red' if active_session.player1_id == user_id else 'black'
 
     return render_template('senior/xiangqi.html', active_session=active_session, game_session_id=session_id, color=color)
+
+@senior_bp.route('/game/tictactoe')
+@login_required
+def tictactoe_game():
+    """Render the Tic Tac Toe game page."""
+    user_id = session['user_id']
+    session_id = request.args.get('session_id')
+    
+    active_session = None
+    if session_id:
+        active_session = GameSession.query.get_or_404(session_id)
+        # Validate user participation
+        if active_session.player1_id != user_id and active_session.player2_id != user_id:
+            flash('You are not part of this game.', 'danger')
+            return redirect(url_for('senior.games'))
+            
+    # Default to X (Player 1) if session exists, else X (single player default)
+    color = 'X'
+    if active_session:
+        color = 'X' if active_session.player1_id == user_id else 'O'
+
+    return render_template('senior/tictactoe.html', active_session=active_session, game_session_id=session_id, color=color)
 
 
 # ==================== PROFILE ====================

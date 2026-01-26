@@ -794,5 +794,31 @@ class GameSession(db.Model):
     player1 = db.relationship('User', foreign_keys=[player1_id])
     player2 = db.relationship('User', foreign_keys=[player2_id])
 
+class TicTacToeSession(db.Model):
+    """
+    Tic Tac Toe game sessions.
+    """
+    __tablename__ = 'tictactoe_sessions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    player1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    current_turn_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    status = db.Column(db.String(20), default='waiting')  # waiting, active, completed
+    
+    player1_ready = db.Column(db.Boolean, default=False)
+    player2_ready = db.Column(db.Boolean, default=False)
+    
+    board_state = db.Column(db.String(9), default='         ')  # 9 spaces for empty board
+    winner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    player1 = db.relationship('User', foreign_keys=[player1_id])
+    player2 = db.relationship('User', foreign_keys=[player2_id])
+    winner = db.relationship('User', foreign_keys=[winner_id])
+
     def __repr__(self):
-        return f'<GameSession {self.id}: {self.status}>'
+        return f'<TicTacToeSession {self.id}: {self.status}>'
