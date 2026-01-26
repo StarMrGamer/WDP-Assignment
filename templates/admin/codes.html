@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Codes - GenCon SG{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Registration Codes</h1>
+        <form method="POST" action="{{ url_for('admin.codes') }}">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Generate New Code
+            </button>
+        </form>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Code</th>
+                            <th>Status</th>
+                            <th>Used By</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for code in codes %}
+                        <tr>
+                            <td class="ps-4 fw-bold font-monospace">{{ code.code }}</td>
+                            <td>
+                                {% if code.is_used %}
+                                <span class="badge bg-secondary">Used</span>
+                                {% else %}
+                                <span class="badge bg-success">Active</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if code.used_by %}
+                                <a href="{{ url_for('admin.user_detail', user_id=code.used_by.id) }}" class="text-decoration-none">
+                                    {{ code.used_by.full_name }}
+                                </a>
+                                <small class="text-muted d-block">@{{ code.used_by.username }}</small>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ code.created_at|format_date('%b %d, %Y %I:%M %p') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                No registration codes generated yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

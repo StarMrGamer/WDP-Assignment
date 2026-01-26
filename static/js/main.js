@@ -1,7 +1,7 @@
 /*
     File: main.js
     Purpose: Global JavaScript utilities for GenCon SG application
-    Author: Rai (Team Lead)
+    Author: to be assigned
     Date: December 2025
     Description: This file contains:
                  - Accessibility functions (font size, contrast, themes)

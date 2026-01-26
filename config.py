@@ -1,7 +1,7 @@
 """
 File: config.py
 Purpose: Configuration settings for GenCon SG Flask application
-Author: Rai (Team Lead)
+Author: to be assigned
 Date: December 2025
 Description: Contains all configuration settings including:
              - Database connection (SQLite)

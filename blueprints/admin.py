@@ -1,7 +1,7 @@
 """
 File: admin.py
 Purpose: Admin routes blueprint
-Author: Asher
+Author: to be assigned
 Date: December 2025
 Features: Admin Dashboard, User Management, Pair Management, Event Management,
           Community Management, Report Review
@@ -10,7 +10,7 @@ Description: Handles all administrative functions including user moderation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember
+from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -681,6 +681,36 @@ def analytics():
                          inactive_pairs_count=inactive_pairs_count,
                          pending_reports_count=pending_reports_count,
                          resolution_rate=resolution_rate)
+
+
+# ==================== REGISTRATION CODES ====================
+@admin_bp.route('/codes', methods=['GET', 'POST'])
+@admin_required
+def codes():
+    """Manage registration codes."""
+    if request.method == 'POST':
+        import random
+        import string
+        
+        # Generate random 8-character code
+        chars = string.ascii_uppercase + string.digits
+        code = ''.join(random.choices(chars, k=8))
+        
+        # Ensure uniqueness
+        while RegistrationCode.query.filter_by(code=code).first():
+            code = ''.join(random.choices(chars, k=8))
+            
+        new_code = RegistrationCode(code=code)
+        db.session.add(new_code)
+        db.session.commit()
+        
+        flash(f'New code generated: {code}', 'success')
+        return redirect(url_for('admin.codes'))
+        
+    # Get all codes
+    all_codes = RegistrationCode.query.order_by(RegistrationCode.created_at.desc()).all()
+    
+    return render_template('admin/codes.html', codes=all_codes)
 
 
 # ==================== ADMIN PROFILE ====================

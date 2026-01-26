@@ -1,7 +1,7 @@
 """
 File: app.py
 Purpose: Main Flask application initialization for GenCon SG
-Author: Rai (Team Lead)
+Author: to be assigned
 Date: December 2025
 Description: This is the entry point for the Flask application. It:
              - Initializes Flask app with configuration

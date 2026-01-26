@@ -1,7 +1,7 @@
 """
 File: models.py
 Purpose: Database models for GenCon SG application using SQLAlchemy ORM
-Author: Rai (Team Lead), Hong You, Tian An, Asher
+Author: to be assigned
 Date: December 2025
 Description: Defines all database tables and relationships:
              - User accounts (seniors, youth, admins)
@@ -737,6 +737,26 @@ class Notification(db.Model):
 
     def __repr__(self):
         return f'<Notification {self.id}: {self.title}>'
+
+
+# ==================== REGISTRATION CODE MODEL ====================
+class RegistrationCode(db.Model):
+    """
+    Registration codes required for sign up.
+    """
+    __tablename__ = 'registration_codes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(20), unique=True, nullable=False)
+    is_used = db.Column(db.Boolean, default=False)
+    used_by_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationship
+    used_by = db.relationship('User', backref=db.backref('registration_code', uselist=False))
+
+    def __repr__(self):
+        return f'<RegistrationCode {self.code}: {"Used" if self.is_used else "Active"}>'
 
 
 # ==================== GAME MODELS ====================
