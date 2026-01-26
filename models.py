@@ -81,6 +81,9 @@ class User(db.Model):
     # Role-based access control
     role = db.Column(db.String(20), nullable=False)  # 'senior', 'youth', or 'admin'
 
+    # Game statistics
+    elo = db.Column(db.Integer, default=1200) # Default ELO rating
+
     # Profile customization
     profile_picture = db.Column(db.String(255), default='images/default-avatar.png')
 
@@ -784,6 +787,9 @@ class GameSession(db.Model):
     current_turn_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     status = db.Column(db.String(20), default='waiting')  # active, completed, abandoned, waiting
     
+    winner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    game_state = db.Column(db.Text) # Stores board state/FEN/PGN
+    
     player1_ready = db.Column(db.Boolean, default=False)
     player2_ready = db.Column(db.Boolean, default=False)
     
@@ -793,6 +799,32 @@ class GameSession(db.Model):
     game = db.relationship('Game', back_populates='sessions')
     player1 = db.relationship('User', foreign_keys=[player1_id])
     player2 = db.relationship('User', foreign_keys=[player2_id])
+    winner = db.relationship('User', foreign_keys=[winner_id])
+
+class GameHistory(db.Model):
+    """
+    History of completed games for stats and ELO tracking.
+    """
+    __tablename__ = 'game_history'
+
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('games.id'), nullable=False)
+    player1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    winner_id = db.Column(db.Integer, db.ForeignKey('users.id')) # NULL if draw
+    
+    player1_elo_before = db.Column(db.Integer)
+    player1_elo_after = db.Column(db.Integer)
+    player2_elo_before = db.Column(db.Integer)
+    player2_elo_after = db.Column(db.Integer)
+    
+    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    game = db.relationship('Game')
+    player1 = db.relationship('User', foreign_keys=[player1_id])
+    player2 = db.relationship('User', foreign_keys=[player2_id])
+    winner = db.relationship('User', foreign_keys=[winner_id])
 
 class TicTacToeSession(db.Model):
     """

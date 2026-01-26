@@ -12,7 +12,7 @@
 {% block extra_css %}
 <style>
     .profile-header {
-        background: linear-gradient(135deg, #F39C12 0%, #D35400 100%);
+        background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
         color: white;
         padding: 3rem 0;
         margin-bottom: 2rem;
@@ -41,7 +41,7 @@
 
     .btn-change-photo {
         background: white;
-        color: #D35400;
+        color: var(--senior-primary);
         padding: 0.625rem 1.5rem;
         border-radius: 2rem;
         font-weight: 600;
@@ -114,12 +114,12 @@
     }
 
     .tab-btn:hover {
-        color: #D35400;
+        color: var(--senior-primary);
     }
 
     .tab-btn.active {
-        color: #D35400;
-        border-bottom-color: #D35400;
+        color: var(--senior-primary);
+        border-bottom-color: var(--senior-primary);
     }
 
     .tab-content-area {
@@ -179,14 +179,14 @@
     }
 
     .form-control:focus {
-        border-color: #D35400;
+        border-color: var(--senior-primary);
         box-shadow: 0 0 0 0.2rem rgba(211, 84, 0, 0.25);
         outline: none;
     }
 
     .btn-save {
         padding: 0.875rem 2.5rem;
-        background: linear-gradient(135deg, #F39C12 0%, #D35400 100%);
+        background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
         color: white;
         border: none;
         border-radius: 0.75rem;
@@ -196,7 +196,7 @@
     }
 
     .btn-save:hover {
-        background: linear-gradient(135deg, #D35400 0%, #F39C12 100%);
+        background: linear-gradient(135deg, var(--senior-primary-hover) 0%, var(--senior-primary) 100%);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(211, 84, 0, 0.3);
     }
@@ -213,14 +213,14 @@
         padding: 1.25rem;
         background: #F8F9FA;
         border-radius: 0.75rem;
-        border-left: 4px solid #D35400;
+        border-left: 4px solid var(--senior-primary);
     }
 
     .history-icon {
         width: 60px;
         height: 60px;
         border-radius: 0.75rem;
-        background: linear-gradient(135deg, #F39C12 0%, #D35400 100%);
+        background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -262,7 +262,7 @@
     }
 
     .preference-item:hover {
-        border-color: #D35400;
+        border-color: var(--senior-primary);
         background: #FFF3E0;
     }
 

@@ -486,15 +486,22 @@ def games():
     from models import Streak
     streak_info = Streak.query.filter_by(user_id=user_id).first()
     
+    user = User.query.get(user_id)
+
     # Stats
     stats = {
         'played': streak_info.games_played if streak_info else 0,
         'won': streak_info.games_won if streak_info else 0,
         'points': streak_info.points if streak_info else 0,
-        'streak': streak_info.current_streak if streak_info else 0
+        'streak': streak_info.current_streak if streak_info else 0,
+        'elo': user.elo
     }
 
-    user = User.query.get(user_id)
+    # Get recent game history
+    from models import GameHistory
+    game_history = GameHistory.query.filter(
+        (GameHistory.player1_id == user_id) | (GameHistory.player2_id == user_id)
+    ).order_by(GameHistory.completed_at.desc()).limit(5).all()
 
     # Fetch games from DB
     db_games = Game.query.all()
@@ -516,7 +523,13 @@ def games():
             'type_icon': g.type_icon
         })
 
-    return render_template('senior/games.html', user=user, buddy=buddy, games=games_data, stats=stats, active_session=active_session)
+    return render_template('senior/games.html', 
+                         user=user, 
+                         buddy=buddy, 
+                         games=games_data, 
+                         stats=stats, 
+                         active_session=active_session,
+                         game_history=game_history)
 
 
 @senior_bp.route('/games/challenge/<int:game_id>')
@@ -619,7 +632,16 @@ def chess_game():
         return redirect(url_for('senior.games'))
         
     color = 'white' if active_session.player1_id == user_id else 'black'
-    return render_template('senior/chess.html', color=color, game_session_id=active_session.id, active_session=active_session)
+    
+    player1 = User.query.get(active_session.player1_id)
+    player2 = User.query.get(active_session.player2_id)
+    
+    return render_template('senior/chess.html', 
+                         color=color, 
+                         game_session_id=active_session.id, 
+                         active_session=active_session,
+                         player1=player1,
+                         player2=player2)
 
 
 @senior_bp.route('/game/xiangqi')
@@ -639,10 +661,19 @@ def xiangqi_game():
             
     # Default to Red (Player 1) if session exists, else Red (Bot mode default)
     color = 'red'
+    player1 = None
+    player2 = None
     if active_session:
         color = 'red' if active_session.player1_id == user_id else 'black'
+        player1 = User.query.get(active_session.player1_id)
+        player2 = User.query.get(active_session.player2_id)
 
-    return render_template('senior/xiangqi.html', active_session=active_session, game_session_id=session_id, color=color)
+    return render_template('senior/xiangqi.html', 
+                         active_session=active_session, 
+                         game_session_id=session_id, 
+                         color=color,
+                         player1=player1,
+                         player2=player2)
 
 @senior_bp.route('/game/tictactoe')
 @login_required
@@ -661,10 +692,19 @@ def tictactoe_game():
             
     # Default to X (Player 1) if session exists, else X (single player default)
     color = 'X'
+    player1 = None
+    player2 = None
     if active_session:
         color = 'X' if active_session.player1_id == user_id else 'O'
+        player1 = User.query.get(active_session.player1_id)
+        player2 = User.query.get(active_session.player2_id)
 
-    return render_template('senior/tictactoe.html', active_session=active_session, game_session_id=session_id, color=color)
+    return render_template('senior/tictactoe.html', 
+                         active_session=active_session, 
+                         game_session_id=session_id, 
+                         color=color,
+                         player1=player1,
+                         player2=player2)
 
 
 # ==================== PROFILE ====================

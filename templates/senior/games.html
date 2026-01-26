@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 <!--
     File: games.html
-    Purpose: Game lobby with traditional Singapore games
+    Purpose: Game lobby with traditional Singapore games for senior users
     Author: Rai (Team Lead)
     Date: December 2025
     Feature: Interactive games for seniors to play with youth
@@ -9,8 +9,14 @@
 
 {% block title %}Games - GenCon SG{% endblock %}
 
+{% block background_animation %}
+    {% include 'includes/background_animation.html' %}
+{% endblock %}
+
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/background_animation.css') }}">
 <style>
+    /* Original Page Styles */
     .games-header {
         background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
         color: white;
@@ -87,16 +93,23 @@
         margin-bottom: 2rem;
     }
 
-    .game-card {
+    /* Updated Card Styles (No Glow) */
+    .lobby-game-card {
         background: white;
         border-radius: 1.5rem;
         overflow: hidden;
         box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         transition: all 0.3s ease;
-        border: 3px solid transparent;
         display: flex;
         flex-direction: column;
         height: 100%;
+        border: 1px solid #eee;
+    }
+
+    .lobby-game-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+        border-color: #9B59B6;
     }
 
     .game-image {
@@ -108,20 +121,81 @@
         justify-content: center;
         overflow: hidden;
         flex-shrink: 0;
+        border-top-left-radius: calc(var(--radius) * 1px);
+        border-top-right-radius: calc(var(--radius) * 1px);
     }
-/* ... */
-    .game-body {
-        padding: 1.75rem;
+
+    .game-image::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%);
+    }
+
+    .game-image.congkak { background: linear-gradient(135deg, #FA709A 0%, #FEE140 100%); }
+    .game-image.five-stones { background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%); }
+    .game-image.pick-up-sticks { background: linear-gradient(135deg, #F093FB 0%, #F5576C 100%); }
+    .game-image.chapteh { background: linear-gradient(135deg, #30CFD0 0%, #330867 100%); }
+    .game-image.tic-tac-toe { background: linear-gradient(135deg, #A8EDEA 0%, #FED6E3 100%); }
+    .game-image.memory-game { background: linear-gradient(135deg, #FF9A56 0%, #FF6A88 100%); }
+
+    .game-icon {
+        font-size: 5rem;
+        color: white;
+        position: relative;
+        z-index: 1;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .game-body { 
+        padding: 1.75rem; 
         display: flex;
         flex-direction: column;
         flex: 1;
+        text-align: center;
     }
 
-    .game-header {
-        margin-bottom: 1rem;
+    .game-header { 
+        margin-bottom: 1rem; 
         flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
     }
-/* ... */
+
+    .game-header h3 {
+        font-size: 1.625rem;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
+
+    .game-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #FFF3CD;
+        color: #856404;
+        padding: 0.375rem 0.875rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .game-badge.traditional { background: #D1ECF1; color: #0C5460; }
+    .game-badge.modern { background: #F8D7DA; color: #721C24; }
+
     .game-description {
         color: #6C757D;
         font-size: 1rem;
@@ -132,33 +206,28 @@
 
     .game-meta {
         display: flex;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
+        flex-wrap: nowrap;
+        gap: 0.25rem;
         margin-bottom: 1.25rem;
-        padding: 1rem;
+        padding: 0.75rem 0.5rem;
         background: #F8F9FA;
         border-radius: 0.75rem;
+        justify-content: center;
     }
 
     .game-meta-item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.25rem;
         color: #6C757D;
-        font-size: 0.95rem;
+        font-size: 0.8rem;
+        margin-right: 0.25rem;
+        white-space: nowrap;
     }
 
-    .game-meta-item i {
-        color: #9B59B6;
-        font-size: 1.125rem;
-    }
+    .game-meta-item i { color: #9B59B6; font-size: 0.9rem; }
 
-    .game-footer {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
+    .game-footer { display: flex; flex-direction: column; gap: 0.75rem; }
 
     .btn-play {
         flex: 2;
@@ -191,10 +260,7 @@
         transition: all 0.3s ease;
     }
 
-    .btn-learn:hover {
-        background: #9B59B6;
-        color: white;
-    }
+    .btn-learn:hover { background: #9B59B6; color: white; }
 
     .active-games-section {
         background: white;
@@ -228,11 +294,7 @@
         transform: translateX(5px);
     }
 
-    .active-game-info {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-    }
+    .active-game-info { display: flex; align-items: center; gap: 1.5rem; }
 
     .active-game-icon {
         width: 60px;
@@ -253,11 +315,7 @@
         margin-bottom: 0.25rem;
     }
 
-    .active-game-details p {
-        font-size: 0.9rem;
-        color: #6C757D;
-        margin: 0;
-    }
+    .active-game-details p { font-size: 0.9rem; color: #6C757D; margin: 0; }
 
     .btn-continue {
         padding: 0.75rem 1.5rem;
@@ -276,28 +334,11 @@
     }
 
     @media (max-width: 768px) {
-        .games-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .games-header h1 {
-            font-size: 2rem;
-        }
-
-        .game-meta {
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .active-game-item {
-            flex-direction: column;
-            text-align: center;
-            gap: 1rem;
-        }
-
-        .active-game-info {
-            flex-direction: column;
-        }
+        .games-grid { grid-template-columns: 1fr; }
+        .games-header h1 { font-size: 2rem; }
+        .game-meta { flex-direction: column; gap: 0.75rem; }
+        .active-game-item { flex-direction: column; text-align: center; gap: 1rem; }
+        .active-game-info { flex-direction: column; }
     }
 
     /* Gamer Card Styles */
@@ -531,30 +572,22 @@
             <!-- Stats Grid -->
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="icon">
-                        <i class="fas fa-trophy"></i>
-                    </div>
+                    <div class="icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="value">{{ stats.elo }}</div>
+                    <div class="label">ELO Rating</div>
+                </div>
+                <div class="stat-item">
+                    <div class="icon"><i class="fas fa-trophy"></i></div>
                     <div class="value">{{ stats.played }}</div>
                     <div class="label">Games Played</div>
                 </div>
                 <div class="stat-item">
-                    <div class="icon">
-                        <i class="fas fa-star"></i>
-                    </div>
+                    <div class="icon"><i class="fas fa-star"></i></div>
                     <div class="value">{{ stats.won }}</div>
                     <div class="label">Games Won</div>
                 </div>
                 <div class="stat-item">
-                    <div class="icon">
-                        <i class="fas fa-medal"></i>
-                    </div>
-                    <div class="value">{{ stats.points }}</div>
-                    <div class="label">Total Points</div>
-                </div>
-                <div class="stat-item">
-                    <div class="icon">
-                        <i class="fas fa-fire"></i>
-                    </div>
+                    <div class="icon"><i class="fas fa-fire"></i></div>
                     <div class="value">{{ stats.streak }}</div>
                     <div class="label">Day Streak</div>
                 </div>
@@ -570,6 +603,71 @@
       <symbol id="icon-check" viewBox="0 -960 960 960" fill="currentColor"><path d="m443-429 169-169-38-39-131 132-57-56-38 38 95 94ZM222-160v-578q0-36.72 24.64-61.36Q271.27-824 308-824h344q36.72 0 61.36 24.64T738-738v578L480-270 222-160Zm54-82 204-87.66L684-242v-496q0-12-10-22t-22-10H308q-12 0-22 10t-10 22v496Zm0-528h408-408Z"/></symbol>
     </svg>
 
+    <!-- Recent Games Section -->
+    {% if game_history %}
+    <div class="active-games-section mb-4">
+        <h2><i class="fas fa-history me-2"></i>Recent Games</h2>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Game</th>
+                        <th>Opponent</th>
+                        <th>Result</th>
+                        <th>Elo Change</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in game_history %}
+                    {% set is_p1 = record.player1_id == session.user_id %}
+                    {% set opponent = record.player2 if is_p1 else record.player1 %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="{{ record.game.icon }} text-primary"></i>
+                                <span>{{ record.game.title }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="{{ opponent.profile_picture|fix_pfp }}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                <span>{{ opponent.full_name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if record.winner_id == session.user_id %}
+                            <span class="badge bg-success">Won</span>
+                            {% elif record.winner_id == None %}
+                            <span class="badge bg-secondary">Draw</span>
+                            {% else %}
+                            <span class="badge bg-danger">Lost</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if is_p1 %}
+                            {% set old = record.player1_elo_before %}
+                            {% set new = record.player1_elo_after %}
+                            {% else %}
+                            {% set old = record.player2_elo_before %}
+                            {% set new = record.player2_elo_after %}
+                            {% endif %}
+                            <span class="{% if new >= old %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                {{ old }} → {{ new }}
+                                ({{ '+' if new >= old else '' }}{{ new - old }})
+                            </span>
+                        </td>
+                        <td class="text-muted small">
+                            {{ record.completed_at|timeago }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Available Games Grid -->
     <div class="section-header mb-4">
         <h2 style="font-size: 1.75rem; font-weight: 700; color: #2C3E50;">
@@ -579,111 +677,193 @@
 
     <div class="games-grid">
         {% for game in games %}
-        <div class="game-card">
-            <div class="{{ game.image_class }}" style="{{ (game.image_style or '') | safe }}">
-                <div class="game-icon">
-                    <i class="{{ game.icon }}"></i>
-                </div>
+        <div class="lobby-game-card">
+            {% if 'Xiangqi' in game.name %}
+            <div class="game-image {{ game.image_class }}" style="background-image: url('{{ url_for('static', filename='images/chinese-chess.jpg') }}'); background-size: cover; background-position: center;">
             </div>
+            {% elif 'International Chess' in game.name %}
+            <div class="game-image {{ game.image_class }}" style="background-image: url('{{ url_for('static', filename='images/chess-stock.jpg') }}'); background-size: cover; background-position: center;">
+            </div>
+            {% elif 'Tic-Tac-Toe' in game.name %}
+            <div class="game-image {{ game.image_class }}" style="background-image: url('{{ url_for('static', filename='images/tic-tac-toe.jpg') }}'); background-size: cover; background-position: center;">
+            </div>
+            {% else %}
+            <div class="game-image {{ game.image_class }}" style="{{ game.image_style }}">
+            </div>
+            {% endif %}
             <div class="game-body">
-                <div class="game-header">
-                    <h3>{{ game.name }}</h3>
-                    <span class="game-badge {{ game.badge_class }}">
-                        <i class="{{ game.badge_icon }}"></i>{{ game.badge }}
-                    </span>
-                </div>
-                <p class="game-description">
-                    {{ game.description }}
-                </p>
+                <div class="game-header"><h3>{{ game.name }}</h3><span class="game-badge {{ game.badge_class }}"><i class="{{ game.badge_icon }}"></i>{{ game.badge }}</span></div>
+                <p class="game-description">{{ game.description }}</p>
                 <div class="game-meta">
-                    <div class="game-meta-item">
-                        <i class="fas fa-users"></i>
-                        <span>{{ game.players }}</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>{{ game.time }}</span>
-                    </div>
-                    <div class="game-meta-item">
-                        <i class="{{ game.type_icon }}"></i>
-                        <span>{{ game.type }}</span>
-                    </div>
+                    <div class="game-meta-item"><i class="fas fa-users"></i><span>{{ game.players }}</span></div>
+                    <div class="game-meta-item"><i class="fas fa-clock"></i><span>{{ game.time }}</span></div>
+                    <div class="game-meta-item"><i class="{{ game.type_icon }}"></i><span>{{ game.type }}</span></div>
                 </div>
                 <div class="game-footer">
                     {% if game.name == 'International Chess' %}
-                    <button class="btn btn-play btn-challenge" data-game-id="{{ game.id }}">
-                        <i class="fas fa-hand-sparkles me-2"></i>Challenge Buddy
-                    </button>
+                    <div class="d-flex gap-2 w-100 mb-2">
+                        <button class="btn btn-play btn-challenge mb-0 w-100" data-game-id="{{ game.id }}">
+                            <i class="fas fa-hand-sparkles me-2"></i>Challenge Buddy
+                        </button>
+                    </div>
                     {% elif game.name == 'Chinese Chess (Xiangqi)' %}
-                    <div class="d-flex gap-2 w-100">
-                        <a href="{{ url_for('senior.xiangqi_game') }}" class="btn btn-play mb-0" style="font-size: 1rem;">
+                    <div class="d-flex gap-2 w-100 mb-2">
+                        <a href="{{ url_for('senior.xiangqi_game') }}" class="btn btn-play mb-0 flex-grow-1" style="font-size: 1.125rem;">
                             <i class="fas fa-robot me-1"></i>Vs Bot
                         </a>
-                        <button class="btn btn-play btn-challenge mb-0 d-flex justify-content-center align-items-center" data-game-id="{{ game.id }}" style="font-size: 1rem;">
+                        <button class="btn btn-play btn-challenge mb-0 flex-grow-1" data-game-id="{{ game.id }}" style="font-size: 1.125rem;">
                             <i class="fas fa-user-friends me-1"></i>Vs Buddy
                         </button>
                     </div>
                     {% elif 'Tic Tac Toe' in game.name or 'Tic-Tac-Toe' in game.name %}
-                    <div class="d-flex gap-2 w-100">
-                        <a href="{{ url_for('senior.tictactoe_game') }}" class="btn btn-play mb-0" style="font-size: 1rem;">
+                    <div class="d-flex gap-2 w-100 mb-2">
+                        <a href="{{ url_for('senior.tictactoe_game') }}" class="btn btn-play mb-0 flex-grow-1" style="font-size: 1.125rem;">
                             <i class="fas fa-user me-1"></i>Single
                         </a>
-                        <button class="btn btn-play btn-challenge mb-0 d-flex justify-content-center align-items-center" data-game-id="{{ game.id }}" style="font-size: 1rem;">
+                        <button class="btn btn-play btn-challenge mb-0 flex-grow-1" data-game-id="{{ game.id }}" style="font-size: 1.125rem;">
                             <i class="fas fa-user-friends me-1"></i>Vs Buddy
                         </button>
                     </div>
                     {% else %}
-                    <button class="btn btn-play">
-                        <i class="fas fa-play me-2"></i>Play Now
-                    </button>
+                    <div class="d-flex gap-2 w-100 mb-2">
+                        <button class="btn btn-play w-100"><i class="fas fa-play me-2"></i>Play Now</button>
+                    </div>
                     {% endif %}
-                    <button class="btn btn-learn">
-                        <i class="fas fa-book me-2"></i>Rules
+                    <button class="btn btn-learn w-100" data-bs-toggle="modal" data-bs-target="#rulesModal" data-game="{{ game.name }}">
+                        <i class="fas fa-book me-2"></i>View Rules
                     </button>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
+    <!-- Rules Modal -->
+    <div class="modal fade" id="rulesModal" tabindex="-1" aria-labelledby="rulesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 1.5rem; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%); padding: 1.5rem 2rem; border: none;">
+                    <h5 class="modal-title d-flex align-items-center" id="rulesModalLabel">
+                        <i class="fas fa-book-open me-3 fs-4"></i>
+                        <span id="modalGameTitle">Game Rules</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" style="font-size: 1.125rem; line-height: 1.8; color: #2C3E50;">
+                    <div id="modalGameContent">
+                        <!-- Content will be injected by JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-secondary px-4 py-2" style="border-radius: 0.75rem; font-weight: 600;" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary px-4 py-2" style="border-radius: 0.75rem; font-weight: 600; background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%); border: none;" data-bs-dismiss="modal">Understood!</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Play button functionality
-    document.querySelectorAll('button.btn-play:not(.btn-challenge)').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const gameName = this.closest('.game-card').querySelector('h3').textContent;
-            alert(`Starting ${gameName}...\n\nGame functionality will be implemented in Phase 2!`);
-        });
-    });
+    const gameRules = {
+        'International Chess': `
+            <div class="rules-section">
+                <h6 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Objective</h6>
+                <p>The goal is to <strong>checkmate</strong> your opponent's King. This happens when the King is under attack and has no legal move to escape.</p>
+                
+                <h6 class="fw-bold mt-4 mb-3"><i class="fas fa-chess text-primary me-2"></i>Piece Movements</h6>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>King:</strong> Moves one square in any direction.</li>
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Queen:</strong> Moves any number of squares horizontally, vertically, or diagonally.</li>
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Rook:</strong> Moves any number of squares horizontally or vertically.</li>
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Bishop:</strong> Moves any number of squares diagonally.</li>
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Knight:</strong> Moves in an "L" shape (2 squares in one direction, then 1 perpendicular).</li>
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Pawn:</strong> Moves forward 1 square (2 on first move), captures diagonally.</li>
+                </ul>
+            </div>
+        `,
+        'Chinese Chess (Xiangqi)': `
+            <div class="rules-section">
+                <h6 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Objective</h6>
+                <p>The goal is to <strong>checkmate</strong> the opponent's General (King). Pieces are placed on the intersections (points) of the board.</p>
+                
+                <h6 class="fw-bold mt-4 mb-3"><i class="fas fa-chess-board text-primary me-2"></i>Piece Rules</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>General:</strong> Stays within the 3x3 Palace. Moves 1 point orthogonally.</li>
+                            <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Advisor:</strong> Stays within the Palace. Moves 1 point diagonally.</li>
+                            <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Elephant:</strong> Moves 2 points diagonally. Cannot cross the River.</li>
+                            <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Horse:</strong> Moves 1 point orthogonally then 1 point diagonally. Can be blocked (limping).</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Chariot (Rook):</strong> Moves any distance orthogonally.</li>
+                            <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Cannon:</strong> Moves like a Chariot, but must jump over exactly one piece to capture.</li>
+                            <li><i class="fas fa-caret-right me-2 text-primary"></i><strong>Soldier:</strong> Moves 1 point forward. After crossing the River, can also move horizontally.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-light p-3 rounded mt-3">
+                    <small><strong>Note:</strong> Generals cannot face each other directly on the same line without any pieces in between (Flying General rule).</small>
+                </div>
+            </div>
+        `,
+        'Tic-Tac-Toe': `
+            <div class="rules-section">
+                <h6 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Objective</h6>
+                <p>The goal is to be the first player to get <strong>three of your marks in a row</strong> (horizontally, vertically, or diagonally).</p>
+                
+                <h6 class="fw-bold mt-4 mb-3"><i class="fas fa-play text-primary me-2"></i>How to Play</h6>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i>The game is played on a grid that's 3 squares by 3 squares.</li>
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i>You are X, your friend (or the computer) is O.</li>
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i>Players take turns putting their marks in empty squares.</li>
+                    <li><i class="fas fa-caret-right me-2 text-primary"></i>If all 9 squares are full and no player has 3 in a row, the game is a draw.</li>
+                </ul>
+            </div>
+        `
+    };
 
-    // Learn/Rules button functionality
     document.querySelectorAll('.btn-learn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const gameName = this.closest('.game-card').querySelector('h3').textContent;
-            alert(`${gameName} Rules:\n\nDetailed rules and tutorials will be available in the full version!`);
+            const gameName = this.getAttribute('data-game');
+            const modalTitle = document.getElementById('modalGameTitle');
+            const modalContent = document.getElementById('modalGameContent');
+            
+            modalTitle.textContent = `${gameName} Rules`;
+            modalContent.innerHTML = gameRules[gameName] || `
+                <div class="text-center py-4">
+                    <i class="fas fa-tools fa-3x mb-3 text-muted"></i>
+                    <p>Rules for <strong>${gameName}</strong> will be available soon!</p>
+                </div>
+            `;
         });
     });
 
-    // Challenge Buddy functionality
+    document.querySelectorAll('button.btn-play:not(.btn-challenge)').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const gameName = this.closest('.lobby-game-card').querySelector('h3').textContent;
+            // Removed alert
+        });
+    });
+
     document.querySelectorAll('.btn-challenge').forEach(btn => {
         btn.addEventListener('click', function() {
             const gameId = this.getAttribute('data-game-id');
-            const gameTitle = this.closest('.game-card').querySelector('h3').textContent;
             const buddyId = "{{ buddy.id if buddy else '' }}";
-            
             if (!buddyId) {
                 alert('You need a paired buddy to play!');
                 return;
             }
-
-            // Optional: notify via socket immediately if they are online
-            // But we'll mostly rely on the redirect creating the session
             window.location.href = `/senior/games/challenge/${gameId}`;
         });
     });
 
-    console.log('Games page loaded');
+    document.querySelector('.btn-continue')?.addEventListener('click', function() {
+        const gameName = this.getAttribute('data-game');
+        alert(`Resuming your ${gameName} match...\n\nGame state will be loaded in Phase 2!`);
+    });
 </script>
 {% endblock %}

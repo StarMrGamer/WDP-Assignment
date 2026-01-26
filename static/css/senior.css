@@ -8,24 +8,26 @@
                  - High contrast color schemes
                  - Color-blind friendly palettes
                  - Touch-optimized large click targets
-                 - Warm, welcoming color scheme
+                 - Modern, clean color scheme (aligned with Youth theme)
 */
 
 /* ==================== SENIOR COLOR SCHEME ==================== */
 :root {
-    /* Warm, accessible color palette for seniors */
-    --senior-primary: #E67E22;       /* Warm orange - primary actions */
-    --senior-primary-hover: #D35400; /* Darker orange - hover state */
-    --senior-secondary: #2ECC71;     /* Bright green - success */
-    --senior-accent: #F39C12;        /* Golden yellow - highlights */
-    --senior-bg: #FFF9F0;            /* Warm off-white background */
+    /* Updated to match Youth theme (Light) while maintaining accessibility structure */
+    --senior-primary: #9B59B6;       /* Purple - primary actions */
+    --senior-primary-hover: #8E44AD; /* Darker purple - hover state */
+    --senior-secondary: #3498DB;     /* Bright blue - success/secondary */
+    --senior-accent: #E74C3C;        /* Red accent */
+    --senior-bg: #F5F7FA;            /* Light gray background */
     --senior-text: #2C3E50;          /* Dark blue-gray text - high contrast */
-    --senior-border: #D4A574;        /* Soft brown borders */
+    --senior-border: #D4D4D4;        /* Neutral borders */
+    --senior-card-bg: #FFFFFF;       /* White cards */
 }
 
 /* ==================== BASE OVERRIDES FOR SENIORS ==================== */
 body[data-role="senior"] {
     background-color: var(--senior-bg);
+    color: var(--senior-text);
     font-size: 18px;                 /* Larger base font size for readability */
     line-height: 1.8;                /* Increased line height for easier reading */
 }
@@ -38,7 +40,7 @@ body[data-role="senior"][data-font-size="normal"] {
 
 body[data-role="senior"][data-font-size="normal"] h1 { font-size: 2.5rem; }
 body[data-role="senior"][data-font-size="normal"] h2 { font-size: 2rem; }
-body[data-role="senior"][data-font-size="normal"] h3 { font-size: 1.75rem; }
+body[data-role="senior"][data-font-size="normal"] h3 { font-size: 1.7rem; }
 body[data-role="senior"][data-font-size="normal"] .btn { font-size: 1rem; }
 
 /* Large font size */
@@ -119,28 +121,31 @@ body[data-role="senior"] .form-control {
 body[data-role="senior"] .card {
     padding: 2rem;                   /* More spacious cards */
     margin-bottom: 2rem;
+    background: var(--senior-card-bg);
 }
 
 /* ==================== PRIMARY BUTTON STYLING ==================== */
 body[data-role="senior"] .btn-primary {
     background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
     border: none;
-    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3); /* Purple shadow instead of orange glow */
+    transition: all 0.3s ease;
 }
 
 body[data-role="senior"] .btn-primary:hover {
     background: linear-gradient(135deg, var(--senior-primary-hover) 0%, var(--senior-primary) 100%);
-    box-shadow: 0 6px 16px rgba(230, 126, 34, 0.4);
+    box-shadow: 0 6px 16px rgba(155, 89, 182, 0.4);
+    transform: translateY(-2px);
 }
 
 body[data-role="senior"] .btn-success {
-    background-color: var(--senior-secondary);
+    background-color: #28a745;
     font-weight: 600;
 }
 
 /* ==================== DASHBOARD CUSTOMIZATIONS ==================== */
 body[data-role="senior"] .dashboard-card {
-    background: linear-gradient(135deg, #FFF9F0 0%, #FFEFD5 100%);
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%); /* Purple gradient */
     border-left: 5px solid var(--senior-primary);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -152,11 +157,12 @@ body[data-role="senior"] .stat-card {
     border-radius: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
+    border-left: 4px solid var(--senior-primary); /* Added border to match youth style */
 }
 
 body[data-role="senior"] .stat-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 8px 20px rgba(230, 126, 34, 0.2);
+    box-shadow: 0 8px 24px rgba(155, 89, 182, 0.2); /* Purple shadow */
 }
 
 body[data-role="senior"] .stat-card .icon {
@@ -198,21 +204,25 @@ body[data-role="senior"] .story-card .category-badge {
 
 /* ==================== MESSAGING INTERFACE ==================== */
 body[data-role="senior"] .message-sent {
-    background-color: #FFE4C4;       /* Warm beige for sent messages */
-    border-left: 4px solid var(--senior-primary);
+    background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%); /* Purple gradient */
+    color: white;
+    border-left: none; /* Removed border to match youth style */
     padding: 1.25rem;
     border-radius: 1rem;
     margin: 1rem 0;
     font-size: 1.125rem;
+    box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
 }
 
 body[data-role="senior"] .message-received {
-    background-color: #E8F5E9;       /* Light green for received messages */
-    border-left: 4px solid var(--senior-secondary);
+    background-color: white; /* Clean white */
+    border-left: none;
+    border: 1px solid #E0E0E0;
     padding: 1.25rem;
     border-radius: 1rem;
     margin: 1rem 0;
     font-size: 1.125rem;
+    color: var(--senior-text);
 }
 
 body[data-role="senior"] .message-input {
@@ -251,7 +261,7 @@ body[data-role="senior"] .far {
 
 /* ==================== BUDDY INFO CARD ==================== */
 body[data-role="senior"] .buddy-card {
-    background: linear-gradient(135deg, #FFEFD5 0%, #FFE4C4 100%);
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%); /* Purple gradient */
     border: 2px solid var(--senior-primary);
     padding: 2rem;
     border-radius: 1rem;
@@ -300,11 +310,12 @@ body[data-role="senior"] .event-card {
     margin-bottom: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
+    border-left: 4px solid var(--senior-secondary); /* Match youth style */
 }
 
 body[data-role="senior"] .event-card:hover {
     border-color: var(--senior-primary);
-    box-shadow: 0 4px 16px rgba(230, 126, 34, 0.2);
+    box-shadow: 0 4px 16px rgba(155, 89, 182, 0.2); /* Purple shadow */
     transform: translateY(-4px);
 }
 
@@ -350,7 +361,7 @@ body[data-role="senior"] .game-card {
 
 body[data-role="senior"] .game-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(230, 126, 34, 0.3);
+    box-shadow: 0 8px 20px rgba(155, 89, 182, 0.3); /* Purple shadow */
 }
 
 body[data-role="senior"] .game-card .game-icon {
@@ -385,14 +396,14 @@ body[data-role="senior"] .mood-option {
 
 body[data-role="senior"] .mood-option:hover {
     border-color: var(--senior-primary);
-    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2);
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.2); /* Purple shadow */
     transform: translateY(-4px);
 }
 
 body[data-role="senior"] .mood-option.selected {
     border-color: var(--senior-primary);
-    background-color: #FFF9F0;
-    box-shadow: 0 4px 16px rgba(230, 126, 34, 0.3);
+    background-color: #F3E5F5; /* Light purple bg */
+    box-shadow: 0 4px 16px rgba(155, 89, 182, 0.3); /* Purple shadow */
 }
 
 body[data-role="senior"] .mood-option .emoji {

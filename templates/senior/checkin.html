@@ -12,7 +12,7 @@
 {% block extra_css %}
 <style>
     .checkin-header {
-        background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+        background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
         color: white;
         padding: 2.5rem 0;
         margin-bottom: 2rem;
@@ -43,7 +43,7 @@
     .streak-icon {
         font-size: 4rem;
         margin-bottom: 1rem;
-        background: linear-gradient(135deg, #FF6B6B 0%, #FFA500 100%);
+        background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -113,7 +113,7 @@
     }
 
     .mood-option:hover {
-        border-color: #27AE60;
+        border-color: var(--senior-primary);
         background: #F0FFF4;
         transform: translateY(-3px);
     }
@@ -124,14 +124,14 @@
     }
 
     .mood-option input[type="radio"]:checked + label {
-        border-color: #27AE60;
-        background: #27AE60;
+        border-color: var(--senior-primary);
+        background: var(--senior-primary);
         color: white;
     }
 
     .mood-option.selected {
-        border-color: #27AE60;
-        background: #27AE60;
+        border-color: var(--senior-primary);
+        background: var(--senior-primary);
         color: white;
     }
 
@@ -167,7 +167,7 @@
         width: 100%;
         height: 12px;
         border-radius: 6px;
-        background: linear-gradient(to right, #E74C3C 0%, #F39C12 50%, #27AE60 100%);
+        background: linear-gradient(to right, #E74C3C 0%, #F39C12 50%, var(--senior-primary) 100%);
         outline: none;
         -webkit-appearance: none;
     }
@@ -179,7 +179,7 @@
         height: 28px;
         border-radius: 50%;
         background: white;
-        border: 3px solid #27AE60;
+        border: 3px solid var(--senior-primary);
         cursor: pointer;
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
@@ -189,7 +189,7 @@
         height: 28px;
         border-radius: 50%;
         background: white;
-        border: 3px solid #27AE60;
+        border: 3px solid var(--senior-primary);
         cursor: pointer;
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
@@ -199,7 +199,7 @@
         margin-top: 1rem;
         font-size: 1.5rem;
         font-weight: 700;
-        color: #27AE60;
+        color: var(--senior-primary);
     }
 
     .checkbox-group {
@@ -220,7 +220,7 @@
     }
 
     .checkbox-item:hover {
-        border-color: #27AE60;
+        border-color: var(--senior-primary);
         background: #F0FFF4;
     }
 
@@ -255,8 +255,8 @@
     }
 
     .textarea-container textarea:focus {
-        border-color: #27AE60;
-        box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
+        border-color: var(--senior-primary);
+        box-shadow: 0 0 0 0.2rem rgba(155, 89, 182, 0.25);
         outline: none;
     }
 
@@ -267,7 +267,7 @@
 
     .btn-submit-checkin {
         padding: 1.25rem 4rem;
-        background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+        background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
         color: white;
         border: none;
         border-radius: 3rem;
@@ -276,13 +276,13 @@
         text-transform: uppercase;
         letter-spacing: 1px;
         transition: all 0.3s ease;
-        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+        box-shadow: 0 6px 20px rgba(155, 89, 182, 0.3);
     }
 
     .btn-submit-checkin:hover {
-        background: linear-gradient(135deg, #229954 0%, #27AE60 100%);
+        background: linear-gradient(135deg, var(--senior-primary-hover) 0%, var(--senior-primary) 100%);
         transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(39, 174, 96, 0.4);
+        box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
     }
 
     .history-card {
@@ -328,9 +328,9 @@
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: #27AE60;
+        background: var(--senior-primary);
         border: 3px solid white;
-        box-shadow: 0 0 0 2px #27AE60;
+        box-shadow: 0 0 0 2px var(--senior-primary);
     }
 
     .history-date {

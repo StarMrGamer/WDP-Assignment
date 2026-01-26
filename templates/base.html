@@ -46,6 +46,8 @@
       data-role="{{ session.role if session.role else 'guest' }}"
       data-theme="{{ session.theme if session.theme else 'light' }}">
 
+    {% block background_animation %}{% endblock %}
+
     <!-- Navigation Bar - Role-specific -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container-fluid">

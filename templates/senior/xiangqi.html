@@ -1,8 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Chinese Chess (Xiangqi) - GenCon SG{% endblock %}
+{% block title %}Xiangqi - GenCon SG{% endblock %}
+
+{% block background_animation %}
+    {% include 'includes/background_animation.html' %}
+{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/background_animation.css') }}">
 <style>
     .game-container {
         display: flex;
@@ -241,9 +246,40 @@
         </div>
 
         <div class="board-layout">
-            <!-- Board container (JS renders here) -->
-            <!-- If multiplayer, we set default BG to wooden via inline style to prevent flash -->
-            <div id="xiangqiboard" {% if active_session %}style="background-image: url('/static/images/xiangqi/boards/board-ccbridge.png');"{% endif %}></div>
+            <div class="player-info-container d-flex flex-column gap-3">
+                {% if active_session %}
+                <!-- Opponent info (at the top) -->
+                {% set opponent = player2 if active_session.player1_id == session.user_id else player1 %}
+                <div class="player-card p-3 bg-white rounded shadow-sm d-flex align-items-center gap-3" style="max-height: 82px;">
+                    <img src="{{ opponent.profile_picture|fix_pfp }}" alt="{{ opponent.full_name }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                    <div>
+                        <div class="fw-bold">{{ opponent.full_name }}</div>
+                        <div class="text-muted small">Elo: {{ opponent.elo }}</div>
+                    </div>
+                    <div class="ms-auto">
+                        <span class="badge {% if (active_session.player1_id == opponent.id and active_session.player1_ready) or (active_session.player2_id == opponent.id and active_session.player2_ready) %}bg-success{% else %}bg-secondary{% endif %}">
+                            {% if (active_session.player1_id == opponent.id and active_session.player1_ready) or (active_session.player2_id == opponent.id and active_session.player2_ready) %}Ready{% else %}Waiting{% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Board container (JS renders here) -->
+                <!-- If multiplayer, we set default BG to wooden via inline style to prevent flash -->
+                <div id="xiangqiboard" {% if active_session %}style="background-image: url('/static/images/xiangqi/boards/board-ccbridge.png');"{% endif %}></div>
+
+                {% if active_session %}
+                <!-- My info (at the bottom) -->
+                {% set me = player1 if active_session.player1_id == session.user_id else player2 %}
+                <div class="player-card p-3 bg-white rounded shadow-sm d-flex align-items-center gap-3 border border-primary" style="max-height: 82px;">
+                    <img src="{{ me.profile_picture|fix_pfp }}" alt="{{ me.full_name }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                    <div>
+                        <div class="fw-bold">{{ me.full_name }} (You)</div>
+                        <div class="text-muted small">Elo: {{ me.elo }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
             
             <div class="game-info">
                 <div class="d-flex justify-content-between align-items-center mb-3">

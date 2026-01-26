@@ -33,7 +33,109 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 # Initialize database with app
 db.init_app(app)
 
+# ==================== ELO CALCULATION ====================
+def calculate_elo(winner_id, p1_id, p2_id, is_draw=False):
+    """
+    Calculate new ELO ratings for players.
+    K-factor is fixed at 32 for simplicity.
+    """
+    from models import User, GameHistory, db
+    
+    p1 = User.query.get(p1_id)
+    p2 = User.query.get(p2_id)
+    
+    if not p1 or not p2:
+        return
+        
+    k = 32
+    
+    # Expected scores
+    expected_p1 = 1 / (1 + 10 ** ((p2.elo - p1.elo) / 400))
+    expected_p2 = 1 / (1 + 10 ** ((p1.elo - p2.elo) / 400))
+    
+    # Actual scores
+    if is_draw:
+        actual_p1 = 0.5
+        actual_p2 = 0.5
+    else:
+        actual_p1 = 1 if winner_id == p1_id else 0
+        actual_p2 = 1 if winner_id == p2_id else 0
+        
+    p1_old_elo = p1.elo
+    p2_old_elo = p2.elo
+    
+    # New ratings
+    p1.elo = round(p1.elo + k * (actual_p1 - expected_p1))
+    p2.elo = round(p2.elo + k * (actual_p2 - expected_p2))
+    
+    db.session.commit()
+    return p1_old_elo, p1.elo, p2_old_elo, p2.elo
+
 # ==================== SOCKET.IO EVENTS ====================
+@socketio.on('game_over')
+def on_game_over(data):
+    from models import GameSession, GameHistory, Streak, db, User
+    session_id = data.get('session_id')
+    winner_id = data.get('winner_id') 
+    winner_color = data.get('winner_color')
+    is_draw = data.get('is_draw', False)
+    
+    gs = GameSession.query.get(session_id)
+    if not gs or gs.status == 'completed':
+        return
+        
+    if not winner_id and winner_color:
+        if winner_color == 'w' or winner_color == 'red' or winner_color == 'X':
+            winner_id = gs.player1_id
+        else:
+            winner_id = gs.player2_id
+            
+    gs.status = 'completed'
+    gs.winner_id = winner_id
+    
+    # Calculate Elo
+    p1_old, p1_new, p2_old, p2_new = calculate_elo(winner_id, gs.player1_id, gs.player2_id, is_draw)
+    
+    # Record history
+    history = GameHistory(
+        game_id=gs.game_id,
+        player1_id=gs.player1_id,
+        player2_id=gs.player2_id,
+        winner_id=winner_id,
+        player1_elo_before=p1_old,
+        player1_elo_after=p1_new,
+        player2_elo_before=p2_old,
+        player2_elo_after=p2_new
+    )
+    db.session.add(history)
+    
+    # Update streaks and stats
+    for pid in [gs.player1_id, gs.player2_id]:
+        streak = Streak.query.filter_by(user_id=pid).first()
+        if not streak:
+            streak = Streak(user_id=pid)
+            db.session.add(streak)
+        
+        streak.games_played += 1
+        if pid == winner_id:
+            streak.games_won += 1
+            streak.points += 50
+        elif is_draw:
+            streak.points += 20
+        else:
+            streak.points += 5
+            
+    db.session.commit()
+    
+    # Notify room
+    room = f"game_{session_id}"
+    emit('game_over_stats', {
+        'winner_id': winner_id,
+        'is_draw': is_draw,
+        'p1': {'id': gs.player1_id, 'old_elo': p1_old, 'new_elo': p1_new},
+        'p2': {'id': gs.player2_id, 'old_elo': p2_old, 'new_elo': p2_new}
+    }, room=room)
+
 @socketio.on('join')
 def on_join(data):
     from models import GameSession
@@ -297,6 +399,33 @@ with app.app_context():
             print("Database patched: Added admin_notes to chat_reports")
     except Exception:
         pass
+
+    # Auto-patch: Add elo to users
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN elo INTEGER DEFAULT 1200"))
+            conn.commit()
+            print("Database patched: Added elo to users")
+    except Exception:
+        pass
+
+    # Auto-patch: Add winner_id and game_state to game_sessions
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE game_sessions ADD COLUMN winner_id INTEGER REFERENCES users(id)"))
+            conn.execute(text("ALTER TABLE game_sessions ADD COLUMN game_state TEXT"))
+            conn.commit()
+            print("Database patched: Added winner_id and game_state to game_sessions")
+    except Exception:
+        pass
+
+    # Auto-patch: Ensure game_history table exists
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("SELECT count(*) FROM game_history"))
+    except Exception:
+        print("Creating game_history table...")
+        db.create_all()
 
     print("Database tables created successfully")
 

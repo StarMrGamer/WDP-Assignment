@@ -175,6 +175,9 @@ function checkWinner() {
             }
             gameOver = true;
             document.getElementById("winner").innerText = board[r][0] + " Wins!";
+            if (currentPlayer === mySymbol) {
+                socket.emit('game_over', { session_id: gameSessionId, winner_color: board[r][0] });
+            }
             return;
         }
     }
@@ -188,6 +191,9 @@ function checkWinner() {
             }
             gameOver = true;
             document.getElementById("winner").innerText = board[0][c] + " Wins!";
+            if (currentPlayer === mySymbol) {
+                socket.emit('game_over', { session_id: gameSessionId, winner_color: board[0][c] });
+            }
             return;
         }
     }
@@ -200,6 +206,9 @@ function checkWinner() {
         }
         gameOver = true;
         document.getElementById("winner").innerText = board[0][0] + " Wins!";
+        if (currentPlayer === mySymbol) {
+            socket.emit('game_over', { session_id: gameSessionId, winner_color: board[0][0] });
+        }
         return;
     }
 
@@ -212,6 +221,9 @@ function checkWinner() {
         tile.classList.add("winner");
         gameOver = true;
         document.getElementById("winner").innerText = board[0][2] + " Wins!";
+        if (currentPlayer === mySymbol) {
+            socket.emit('game_over', { session_id: gameSessionId, winner_color: board[0][2] });
+        }
         return;
     }
 
@@ -230,8 +242,28 @@ function checkWinner() {
     if (tie) {
         gameOver = true;
         document.getElementById("winner").innerText = "It's a Tie!";
+        socket.emit('game_over', { session_id: gameSessionId, is_draw: true });
     }
 }
+
+// Stats listener
+socket.on('game_over_stats', function(data) {
+    gameActive = false;
+    let message = "Game Over! ";
+    if (data.is_draw) {
+        message += "It's a draw.";
+    } else {
+        const iWon = data.winner_id == currentUserId;
+        message += iWon ? "You won!" : "You lost.";
+    }
+    
+    // Show Elo changes
+    const myStats = data.p1.id == currentUserId ? data.p1 : data.p2;
+    message += `\nYour Elo: ${myStats.old_elo} -> ${myStats.new_elo} (${myStats.new_elo - myStats.old_elo >= 0 ? '+' : ''}${myStats.new_elo - myStats.old_elo})`;
+    
+    alert(message);
+    window.location.href = (userRole === 'senior') ? '/senior/games' : '/youth/games';
+});
 
 function updateStatus() {
     if (!gameOver && gameActive) {

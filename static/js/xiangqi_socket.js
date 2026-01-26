@@ -94,6 +94,66 @@ function startGame() {
     document.getElementById('status').innerText = "Game Started! Red to move.";
 }
 
+// Stats listener
+socket.on('game_over_stats', function(data) {
+    let message = "Game Over! ";
+    if (data.is_draw) {
+        message += "It's a draw.";
+    } else {
+        const iWon = data.winner_id == currentUserId;
+        message += iWon ? "You won!" : "You lost.";
+    }
+    
+    // Show Elo changes
+    const myStats = data.p1.id == currentUserId ? data.p1 : data.p2;
+    message += `\nYour Elo: ${myStats.old_elo} -> ${myStats.new_elo} (${myStats.new_elo - myStats.old_elo >= 0 ? '+' : ''}${myStats.new_elo - myStats.old_elo})`;
+    
+    alert(message);
+    window.location.href = (userRole === 'senior') ? '/senior/games' : '/youth/games';
+});
+
+// Detect Game Over
+var originalIsGameOver = window.isGameOver;
+var gameOverSent = false;
+window.isGameOver = function() {
+    let result = originalIsGameOver();
+    if (result && isMultiplayer && !gameOverSent) {
+        gameOverSent = true;
+        let isDraw = gameResult.includes('Draw') || gameResult.includes('repetition');
+        let winnerColor = null;
+        if (!isDraw) {
+            // gameResult is like "1-0 mate" or "0-1 mate"
+            winnerColor = gameResult.includes('1-0') ? 'red' : 'black';
+        }
+        socket.emit('game_over', {
+            session_id: gameSessionId,
+            is_draw: isDraw,
+            winner_color: winnerColor
+        });
+    }
+    return result;
+}
+
+// Suppress the original alert/redirect in movePiece if in multiplayer
+// The original movePiece has:
+/*
+    if (isGameOver()) {
+      updatePgn();
+      setTimeout(function() { 
+        alert("Game Over: " + gameResult);
+        const role = window.location.pathname.split('/')[1];
+        window.location.href = '/' + role + '/games';
+      }, 200);
+    }
+*/
+// We'll let our game_over_stats listener handle the redirect.
+
+// Override playSound to ensure it works in multiplayer
+function playSound(move) {
+  if (engine.getCaptureFlag(move)) CAPTURE_SOUND.play();
+  else MOVE_SOUND.play();
+}
+
 // Override or Hook into xiangqi_game.js
 // We need to intercept moves.
 // xiangqi_game.js has dropPiece(event, square) -> calling movePiece -> think()

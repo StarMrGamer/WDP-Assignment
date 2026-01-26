@@ -181,7 +181,59 @@ function updateStatus () {
 
     $status.html(status)
     $pgn.html(game.pgn())
+
+    // Handle game over detection
+    if (game.game_over()) {
+        let winnerId = null;
+        let isDraw = false;
+
+        if (game.in_checkmate()) {
+            // If it's black's turn to move and it's checkmate, white won
+            if (game.turn() === 'b') {
+                // White won. Find which player ID is white.
+                winnerId = (playerColor === 'white') ? currentUserId : null; 
+                // Wait, we need the other player ID if we are black.
+                // It's better to let the server know who we think won, 
+                // but the server should ideally know who is who.
+                // In GameSession, player1 is always challenger (usually white in this setup).
+                // Let's pass 'w' or 'b' as winner to the server or let server figure it out.
+                socket.emit('game_over', {
+                    session_id: gameSessionId,
+                    winner_color: 'w'
+                });
+            } else {
+                socket.emit('game_over', {
+                    session_id: gameSessionId,
+                    winner_color: 'b'
+                });
+            }
+        } else if (game.in_draw()) {
+            socket.emit('game_over', {
+                session_id: gameSessionId,
+                is_draw: true
+            });
+        }
+    }
 }
+
+// Stats listener
+socket.on('game_over_stats', function(data) {
+    gameActive = false;
+    let message = "Game Over! ";
+    if (data.is_draw) {
+        message += "It's a draw.";
+    } else {
+        const iWon = data.winner_id == currentUserId;
+        message += iWon ? "You won!" : "You lost.";
+    }
+    
+    // Show Elo changes
+    const myStats = data.p1.id == currentUserId ? data.p1 : data.p2;
+    message += `\nYour Elo: ${myStats.old_elo} -> ${myStats.new_elo} (${myStats.new_elo - myStats.old_elo >= 0 ? '+' : ''}${myStats.new_elo - myStats.old_elo})`;
+    
+    alert(message);
+    window.location.href = (userRole === 'senior') ? '/senior/games' : '/youth/games';
+});
 
 var config = {
     draggable: true,
