@@ -10,7 +10,7 @@ Description: Handles all administrative functions including user moderation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode
+from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode, EventParticipant
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -300,6 +300,52 @@ def events():
     return render_template('admin/events.html', events=all_events, now=datetime.utcnow())
 
 
+@admin_bp.route('/events/<int:event_id>')
+@admin_required
+def event_detail(event_id):
+    """View event details and participants."""
+    event = Event.query.get_or_404(event_id)
+    
+    # Fetch participants by joining User and EventParticipant tables
+    participants = User.query.join(EventParticipant).filter(
+        EventParticipant.event_id == event.id
+    ).all()
+    
+    return render_template('admin/event_detail.html', 
+                         event=event, 
+                         participants=participants,
+                         now=datetime.utcnow())
+
+
+@admin_bp.route('/events/<int:event_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_event(event_id):
+    """Edit an existing event."""
+    event = Event.query.get_or_404(event_id)
+    
+    if request.method == 'POST':
+        event.title = request.form.get('title')
+        event.description = request.form.get('description')
+        event.event_type = request.form.get('event_type')
+        event.location = request.form.get('location')
+        
+        date_str = request.form.get('date')
+        if date_str:
+            # Parse date (assuming input is SG time, convert to UTC)
+            event.date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M') - timedelta(hours=8)
+        
+        capacity = request.form.get('capacity')
+        event.capacity = int(capacity) if capacity and capacity.strip() else None
+        
+        db.session.commit()
+        flash('Event updated successfully!', 'success')
+        return redirect(url_for('admin.event_detail', event_id=event.id))
+    
+    # Prepare date for datetime-local input (SG time)
+    current_date_str = (event.date + timedelta(hours=8)).strftime('%Y-%m-%dT%H:%M')
+    return render_template('admin/edit_event.html', event=event, current_date_str=current_date_str)
+
+
 @admin_bp.route('/events/create', methods=['GET', 'POST'])
 @admin_required
 def create_event():
@@ -333,6 +379,21 @@ def create_event():
         return redirect(url_for('admin.events'))
 
     return render_template('admin/create_event.html')
+
+
+@admin_bp.route('/events/<int:event_id>/delete', methods=['POST'])
+@admin_required
+def delete_event(event_id):
+    """Delete an event."""
+    event = Event.query.get_or_404(event_id)
+    try:
+        db.session.delete(event)
+        db.session.commit()
+        flash('Event deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error deleting event. It may have active participants.', 'danger')
+    return redirect(url_for('admin.events'))
 
 
 # ==================== COMMUNITY MANAGEMENT ====================

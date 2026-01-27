@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+<!--
+    File: edit_event.html
+    Purpose: Admin form to edit existing events
+    Author: to be assigned
+    Date: December 2025
+-->
+
+{% block title %}Edit Event - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .event-form-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+    }
+
+    .form-card h5 {
+        color: #2C3E50;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .event-type-selector {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .event-type-option {
+        flex: 1;
+        padding: 1.5rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .event-type-option:hover {
+        border-color: #3498DB;
+        background-color: #F8F9FA;
+    }
+
+    .event-type-option.selected {
+        border-color: #3498DB;
+        background-color: #EBF5FB;
+    }
+
+    .event-type-option i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .event-type-option.online i {
+        color: #27AE60;
+    }
+
+    .event-type-option.in-person i {
+        color: #9B59B6;
+    }
+
+    .event-type-option input {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-edit me-2"></i>Edit Event</h1>
+                <p class="mb-0">Update event details</p>
+            </div>
+            <a href="{{ url_for('admin.event_detail', event_id=event.id) }}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Details
+            </a>
+        </div>
+    </div>
+
+    <div class="event-form-container">
+        <form method="POST" action="{{ url_for('admin.edit_event', event_id=event.id) }}" id="editEventForm">
+            <!-- Basic Information -->
+            <div class="form-card">
+                <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-bold">Event Title *</label>
+                    <input type="text" class="form-control" id="title" name="title"
+                           value="{{ event.title }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label fw-bold">Description</label>
+                    <textarea class="form-control" id="description" name="description"
+                              rows="4">{{ event.description }}</textarea>
+                </div>
+            </div>
+
+            <!-- Event Type -->
+            <div class="form-card">
+                <h5><i class="fas fa-tags me-2"></i>Event Type *</h5>
+
+                <div class="event-type-selector">
+                    <label class="event-type-option online {% if event.event_type == 'online' %}selected{% endif %}" for="type_online">
+                        <input type="radio" name="event_type" id="type_online" value="online" required
+                               {% if event.event_type == 'online' %}checked{% endif %}
+                               onclick="document.querySelectorAll('.event-type-option').forEach(el => el.classList.remove('selected')); this.closest('label').classList.add('selected');">
+                        <i class="fas fa-video"></i>
+                        <div class="fw-bold">Online</div>
+                        <small class="text-muted">Virtual event via video call</small>
+                    </label>
+                    <label class="event-type-option in-person {% if event.event_type == 'in-person' %}selected{% endif %}" for="type_inperson">
+                        <input type="radio" name="event_type" id="type_inperson" value="in-person"
+                               {% if event.event_type == 'in-person' %}checked{% endif %}
+                               onclick="document.querySelectorAll('.event-type-option').forEach(el => el.classList.remove('selected')); this.closest('label').classList.add('selected');">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="fw-bold">In-Person</div>
+                        <small class="text-muted">Physical location meetup</small>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Date & Time -->
+            <div class="form-card">
+                <h5><i class="fas fa-clock me-2"></i>Date & Time *</h5>
+
+                <div class="mb-3">
+                    <label for="date" class="form-label fw-bold">Event Date & Time</label>
+                    <input type="datetime-local" class="form-control" id="date" name="date"
+                           value="{{ current_date_str }}" required>
+                </div>
+            </div>
+
+            <!-- Location & Capacity -->
+            <div class="form-card">
+                <h5><i class="fas fa-map-marker-alt me-2"></i>Logistics</h5>
+
+                <div class="mb-3">
+                    <label for="location" class="form-label fw-bold">Location / Meeting Link</label>
+                    <input type="text" class="form-control" id="location" name="location"
+                           value="{{ event.location or '' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="capacity" class="form-label fw-bold">Maximum Participants</label>
+                    <input type="number" class="form-control" id="capacity" name="capacity"
+                           value="{{ event.capacity if event.capacity else '' }}" min="1">
+                    <small class="text-muted">Leave blank for unlimited capacity</small>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+                <a href="{{ url_for('admin.event_detail', event_id=event.id) }}" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
