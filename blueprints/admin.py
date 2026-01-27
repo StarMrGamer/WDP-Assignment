@@ -46,22 +46,22 @@ def dashboard():
     Admin dashboard with key metrics and alerts.
     Shows user counts, active pairs, pending reports, and system health.
     """
-    # Get user statistics
+    # Get user statistics (Active Seniors and Youth)
     total_seniors = User.query.filter_by(role='senior', is_active=True).count()
     total_youth = User.query.filter_by(role='youth', is_active=True).count()
 
-    # Get pair statistics
+    # Get pair statistics (Active connections)
     active_pairs = Pair.query.filter_by(status='active').count()
 
-    # Get pending reports
+    # Get pending reports requiring attention
     pending_reports = ChatReport.query.filter_by(status='pending').count()
 
-    # Get recent activity
+    # Get recent activity for the feed
     recent_stories = Story.query.order_by(Story.created_at.desc()).limit(5).all()
     recent_users = User.query.filter(User.role != 'admin')\
         .order_by(User.created_at.desc()).limit(5).all()
 
-    # Get inactive pairs (no interaction in 7 days)
+    # Get inactive pairs (no interaction in 7 days) to show warnings
     inactive_threshold = datetime.utcnow() - timedelta(days=7)
     inactive_pairs = Pair.query.filter(
         Pair.status == 'active',
@@ -677,27 +677,31 @@ def report_detail(report_id):
 @admin_bp.route('/analytics')
 @admin_required
 def analytics():
-    """Display platform analytics and insights."""
+    """
+    Display platform analytics and insights.
+    Aggregates data across users, stories, messages, and pairs to provide
+    a comprehensive view of platform usage and health.
+    """
     # Calculate various metrics
 
-    # User growth
+    # User growth: Total non-admin users and new signups in last 30 days
     total_users = User.query.filter(User.role != 'admin').count()
     new_users_this_month = User.query.filter(
         User.role != 'admin',
         User.created_at >= datetime.utcnow() - timedelta(days=30)
     ).count()
 
-    # User Breakdown
+    # User Breakdown by Role
     total_seniors = User.query.filter_by(role='senior').count()
     total_youth = User.query.filter_by(role='youth').count()
     total_admins = User.query.filter_by(role='admin').count()
 
-    # Active Users (last 30 days)
+    # Active Users (users with activity in last 30 days)
     active_users_30d = User.query.filter(
         User.last_active >= datetime.utcnow() - timedelta(days=30)
     ).count()
 
-    # Inactive Users (users not active in 30 days)
+    # Inactive Users (users not active in 30 days or never active)
     # Note: total_users calculation above excludes admins, but active_users_30d might include them if not filtered.
     # To be consistent with "User Breakdown" card which usually sums up to total users visible.
     # Let's count inactive based on role != admin to match total_users.
@@ -706,25 +710,26 @@ def analytics():
         (User.last_active < datetime.utcnow() - timedelta(days=30)) | (User.last_active == None)
     ).count()
 
-    # Engagement metrics
+    # Engagement metrics (Total content created)
     total_stories = Story.query.count()
     total_messages = Message.query.count()
 
-    # Pair health
+    # Pair health metrics
     total_pairs = Pair.query.count()
     active_pairs = Pair.query.filter_by(status='active').count()
     
-    # Inactive pairs (no interaction in 7 days)
+    # Inactive pairs (active status but no interaction in 7 days)
     inactive_threshold = datetime.utcnow() - timedelta(days=7)
     inactive_pairs_count = Pair.query.filter(
         Pair.status == 'active',
         Pair.last_interaction < inactive_threshold
     ).count()
 
-    # Reports
+    # Reports and Moderation stats
     pending_reports_count = ChatReport.query.filter_by(status='pending').count()
     resolved_reports = ChatReport.query.filter_by(status='resolved').count()
     total_reports = ChatReport.query.count()
+    # Calculate resolution rate percentage
     resolution_rate = int((resolved_reports / total_reports * 100)) if total_reports > 0 else 100
 
     return render_template('admin/analytics.html',

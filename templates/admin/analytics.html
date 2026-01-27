@@ -166,10 +166,12 @@
     </div>
 
     <!-- Key Metrics -->
+    <!-- Top row cards showing high-level platform statistics -->
     <div class="row mb-4">
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="analytics-card">
                 <div class="big-stat">
+                    <!-- Total registered users (excluding admins) -->
                     <div class="value" style="color: #3498DB;">{{ total_users }}</div>
                     <div class="label">Total Users</div>
                     <div class="change positive">
@@ -214,6 +216,7 @@
     </div>
 
     <!-- Insights Row -->
+    <!-- Highlighted insights derived from data -->
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
             <div class="insight-card">
@@ -240,13 +243,16 @@
 
     <div class="row">
         <!-- User Breakdown -->
+        <!-- Progress bars showing distribution of user roles -->
         <div class="col-lg-4 mb-4">
             <div class="analytics-card">
                 <h5><i class="fas fa-users me-2"></i>User Breakdown</h5>
                 
+                <!-- Calculate total population to determine percentages -->
                 {% set total_population = total_users + total_admins %}
                 {% if total_population == 0 %}{% set total_population = 1 %}{% endif %}
 
+                <!-- Senior Users Percentage -->
                 <div class="progress-stat">
                     <div class="header">
                         <span class="label">Seniors</span>
@@ -257,6 +263,7 @@
                     </div>
                 </div>
 
+                <!-- Youth Volunteers Percentage -->
                 <div class="progress-stat">
                     <div class="header">
                         <span class="label">Youth Volunteers</span>
@@ -267,6 +274,7 @@
                     </div>
                 </div>
 
+                <!-- Admin Users Percentage -->
                 <div class="progress-stat">
                     <div class="header">
                         <span class="label">Admins</span>
@@ -291,6 +299,7 @@
         </div>
 
         <!-- Engagement Stats -->
+        <!-- Calculated averages for user activity -->
         <div class="col-lg-4 mb-4">
             <div class="analytics-card">
                 <h5><i class="fas fa-chart-bar me-2"></i>Engagement Metrics</h5>
@@ -323,6 +332,7 @@
         </div>
 
         <!-- Platform Health -->
+        <!-- System status and moderation efficiency -->
         <div class="col-lg-4 mb-4">
             <div class="analytics-card">
                 <h5><i class="fas fa-heartbeat me-2"></i>Platform Health</h5>
