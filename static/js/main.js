@@ -436,9 +436,9 @@ function validateAge(age, role) {
  */
 function showConfirmModal(title, message, onConfirm) {
     const modal = document.createElement('div');
-    modal.className = 'modal-backdrop';
+    modal.className = 'custom-confirm-backdrop';
     modal.innerHTML = `
-        <div class="modal">
+        <div class="custom-confirm-modal">
             <div class="modal-header">
                 <h3 class="modal-title">${title}</h3>
             </div>
@@ -446,7 +446,7 @@ function showConfirmModal(title, message, onConfirm) {
                 <p>${message}</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="this.closest('.modal-backdrop').remove()">
+                <button class="btn btn-secondary" onclick="this.closest('.custom-confirm-backdrop').remove()">
                     Cancel
                 </button>
                 <button class="btn btn-danger" id="confirmBtn">

@@ -174,7 +174,7 @@ def edit_story(story_id):
     return render_template('youth/edit_story.html', form=form, story=story)
 
 
-@youth_bp.route('/stories/<int:story_id>/delete', methods=['DELETE'])
+@youth_bp.route('/stories/<int:story_id>/delete', methods=['POST', 'DELETE'])
 @login_required
 def delete_story(story_id):
     """Delete a story."""

@@ -447,6 +447,31 @@ p {
     z-index: var(--z-modal);
 }
 
+/* Custom Confirmation Modal (Prevents Bootstrap Conflict) */
+.custom-confirm-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* Darker backdrop */
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-confirm-modal {
+    background-color: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-xl);
+    padding: var(--spacing-xl);
+    max-width: 500px;
+    width: 90%;
+    z-index: 10001;
+    animation: fadeIn 0.3s ease-out;
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
