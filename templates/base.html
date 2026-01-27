@@ -87,38 +87,80 @@
                                         <i class="fas fa-home"></i> Home
                                     </a>
                                 </li>
-                                <li class="nav-item animated-nav-item" id="nav-stories">
-                                    <a class="nav-link" href="{% if session.role == 'senior' %}{{ url_for('senior.stories') }}{% else %}{{ url_for('youth.story_feed') }}{% endif %}">
-                                        <i class="fas fa-book-open"></i> Stories
-                                    </a>
-                                </li>
-                                <li class="nav-item animated-nav-item" id="nav-messages">
-                                    <a class="nav-link" href="{{ url_for(session.role + '.messages') }}">
-                                        <i class="fas fa-comments"></i> Messages
-                                    </a>
-                                </li>
-                                <li class="nav-item animated-nav-item" id="nav-events">
-                                    <a class="nav-link" href="{{ url_for(session.role + '.events') }}">
-                                        <i class="fas fa-calendar-alt"></i> Events
-                                    </a>
-                                </li>
-                                <li class="nav-item animated-nav-item" id="nav-communities">
-                                    <a class="nav-link" href="{{ url_for(session.role + '.communities') }}">
-                                        <i class="fas fa-users"></i> Communities
-                                    </a>
-                                </li>
-                                {% if session.role == 'youth' %}
-                                <li class="nav-item animated-nav-item" id="nav-badges">
-                                    <a class="nav-link" href="{{ url_for('youth.badges') }}">
-                                        <i class="fas fa-trophy"></i> Badges
-                                    </a>
-                                </li>
+
+                                {% if session.role == 'admin' %}
+                                    <!-- Admin Navigation (Matches Dashboard Quick Actions) -->
+                                    <li class="nav-item animated-nav-item" id="nav-users">
+                                        <a class="nav-link" href="{{ url_for('admin.users') }}">
+                                            <i class="fas fa-users"></i> Users
+                                        </a>
+                                    </li>
+                                    <li class="nav-item animated-nav-item" id="nav-codes">
+                                        <a class="nav-link" href="{{ url_for('admin.codes') }}">
+                                            <i class="fas fa-key"></i> Codes
+                                        </a>
+                                    </li>
+                                    <li class="nav-item animated-nav-item" id="nav-pairs">
+                                        <a class="nav-link" href="{{ url_for('admin.pairs') }}">
+                                            <i class="fas fa-user-friends"></i> Pairs
+                                        </a>
+                                    </li>
+                                    <li class="nav-item animated-nav-item" id="nav-events">
+                                        <a class="nav-link" href="{{ url_for('admin.events') }}">
+                                            <i class="fas fa-calendar"></i> Events
+                                        </a>
+                                    </li>
+                                    <li class="nav-item animated-nav-item" id="nav-communities">
+                                        <a class="nav-link" href="{{ url_for('admin.communities') }}">
+                                            <i class="fas fa-comments"></i> Communities
+                                        </a>
+                                    </li>
+                                    <li class="nav-item animated-nav-item" id="nav-reports">
+                                        <a class="nav-link" href="{{ url_for('admin.reports') }}">
+                                            <i class="fas fa-flag"></i> Reports
+                                        </a>
+                                    </li>
+                                    <li class="nav-item animated-nav-item" id="nav-analytics">
+                                        <a class="nav-link" href="{{ url_for('admin.analytics') }}">
+                                            <i class="fas fa-chart-line"></i> Analytics
+                                        </a>
+                                    </li>
+
+                                {% else %}
+                                    <!-- Senior & Youth Navigation -->
+                                    <li class="nav-item animated-nav-item" id="nav-stories">
+                                        <a class="nav-link" href="{% if session.role == 'senior' %}{{ url_for('senior.stories') }}{% else %}{{ url_for('youth.story_feed') }}{% endif %}">
+                                            <i class="fas fa-book-open"></i> Stories
+                                        </a>
+                                    </li>
+                                    <li class="nav-item animated-nav-item" id="nav-messages">
+                                        <a class="nav-link" href="{{ url_for(session.role + '.messages') }}">
+                                            <i class="fas fa-comments"></i> Messages
+                                        </a>
+                                    </li>
+                                    <li class="nav-item animated-nav-item" id="nav-events">
+                                        <a class="nav-link" href="{{ url_for(session.role + '.events') }}">
+                                            <i class="fas fa-calendar-alt"></i> Events
+                                        </a>
+                                    </li>
+                                    <li class="nav-item animated-nav-item" id="nav-communities">
+                                        <a class="nav-link" href="{{ url_for(session.role + '.communities') }}">
+                                            <i class="fas fa-users"></i> Communities
+                                        </a>
+                                    </li>
+                                    {% if session.role == 'youth' %}
+                                    <li class="nav-item animated-nav-item" id="nav-badges">
+                                        <a class="nav-link" href="{{ url_for('youth.badges') }}">
+                                            <i class="fas fa-trophy"></i> Badges
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    <li class="nav-item animated-nav-item" id="nav-games">
+                                        <a class="nav-link" href="{{ url_for(session.role + '.games') }}">
+                                            <i class="fas fa-gamepad"></i> Games
+                                        </a>
+                                    </li>
                                 {% endif %}
-                                <li class="nav-item animated-nav-item" id="nav-games">
-                                    <a class="nav-link" href="{{ url_for(session.role + '.games') }}">
-                                        <i class="fas fa-gamepad"></i> Games
-                                    </a>
-                                </li>
                             </ul>
                         </div>
                     </div>
