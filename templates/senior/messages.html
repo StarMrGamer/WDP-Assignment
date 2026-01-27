@@ -66,7 +66,14 @@
                                     <i class="fas fa-language"></i> {{ message.translated_content }}
                                 </div>
                                 {% endif %}
-                                <div class="time-stamp">{{ message.created_at|format_date('%I:%M %p') }}</div>
+                                <div class="d-flex justify-content-end align-items-center mt-1">
+                                    <div class="time-stamp mb-0">{{ message.created_at|format_date('%I:%M %p') }}</div>
+                                    {% if message.sender_id != session.user_id %}
+                                    <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal({{ message.id }})" title="Report Message">
+                                        <i class="far fa-flag" style="font-size: 0.8rem;"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
@@ -112,9 +119,6 @@
                         </div>
                         <div class="d-flex justify-content-between mt-2 px-3">
                             <small class="text-muted"><i class="fas fa-shield-alt text-success me-1"></i> Encryption Active</small>
-                            <button type="button" class="btn btn-link btn-sm text-danger p-0 text-decoration-none" data-bs-toggle="modal" data-bs-target="#reportModal">
-                                <i class="fas fa-flag me-1"></i>Report
-                            </button>
                         </div>
                     </form>
                 </div>

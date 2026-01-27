@@ -46,7 +46,7 @@ class Config:
 
     # Enable query echo for debugging (shows SQL queries in console)
     # Set to False in production for better performance
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
 
     # ==================== SESSION CONFIGURATION ====================
     # Session lifetime - user will be logged out after this period of inactivity
@@ -167,6 +167,7 @@ class DevelopmentConfig(Config):
     """
     DEBUG = True
     TESTING = False
+    SQLALCHEMY_ECHO = True
 
 
 class TestingConfig(Config):

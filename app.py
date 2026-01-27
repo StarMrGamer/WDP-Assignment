@@ -15,7 +15,7 @@ Description: This is the entry point for the Flask application. It:
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from config import get_config
-from models import db, ChatReport
+from models import db
 from datetime import timedelta
 from sqlalchemy import text
 import os
@@ -161,7 +161,6 @@ def on_join(data):
             
     room = f"game_{game_id}"
     join_room(room)
-    print(f"DEBUG: User {session.get('username')} (ID: {session.get('user_id')}) joined room {room}")
     
     # Send initial status
     gs = GameSession.query.get(game_id)
@@ -174,13 +173,11 @@ def on_join(data):
             'p1_id': gs.player1_id,
             'p2_id': gs.player2_id
         })
-        print(f"DEBUG: Sent init_game with status {gs.status} and state to {session.get('username')}")
 
 @socketio.on('challenge')
 def on_challenge(data):
     # Data contains game_id and buddy_id
     buddy_room = f"user_{data['buddy_id']}"
-    print(f"DEBUG: {session.get('username')} challenging buddy in room {buddy_room}")
     socketio.emit('game_challenge', {
         'challenger_name': session.get('full_name'),
         'challenger_id': session.get('user_id'),
@@ -203,23 +200,14 @@ def on_ready(data):
     if user_id is not None:
         user_id = int(user_id)
         
-    print(f"DEBUG: Ready event received. Session: {session_id}, User: {user_id} (Type: {type(user_id)})")
-    
     gs = GameSession.query.get(session_id)
     if not gs: 
-        print(f"DEBUG: Session {session_id} not found in DB")
         return
-
-    print(f"DEBUG: Session found. P1: {gs.player1_id} (Ready: {gs.player1_ready}), P2: {gs.player2_id} (Ready: {gs.player2_ready})")
 
     if gs.player1_id == user_id:
         gs.player1_ready = True
-        print(f"DEBUG: Player 1 ({user_id}) is now ready")
     elif gs.player2_id == user_id:
         gs.player2_ready = True
-        print(f"DEBUG: Player 2 ({user_id}) is now ready")
-    else:
-        print(f"DEBUG: User {user_id} is not part of this session")
     
     db.session.commit()
     
@@ -227,10 +215,8 @@ def on_ready(data):
     if gs.player1_ready and gs.player2_ready:
         gs.status = 'active'
         db.session.commit()
-        print(f"DEBUG: BOTH READY - Starting game {session_id} in room {room}")
         socketio.emit('game_start', {'session_id': session_id}, room=room)
     else:
-        print(f"DEBUG: One player ready, waiting for other. Room: {room}")
         socketio.emit('player_ready', {'user_id': user_id}, room=room)
 
 @socketio.on('forfeit')
@@ -289,11 +275,9 @@ def on_move(data):
         if new_state:
             gs.game_state = str(new_state)
             db.session.commit()
-            print(f"DEBUG: Saved game state for session {game_id}")
 
     # Broadcast the move to the other player in the room
     emit('move', data, room=room, include_self=False)
-    print(f"Move received in room {room}: {data.get('move')}")
 
 @socketio.on('game_chat')
 def on_game_chat(data):
@@ -340,7 +324,6 @@ def on_game_chat(data):
 def on_join_community(data):
     room = f"community_{data['community_id']}"
     join_room(room)
-    print(f"DEBUG: User {session.get('username')} joined community room {room}")
 
 @socketio.on('leave_community')
 def on_leave_community(data):
@@ -392,7 +375,7 @@ def on_connect():
 
 @socketio.on('disconnect')
 def on_disconnect():
-    print(f"User {session.get('username')} disconnected")
+    pass
 
 
 # ==================== NOTIFICATION EVENT LISTENER ====================
@@ -420,7 +403,6 @@ def push_notification(mapper, connection, target):
         }
         
         socketio.emit('new_notification', notif_data, room=room)
-        # print(f"DEBUG: Pushed notification {target.id} to {room}")
     except Exception as e:
         print(f"ERROR: Failed to push notification: {e}")
 
@@ -451,47 +433,34 @@ app.register_blueprint(youth_bp, url_prefix='/youth')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
 
+def patch_db(sql_command, success_msg=""):
+    """Helper to run database patches safely."""
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text(sql_command))
+            conn.commit()
+            if success_msg:
+                print(f"Database patched: {success_msg}")
+    except Exception:
+        pass
+
 # ==================== DATABASE INITIALIZATION ====================
 # Create tables in app context (runs once at startup)
 with app.app_context():
     """
     Create all database tables at application startup.
-
-    This runs once when the app initializes.
-    It creates all tables defined in models.py if they don't exist.
-
-    Note: In production, database migrations should be handled by Flask-Migrate
+    Note: In production, database migrations should be handled by Flask-Migrate.
+    The auto-patch blocks below handle schema updates for existing databases
+    in this development environment.
     """
     db.create_all()
 
-    # Auto-patch: Add missing photo_url column if it doesn't exist
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE community_posts ADD COLUMN photo_url VARCHAR(255)"))
-            conn.commit()
-            print("Database patched: Added photo_url to community_posts")
-    except Exception:
-        pass # Column likely already exists or another error occurred
-
-    # Auto-patch: Add missing photo_url column to communities if it doesn't exist
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE communities ADD COLUMN photo_url VARCHAR(255)"))
-            conn.commit()
-            print("Database patched: Added photo_url to communities")
-    except Exception:
-        pass
-
-    # Auto-patch: Add missing last_viewed_at column to community_members if it doesn't exist
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE community_members ADD COLUMN last_viewed_at DATETIME"))
-            conn.commit()
-            print("Database patched: Added last_viewed_at to community_members")
-    except Exception:
-        pass
-
-    # Auto-patch: Ensure chat_reports table exists
+    # Auto-patching
+    patch_db("ALTER TABLE community_posts ADD COLUMN photo_url VARCHAR(255)", "Added photo_url to community_posts")
+    patch_db("ALTER TABLE communities ADD COLUMN photo_url VARCHAR(255)", "Added photo_url to communities")
+    patch_db("ALTER TABLE community_members ADD COLUMN last_viewed_at DATETIME", "Added last_viewed_at to community_members")
+    
+    # Ensure tables exist (redundant with create_all but kept for explicit checks if needed)
     try:
         with db.engine.connect() as conn:
             conn.execute(text("SELECT count(*) FROM chat_reports"))
@@ -499,52 +468,13 @@ with app.app_context():
         print("Creating chat_reports table...")
         db.create_all()
 
-    # Auto-patch: Ensure chat_reports table exists (Double check)
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("SELECT count(*) FROM chat_reports"))
-    except Exception:
-        print("Creating chat_reports table...")
-        db.create_all()
+    patch_db("ALTER TABLE chat_reports ADD COLUMN status VARCHAR(20) DEFAULT 'pending'", "Added status to chat_reports")
+    patch_db("ALTER TABLE chat_reports ADD COLUMN admin_notes TEXT", "Added admin_notes to chat_reports")
+    patch_db("ALTER TABLE users ADD COLUMN elo INTEGER DEFAULT 1200", "Added elo to users")
+    
+    patch_db("ALTER TABLE game_sessions ADD COLUMN winner_id INTEGER REFERENCES users(id)", "Added winner_id to game_sessions")
+    patch_db("ALTER TABLE game_sessions ADD COLUMN game_state TEXT", "Added game_state to game_sessions")
 
-    # Auto-patch: Add missing status column to chat_reports if it doesn't exist
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE chat_reports ADD COLUMN status VARCHAR(20) DEFAULT 'pending'"))
-            conn.commit()
-            print("Database patched: Added status to chat_reports")
-    except Exception:
-        pass
-
-    # Auto-patch: Add missing admin_notes column to chat_reports if it doesn't exist
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE chat_reports ADD COLUMN admin_notes TEXT"))
-            conn.commit()
-            print("Database patched: Added admin_notes to chat_reports")
-    except Exception:
-        pass
-
-    # Auto-patch: Add elo to users
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE users ADD COLUMN elo INTEGER DEFAULT 1200"))
-            conn.commit()
-            print("Database patched: Added elo to users")
-    except Exception:
-        pass
-
-    # Auto-patch: Add winner_id and game_state to game_sessions
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE game_sessions ADD COLUMN winner_id INTEGER REFERENCES users(id)"))
-            conn.execute(text("ALTER TABLE game_sessions ADD COLUMN game_state TEXT"))
-            conn.commit()
-            print("Database patched: Added winner_id and game_state to game_sessions")
-    except Exception:
-        pass
-
-    # Auto-patch: Ensure game_history table exists
     try:
         with db.engine.connect() as conn:
             conn.execute(text("SELECT count(*) FROM game_history"))

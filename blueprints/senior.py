@@ -9,7 +9,7 @@ Description: Handles all routes for senior users including story creation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, Badge, ChatReport
+from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename

@@ -76,13 +76,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             ` : '';
 
+            // Report button (only for received messages)
+            const reportBtn = !msg.is_me ? `
+                <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal(${msg.id})" title="Report Message">
+                    <i class="far fa-flag" style="font-size: 0.8rem;"></i>
+                </button>
+            ` : '';
+
             return `
                 <div class="message-wrapper ${sideClass}">
                     <div class="message-bubble">
                         ${flaggedAlert}
                         <div class="content-text">${msg.content}</div>
                         ${translationBox}
-                        <div class="time-stamp">${msg.created_at}</div>
+                        <div class="d-flex justify-content-end align-items-center mt-1">
+                            <div class="time-stamp mb-0">${msg.created_at}</div>
+                            ${reportBtn}
+                        </div>
                     </div>
                 </div>
             `;
