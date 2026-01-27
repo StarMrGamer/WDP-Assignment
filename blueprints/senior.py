@@ -72,6 +72,40 @@ def dashboard():
 
 
 # ==================== STORIES ====================
+@senior_bp.route('/story_feed')
+@login_required
+def story_feed():
+    """Instagram-style story feed with all stories."""
+    # Get filters from query parameters
+    category_filter = request.args.get('category', 'all')
+    role_filter = request.args.get('role', 'all')
+
+    # Query stories with user join for role filtering
+    query = Story.query.join(User)
+
+    if category_filter != 'all':
+        query = query.filter(Story.category == category_filter)
+    
+    if role_filter != 'all':
+        query = query.filter(User.role == role_filter)
+
+    stories = query.order_by(Story.created_at.desc()).all()
+
+    return render_template('senior/story_feed.html',
+                         stories=stories,
+                         current_category=category_filter,
+                         current_role=role_filter)
+
+
+@senior_bp.route('/story/<int:story_id>')
+@login_required
+def story_detail(story_id):
+    """Full story view with reactions and comments."""
+    story = Story.query.get_or_404(story_id)
+
+    return render_template('senior/story_detail.html', story=story)
+
+
 @senior_bp.route('/stories')
 @login_required
 def stories():

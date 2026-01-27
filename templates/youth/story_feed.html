@@ -7,18 +7,42 @@
     <!-- Header and Filters -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Stories</h2>
-        <div class="dropdown">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-filter me-2"></i>{{ current_filter|capitalize }}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='all') }}">All Stories</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Childhood') }}">Childhood</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Work Life') }}">Work Life</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Family') }}">Family</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Hobbies') }}">Hobbies</a></li>
-            </ul>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('youth.create_story') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Share Story
+            </a>
+
+            <!-- Role Filter -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-tag me-2"></i>
+                    {% if current_role == 'senior' %}Seniors
+                    {% elif current_role == 'youth' %}Youth
+                    {% else %}All Roles{% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category=current_category, role='all') }}">All Roles</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category=current_category, role='senior') }}">Seniors</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category=current_category, role='youth') }}">Youth</a></li>
+                </ul>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-2"></i>
+                    {% if current_category != 'all' %}{{ current_category }}{% else %}All Categories{% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='all', role=current_role) }}">All Stories</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Childhood', role=current_role) }}">Childhood</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Work Life', role=current_role) }}">Work Life</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Family', role=current_role) }}">Family</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('youth.story_feed', category='Hobbies', role=current_role) }}">Hobbies</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 

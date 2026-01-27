@@ -129,7 +129,7 @@
                                 {% else %}
                                     <!-- Senior & Youth Navigation -->
                                     <li class="nav-item animated-nav-item" id="nav-stories">
-                                        <a class="nav-link" href="{% if session.role == 'senior' %}{{ url_for('senior.stories') }}{% else %}{{ url_for('youth.story_feed') }}{% endif %}">
+                                        <a class="nav-link" href="{% if session.role == 'senior' %}{{ url_for('senior.story_feed') }}{% else %}{{ url_for('youth.story_feed') }}{% endif %}">
                                             <i class="fas fa-book-open"></i> Stories
                                         </a>
                                     </li>

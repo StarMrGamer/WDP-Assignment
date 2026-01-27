@@ -485,7 +485,7 @@
                     {% for item in leaderboard %}
                     <div class="leaderboard-item">
                         <div class="leaderboard-rank {{ 'top-' + item.rank|string if item.rank <= 3 else '' }}">
-                            {% if item.rank == 1 %}🥇{% elif item.rank == 2 %}🥈{% elif item.rank == 3 %}🥉{% else %}{{ item.rank }}{% endif %}
+                            {% if item.rank == 1 %}<i class="fas fa-medal text-warning"></i>{% elif item.rank == 2 %}<i class="fas fa-medal text-secondary"></i>{% elif item.rank == 3 %}<i class="fas fa-medal" style="color: #CD7F32;"></i>{% else %}{{ item.rank }}{% endif %}
                         </div>
                         
                         {% if 'default-avatar' in item.avatar %}

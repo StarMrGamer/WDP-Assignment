@@ -201,6 +201,10 @@
                     </h5>
                 </div>
                 <div class="card-body p-2">
+                    <a href="{{ url_for('youth.create_story') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-plus-circle text-primary me-2"></i>
+                        Share My Story
+                    </a>
                     <a href="{{ url_for('youth.story_feed') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-book-open text-primary me-2"></i>
                         Browse Stories
@@ -237,10 +241,10 @@
                         {% for badge in user.badges.limit(3).all() %}
                         <div class="badge-item text-center mb-3">
                             <div class="badge-icon mb-2" style="font-size: 3rem;">
-                                {% if 'Week' in badge.badge_type %}🔥
-                                {% elif 'Month' in badge.badge_type %}⭐
-                                {% elif 'Century' in badge.badge_type %}💯
-                                {% else %}🏆{% endif %}
+                                {% if 'Week' in badge.badge_type %}<i class="fas fa-fire text-danger"></i>
+                                {% elif 'Month' in badge.badge_type %}<i class="fas fa-star text-warning"></i>
+                                {% elif 'Century' in badge.badge_type %}<i class="fas fa-award text-success"></i>
+                                {% else %}<i class="fas fa-trophy text-primary"></i>{% endif %}
                             </div>
                             <strong>{{ badge.badge_type }}</strong>
                             <br>
@@ -290,7 +294,7 @@
                     </div>
                     <hr>
                     <p class="small text-muted mb-0 text-center">
-                        💪 Keep making a difference!
+                        <i class="fas fa-fist-raised text-primary me-2"></i>Keep making a difference!
                     </p>
                 </div>
             </div>

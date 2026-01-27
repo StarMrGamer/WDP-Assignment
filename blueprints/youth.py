@@ -10,7 +10,7 @@ Description: Handles all routes for youth volunteers including story engagement,
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport
-from forms import MessageForm
+from forms import MessageForm, StoryForm
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -66,24 +66,88 @@ def dashboard():
 
 
 # ==================== STORY FEED ====================
+@youth_bp.route('/stories')
+@login_required
+def stories():
+    """Display all stories created by this youth."""
+    user_id = session['user_id']
+    stories = Story.query.filter_by(user_id=user_id)\
+        .order_by(Story.created_at.desc()).all()
+
+    return render_template('youth/stories.html', stories=stories)
+
+
+@youth_bp.route('/create_story', methods=['GET', 'POST'])
+@login_required
+def create_story():
+    """Create a new story (step-by-step wizard)."""
+    form = StoryForm()
+    
+    if form.validate_on_submit():
+        # Create new story
+        new_story = Story(
+            user_id=session['user_id'],
+            title=form.title.data,
+            content=form.content.data,
+            category=form.category.data
+        )
+
+        # Handle photo upload
+        if form.photo.data:
+            file = form.photo.data
+            if file:
+                filename = secure_filename(file.filename)
+                # Check extension
+                ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                if ext in current_app.config['ALLOWED_EXTENSIONS']:
+                    # Ensure upload directory exists
+                    os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                    
+                    # Save file with unique name
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
+                    unique_filename = timestamp + filename
+                    
+                    file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+                    new_story.photo_url = unique_filename
+
+        db.session.add(new_story)
+        db.session.commit()
+
+        flash('Story created successfully!', 'success')
+        return redirect(url_for('youth.stories'))
+    
+    # Flash errors if any
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'danger')
+
+    return render_template('youth/create_story.html', form=form)
+
+
 @youth_bp.route('/story_feed')
 @login_required
 def story_feed():
     """Instagram-style story feed with all senior stories."""
-    # Get filter from query parameter
+    # Get filters from query parameters
     category_filter = request.args.get('category', 'all')
+    role_filter = request.args.get('role', 'all')
 
-    # Query stories
-    query = Story.query
+    # Query stories with user join for role filtering
+    query = Story.query.join(User)
 
     if category_filter != 'all':
-        query = query.filter_by(category=category_filter)
+        query = query.filter(Story.category == category_filter)
+    
+    if role_filter != 'all':
+        query = query.filter(User.role == role_filter)
 
     stories = query.order_by(Story.created_at.desc()).all()
 
     return render_template('youth/story_feed.html',
                          stories=stories,
-                         current_filter=category_filter)
+                         current_category=category_filter,
+                         current_role=role_filter)
 
 
 @youth_bp.route('/story/<int:story_id>')

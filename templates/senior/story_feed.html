@@ -4,62 +4,97 @@
 
 {% block content %}
 <div class="container py-4">
+    <!-- Header and Filters -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 style="color: var(--senior-text);">Community Stories</h1>
-        <div class="dropdown">
-            <button class="btn btn-outline-secondary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-filter me-2"></i>{{ current_filter|capitalize }}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='all') }}">All Stories</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='Childhood') }}">Childhood</a></li>
-                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='Work Life') }}">Work Life</a></li>
-                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='Family') }}">Family</a></li>
-                <li><a class="dropdown-item fs-5" href="{{ url_for('senior.story_feed', category='Hobbies') }}">Hobbies</a></li>
-            </ul>
+        <div>
+            <h2><i class="fas fa-book-open me-2"></i>Stories Feed</h2>
+            <p class="text-muted mb-0">Read life stories from our community</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('senior.create_story') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Share Story
+            </a>
+            
+            <!-- Role Filter -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-tag me-2"></i>
+                    {% if current_role == 'senior' %}Seniors
+                    {% elif current_role == 'youth' %}Youth
+                    {% else %}All Roles{% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ url_for('senior.story_feed', category=current_category, role='all') }}">All Roles</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('senior.story_feed', category=current_category, role='senior') }}">Seniors</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('senior.story_feed', category=current_category, role='youth') }}">Youth</a></li>
+                </ul>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-2"></i>
+                    {% if current_category != 'all' %}{{ current_category }}{% else %}All Categories{% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ url_for('senior.story_feed', category='all', role=current_role) }}">All Categories</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('senior.story_feed', category='Childhood', role=current_role) }}">Childhood</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('senior.story_feed', category='Work Life', role=current_role) }}">Work Life</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('senior.story_feed', category='Family', role=current_role) }}">Family</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('senior.story_feed', category='Hobbies', role=current_role) }}">Hobbies</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 
+    <!-- Stories Feed -->
     <div class="row justify-content-center">
         <div class="col-lg-8">
             {% for story in stories %}
-            <div class="card shadow-sm mb-4 border-2" style="border-color: var(--senior-border);">
-                <div class="card-body p-4">
-                    <!-- Header -->
-                    <div class="d-flex align-items-center mb-3">
-                        <a href="{{ url_for('senior.public_profile', user_id=story.user.id) }}">
-                            <img src="{{ url_for('static', filename=story.user.profile_picture|fix_pfp) }}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--senior-primary);">
+            <div class="card shadow-sm mb-4 story-card-hover">
+                <!-- Story Header: Creator Info -->
+                <div class="card-header bg-white p-3 border-bottom-0">
+                    <div class="d-flex align-items-center">
+                        <a href="{{ url_for('senior.public_profile', user_id=story.user.id) }}" class="text-decoration-none">
+                            <img src="{{ url_for('static', filename=story.user.profile_picture|fix_pfp) }}" class="rounded-circle me-2" style="width: 45px; height: 45px; object-fit: cover;">
                         </a>
                         <div>
                             <a href="{{ url_for('senior.public_profile', user_id=story.user.id) }}" class="text-decoration-none text-dark">
-                                <h4 class="card-title mb-0">{{ story.title }}</h4>
+                                <div class="fw-bold">{{ story.user.full_name }}</div>
                             </a>
-                            <p class="text-muted mb-0">by {{ story.user.full_name }} • {{ story.created_at|timeago }}</p>
+                            <small class="text-muted">{{ story.created_at|timeago }} • <span class="badge bg-light text-primary border">{{ story.category }}</span></small>
                         </div>
-                        <span class="badge bg-light text-dark border ms-auto fs-6">{{ story.category }}</span>
-                    </div>
-
-                    <!-- Image -->
-                    {% if story.photo_url %}
-                    <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" class="img-fluid rounded mb-3 w-100" style="max-height: 500px; object-fit: cover;">
-                    {% endif %}
-
-                    <!-- Content -->
-                    <p class="card-text fs-5 mb-4">{{ story.content }}</p>
-
-                    <!-- Footer -->
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <div class="fs-5 text-muted">
-                            {% set user_liked = story.reactions.filter_by(user_id=session.user_id, reaction_type='heart').first() is not none %}
-                            <span class="me-3"><i class="{{ 'fas' if user_liked else 'far' }} fa-heart text-danger me-2"></i>{{ story.reactions.count() }} Likes</span>
-                            <span><i class="fas fa-comment text-primary me-2"></i>{{ story.comments.count() }} Comments</span>
-                        </div>
-                        <a href="{{ url_for('senior.story_detail', story_id=story.id) }}" class="btn btn-primary btn-lg px-4">
-                            View & Comment
-                        </a>
                     </div>
                 </div>
+                
+                <!-- Story Image (if any) -->
+                {% if story.photo_url %}
+                <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" class="card-img-top" alt="Story image" style="max-height: 500px; object-fit: cover;">
+                {% endif %}
+                
+                <!-- Story Content -->
+                <div class="card-body">
+                    <h4 class="card-title fw-bold mb-2">{{ story.title }}</h4>
+                    <p class="card-text">{{ story.content[:150] }}...</p>
+                    
+                    <!-- Interactions -->
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <div class="text-muted">
+                            {% set user_liked = story.reactions.filter_by(user_id=session.user_id, reaction_type='heart').first() is not none %}
+                            <span class="me-3"><i class="{{ 'fas' if user_liked else 'far' }} fa-heart text-danger me-1"></i> {{ story.reactions.count() }}</span>
+                            <span><i class="fas fa-comment text-primary me-1"></i> {{ story.comments.count() }}</span>
+                        </div>
+                        <a href="{{ url_for('senior.story_detail', story_id=story.id) }}" class="btn btn-primary btn-sm">Read More</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No stories found</h4>
+                <p class="text-muted">Try changing the filter or check back later.</p>
             </div>
             {% endfor %}
         </div>
