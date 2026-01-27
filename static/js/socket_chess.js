@@ -236,6 +236,7 @@ function updateStatus () {
 
     $status.html(status)
     $pgn.html(game.pgn())
+    $pgn.scrollTop($pgn[0].scrollHeight);
 
     // Handle game over detection
     if (game.game_over()) {
