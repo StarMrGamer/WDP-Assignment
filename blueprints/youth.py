@@ -10,6 +10,7 @@ Description: Handles all routes for youth volunteers including story engagement,
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport
+from forms import MessageForm
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -108,46 +109,39 @@ def messages():
         return render_template('youth/messages.html', buddy=None, messages=[])
 
     buddy = User.query.get(pair.senior_id)
+    
+    form = MessageForm()
 
-    if request.method == 'POST':
-        # Retrieve message content from form
-        content = request.form.get('message')
-        if content:
-            # Check for unkind words using the application configuration
-            # This is a basic safety feature to flag potentially harmful content
-            is_flagged = False
-            unkind_words = current_app.config.get('UNKIND_WORDS', [])
-            for word in unkind_words:
-                if word.lower() in content.lower():
-                    is_flagged = True
-                    break
-            
-            # Create new message object
-            # Status defaults to sent/unread (logic handled by frontend display)
-            new_message = Message(
-                sender_id=user_id,
-                recipient_id=buddy.id,
-                content=content,
-                is_flagged=is_flagged
-            )
-            
-            # Add to database session
-            db.session.add(new_message)
-            
-            # Update pair last interaction timestamp
-            # This helps track active vs inactive pairs for admin reporting
-            pair.last_interaction = datetime.utcnow()
-            
-            # Commit changes to database
-            db.session.commit()
-            
-            # Notify user if their message was flagged
-            if is_flagged:
-                flash('Your message was sent but flagged for review due to potentially unkind language.', 'warning')
-            
-            # Redirect to the same page to show the new message
-            # This follows the Post-Redirect-Get pattern
-            return redirect(url_for('youth.messages'))
+    if form.validate_on_submit():
+        content = form.message.data
+        
+        # Check for unkind words
+        is_flagged = False
+        unkind_words = current_app.config.get('UNKIND_WORDS', [])
+        for word in unkind_words:
+            if word.lower() in content.lower():
+                is_flagged = True
+                break
+        
+        # Create new message object
+        new_message = Message(
+            sender_id=user_id,
+            recipient_id=buddy.id,
+            content=content,
+            is_flagged=is_flagged
+        )
+        
+        db.session.add(new_message)
+        
+        # Update pair last interaction timestamp
+        pair.last_interaction = datetime.utcnow()
+        
+        db.session.commit()
+        
+        if is_flagged:
+            flash('Your message was sent but flagged for review due to potentially unkind language.', 'warning')
+        
+        return redirect(url_for('youth.messages'))
 
     # Get messages between youth and senior
     messages = Message.query.filter(
@@ -155,7 +149,7 @@ def messages():
         ((Message.sender_id == buddy.id) & (Message.recipient_id == user_id))
     ).order_by(Message.created_at).all()
 
-    return render_template('youth/messages.html', buddy=buddy, messages=messages)
+    return render_template('youth/messages.html', buddy=buddy, messages=messages, form=form)
 
 
 @youth_bp.route('/api/messages')

@@ -10,6 +10,7 @@ Description: Handles all routes for senior users including story creation,
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport
+from forms import StoryForm, MessageForm
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -86,29 +87,21 @@ def stories():
 @login_required
 def create_story():
     """Create a new story (step-by-step wizard)."""
-    if request.method == 'POST':
-        # Get form data
-        title = request.form.get('title')
-        content = request.form.get('content')
-        category = request.form.get('category')
-
-        # Validate
-        if not all([title, content, category]):
-            flash('Please fill in all required fields', 'danger')
-            return render_template('senior/create_story.html')
-
+    form = StoryForm()
+    
+    if form.validate_on_submit():
         # Create new story
         new_story = Story(
             user_id=session['user_id'],
-            title=title,
-            content=content,
-            category=category
+            title=form.title.data,
+            content=form.content.data,
+            category=form.category.data
         )
 
         # Handle photo upload
-        if 'photo' in request.files:
-            file = request.files['photo']
-            if file and file.filename != '':
+        if form.photo.data:
+            file = form.photo.data
+            if file:
                 filename = secure_filename(file.filename)
                 # Check extension
                 ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
@@ -128,8 +121,14 @@ def create_story():
 
         flash('Story created successfully!', 'success')
         return redirect(url_for('senior.stories'))
+    
+    # Flash errors if any
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'danger')
 
-    return render_template('senior/create_story.html')
+    return render_template('senior/create_story.html', form=form)
 
 
 # ==================== MESSAGES ====================
@@ -146,46 +145,39 @@ def messages():
         return render_template('senior/messages.html', buddy=None, messages=[])
 
     buddy = User.query.get(pair.youth_id)
+    
+    form = MessageForm()
 
-    if request.method == 'POST':
-        # Retrieve message content from form
-        content = request.form.get('message')
-        if content:
-            # Check for unkind words using the application configuration
-            # This is a basic safety feature to flag potentially harmful content
-            is_flagged = False
-            unkind_words = current_app.config.get('UNKIND_WORDS', [])
-            for word in unkind_words:
-                if word.lower() in content.lower():
-                    is_flagged = True
-                    break
-            
-            # Create new message object
-            # Status defaults to sent/unread (logic handled by frontend display)
-            new_message = Message(
-                sender_id=user_id,
-                recipient_id=buddy.id,
-                content=content,
-                is_flagged=is_flagged
-            )
-            
-            # Add to database session
-            db.session.add(new_message)
-            
-            # Update pair last interaction timestamp
-            # This helps track active vs inactive pairs for admin reporting
-            pair.last_interaction = datetime.utcnow()
-            
-            # Commit changes to database
-            db.session.commit()
-            
-            # Notify user if their message was flagged
-            if is_flagged:
-                flash('Your message was sent but flagged for review due to potentially unkind language.', 'warning')
-            
-            # Redirect to the same page to show the new message
-            # This follows the Post-Redirect-Get pattern
-            return redirect(url_for('senior.messages'))
+    if form.validate_on_submit():
+        content = form.message.data
+        
+        # Check for unkind words
+        is_flagged = False
+        unkind_words = current_app.config.get('UNKIND_WORDS', [])
+        for word in unkind_words:
+            if word.lower() in content.lower():
+                is_flagged = True
+                break
+        
+        # Create new message object
+        new_message = Message(
+            sender_id=user_id,
+            recipient_id=buddy.id,
+            content=content,
+            is_flagged=is_flagged
+        )
+        
+        db.session.add(new_message)
+        
+        # Update pair last interaction timestamp
+        pair.last_interaction = datetime.utcnow()
+        
+        db.session.commit()
+        
+        if is_flagged:
+            flash('Your message was sent but flagged for review due to potentially unkind language.', 'warning')
+        
+        return redirect(url_for('senior.messages'))
 
     # Get messages between senior and youth
     messages = Message.query.filter(
@@ -193,7 +185,7 @@ def messages():
         ((Message.sender_id == buddy.id) & (Message.recipient_id == user_id))
     ).order_by(Message.created_at).all()
 
-    return render_template('senior/messages.html', buddy=buddy, messages=messages)
+    return render_template('senior/messages.html', buddy=buddy, messages=messages, form=form)
 
 
 @senior_bp.route('/api/messages')

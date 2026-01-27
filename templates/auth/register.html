@@ -295,7 +295,8 @@
                     <strong>For Seniors:</strong> Share your life stories, connect with youth volunteers, and participate in engaging activities.
                 </div>
 
-                <form method="POST" action="{{ url_for('auth.register') }}" class="senior-form" id="seniorForm">
+                <form method="POST" action="{{ url_for('auth.register') }}" class="senior-form" id="seniorForm" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
                     <input type="hidden" name="role" value="senior">
 
                     <div class="row">
@@ -355,7 +356,8 @@
                     <strong>For Youth:</strong> Make a difference by connecting with seniors and building meaningful intergenerational relationships.
                 </div>
 
-                <form method="POST" action="{{ url_for('auth.register') }}" class="youth-form" id="youthForm">
+                <form method="POST" action="{{ url_for('auth.register') }}" class="youth-form" id="youthForm" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
                     <input type="hidden" name="role" value="youth">
 
                     <div class="row">

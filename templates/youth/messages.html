@@ -87,6 +87,7 @@
                 <!-- Floating Input Bar -->
                 <div class="input-area-modern mt-4">
                     <form id="messageForm" method="POST" action="{{ url_for('youth.messages') }}">
+                        {{ form.hidden_tag() }}
                         <div class="pill-input-wrapper shadow-sm">
                             <button class="btn emoji-trigger" type="button" data-bs-toggle="dropdown">
                                 <i class="far fa-smile"></i>

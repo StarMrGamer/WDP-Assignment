@@ -265,6 +265,7 @@
 
             <!-- Login Form -->
             <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+                {{ form.hidden_tag() }}
                 <!-- Username Field -->
                 <div class="form-group">
                     <label for="username" class="form-label">

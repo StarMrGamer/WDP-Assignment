@@ -97,6 +97,7 @@
         display: flex;
         gap: 2rem;
         font-size: 1.125rem;
+        flex-wrap: wrap;
     }
 
     .profile-stat-item {
@@ -374,8 +375,13 @@
         }
 
         .profile-stats {
-            flex-direction: column;
-            gap: 0.5rem;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .stat-bubble {
+            min-width: 110px;
+            padding: 0.75rem 1rem;
         }
 
         .tab-buttons {
@@ -399,53 +405,43 @@
 <div class="container py-4">
     <!-- Profile Header -->
     <div class="profile-header">
-        <div class="container text-center">
-            <!-- Badges and Top Volunteer stats above profile picture -->
-            <div class="d-flex justify-content-center gap-4 mb-4">
-                <div class="stat-bubble">
-                    <div class="stat-bubble-value">{{ badges_count }}</div>
-                    <div class="stat-bubble-label">Badges</div>
-                </div>
-                <div class="stat-bubble">
-                    <div class="stat-bubble-value">{{ user_rank }}</div>
-                    <div class="stat-bubble-label">Top Volunteer</div>
-                </div>
-            </div>
-
-            <div class="profile-avatar-section">
-                {% if 'default-avatar' in user.profile_picture %}
-                    <div class="avatar-placeholder lg mb-3 mx-auto" id="profilePreviewPlaceholder">
-                        {{ user.full_name[0] | upper }}
+        <div class="container">
+            <div class="profile-header-content">
+                <div class="profile-avatar-section">
+                    {% if 'default-avatar' in user.profile_picture %}
+                        <div class="avatar-placeholder lg mb-3 mx-auto" id="profilePreviewPlaceholder">
+                            {{ user.full_name[0] | upper }}
+                        </div>
+                        <img src="" alt="{{ user.full_name }}" class="profile-avatar-large d-none" id="headerProfilePreview">
+                    {% else %}
+                        <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
+                             alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
+                    {% endif %}
+                    <div>
+                        <button type="button" class="btn btn-change-photo" onclick="document.getElementById('profilePictureInput').click()">
+                            <i class="fas fa-camera me-2"></i>Change Photo
+                        </button>
                     </div>
-                    <img src="" alt="{{ user.full_name }}" class="profile-avatar-large d-none" id="headerProfilePreview">
-                {% else %}
-                    <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
-                         alt="{{ user.full_name }}" class="profile-avatar-large" id="headerProfilePreview">
-                {% endif %}
-                <div>
-                    <button type="button" class="btn btn-change-photo" onclick="document.getElementById('profilePictureInput').click()">
-                        <i class="fas fa-camera me-2"></i>Change Photo
-                    </button>
                 </div>
-            </div>
-            
-            <div class="profile-info mt-4">
-                <h1 class="profile-name">{{ user.full_name }}</h1>
-                <p class="profile-role">
-                    <i class="fas fa-heart me-2"></i>Youth Volunteer
-                </p>
-                <div class="profile-stats justify-content-center">
-                    <div class="profile-stat-item">
-                        <i class="fas fa-comments"></i>
-                        <span>{{ messages_count }} messages</span>
-                    </div>
-                    <div class="profile-stat-item">
-                        <i class="fas fa-heart"></i>
-                        <span>{{ reactions_count }} reactions</span>
-                    </div>
-                    <div class="profile-stat-item">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Member since {{ user.created_at.strftime('%b %Y') }}</span>
+                
+                <div class="profile-info">
+                    <h1 class="profile-name">{{ user.full_name }}</h1>
+                    <p class="profile-role">
+                        <i class="fas fa-heart me-2"></i>Youth Volunteer
+                    </p>
+                    <div class="profile-stats">
+                        <div class="profile-stat-item">
+                            <i class="fas fa-comments"></i>
+                            <span>{{ messages_count }} messages</span>
+                        </div>
+                        <div class="profile-stat-item">
+                            <i class="fas fa-heart"></i>
+                            <span>{{ reactions_count }} reactions</span>
+                        </div>
+                        <div class="profile-stat-item">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Member since {{ user.created_at.strftime('%b %Y') }}</span>
+                        </div>
                     </div>
                 </div>
             </div>

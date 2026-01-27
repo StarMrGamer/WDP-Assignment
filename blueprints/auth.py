@@ -8,6 +8,7 @@ Feature: Authentication & User Management
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from models import db, User, Streak, RegistrationCode
+from forms import LoginForm, RegistrationForm
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
@@ -26,16 +27,12 @@ def login():
     if 'user_id' in session:
         return redirect(url_for(f"{session['role']}.dashboard"))
 
-    if request.method == 'POST':
+    form = LoginForm()
+    if form.validate_on_submit():
         # Get form data
-        username = request.form.get('username')
-        password = request.form.get('password')
-        remember = request.form.get('remember')
-
-        # Validate input
-        if not username or not password:
-            flash('Please enter both username and password', 'danger')
-            return render_template('auth/login.html')
+        username = form.username.data
+        password = form.password.data
+        remember = form.remember.data
 
         # Query database for user
         user = User.query.filter_by(username=username).first()
@@ -46,7 +43,7 @@ def login():
             if not user.is_active:
                 reason = user.disable_reason or "Account disabled by administrator."
                 flash(f'Your account has been disabled. Reason: {reason}', 'danger')
-                return render_template('auth/login.html')
+                return render_template('auth/login.html', form=form)
             # Set session variables
             session['user_id'] = user.id
             session['username'] = user.username
@@ -55,7 +52,7 @@ def login():
             session['full_name'] = user.full_name
 
             # Set session permanence based on "remember me"
-            session.permanent = remember is not None
+            session.permanent = remember
 
             # Update last active timestamp
             user.last_active = datetime.utcnow()
@@ -70,9 +67,9 @@ def login():
 
         else:
             flash('Invalid username or password', 'danger')
-            return render_template('auth/login.html')
+            return render_template('auth/login.html', form=form)
 
-    return render_template('auth/login.html')
+    return render_template('auth/login.html', form=form)
 
 
 # ==================== SETUP ROUTE ====================
@@ -104,67 +101,19 @@ def register():
     if 'user_id' in session:
         return redirect(url_for(f"{session['role']}.dashboard"))
 
+    form = RegistrationForm()
     role = request.args.get('role', 'senior')
 
-    if request.method == 'POST':
-        # Get role from form
-        role = request.form.get('role')
-
-        # ... [Keep existing form data extraction] ...
-        full_name = request.form.get('full_name')
-        email = request.form.get('email')
-        phone = request.form.get('phone')
-        age = request.form.get('age')
-        username = request.form.get('username')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        registration_code = request.form.get('registration_code')
-
-        # Validate all fields are filled
-        if not all([full_name, email, age, username, password, confirm_password, registration_code]):
-            flash('Please fill in all required fields including Registration Code', 'danger')
-            return render_template('auth/register.html', role=role)
-
-        # Validate Registration Code
-        code_record = RegistrationCode.query.filter_by(code=registration_code, is_used=False).first()
-        if not code_record:
-            flash('Invalid or already used registration code', 'danger')
-            return render_template('auth/register.html', role=role)
-
-        # Convert age to integer
-        try:
-            age = int(age)
-        except ValueError:
-            flash('Please enter a valid age', 'danger')
-            return render_template('auth/register.html', role=role)
-
-        # Validate age based on the CORRECTLY detected role
-        if role == 'senior' and age < 60:
-            flash('Seniors must be 60 years or older', 'danger')
-            return render_template('auth/register.html', role=role)
-
-        if role == 'youth' and age < 13:
-            flash('Youth volunteers must be 13 years or older', 'danger')
-            return render_template('auth/register.html', role=role)
-
-        if role == 'youth' and age >= 60:
-            flash('If you are 60 or older, please register as a Senior', 'warning')
-            return render_template('auth/register.html', role=role)
-
-        # Check if passwords match
-        if password != confirm_password:
-            flash('Passwords do not match', 'danger')
-            return render_template('auth/register.html', role=role)
-
-        # Check if username already exists
-        if User.query.filter_by(username=username).first():
-            flash('Username already taken. Please choose another.', 'danger')
-            return render_template('auth/register.html', role=role)
-
-        # Check if email already exists
-        if User.query.filter_by(email=email).first():
-            flash('Email already registered. Please login instead.', 'warning')
-            return render_template('auth/register.html', role=role)
+    if form.validate_on_submit():
+        # Get data from form
+        role = form.role.data
+        full_name = form.full_name.data
+        email = form.email.data
+        phone = form.phone.data
+        age = form.age.data
+        username = form.username.data
+        password = form.password.data
+        registration_code = form.registration_code.data
 
         # Create new user
         new_user = User(
@@ -177,10 +126,11 @@ def register():
             profile_picture='images/default-avatar.png' # Default value
         )
 
-        # === NEW CODE: Handle Profile Picture Upload ===
-        if 'profile_picture' in request.files:
-            file = request.files['profile_picture']
-            if file and file.filename != '':
+        # Handle Profile Picture Upload
+        if form.profile_picture.data:
+            file = form.profile_picture.data
+            if file:
+                from flask import current_app
                 filename = secure_filename(file.filename)
                 ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
                 
@@ -197,7 +147,6 @@ def register():
                     
                     # Update user object (Store with 'uploads/' prefix)
                     new_user.profile_picture = f"images/uploads/{unique_filename}"
-        # ===============================================
 
         new_user.set_password(password)
 
@@ -216,15 +165,19 @@ def register():
             }
 
         try:
+            # Mark registration code as used
+            # Validation happens in form, so code exists and is unused
+            code_record = RegistrationCode.query.filter_by(code=registration_code).first()
+            
             # Add user to database
             db.session.add(new_user)
-            db.session.commit()
+            db.session.commit() # Commit first to get ID
 
             # Create initial streak record
             streak = Streak(user_id=new_user.id)
             db.session.add(streak)
             
-            # Mark registration code as used
+            # Update code record
             code_record.is_used = True
             code_record.used_by = new_user
             
@@ -245,10 +198,16 @@ def register():
             db.session.rollback()
             print(f"Registration error: {e}")
             flash('An error occurred during registration. Please try again.', 'danger')
-            return render_template('auth/register.html', role=role)
+            return render_template('auth/register.html', role=role, form=form)
+            
+    # Flash form errors if any
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'danger')
 
     # GET request - display registration form
-    return render_template('auth/register.html', role=role)
+    return render_template('auth/register.html', role=role, form=form)
 
 
 # ==================== LOGOUT ROUTE ====================
