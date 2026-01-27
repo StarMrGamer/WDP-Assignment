@@ -2,19 +2,23 @@
 
 {% block body_class %}youth-dashboard{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <!-- Header -->
     <div class="d-flex align-items-center mb-4">
-        <a href="{{ url_for('youth.communities') }}" class="btn btn-outline-secondary me-3">
+        <a href="{{ url_for('youth.communities') }}" class="btn btn-outline-secondary me-3 rounded-pill">
             <i class="fas fa-arrow-left"></i> Back
         </a>
         <div class="d-flex align-items-center">
-            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; font-size: 1.5rem;">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 50px; height: 50px; font-size: 1.5rem;">
                 <i class="{{ community.icon }}"></i>
             </div>
             <div>
-                <h2 class="mb-0">{{ community.name }}</h2>
+                <h2 class="mb-0 fw-bold">{{ community.name }}</h2>
                 <small class="text-muted">{{ community.member_count }} members</small>
             </div>
         </div>
@@ -23,89 +27,86 @@
     <div class="row">
         <!-- Chat Area -->
         <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <div id="chat-messages" class="p-4" style="height: 60vh; overflow-y: auto; background-color: #f8f9fa;">
-                        {% for post in posts %}
-                            <div class="d-flex mb-3 {% if post.user_id == user_id %}justify-content-end{% endif %}">
+            <div class="modern-chat-interface">
+                <div class="message-feed" id="chat-messages">
+                    {% for post in posts %}
+                        <div class="message-wrapper {% if post.user_id == user_id %}me{% else %}other{% endif %}">
+                            {% if post.user_id != user_id %}
+                                <a href="{{ url_for('youth.public_profile', user_id=post.user_id) }}">
+                                    <img src="{{ url_for('static', filename=post.user.profile_picture|fix_pfp) }}" class="chat-avatar me-2">
+                                </a>
+                            {% endif %}
+                            
+                            <div class="message-bubble">
                                 {% if post.user_id != user_id %}
-                                    <a href="{{ url_for('youth.public_profile', user_id=post.user_id) }}">
-                                        <img src="{{ url_for('static', filename=post.user.profile_picture|fix_pfp) }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                                    </a>
+                                    <span class="message-sender-name">{{ post.user.full_name }}</span>
                                 {% endif %}
                                 
-                                <div class="card border-0 shadow-sm" style="max-width: 70%; {% if post.user_id == user_id %}background-color: #0d6efd; color: white;{% else %}background-color: white;{% endif %}">
-                                    <div class="card-body p-3">
-                                        {% if post.user_id != user_id %}
-                                            <a href="{{ url_for('youth.public_profile', user_id=post.user_id) }}" class="text-decoration-none text-dark">
-                                                <small class="fw-bold d-block mb-1">{{ post.user.full_name }}</small>
-                                            </a>
-                                        {% endif %}
-                                        
-                                        {% if post.photo_url %}
-                                            <img src="{{ url_for('static', filename=post.photo_url) }}" class="img-fluid rounded mb-2">
-                                        {% endif %}
-                                        
-                                        {% if post.content %}
-                                            <p class="mb-0">{{ post.content }}</p>
-                                        {% endif %}
-                                        <small class="d-block mt-1 opacity-75 text-end" style="font-size: 0.7rem;">
-                                            {{ post.created_at|timeago }}
-                                        </small>
-                                    </div>
-                                </div>
-
-                                {% if post.user_id == user_id %}
-                                    <img src="{{ url_for('static', filename=post.user.profile_picture|fix_pfp) }}" class="rounded-circle ms-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% if post.photo_url %}
+                                    <img src="{{ url_for('static', filename=post.photo_url) }}" class="img-fluid rounded mb-2" style="max-height: 200px;">
                                 {% endif %}
+                                
+                                <div class="content-text">{{ post.content }}</div>
+                                <div class="d-flex justify-content-end align-items-center mt-1">
+                                    <div class="time-stamp">{{ post.created_at|timeago }}</div>
+                                    {% if post.user_id != user_id %}
+                                    <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal({{ post.id }}, 'community')" title="Report Post">
+                                        <i class="far fa-flag" style="font-size: 0.8rem;"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
                             </div>
-                        {% endfor %}
-                    </div>
-                    
-                    <!-- Input Area -->
-                    <div class="card-footer bg-white p-3">
-                        <form id="chat-form" class="d-flex align-items-center">
-                            <button type="button" class="btn btn-light me-2" onclick="document.getElementById('photo-upload').click()">
-                                <i class="fas fa-image text-primary"></i>
-                            </button>
-                            <input type="file" id="photo-upload" accept="image/*" style="display: none;">
-                            
-                            <input type="text" id="message-input" class="form-control me-2" placeholder="Type a message..." autocomplete="off">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </form>
-                        <div id="upload-preview" class="mt-2" style="display: none;">
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Input Area -->
+                <div class="input-area-modern position-relative">
+                    <form id="chat-form">
+                        <div id="upload-preview" class="upload-preview-container" style="display: none;">
                             <div class="position-relative d-inline-block">
-                                <img src="" id="preview-img" class="rounded" style="height: 60px;">
+                                <img src="" id="preview-img" class="rounded" style="height: 80px;">
                                 <button type="button" class="btn btn-sm btn-danger position-absolute top-0 start-100 translate-middle rounded-circle" onclick="clearUpload()">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
                         </div>
-                    </div>
+
+                        <div class="pill-input-wrapper shadow-sm">
+                            <button type="button" class="btn emoji-trigger" onclick="document.getElementById('photo-upload').click()">
+                                <i class="fas fa-image text-primary"></i>
+                            </button>
+                            <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+                            
+                            <input type="text" id="message-input" class="form-control auto-expand" placeholder="Type a message..." autocomplete="off">
+                            
+                            <button type="submit" class="btn circle-send-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
 
         <!-- Members Sidebar -->
         <div class="col-lg-4 d-none d-lg-block">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Members</h5>
+            <div class="card shadow-sm h-100 border-0 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0 fw-bold">Members</h5>
                 </div>
                 <div class="card-body p-0" style="max-height: 70vh; overflow-y: auto;">
                     <ul class="list-group list-group-flush">
                         {% for member in members %}
-                            <li class="list-group-item d-flex align-items-center">
+                            <li class="list-group-item d-flex align-items-center px-4 py-3 border-0">
                                 <a href="{{ url_for('youth.public_profile', user_id=member.user_id) }}" class="d-flex align-items-center text-decoration-none text-dark w-100">
-                                    <img src="{{ url_for('static', filename=member.user.profile_picture|fix_pfp) }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
-                                    <span>{{ member.user.full_name }}</span>
+                                    <img src="{{ url_for('static', filename=member.user.profile_picture|fix_pfp) }}" class="rounded-circle me-3 shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <span class="fw-semibold">{{ member.user.full_name }}</span>
                                 </a>
                                 {% if member.user.role == 'senior' %}
-                                    <span class="badge bg-warning text-dark ms-auto">Senior</span>
+                                    <span class="badge bg-warning text-dark ms-auto rounded-pill">Senior</span>
                                 {% else %}
-                                    <span class="badge bg-info text-white ms-auto">Youth</span>
+                                    <span class="badge bg-info text-white ms-auto rounded-pill">Youth</span>
                                 {% endif %}
                             </li>
                         {% endfor %}
@@ -152,13 +153,21 @@
     }
 
     // Handle Form Submit
-    document.getElementById('chat-form').addEventListener('submit', async function(e) {
+    const chatForm = document.getElementById('chat-form');
+    const sendBtn = chatForm.querySelector('.circle-send-btn');
+    const originalBtnContent = sendBtn.innerHTML;
+
+    chatForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const input = document.getElementById('message-input');
         const content = input.value.trim();
         const file = photoInput.files[0];
 
         if (!content && !file) return;
+
+        // UI Loading State
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
         let photoUrl = null;
 
@@ -175,10 +184,17 @@
                 const data = await response.json();
                 if (data.url) {
                     photoUrl = data.url;
+                } else {
+                    alert('Photo upload failed. Please try again.');
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = originalBtnContent;
+                    return;
                 }
             } catch (error) {
                 console.error('Upload failed', error);
                 alert('Failed to upload photo');
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = originalBtnContent;
                 return;
             }
         }
@@ -193,47 +209,67 @@
         // Clear input
         input.value = '';
         clearUpload();
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = originalBtnContent;
+        input.focus();
+    });
+
+    // Listen for alerts (Flagged Messages)
+    socket.on('message_flagged', function(data) {
+        if (typeof showToast === 'function') {
+            showToast(data.message, 'warning');
+        } else {
+            alert(data.message);
+        }
     });
 
     // Listen for messages
     socket.on('new_community_post', function(data) {
         const isMe = data.user_id == userId;
-        const alignClass = isMe ? 'justify-content-end' : '';
-        const bgClass = isMe ? 'background-color: #0d6efd; color: white;' : 'background-color: white;';
+        const sideClass = isMe ? 'me' : 'other';
         
         let photoHtml = '';
         if (data.photo_url) {
-            photoHtml = `<img src="/static/${data.photo_url}" class="img-fluid rounded mb-2">`;
+            photoHtml = `<img src="/static/${data.photo_url}" class="img-fluid rounded mb-2" style="max-height: 200px;">`;
         }
 
         let avatarHtml = '';
         if (!isMe) {
-            avatarHtml = `<a href="/youth/users/${data.user_id}"><img src="/static/${data.avatar}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;"></a>`;
-        }
-        let myAvatarHtml = '';
-        if (isMe) {
-            myAvatarHtml = `<img src="/static/${data.avatar}" class="rounded-circle ms-2" style="width: 40px; height: 40px; object-fit: cover;">`;
+            avatarHtml = `<a href="/youth/users/${data.user_id}"><img src="/static/${data.avatar}" class="chat-avatar me-2"></a>`;
         }
         
         let nameHtml = '';
         if (!isMe) {
-            nameHtml = `<a href="/youth/users/${data.user_id}" class="text-decoration-none text-dark"><small class="fw-bold d-block mb-1">${data.username}</small></a>`;
+            nameHtml = `<span class="message-sender-name">${data.username}</span>`;
+        }
+
+        let flaggedHtml = '';
+        if (data.is_flagged && !isMe) {
+            flaggedHtml = `<div class="flagged-warning"><i class="fas fa-exclamation-triangle me-1"></i> Flagged for review</div>`;
+        }
+
+        let reportBtn = '';
+        if (!isMe) {
+            reportBtn = `
+                <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal(${data.id}, 'community')" title="Report Post">
+                    <i class="far fa-flag" style="font-size: 0.8rem;"></i>
+                </button>
+            `;
         }
 
         const html = `
-            <div class="d-flex mb-3 ${alignClass}">
+            <div class="message-wrapper ${sideClass}">
                 ${avatarHtml}
-                <div class="card border-0 shadow-sm" style="max-width: 70%; ${bgClass}">
-                    <div class="card-body p-3">
-                        ${nameHtml}
-                        ${photoHtml}
-                        <p class="mb-0">${data.content}</p>
-                        <small class="d-block mt-1 opacity-75 text-end" style="font-size: 0.7rem;">
-                            ${data.created_at}
-                        </small>
+                <div class="message-bubble">
+                    ${nameHtml}
+                    ${flaggedHtml}
+                    ${photoHtml}
+                    <div class="content-text">${data.content}</div>
+                    <div class="d-flex justify-content-end align-items-center mt-1">
+                        <div class="time-stamp">${data.created_at}</div>
+                        ${reportBtn}
                     </div>
                 </div>
-                ${myAvatarHtml}
             </div>
         `;
         

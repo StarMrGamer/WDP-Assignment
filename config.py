@@ -110,10 +110,18 @@ class Config:
 
     # ==================== CHAT SAFETY SETTINGS ====================
     # List of inappropriate words for chat moderation
-    # This is a basic list - can be expanded based on requirements
+    # This list is used by utils.filter_text to sanitize user input
     UNKIND_WORDS = [
         'hate', 'stupid', 'idiot', 'fool', 'dumb', 'shut up',
-        'ugly', 'loser', 'worthless', 'useless', 'trash'
+        'ugly', 'loser', 'worthless', 'useless', 'trash',
+        'fuck', 'fucking', 'fucker', 'shit', 'shitty', 'asshole',
+        'bitch', 'bastard', 'cunt', 'dick', 'pussy', 'slut', 'whore',
+        'damn', 'hell', 'piss', 'crap', 'fag', 'faggot', 'nigger',
+        'chink', 'retard', 'retarded', 'die', 'kill', 'suicide',
+        'moron', 'prick', 'bastard', 'dickhead', 'twat', 'wanker',
+        'scum', 'garbage', 'scumbag', 'bollocks', 'bugger',
+        'lan jiao', 'knn', 'ccb', 'lim peh', 'wa lau', 'bodoh',
+        'pukimak', 'sohai', 'kan ni na', 'lan jiao', 'mak kau hijau'
     ]
 
     # ==================== NOTIFICATION SETTINGS ====================

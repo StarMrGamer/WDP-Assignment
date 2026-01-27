@@ -665,7 +665,8 @@ class ChatReport(db.Model):
     __tablename__ = 'chat_reports'
 
     id = db.Column(db.Integer, primary_key=True)
-    message_id = db.Column(db.Integer, db.ForeignKey('messages.id'), nullable=False, index=True)
+    message_id = db.Column(db.Integer, db.ForeignKey('messages.id'), nullable=True, index=True)
+    community_post_id = db.Column(db.Integer, db.ForeignKey('community_posts.id'), nullable=True, index=True)
     reported_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     reported_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
 
@@ -677,6 +678,7 @@ class ChatReport(db.Model):
 
     # Relationships
     message = db.relationship('Message', back_populates='reports')
+    community_post = db.relationship('CommunityPost', backref='reports')
     reporter = db.relationship('User', foreign_keys=[reported_by])
     reported_user = db.relationship('User', foreign_keys=[reported_user_id])
 

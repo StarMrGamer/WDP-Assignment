@@ -46,6 +46,27 @@ class RegistrationForm(FlaskForm):
         if self.role.data == 'youth' and age.data >= 60:
             raise ValidationError('If you are 60 or older, please register as a Senior.')
 
+    def validate_phone(self, phone):
+        # Singapore phone validation: 8 digits, starts with 6, 8, or 9
+        import re
+        if not re.match(r'^[689]\d{7}$', phone.data):
+            raise ValidationError('Please enter a valid Singapore phone number (8 digits, starting with 6, 8, or 9).')
+
+class ProfileForm(FlaskForm):
+    full_name = StringField('Full Name', validators=[DataRequired(), Length(min=2, max=100)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    phone = StringField('Phone', validators=[DataRequired()])
+    school = StringField('School')
+    bio = TextAreaField('Bio')
+    age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=13, max=120)])
+    profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')])
+    submit = SubmitField('Update Profile')
+
+    def validate_phone(self, phone):
+        import re
+        if not re.match(r'^[689]\d{7}$', phone.data):
+            raise ValidationError('Please enter a valid Singapore phone number (8 digits, starting with 6, 8, or 9).')
+
 class StoryForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=1, max=200)])
     content = TextAreaField('Story Content', validators=[DataRequired()])

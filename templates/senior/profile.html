@@ -396,20 +396,24 @@
         <div class="profile-card">
             <h3><i class="fas fa-id-card me-2"></i>Personal Information</h3>
             <form method="POST" action="{{ url_for('senior.profile') }}" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
                 <!-- Hidden file input for profile picture -->
-                <input type="file" id="profilePictureInput" name="profile_picture" accept="image/*" style="display: none;" onchange="previewProfilePicture(this)">
+                {{ form.profile_picture(id="profilePictureInput", style="display: none;", onchange="previewProfilePicture(this)") }}
                 
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="form-label">Full Name</label>
-                            <input type="text" class="form-control" name="full_name" value="{{ user.full_name }}" required>
+                            {{ form.full_name.label(class="form-label") }}
+                            {{ form.full_name(class="form-control") }}
+                            {% if form.full_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.full_name.errors[0] }}</div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label">Username</label>
-                            <input type="text" class="form-control" name="username" value="{{ user.username }}" readonly style="background-color: #e9ecef;">
+                            <input type="text" class="form-control" value="{{ user.username }}" readonly style="background-color: #e9ecef;">
                         </div>
                     </div>
                 </div>
@@ -417,14 +421,20 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">{{ form.email.errors[0] }}</div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" name="phone" value="{{ user.phone }}" required>
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(class="form-control") }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.phone.errors[0] }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -432,8 +442,11 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="form-label">Age</label>
-                            <input type="number" class="form-control" name="age" value="{{ user.age }}" min="60" required>
+                            {{ form.age.label(class="form-label") }}
+                            {{ form.age(class="form-control", min="60") }}
+                            {% if form.age.errors %}
+                                <div class="text-danger small mt-1">{{ form.age.errors[0] }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -478,9 +491,7 @@
                 </div>
 
                 <div class="text-end">
-                    <button type="submit" class="btn btn-save">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
+                    {{ form.submit(class="btn btn-save") }}
                 </div>
             </form>
         </div>

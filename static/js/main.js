@@ -758,3 +758,60 @@ window.formatTimeAgo = formatTimeAgo;
 window.formatCountdown = formatCountdown;
 window.postData = postData;
 window.getData = getData;
+
+// ==================== REPORTING LOGIC ====================
+// Defined globally to ensure onclick handlers work
+window.openReportModal = function(messageId, type = 'message') {
+    document.getElementById('reportMessageId').value = messageId;
+    document.getElementById('reportType').value = type;
+    const modalEl = document.getElementById('reportModal');
+    if (modalEl) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+};
+
+window.submitReport = async function() {
+    const messageId = document.getElementById('reportMessageId').value;
+    const reportType = document.getElementById('reportType').value;
+    const reason = document.getElementById('reportReason').value;
+    const description = document.getElementById('reportDescription').value;
+
+    if (!reason) {
+        alert('Please select a reason for reporting');
+        return;
+    }
+
+    try {
+        // Determine role from URL to use correct blueprint
+        const role = window.location.pathname.split('/')[1]; 
+        
+        let endpoint;
+        if (reportType === 'community') {
+            endpoint = `/${role}/api/community_posts/${messageId}/report`;
+        } else {
+            endpoint = `/${role}/api/messages/${messageId}/report`;
+        }
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason, description })
+        });
+
+        if (response.ok) {
+            alert('Report submitted successfully. Admins will review it.');
+            const modalEl = document.getElementById('reportModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+            
+            document.getElementById('reportForm').reset();
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Failed to submit report');
+        }
+    } catch (error) {
+        console.error('Error submitting report:', error);
+        alert('An error occurred while submitting the report');
+    }
+};

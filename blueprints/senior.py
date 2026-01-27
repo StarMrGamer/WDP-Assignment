@@ -14,6 +14,7 @@ from forms import StoryForm, MessageForm
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
+from utils import filter_text
 import os
 
 # Create senior blueprint
@@ -165,6 +166,78 @@ def create_story():
     return render_template('senior/create_story.html', form=form)
 
 
+@senior_bp.route('/story/<int:story_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_story(story_id):
+    """Edit an existing story."""
+    story = Story.query.get_or_404(story_id)
+    
+    # Check ownership
+    if story.user_id != session['user_id']:
+        flash('You can only edit your own stories.', 'danger')
+        return redirect(url_for('senior.stories'))
+        
+    form = StoryForm(obj=story)
+    
+    if form.validate_on_submit():
+        story.title = form.title.data
+        story.content = form.content.data
+        story.category = form.category.data
+        
+        # Handle photo upload
+        if form.photo.data:
+            file = form.photo.data
+            if file:
+                filename = secure_filename(file.filename)
+                ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                if ext in current_app.config['ALLOWED_EXTENSIONS']:
+                    os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
+                    unique_filename = timestamp + filename
+                    file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+                    
+                    # Delete old photo if exists
+                    if story.photo_url:
+                        old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], story.photo_url)
+                        if os.path.exists(old_path):
+                            try:
+                                os.remove(old_path)
+                            except OSError:
+                                pass
+                                
+                    story.photo_url = unique_filename
+        
+        db.session.commit()
+        flash('Story updated successfully!', 'success')
+        return redirect(url_for('senior.stories'))
+
+    return render_template('senior/edit_story.html', form=form, story=story)
+
+
+@senior_bp.route('/stories/<int:story_id>/delete', methods=['DELETE'])
+@login_required
+def delete_story(story_id):
+    """Delete a story."""
+    story = Story.query.get_or_404(story_id)
+    
+    if story.user_id != session['user_id']:
+        return {'success': False, 'message': 'Unauthorized'}, 403
+        
+    try:
+        # Delete photo file if exists
+        if story.photo_url:
+            path = os.path.join(current_app.config['UPLOAD_FOLDER'], story.photo_url)
+            if os.path.exists(path):
+                os.remove(path)
+                
+        db.session.delete(story)
+        db.session.commit()
+        return {'success': True}
+    except Exception as e:
+        db.session.rollback()
+        return {'success': False, 'message': str(e)}, 500
+
+
 # ==================== MESSAGES ====================
 @senior_bp.route('/messages', methods=['GET', 'POST'])
 @login_required
@@ -183,15 +256,18 @@ def messages():
     form = MessageForm()
 
     if form.validate_on_submit():
-        content = form.message.data
+        original_content = form.message.data
         
-        # Check for unkind words
+        # Check for unkind words (Flagging based on original)
         is_flagged = False
         unkind_words = current_app.config.get('UNKIND_WORDS', [])
         for word in unkind_words:
-            if word.lower() in content.lower():
+            if word.lower() in original_content.lower():
                 is_flagged = True
                 break
+        
+        # Filter content
+        content = filter_text(original_content)
         
         # Create new message object
         new_message = Message(
@@ -274,6 +350,30 @@ def report_message(message_id):
         message_id=msg.id,
         reported_by=session['user_id'],
         reported_user_id=msg.sender_id,
+        reason=reason,
+        description=description,
+        status='pending'
+    )
+    db.session.add(report)
+    db.session.commit()
+    
+    return {'success': True}, 200
+
+
+@senior_bp.route('/api/community_posts/<int:post_id>/report', methods=['POST'])
+@login_required
+def report_community_post(post_id):
+    """API to report a community post."""
+    data = request.get_json()
+    reason = data.get('reason')
+    description = data.get('description')
+    
+    post = CommunityPost.query.get_or_404(post_id)
+    
+    report = ChatReport(
+        community_post_id=post.id,
+        reported_by=session['user_id'],
+        reported_user_id=post.user_id,
         reason=reason,
         description=description,
         status='pending'
@@ -744,60 +844,56 @@ def tictactoe_game():
 @login_required
 def profile():
     user = User.query.get(session['user_id'])
+    from forms import ProfileForm
+    form = ProfileForm(obj=user)
 
-    if request.method == 'POST':
-        # 1. Update basic information
-        user.full_name = request.form.get('full_name')
+    if form.validate_on_submit():
+        # 1. Update basic information from Form
+        user.full_name = form.full_name.data
         session['full_name'] = user.full_name
-        user.email = request.form.get('email')
-        user.phone = request.form.get('phone')
-        
-        try:
-            user.age = int(request.form.get('age'))
-        except (ValueError, TypeError):
-            flash('Invalid age provided.', 'warning')
+        user.email = form.email.data
+        user.phone = form.phone.data
+        user.age = form.age.data
 
-        # 2. Handle Interests
+        # 2. Handle Interests (Manual from request.form)
         interests_text = request.form.get('interests')
         if interests_text:
             user.interests = [i.strip() for i in interests_text.split(',') if i.strip()]
         
-        # 3. Handle Languages
+        # 3. Handle Languages (Manual from request.form)
         languages = request.form.getlist('languages')
         user.languages = languages
 
-        # 4. Handle Profile Picture Upload (FIXED)
-        if 'profile_picture' in request.files:
-            file = request.files['profile_picture']
-            if file and file.filename != '':
-                filename = secure_filename(file.filename)
-                ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
-                if ext in current_app.config['ALLOWED_EXTENSIONS']:
-                    # Ensure upload directory exists
-                    os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
-                    
-                    # Create unique filename
-                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
-                    unique_filename = f"profile_{user.id}_{timestamp}{filename}"
-                    
-                    # Save the physical file to static/images/uploads/
-                    file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
-                    
-                    # DELETE OLD PICTURE (Updated logic)
-                    if user.profile_picture and 'default-avatar' not in user.profile_picture:
-                        # We use basename to get just the filename, ignoring any 'uploads/' prefix
-                        old_filename = os.path.basename(user.profile_picture)
-                        old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], old_filename)
-                        if os.path.exists(old_path):
-                            try:
-                                os.remove(old_path)
-                            except OSError:
-                                pass 
-                                
-                    # SAVE TO DB WITH 'uploads/' PREFIX
-                    # This tells the template to look inside the uploads folder
-                    user.profile_picture = f"images/uploads/{unique_filename}"
-                    session['profile_picture'] = user.profile_picture
+        # 4. Handle Profile Picture Upload (Form Validated)
+        if form.profile_picture.data and hasattr(form.profile_picture.data, 'filename'):
+            file = form.profile_picture.data
+            # WTForms FileAllowed validator handles the check
+            
+            filename = secure_filename(file.filename)
+            if filename: # Ensure filename is not empty
+                # Ensure upload directory exists
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                
+                # Create unique filename
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
+                unique_filename = f"profile_{user.id}_{timestamp}{filename}"
+                
+                # Save the physical file to static/images/uploads/
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+                
+                # DELETE OLD PICTURE
+                if user.profile_picture and 'default-avatar' not in user.profile_picture:
+                    old_filename = os.path.basename(user.profile_picture)
+                    old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], old_filename)
+                    if os.path.exists(old_path):
+                        try:
+                            os.remove(old_path)
+                        except OSError:
+                            pass 
+                            
+                # SAVE TO DB WITH 'uploads/' PREFIX
+                user.profile_picture = f"images/uploads/{unique_filename}"
+                session['profile_picture'] = user.profile_picture
 
         # 5. Commit changes
         try:
@@ -809,12 +905,18 @@ def profile():
             print(f"Error updating profile: {e}")
             
         return redirect(url_for('senior.profile'))
+    
+    # Flash errors if form validation fails
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'danger')
 
     # Get paired youth buddy info for display
     pair = Pair.query.filter_by(senior_id=user.id, status='active').first()
     buddy = User.query.get(pair.youth_id) if pair else None
 
-    return render_template('senior/profile.html', user=user, buddy=buddy)
+    return render_template('senior/profile.html', user=user, form=form, buddy=buddy)
 
 
 @senior_bp.route('/users/<int:user_id>')

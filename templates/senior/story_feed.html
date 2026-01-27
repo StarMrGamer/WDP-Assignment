@@ -11,6 +11,9 @@
             <p class="text-muted mb-0">Read life stories from our community</p>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ url_for('senior.stories') }}" class="btn btn-outline-primary">
+                <i class="fas fa-layer-group me-2"></i>Your Posts
+            </a>
             <a href="{{ url_for('senior.create_story') }}" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>Share Story
             </a>
