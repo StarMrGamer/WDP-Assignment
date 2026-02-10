@@ -1,8 +1,25 @@
+import re
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, IntegerField, TextAreaField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, NumberRange
 from models import User, RegistrationCode
+
+
+def validate_password_strength(form, field):
+    """
+    Custom validator for password strength.
+    Requires: min 8 chars, 1 uppercase, 1 lowercase, 1 number.
+    """
+    password = field.data
+    if len(password) < 8:
+        raise ValidationError('Password must be at least 8 characters long.')
+    if not re.search(r'[A-Z]', password):
+        raise ValidationError('Password must contain at least one uppercase letter.')
+    if not re.search(r'[a-z]', password):
+        raise ValidationError('Password must contain at least one lowercase letter.')
+    if not re.search(r'\d', password):
+        raise ValidationError('Password must contain at least one number.')
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -18,7 +35,7 @@ class RegistrationForm(FlaskForm):
     age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=13, max=120)])
     role = SelectField('Role', choices=[('senior', 'Senior'), ('youth', 'Youth')], validators=[DataRequired()])
     registration_code = StringField('Registration Code', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
+    password = PasswordField('Password', validators=[DataRequired(), validate_password_strength])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'])])
     submit = SubmitField('Register')

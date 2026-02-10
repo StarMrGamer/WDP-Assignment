@@ -14,7 +14,7 @@ from forms import StoryForm, MessageForm
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
-from utils import filter_text
+from utils import filter_text, check_unkind_words, save_uploaded_file, sanitize_for_display
 import os
 
 # Create senior blueprint
@@ -257,18 +257,11 @@ def messages():
 
     if form.validate_on_submit():
         original_content = form.message.data
-        
-        # Check for unkind words (Flagging based on original)
-        is_flagged = False
-        unkind_words = current_app.config.get('UNKIND_WORDS', [])
-        for word in unkind_words:
-            if word.lower() in original_content.lower():
-                is_flagged = True
-                break
-        
-        # Filter content
-        content = filter_text(original_content)
-        
+
+        # Check for unkind words and sanitize
+        is_flagged = check_unkind_words(original_content, current_app.config.get('UNKIND_WORDS', []))
+        content = sanitize_for_display(original_content)
+
         # Create new message object
         new_message = Message(
             sender_id=user_id,
@@ -289,11 +282,12 @@ def messages():
         
         return redirect(url_for('senior.messages'))
 
-    # Get messages between senior and youth
+    # Get recent messages between senior and youth (limit to last 100 for performance)
     messages = Message.query.filter(
         ((Message.sender_id == user_id) & (Message.recipient_id == buddy.id)) |
         ((Message.sender_id == buddy.id) & (Message.recipient_id == user_id))
-    ).order_by(Message.created_at).all()
+    ).order_by(Message.created_at.desc()).limit(100).all()
+    messages.reverse()  # Restore chronological order
 
     return render_template('senior/messages.html', buddy=buddy, messages=messages, form=form)
 
@@ -315,12 +309,12 @@ def get_messages_json():
 
     buddy_id = pair.youth_id
 
-    # Query all messages between the user and their buddy
-    # Ordered by creation time to show conversation history
+    # Query recent messages between the user and their buddy (limit for performance)
     messages = Message.query.filter(
         ((Message.sender_id == user_id) & (Message.recipient_id == buddy_id)) |
         ((Message.sender_id == buddy_id) & (Message.recipient_id == user_id))
-    ).order_by(Message.created_at).all()
+    ).order_by(Message.created_at.desc()).limit(100).all()
+    messages.reverse()  # Restore chronological order
 
     # Convert message objects to a list of dictionaries (JSON-serializable)
     messages_data = [{
@@ -394,14 +388,16 @@ def events():
     # Get all upcoming events
     upcoming_events = Event.query.filter(Event.date >= datetime.utcnow()).order_by(Event.date).all()
     
-    # Get IDs of events user is registered for
-    registered_event_ids = [p.event_id for p in EventParticipant.query.filter_by(user_id=user_id).all()]
+    # Get IDs of events user is registered for (use set for O(1) lookup)
+    registered_event_ids = {p.event_id for p in EventParticipant.query.filter_by(user_id=user_id).all()}
     
     # Process events for display
     events_data = []
     for event in upcoming_events:
         is_registered = event.id in registered_event_ids
-        
+        # Cache count to avoid duplicate queries
+        participants_count = event.participants.count()
+
         event_dict = {
             'id': event.id,
             'title': event.title,
@@ -410,9 +406,9 @@ def events():
             'location': event.location,
             'date': event.date,
             'capacity': event.capacity,
-            'participants_count': event.participants.count(),
+            'participants_count': participants_count,
             'is_registered': is_registered,
-            'is_full': event.capacity is not None and event.participants.count() >= event.capacity
+            'is_full': event.capacity is not None and participants_count >= event.capacity
         }
         events_data.append(event_dict)
 
@@ -750,27 +746,32 @@ def chess_game():
     """Render the chess game page."""
     user_id = session['user_id']
     session_id = request.args.get('session_id')
-    
+
+    active_session = None
     if session_id:
         active_session = GameSession.query.get_or_404(session_id)
+        # SECURITY: Validate user participation
+        if active_session.player1_id != user_id and active_session.player2_id != user_id:
+            flash('You are not part of this game.', 'danger')
+            return redirect(url_for('senior.games'))
     else:
         active_session = GameSession.query.filter(
             ((GameSession.player1_id == user_id) | (GameSession.player2_id == user_id)),
             GameSession.status.in_(['active', 'waiting'])
         ).order_by(GameSession.created_at.desc()).first()
-    
+
     if not active_session:
         flash('No active game session found. Please challenge your buddy!', 'warning')
         return redirect(url_for('senior.games'))
-        
+
     color = 'white' if active_session.player1_id == user_id else 'black'
-    
+
     player1 = User.query.get(active_session.player1_id)
     player2 = User.query.get(active_session.player2_id)
-    
-    return render_template('senior/chess.html', 
-                         color=color, 
-                         game_session_id=active_session.id, 
+
+    return render_template('senior/chess.html',
+                         color=color,
+                         game_session_id=active_session.id,
                          active_session=active_session,
                          player1=player1,
                          player2=player2)

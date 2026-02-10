@@ -120,11 +120,19 @@
 <!-- Socket.IO Script -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 <script>
+    // SECURITY: HTML escape function to prevent XSS
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     const socket = io();
     const communityId = {{ community.id }};
     const userId = {{ user_id }};
     const chatMessages = document.getElementById('chat-messages');
-    
+
     // Scroll to bottom on load
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -227,20 +235,27 @@
     socket.on('new_community_post', function(data) {
         const isMe = data.user_id == userId;
         const sideClass = isMe ? 'me' : 'other';
-        
+
+        // SECURITY: Escape all user-provided content to prevent XSS
+        const safeContent = escapeHtml(data.content);
+        const safeUsername = escapeHtml(data.username);
+        const safeAvatar = escapeHtml(data.avatar);
+        const safePhotoUrl = escapeHtml(data.photo_url);
+        const safeCreatedAt = escapeHtml(data.created_at);
+
         let photoHtml = '';
         if (data.photo_url) {
-            photoHtml = `<img src="/static/${data.photo_url}" class="img-fluid rounded mb-2" style="max-height: 200px;">`;
+            photoHtml = `<img src="/static/${safePhotoUrl}" class="img-fluid rounded mb-2" style="max-height: 200px;">`;
         }
 
         let avatarHtml = '';
         if (!isMe) {
-            avatarHtml = `<a href="/youth/users/${data.user_id}"><img src="/static/${data.avatar}" class="chat-avatar me-2"></a>`;
+            avatarHtml = `<a href="/youth/users/${parseInt(data.user_id)}"><img src="/static/${safeAvatar}" class="chat-avatar me-2"></a>`;
         }
-        
+
         let nameHtml = '';
         if (!isMe) {
-            nameHtml = `<span class="message-sender-name">${data.username}</span>`;
+            nameHtml = `<span class="message-sender-name">${safeUsername}</span>`;
         }
 
         let flaggedHtml = '';
@@ -251,7 +266,7 @@
         let reportBtn = '';
         if (!isMe) {
             reportBtn = `
-                <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal(${data.id}, 'community')" title="Report Post">
+                <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal(${parseInt(data.id)}, 'community')" title="Report Post">
                     <i class="far fa-flag" style="font-size: 0.8rem;"></i>
                 </button>
             `;
@@ -264,15 +279,15 @@
                     ${nameHtml}
                     ${flaggedHtml}
                     ${photoHtml}
-                    <div class="content-text">${data.content}</div>
+                    <div class="content-text">${safeContent}</div>
                     <div class="d-flex justify-content-end align-items-center mt-1">
-                        <div class="time-stamp">${data.created_at}</div>
+                        <div class="time-stamp">${safeCreatedAt}</div>
                         ${reportBtn}
                     </div>
                 </div>
             </div>
         `;
-        
+
         chatMessages.insertAdjacentHTML('beforeend', html);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     });

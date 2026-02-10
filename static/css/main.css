@@ -13,42 +13,62 @@
 
 /* ==================== CSS CUSTOM PROPERTIES (VARIABLES) ==================== */
 :root {
-    /* Primary Brand Colors */
-    --primary-color: #4A90E2;        /* Main brand blue - used for primary actions */
-    --primary-hover: #357ABD;        /* Darker blue for hover states */
-    --secondary-color: #7B68EE;      /* Purple accent color */
-    --success-color: #28A745;        /* Green for success messages */
-    --warning-color: #FFC107;        /* Yellow/Orange for warnings */
-    --danger-color: #DC3545;         /* Red for errors and destructive actions */
-    --info-color: #17A2B8;           /* Cyan for informational messages */
+    /* ============ WHIMSICAL & FUN COLOR PALETTE ============ */
 
-    /* Senior-specific Colors (warm, high contrast) */
-    --senior-primary: #E67E22;       /* Warm orange */
-    --senior-secondary: #2ECC71;     /* Bright green */
-    --senior-accent: #F39C12;        /* Golden yellow */
+    /* Primary Brand Colors - Candy-inspired */
+    --primary-color: #FF6B9D;        /* Bubblegum pink - playful primary */
+    --primary-hover: #FF4785;        /* Deeper pink for hover */
+    --secondary-color: #A855F7;      /* Grape purple - fun accent */
+    --success-color: #10B981;        /* Mint green - fresh success */
+    --warning-color: #FBBF24;        /* Sunny yellow - cheerful warning */
+    --danger-color: #F43F5E;         /* Coral red - soft danger */
+    --info-color: #06B6D4;           /* Cyan splash - bright info */
 
-    /* Youth-specific Colors (vibrant, modern) */
-    --youth-primary: #9B59B6;        /* Purple */
-    --youth-secondary: #3498DB;      /* Bright blue */
-    --youth-accent: #E74C3C;         /* Red accent */
+    /* Senior-specific Colors (warm, friendly, accessible) */
+    --senior-primary: #F97316;       /* Tangerine orange - warm & inviting */
+    --senior-secondary: #22C55E;     /* Leaf green - natural & calming */
+    --senior-accent: #FACC15;        /* Sunflower yellow - cheerful */
+    --senior-gradient: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 50%, #FED7AA 100%);
+    --senior-card-glow: rgba(249, 115, 22, 0.15);
 
-    /* Admin-specific Colors (professional) */
-    --admin-primary: #34495E;        /* Dark blue-gray */
-    --admin-secondary: #16A085;      /* Teal */
-    --admin-accent: #E67E22;         /* Orange accent */
+    /* Youth-specific Colors (vibrant, energetic, fun) */
+    --youth-primary: #8B5CF6;        /* Electric violet - modern & cool */
+    --youth-secondary: #3B82F6;      /* Ocean blue - refreshing */
+    --youth-accent: #EC4899;         /* Hot pink - exciting */
+    --youth-gradient: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 50%, #DDD6FE 100%);
+    --youth-card-glow: rgba(139, 92, 246, 0.15);
 
-    /* Neutral Colors */
+    /* Admin-specific Colors (professional but friendly) */
+    --admin-primary: #475569;        /* Slate - professional */
+    --admin-secondary: #14B8A6;      /* Teal pop - modern */
+    --admin-accent: #F59E0B;         /* Amber accent */
+
+    /* Fun Gradient Presets */
+    --gradient-rainbow: linear-gradient(90deg, #FF6B9D, #A855F7, #3B82F6, #10B981, #FBBF24);
+    --gradient-sunset: linear-gradient(135deg, #F97316 0%, #EC4899 50%, #8B5CF6 100%);
+    --gradient-ocean: linear-gradient(135deg, #06B6D4 0%, #3B82F6 50%, #8B5CF6 100%);
+    --gradient-candy: linear-gradient(135deg, #FF6B9D 0%, #A855F7 100%);
+    --gradient-nature: linear-gradient(135deg, #22C55E 0%, #10B981 50%, #06B6D4 100%);
+
+    /* Neutral Colors - Softer, warmer tones */
     --white: #FFFFFF;
-    --black: #000000;
-    --gray-100: #F8F9FA;             /* Lightest gray - backgrounds */
-    --gray-200: #E9ECEF;             /* Light gray - borders */
-    --gray-300: #DEE2E6;             /* Medium-light gray */
-    --gray-400: #CED4DA;             /* Medium gray */
-    --gray-500: #ADB5BD;             /* Mid gray - disabled text */
-    --gray-600: #6C757D;             /* Dark gray - secondary text */
-    --gray-700: #495057;             /* Darker gray */
-    --gray-800: #343A40;             /* Very dark gray */
-    --gray-900: #212529;             /* Almost black - primary text */
+    --black: #1E1E2E;                /* Soft black - easier on eyes */
+    --gray-100: #FAFAFA;             /* Warm white - backgrounds */
+    --gray-200: #F4F4F5;             /* Soft gray - borders */
+    --gray-300: #E4E4E7;             /* Light gray */
+    --gray-400: #D4D4D8;             /* Medium gray */
+    --gray-500: #A1A1AA;             /* Mid gray - muted text */
+    --gray-600: #71717A;             /* Dark gray - secondary text */
+    --gray-700: #52525B;             /* Darker gray */
+    --gray-800: #3F3F46;             /* Very dark gray */
+    --gray-900: #27272A;             /* Near black - primary text */
+
+    /* Playful Accent Colors */
+    --peach: #FFDAB9;
+    --lavender: #E6E6FA;
+    --mint: #98FB98;
+    --coral: #FF7F7F;
+    --sky: #87CEEB;
 
     /* Typography */
     --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -73,18 +93,22 @@
     --spacing-xl: 2rem;              /* 32px */
     --spacing-xxl: 3rem;             /* 48px */
 
-    /* Border Radius */
-    --border-radius-sm: 0.25rem;     /* 4px - small elements */
-    --border-radius-md: 0.5rem;      /* 8px - default */
-    --border-radius-lg: 1rem;        /* 16px - cards */
-    --border-radius-xl: 1.5rem;      /* 24px - special elements */
+    /* Border Radius - Extra rounded for playfulness */
+    --border-radius-sm: 0.5rem;      /* 8px - small elements */
+    --border-radius-md: 0.75rem;     /* 12px - default */
+    --border-radius-lg: 1.25rem;     /* 20px - cards */
+    --border-radius-xl: 2rem;        /* 32px - special elements */
     --border-radius-pill: 50rem;     /* Pill-shaped (fully rounded) */
+    --border-radius-blob: 30% 70% 70% 30% / 30% 30% 70% 70%; /* Fun blob shape */
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
-    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.2);
+    /* Shadows - Softer, more colorful */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.16);
+    --shadow-glow-pink: 0 4px 20px rgba(255, 107, 157, 0.3);
+    --shadow-glow-purple: 0 4px 20px rgba(168, 85, 247, 0.3);
+    --shadow-glow-blue: 0 4px 20px rgba(59, 130, 246, 0.3);
 
     /* Transitions */
     --transition-fast: 150ms ease-in-out;
@@ -221,25 +245,62 @@ p {
 }
 
 /* Button variants */
+/* Playful Button Styles */
 .btn-primary {
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     color: var(--white);
-    border-color: var(--primary-color);
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
+    background: linear-gradient(135deg, var(--primary-hover) 0%, var(--secondary-color) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+    color: var(--white);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
 }
 
 .btn-success {
-    background-color: var(--success-color);
+    background: linear-gradient(135deg, var(--success-color) 0%, #34D399 100%);
+    color: var(--white);
+    border: none;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
     color: var(--white);
 }
 
 .btn-danger {
-    background-color: var(--danger-color);
+    background: linear-gradient(135deg, var(--danger-color) 0%, #FB7185 100%);
     color: var(--white);
+    border: none;
+    box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(244, 63, 94, 0.4);
+    color: var(--white);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--warning-color) 0%, #FCD34D 100%);
+    color: var(--black);
+    border: none;
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
 }
 
 .btn-outline-primary {
@@ -265,18 +326,21 @@ p {
 }
 
 /* ==================== CARDS ==================== */
+/* Playful Card Styles */
 .card {
     background-color: var(--white);
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-md);
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
-    transition: all var(--transition-base);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .card:hover {
     box-shadow: var(--shadow-lg);
     transform: translateY(-4px);
+    border-color: rgba(139, 92, 246, 0.2);
 }
 
 .card-header {

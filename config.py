@@ -30,9 +30,21 @@ class Config:
 
     # ==================== SECRET KEY ====================
     # Secret key for session management and CSRF protection
-    # In production, this should be set via environment variable
-    # For development, we use a default key
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'gencon-sg-super-secret-key-2025'
+    # SECURITY: Must be set via environment variable
+    # Generate with: python -c "import secrets; print(secrets.token_hex(32))"
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+
+    @staticmethod
+    def init_app(app):
+        """Validate critical configuration on app initialization."""
+        if not app.config.get('SECRET_KEY'):
+            if app.config.get('TESTING'):
+                app.config['SECRET_KEY'] = 'test-secret-key-not-for-production'
+            else:
+                raise ValueError(
+                    "SECRET_KEY environment variable is not set. "
+                    "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+                )
 
     # ==================== DATABASE CONFIGURATION ====================
     # SQLite database URI
@@ -176,6 +188,18 @@ class DevelopmentConfig(Config):
     DEBUG = True
     TESTING = False
     SQLALCHEMY_ECHO = True
+
+    @staticmethod
+    def init_app(app):
+        """Allow development without SECRET_KEY but warn loudly."""
+        if not app.config.get('SECRET_KEY'):
+            import warnings
+            warnings.warn(
+                "SECRET_KEY not set! Using insecure default for development only. "
+                "Set SECRET_KEY environment variable before deploying.",
+                UserWarning
+            )
+            app.config['SECRET_KEY'] = 'dev-only-insecure-key-change-in-production'
 
 
 class TestingConfig(Config):

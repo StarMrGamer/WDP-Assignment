@@ -16,7 +16,7 @@ from flask import Flask, render_template, session, redirect, url_for, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from config import get_config
 from models import db
-from utils import filter_text
+from utils import filter_text, escape_html, sanitize_for_display, check_unkind_words
 from datetime import timedelta
 from sqlalchemy import text
 import os
@@ -26,10 +26,17 @@ app = Flask(__name__)
 
 # Load configuration
 config_name = os.environ.get('FLASK_ENV', 'development')
-app.config.from_object(get_config(config_name))
+config_class = get_config(config_name)
+app.config.from_object(config_class)
 
-# Initialize SocketIO
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+# Initialize configuration (validates SECRET_KEY)
+if hasattr(config_class, 'init_app'):
+    config_class.init_app(app)
+
+# Initialize SocketIO with restricted CORS
+# SECURITY: Only allow connections from trusted origins
+ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:5000,http://localhost:5001,http://127.0.0.1:5000,http://127.0.0.1:5001').split(',')
+socketio = SocketIO(app, cors_allowed_origins=ALLOWED_ORIGINS, async_mode='eventlet')
 
 # Initialize database with app
 db.init_app(app)
@@ -283,41 +290,24 @@ def on_move(data):
 @socketio.on('game_chat')
 def on_game_chat(data):
     from models import Message, User, db
-    
+
     sender_id = session.get('user_id')
     recipient_id = data.get('recipient_id')
     content = data.get('content')
     game_id = data.get('game_id')
-    
+
     if not sender_id or not recipient_id or not content:
         return
 
-    # Filter content
-    content = filter_text(content)
+    # Check for unkind words and sanitize content
+    is_flagged = check_unkind_words(content, app.config.get('UNKIND_WORDS', []))
+    safe_content = sanitize_for_display(content)
 
-    # Check for unkind words (flagging logic remains useful for admins even if filtered)
-    is_flagged = False
-    unkind_words = app.config.get('UNKIND_WORDS', [])
-    for word in unkind_words:
-        if word.lower() in content.lower(): # Note: filtered content might not trigger this if replaced
-             pass # Logic needs adjustment if we filter first. 
-             # If we filter first, the words are gone. 
-             # So we should check flag BEFORE filter, or just rely on filter.
-             # Let's flag based on original content if needed, but user asked to FILTER.
-             # If filtered, maybe we don't need to flag as urgently, or flag the ATTEMPT.
-             
-    # Better approach: Check flag on ORIGINAL content, then save FILTERED content.
-    original_content = data.get('content')
-    for word in unkind_words:
-        if word.lower() in original_content.lower():
-            is_flagged = True
-            break
-            
     # Save message to database
     new_msg = Message(
         sender_id=sender_id,
         recipient_id=recipient_id,
-        content=content, # Saved filtered content
+        content=safe_content,
         is_flagged=is_flagged
     )
     db.session.add(new_msg)
@@ -328,10 +318,10 @@ def on_game_chat(data):
     emit('new_game_message', {
         'id': new_msg.id,
         'sender_id': sender_id,
-        'content': content,
+        'content': safe_content,
         'is_flagged': is_flagged,
         'created_at': (new_msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'),
-        'is_me': False # Frontend will check this
+        'is_me': False
     }, room=room)
 
 @socketio.on('join_community')
@@ -348,51 +338,47 @@ def on_leave_community(data):
 def on_community_message(data):
     from models import CommunityPost, User, db
     from datetime import datetime
-    
-    user_id = session.get('user_id')
-    if not user_id: return
 
-    # Check for unkind words (Flagging)
+    user_id = session.get('user_id')
+    if not user_id:
+        return
+
+    # Check for unkind words and sanitize content
     original_content = data.get('content', '')
-    is_flagged = False
-    unkind_words = app.config.get('UNKIND_WORDS', [])
-    for word in unkind_words:
-        if word.lower() in original_content.lower():
-            is_flagged = True
-            break
-            
+    is_flagged = check_unkind_words(original_content, app.config.get('UNKIND_WORDS', []))
+
     # Notify sender if flagged
     if is_flagged:
         emit('message_flagged', {
             'message': 'Your message contains words that may be considered unkind. It has been flagged for review.',
-            'original_content': original_content
+            'original_content': escape_html(original_content)
         })
 
-    # Filter content
-    content = filter_text(original_content)
+    # SECURITY: Sanitize content (escape HTML + filter profanities)
+    safe_content = sanitize_for_display(original_content)
 
     # Save to DB
     new_post = CommunityPost(
         community_id=data['community_id'],
         user_id=user_id,
-        content=content,
+        content=safe_content,
         photo_url=data.get('photo_url')
     )
     db.session.add(new_post)
     db.session.commit()
-    
+
     user = User.query.get(user_id)
-    
+
     avatar = user.profile_picture
     if avatar and not avatar.startswith('images/'):
         avatar = f'images/{avatar}'
-    
-    # Broadcast to room
+
+    # Broadcast to room - SECURITY: escape username to prevent XSS
     room = f"community_{data['community_id']}"
     emit('new_community_post', {
         'id': new_post.id,
         'user_id': user.id,
-        'username': user.full_name,
+        'username': escape_html(user.full_name),
         'avatar': avatar,
         'content': new_post.content,
         'photo_url': new_post.photo_url,

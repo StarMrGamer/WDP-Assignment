@@ -44,6 +44,10 @@ def login():
                 reason = user.disable_reason or "Account disabled by administrator."
                 flash(f'Your account has been disabled. Reason: {reason}', 'danger')
                 return render_template('auth/login.html', form=form)
+
+            # SECURITY: Regenerate session to prevent session fixation attacks
+            session.clear()
+
             # Set session variables
             session['user_id'] = user.id
             session['username'] = user.username

@@ -78,10 +78,18 @@
         const gameChatForm = document.getElementById('gameChatForm');
         const gameChatInput = document.getElementById('gameChatMessageInput');
         const gameChatMessages = document.getElementById('gameChatMessages');
-        
+
+        // SECURITY: HTML escape function to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         // Use the global socket variable from the game script
         // Note: socket is expected to be initialized in the parent template
-        
+
         if (!gameChatForm) return;
         
         // Render existing messages from API
@@ -108,20 +116,24 @@
             const isMe = data.is_me || data.sender_id == currentUserId;
             const msgClass = isMe ? 'game-msg-me' : 'game-msg-other';
             const flaggedClass = data.is_flagged ? 'game-msg-flagged' : '';
-            
+
             const msgDiv = document.createElement('div');
             msgDiv.className = `game-msg ${msgClass} ${flaggedClass}`;
-            
-            let content = data.content;
+
+            // SECURITY: Escape content to prevent XSS
+            const safeContent = escapeHtml(data.content);
+            const safeCreatedAt = escapeHtml(data.created_at);
+
+            let contentHtml = safeContent;
             if (data.is_flagged) {
-                content = `<i class="fas fa-exclamation-triangle me-1"></i> ${content}`;
+                contentHtml = `<i class="fas fa-exclamation-triangle me-1"></i> ${safeContent}`;
             }
-            
+
             msgDiv.innerHTML = `
-                <div>${content}</div>
-                <small class="game-msg-time">${data.created_at}</small>
+                <div>${contentHtml}</div>
+                <small class="game-msg-time">${safeCreatedAt}</small>
             `;
-            
+
             gameChatMessages.appendChild(msgDiv);
             scrollToBottom();
         }

@@ -11,17 +11,21 @@
                  - Modern, clean color scheme (aligned with Youth theme)
 */
 
-/* ==================== SENIOR COLOR SCHEME ==================== */
+/* ==================== SENIOR COLOR SCHEME - WHIMSICAL & WARM ==================== */
 :root {
-    /* Updated to match Youth theme (Light) while maintaining accessibility structure */
-    --senior-primary: #9B59B6;       /* Purple - primary actions */
-    --senior-primary-hover: #8E44AD; /* Darker purple - hover state */
-    --senior-secondary: #3498DB;     /* Bright blue - success/secondary */
-    --senior-accent: #E74C3C;        /* Red accent */
-    --senior-bg: #F5F7FA;            /* Light gray background */
-    --senior-text: #2C3E50;          /* Dark blue-gray text - high contrast */
-    --senior-border: #D4D4D4;        /* Neutral borders */
+    /* Warm, friendly colors that are still accessible */
+    --senior-primary: #F97316;       /* Tangerine orange - warm & inviting */
+    --senior-primary-hover: #EA580C; /* Deeper orange - hover state */
+    --senior-secondary: #22C55E;     /* Fresh green - nature-inspired */
+    --senior-accent: #FACC15;        /* Sunflower yellow - cheerful */
+    --senior-bg: #FFFBEB;            /* Warm cream background */
+    --senior-text: #422006;          /* Warm brown text - cozy & readable */
+    --senior-border: #FED7AA;        /* Peach border - soft & friendly */
     --senior-card-bg: #FFFFFF;       /* White cards */
+
+    /* Fun gradient for headers */
+    --senior-header-gradient: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FCD34D 100%);
+    --senior-card-shadow: 0 4px 20px rgba(249, 115, 22, 0.15);
 }
 
 /* ==================== BASE OVERRIDES FOR SENIORS ==================== */
@@ -150,26 +154,63 @@ body[data-role="senior"] .btn-success {
     font-weight: 600;
 }
 
-/* ==================== DASHBOARD CUSTOMIZATIONS ==================== */
+/* ==================== DASHBOARD CUSTOMIZATIONS - WHIMSICAL ==================== */
+
+/* Dashboard Header - Warm Sunshine */
+body[data-role="senior"] .dashboard-header {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FBBF24 100%);
+    color: var(--senior-text);
+    padding: 2.5rem 2rem;
+    border-radius: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 24px rgba(249, 115, 22, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+body[data-role="senior"] .dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+}
+
 body[data-role="senior"] .dashboard-card {
-    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%); /* Purple gradient */
+    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
     border-left: 5px solid var(--senior-primary);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.15);
+    border-radius: 1.25rem;
 }
 
 body[data-role="senior"] .stat-card {
     text-align: center;
     padding: 2rem;
     background: white;
-    border-radius: 1rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.12);
     transition: all 0.3s ease;
-    border-left: 4px solid var(--senior-primary); /* Added border to match youth style */
+    border-bottom: 4px solid var(--senior-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+body[data-role="senior"] .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--senior-primary), var(--senior-accent));
 }
 
 body[data-role="senior"] .stat-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 24px rgba(155, 89, 182, 0.2); /* Purple shadow */
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(249, 115, 22, 0.25);
 }
 
 body[data-role="senior"] .stat-card .icon {
@@ -182,6 +223,10 @@ body[data-role="senior"] .stat-card .value {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--senior-text);
+    background: linear-gradient(135deg, var(--senior-primary), var(--senior-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 body[data-role="senior"] .stat-card .label {
