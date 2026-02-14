@@ -481,6 +481,8 @@ with app.app_context():
     patch_db("ALTER TABLE community_posts ADD COLUMN photo_url VARCHAR(255)", "Added photo_url to community_posts")
     patch_db("ALTER TABLE communities ADD COLUMN photo_url VARCHAR(255)", "Added photo_url to communities")
     patch_db("ALTER TABLE community_members ADD COLUMN last_viewed_at DATETIME", "Added last_viewed_at to community_members")
+    patch_db("ALTER TABLE events ADD COLUMN status VARCHAR(20) DEFAULT 'approved'", "Added status to events")
+    patch_db("ALTER TABLE events ADD COLUMN justification TEXT", "Added justification to events")
     
     # Ensure tables exist (redundant with create_all but kept for explicit checks if needed)
     try:

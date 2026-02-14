@@ -411,6 +411,8 @@ class Event(db.Model):
     location = db.Column(db.String(255))
     date = db.Column(db.DateTime, nullable=False, index=True)
     capacity = db.Column(db.Integer)
+    status = db.Column(db.String(20), default='approved')  # 'approved', 'pending', 'rejected'
+    justification = db.Column(db.Text)  # Reason for suggestion
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
