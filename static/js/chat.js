@@ -11,12 +11,15 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     const chatMessages = document.getElementById('chatMessages');
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
     
     // Determine the API endpoint based on the current URL
     // If we are in /senior/messages, use /senior/api/messages
     // If we are in /youth/messages, use /youth/api/messages
     const role = window.location.pathname.split('/')[1]; // 'senior' or 'youth'
     const apiEndpoint = `/${role}/api/messages`;
+    const postEndpoint = `/${role}/messages`;
     
     let lastMessageCount = 0;
 
@@ -108,6 +111,39 @@ document.addEventListener('DOMContentLoaded', function() {
         if (chatMessages) {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+    }
+
+    // Handle Form Submission
+    if (messageForm) {
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const content = messageInput.value.trim();
+            if (!content) return;
+
+            const formData = new FormData(messageForm);
+            
+            // Send message via fetch
+            fetch(postEndpoint, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    messageInput.value = '';
+                    if (typeof autoExpand === 'function') {
+                        autoExpand(messageInput);
+                    }
+                    fetchMessages(); // Refresh immediately
+                } else {
+                    console.error('Failed to send message');
+                }
+            })
+            .catch(error => console.error('Error sending message:', error));
+        });
     }
 
     // Initial fetch

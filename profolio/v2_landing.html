@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vrishabd Rai · Cybersecurity Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+:root{
+  --bg:#03080a;--panel:#071218;--border:#0d3d4e;
+  --teal:#00c8e8;--teal2:#007a90;--green:#00ffb3;
+  --text:#c8e6ea;--muted:#3d6070;--white:#f0faff;
+}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow-x:hidden;cursor:none;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,180,216,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,.04) 1px,transparent 1px);
+  background-size:40px 40px;}
+
+/* CURSOR */
+#cursor{position:fixed;width:12px;height:12px;border-radius:50%;background:var(--teal);
+  pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;}
+#cursor-ring{position:fixed;width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(0,200,232,.4);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);}
+#scanline{position:fixed;inset:0;z-index:300;pointer-events:none;opacity:.3;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px);}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;
+  justify-content:space-between;padding:0 5%;height:64px;
+  background:rgba(3,8,10,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,200,232,.08);}
+.nav-logo{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--teal);letter-spacing:3px;}
+.nav-logo em{color:var(--green);font-style:normal;}
+nav ul{display:flex;gap:2rem;list-style:none;}
+nav ul a{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);
+  text-decoration:none;letter-spacing:2px;text-transform:uppercase;transition:color .2s;}
+nav ul a:hover{color:var(--teal);}
+
+/* ── 3D SCROLL HERO ── */
+#scroll-container{height:600vh;position:relative;}
+#sticky-scene{position:sticky;top:0;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#shield-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
+#particle-canvas{position:absolute;inset:0;z-index:0;pointer-events:none;}
+#glow{position:absolute;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,200,232,.18) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+.phase{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .5s ease;}
+.phase.visible{opacity:1;}
+
+#phase-hero{justify-content:flex-end;padding-bottom:11vh;}
+#phase-hero .pre{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--green);letter-spacing:4px;margin-bottom:1rem;}
+#phase-hero h1{font-size:clamp(3rem,8vw,6.5rem);font-weight:800;color:var(--white);line-height:.95;letter-spacing:-2px;text-align:center;}
+#phase-hero h1 span{display:block;-webkit-text-stroke:1px var(--teal);color:transparent;}
+#phase-hero .sub{margin-top:1.2rem;font-family:'DM Mono',monospace;font-size:.82rem;color:var(--muted);letter-spacing:1px;text-align:center;}
+
+#scroll-hint{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:20;
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:3px;
+  text-transform:uppercase;animation:scrollBounce 2s ease-in-out infinite;}
+#scroll-hint svg{width:18px;opacity:.5;}
+@keyframes scrollBounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(8px);}}
+
+.phase-side{justify-content:center;flex-direction:row;gap:7vw;padding:0 6%;}
+.phase-text-left,.phase-text-right{display:flex;flex-direction:column;gap:.8rem;max-width:290px;}
+.phase-text-right{text-align:right;}
+.phase-eyebrow{font-family:'DM Mono',monospace;font-size:.67rem;color:var(--green);letter-spacing:3px;}
+.phase-h2{font-size:clamp(1.7rem,3vw,2.8rem);font-weight:800;color:var(--white);line-height:1.1;letter-spacing:-1px;}
+.phase-h2 em{color:var(--teal);font-style:normal;}
+.phase-p{font-family:'DM Mono',monospace;font-size:.76rem;color:var(--muted);line-height:1.8;}
+.phase-stat{font-family:'DM Mono',monospace;font-size:2rem;font-weight:700;color:var(--teal);margin-top:.4rem;}
+.phase-stat span{font-size:.62rem;color:var(--muted);display:block;letter-spacing:2px;}
+.phase-tools{display:flex;flex-direction:column;gap:.3rem;margin-top:.3rem;}
+.phase-tool{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--teal);letter-spacing:1px;}
+
+#phase-cta .cta-inner{text-align:center;}
+#phase-cta h2{font-size:clamp(2rem,5vw,4rem);font-weight:800;color:var(--white);letter-spacing:-1px;margin-bottom:1rem;}
+#phase-cta h2 em{color:var(--teal);font-style:normal;}
+#phase-cta p{font-family:'DM Mono',monospace;font-size:.8rem;color:var(--muted);margin-bottom:2rem;letter-spacing:.5px;}
+.btn-row{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;pointer-events:all;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:2px;
+  font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:1px;
+  text-decoration:none;cursor:pointer;transition:all .2s;border:none;}
+.btn-primary{background:var(--teal);color:var(--bg);}
+.btn-primary:hover{background:#00e8ff;transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,200,232,.3);}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid rgba(0,200,232,.3);}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-3px);}
+
+/* ── PORTFOLIO SECTIONS ── */
+.below{position:relative;z-index:10;}
+.port-section{position:relative;z-index:1;padding:90px 8%;}
+.section-label{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--green);
+  letter-spacing:3px;text-transform:uppercase;margin-bottom:.8rem;}
+.section-title{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;color:var(--white);
+  margin-bottom:3rem;letter-spacing:-1px;}
+.section-title span{color:var(--teal);}
+
+/* SKILLS */
+#skills{background:var(--panel);}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;}
+.skill-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:1.5rem 1.8rem;transition:border-color .2s,transform .2s;}
+.skill-card:hover{border-color:var(--teal);transform:translateY(-4px);}
+.skill-card-icon{font-size:1.8rem;margin-bottom:.8rem;}
+.skill-card h3{font-size:1rem;font-weight:700;color:var(--white);margin-bottom:.6rem;}
+.skill-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
+.tag{font-family:'DM Mono',monospace;font-size:.68rem;padding:3px 9px;border-radius:2px;
+  background:rgba(0,180,216,.1);border:1px solid rgba(0,180,216,.25);color:var(--teal);}
+.skill-bar-wrap{margin-top:.6rem;}
+.skill-bar-label{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;
+  font-size:.72rem;color:var(--muted);margin-bottom:4px;}
+.skill-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.skill-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--teal2),var(--teal));
+  width:0;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+
+/* PROJECTS */
+#projects{background:var(--bg);}
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;}
+.project-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;display:flex;flex-direction:column;
+  transition:border-color .2s,transform .2s,box-shadow .2s;}
+.project-card:hover{border-color:var(--teal);transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,180,216,.15);}
+.project-header{padding:1.6rem 1.8rem 0;display:flex;align-items:flex-start;justify-content:space-between;}
+.project-icon{width:48px;height:48px;border-radius:8px;background:rgba(0,180,216,.12);
+  border:1px solid rgba(0,180,216,.25);display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.project-year{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);margin-top:6px;}
+.project-body{padding:1.2rem 1.8rem 1.8rem;flex:1;display:flex;flex-direction:column;}
+.project-body h3{font-size:1.05rem;color:var(--white);margin-bottom:.5rem;font-weight:700;}
+.project-body p{font-size:.87rem;color:var(--muted);line-height:1.75;flex:1;}
+.project-meta{margin-top:1rem;}
+.project-result{font-family:'DM Mono',monospace;font-size:.76rem;color:var(--green);
+  display:flex;align-items:center;gap:6px;margin-bottom:.6rem;}
+.project-result::before{content:'▶';font-size:.52rem;}
+.star-toggle{background:none;border:1px solid var(--border);color:var(--muted);font-size:.73rem;
+  font-family:'DM Mono',monospace;letter-spacing:1px;padding:6px 14px;border-radius:3px;
+  cursor:pointer;transition:all .2s;margin-top:.4rem;}
+.star-toggle:hover{border-color:var(--teal);color:var(--teal);}
+.star-content{display:none;margin-top:.8rem;background:rgba(0,180,216,.04);
+  border:1px solid rgba(0,180,216,.12);border-radius:4px;padding:1rem;
+  font-family:'DM Mono',monospace;font-size:.76rem;line-height:1.75;color:var(--text);}
+.star-content.open{display:block;}
+.star-row{display:flex;gap:.6rem;margin-bottom:.5rem;}
+.star-key{color:var(--teal);min-width:18px;font-weight:700;}
+
+/* ABOUT */
+#about{background:var(--panel);}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;}
+@media(max-width:720px){.about-grid{grid-template-columns:1fr;}}
+.about-bio p{font-size:.93rem;color:var(--text);line-height:1.85;margin-bottom:1rem;}
+.highlight-box{background:rgba(0,180,216,.08);border-left:3px solid var(--teal);
+  padding:1rem 1.2rem;border-radius:0 4px 4px 0;
+  font-family:'DM Mono',monospace;font-size:.8rem;color:var(--text);line-height:1.7;margin-top:1.2rem;}
+.timeline{position:relative;padding-left:1.5rem;}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--border);}
+.tl-item{position:relative;margin-bottom:2rem;}
+.tl-dot{position:absolute;left:-1.95rem;top:4px;width:12px;height:12px;border-radius:50%;
+  background:var(--teal);border:2px solid var(--bg);box-shadow:0 0 0 3px rgba(0,200,232,.2);}
+.tl-year{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--teal);letter-spacing:1px;margin-bottom:.3rem;}
+.tl-title{font-weight:700;color:var(--white);font-size:.95rem;margin-bottom:.2rem;}
+.tl-sub{font-family:'DM Mono',monospace;font-size:.77rem;color:var(--muted);line-height:1.6;}
+
+/* CONTACT */
+#contact{background:var(--bg);text-align:center;}
+.contact-box{max-width:560px;margin:0 auto;background:var(--panel);
+  border:1px solid var(--border);border-radius:8px;padding:3rem;}
+.contact-box p{font-family:'DM Mono',monospace;font-size:.83rem;color:var(--muted);line-height:1.8;margin-bottom:2rem;}
+.contact-links{display:flex;justify-content:center;gap:1.2rem;flex-wrap:wrap;}
+.contact-link{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;
+  font-size:.78rem;color:var(--teal);text-decoration:none;padding:9px 18px;
+  border:1px solid rgba(0,200,232,.3);border-radius:3px;transition:all .2s;letter-spacing:.5px;}
+.contact-link:hover{background:rgba(0,200,232,.1);transform:translateY(-2px);}
+
+/* FOOTER */
+footer{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;padding:2.5rem 8%;border-top:1px solid rgba(0,200,232,.08);}
+.footer-logo{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--teal);letter-spacing:3px;}
+.footer-links{display:flex;gap:2rem;}
+.footer-links a{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);
+  text-decoration:none;letter-spacing:1px;transition:color .2s;}
+.footer-links a:hover{color:var(--teal);}
+.footer-copy{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="scanline"></div>
+
+<nav>
+  <div class="nav-logo">VR<em>_</em>SEC</div>
+  <ul>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div id="scroll-container">
+  <div id="sticky-scene">
+    <canvas id="shield-canvas"></canvas>
+    <canvas id="particle-canvas"></canvas>
+    <div id="glow"></div>
+
+    <div class="phase" id="phase-hero">
+      <div class="pre">// cybersecurity analyst · 2028</div>
+      <h1>Vrishabd<span>Rai</span></h1>
+      <p class="sub">Diploma in Cybersecurity · Nanyang Polytechnic</p>
+    </div>
+
+    <div class="phase phase-side" id="phase-monitor">
+      <div class="phase-text-left">
+        <div class="phase-eyebrow">01 · monitoring</div>
+        <div class="phase-h2">Always<br><em>Watching.</em></div>
+        <p class="phase-p">Real-time threat detection using Wireshark, Nessus & custom Python anomaly scripts.</p>
+        <div class="phase-stat">24/7<span>threat monitoring</span></div>
+      </div>
+      <div style="width:1px;height:160px;background:linear-gradient(to bottom,transparent,var(--teal),transparent);flex-shrink:0;"></div>
+      <div class="phase-text-right">
+        <div class="phase-eyebrow">tools</div>
+        <div class="phase-tools">
+          <span class="phase-tool">Wireshark</span>
+          <span class="phase-tool">Nessus</span>
+          <span class="phase-tool">Kali Linux</span>
+          <span class="phase-tool">Metasploit</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase phase-side" id="phase-response">
+      <div class="phase-text-left">
+        <div class="phase-eyebrow">skills</div>
+        <div class="phase-tools">
+          <span class="phase-tool" style="color:var(--green)">Python · Bash</span>
+          <span class="phase-tool" style="color:var(--green)">AWS · Azure</span>
+          <span class="phase-tool" style="color:var(--green)">OWASP Top 10</span>
+          <span class="phase-tool" style="color:var(--green)">SQL · HTML/CSS</span>
+        </div>
+      </div>
+      <div style="width:1px;height:160px;background:linear-gradient(to bottom,transparent,var(--green),transparent);flex-shrink:0;"></div>
+      <div class="phase-text-right">
+        <div class="phase-eyebrow">02 · response</div>
+        <div class="phase-h2">Zero<br><em style="color:var(--green)">Dwell Time.</em></div>
+        <p class="phase-p">Incident triage, evidence collection and playbook execution — built for speed.</p>
+        <div class="phase-stat" style="color:var(--green)">90%<span>vuln detection accuracy</span></div>
+      </div>
+    </div>
+
+    <div class="phase" id="phase-cta">
+      <div class="cta-inner">
+        <h2>Hire <em>Vrishabd.</em></h2>
+        <p>Cybersecurity Analyst · Nanyang Polytechnic</p>
+        <div class="btn-row">
+          <a href="#contact" class="btn btn-primary">Get In Touch ↓</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="scroll-hint">
+      <span>scroll</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="below">
+
+  <section class="port-section" id="skills">
+    <div class="section-label">// 01 — capabilities</div>
+    <div class="section-title">Technical <span>Skills</span></div>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-card-icon">🛡️</div>
+        <h3>Security Tools</h3>
+        <div class="skill-tags">
+          <span class="tag">Kali Linux</span><span class="tag">Wireshark</span>
+          <span class="tag">Nessus</span><span class="tag">Metasploit</span><span class="tag">Burp Suite</span>
+        </div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-label"><span>Proficiency</span><span>82%</span></div>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="82"></div></div>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">🌐</div>
+        <h3>Networking</h3>
+        <div class="skill-tags">
+          <span class="tag">TCP/IP</span><span class="tag">DNS</span>
+          <span class="tag">HTTP/S</span><span class="tag">Firewalls</span><span class="tag">IDS/IPS</span>
+        </div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-label"><span>Proficiency</span><span>78%</span></div>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="78"></div></div>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">💻</div>
+        <h3>Programming</h3>
+        <div class="skill-tags">
+          <span class="tag">Python</span><span class="tag">Bash</span>
+          <span class="tag">HTML/CSS/JS</span><span class="tag">SQL</span>
+        </div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-label"><span>Proficiency</span><span>75%</span></div>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="75"></div></div>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">☁️</div>
+        <h3>Cloud & Compliance</h3>
+        <div class="skill-tags">
+          <span class="tag">AWS</span><span class="tag">Azure</span>
+          <span class="tag">OWASP Top 10</span><span class="tag">PDPA</span><span class="tag">NIST CSF</span>
+        </div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-label"><span>Proficiency</span><span>68%</span></div>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="68"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="port-section" id="projects">
+    <div class="section-label">// 02 — portfolio</div>
+    <div class="section-title">Featured <span>Projects</span></div>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-icon">🔍</div>
+          <div class="project-year">2027 · School Project</div>
+        </div>
+        <div class="project-body">
+          <h3>Web Security Assessment Dashboard</h3>
+          <p>A Python Flask web app that scans URLs for OWASP Top 10 vulnerabilities — XSS, SQL injection, open redirects — integrated with the Nessus API and a colour-coded severity dashboard.</p>
+          <div class="project-meta">
+            <div class="project-result">90% detection accuracy on curated test suite</div>
+            <div class="project-result">Showcased at SP Technology Fair — 40+ attendees</div>
+            <div class="skill-tags" style="margin-bottom:.8rem">
+              <span class="tag">Python</span><span class="tag">Flask</span>
+              <span class="tag">Nessus API</span><span class="tag">HTML/CSS/JS</span><span class="tag">OWASP</span>
+            </div>
+            <button class="star-toggle" onclick="toggleStar(this)">[ VIEW STAR BREAKDOWN ]</button>
+            <div class="star-content">
+              <div class="star-row"><span class="star-key">S</span><span>Our web dev team had no automated way to detect common vulnerabilities during the build phase, causing late-stage fixes.</span></div>
+              <div class="star-row"><span class="star-key">T</span><span>Design and build a scanning tool developers could use without deep security expertise.</span></div>
+              <div class="star-row"><span class="star-key">A</span><span>Built Flask app integrating Nessus API with colour-coded OWASP severity ratings. Added XSS and SQL injection probes via Python.</span></div>
+              <div class="star-row"><span class="star-key">R</span><span>90% detection accuracy on 50-URL test suite. Tool adopted for pre-deployment checks. Demonstrated to 40+ attendees at SP Tech Fair.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-icon">📡</div>
+          <div class="project-year">2026 · Personal Project</div>
+        </div>
+        <div class="project-body">
+          <h3>Network Intrusion Detection System</h3>
+          <p>A Python/Scapy script that monitors live network traffic, flags anomalous packet patterns (ARP spoofing, port scans), and logs alerts to an SQLite database.</p>
+          <div class="project-meta">
+            <div class="project-result">Detected 100% of simulated ARP spoofing attacks</div>
+            <div class="project-result">Tested in Kali Linux home lab environment</div>
+            <div class="skill-tags" style="margin-bottom:.8rem">
+              <span class="tag">Python</span><span class="tag">Scapy</span>
+              <span class="tag">SQLite</span><span class="tag">Kali Linux</span><span class="tag">Networking</span>
+            </div>
+            <button class="star-toggle" onclick="toggleStar(this)">[ VIEW STAR BREAKDOWN ]</button>
+            <div class="star-content">
+              <div class="star-row"><span class="star-key">S</span><span>Wanted to deepen understanding of network-layer attacks beyond textbook theory.</span></div>
+              <div class="star-row"><span class="star-key">T</span><span>Build a lightweight IDS capable of flagging common Layer 2/3 attacks in a home lab network.</span></div>
+              <div class="star-row"><span class="star-key">A</span><span>Python/Scapy listener sniffs packets, applies rule-based heuristics, writes timestamped alerts to SQLite. Kali Linux VMs simulate attacker/victim nodes.</span></div>
+              <div class="star-row"><span class="star-key">R</span><span>100% detection of simulated attacks in lab tests. Deepened practical knowledge of TCP/IP directly applicable to SOC work.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-icon">🏴</div>
+          <div class="project-year">2027 · CTF Competition</div>
+        </div>
+        <div class="project-body">
+          <h3>SP Internal CTF — 2nd Place</h3>
+          <p>Placed 2nd in Web Exploitation at SP Internal CTF. Solved SQL injection, SSRF, broken access control, and cookie manipulation challenges using Burp Suite and custom Python scripts.</p>
+          <div class="project-meta">
+            <div class="project-result">2nd place — Web Exploitation category</div>
+            <div class="project-result">Solved 8 of 10 challenges in 6 hours</div>
+            <div class="skill-tags" style="margin-bottom:.8rem">
+              <span class="tag">Burp Suite</span><span class="tag">SQLi</span>
+              <span class="tag">SSRF</span><span class="tag">Python</span><span class="tag">CTF</span>
+            </div>
+            <button class="star-toggle" onclick="toggleStar(this)">[ VIEW STAR BREAKDOWN ]</button>
+            <div class="star-content">
+              <div class="star-row"><span class="star-key">S</span><span>Competing against 60+ students from multiple polytechnics in a time-pressured 8-hour CTF event.</span></div>
+              <div class="star-row"><span class="star-key">T</span><span>Focus team effort on Web Exploitation — our strongest category — to maximise total points.</span></div>
+              <div class="star-row"><span class="star-key">A</span><span>Triaged challenges by difficulty, used Burp Suite for intercept/replay, wrote Python scripts to automate token-based brute-force.</span></div>
+              <div class="star-row"><span class="star-key">R</span><span>2nd in Web Exploitation, 8/10 solved. Earned CTF Silver Medal and qualified for NCSC 2027.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="port-section" id="about">
+    <div class="section-label">// 03 — background</div>
+    <div class="section-title">About <span>Me</span></div>
+    <div class="about-grid">
+      <div class="about-bio">
+        <p>I'm a cybersecurity student based in Singapore with a passion for understanding how systems break — and how to harden them. My interest started with a simple curiosity about how networks actually work, which quickly evolved into building home labs, tackling CTF challenges, and studying the OWASP Top 10 in depth.</p>
+        <p>Beyond technical skills, my experience as a waiter has sharpened my attention to detail, ability to perform under pressure, and commitment to delivering reliable outcomes — traits that translate directly to security operations work.</p>
+        <div class="highlight-box">
+           Applying for <strong>Cybersecurity Analyst</strong> at <strong>Singapore Airlines</strong><br>
+        </div>
+      </div>
+      <div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot"></div>
+            <div class="tl-year">2028 (Expected)</div>
+            <div class="tl-title">Diploma in Cybersecurity</div>
+            <div class="tl-sub">Nan Polytechnic · GPA 3.8/4.0 · Dean's List</div>
+          </div>
+          <div class="tl-item"><div class="tl-dot"></div>
+            <div class="tl-year">2027</div>
+            <div class="tl-title">SP Internal CTF — 2nd Place</div>
+            <div class="tl-sub">Web Exploitation category · NCSC 2027 Participant</div>
+          </div>
+          <div class="tl-item"><div class="tl-dot"></div>
+            <div class="tl-year">2026 – 2028</div>
+            <div class="tl-title">VP, Cybersecurity Club</div>
+            <div class="tl-sub">Organised 3 inter-poly CTF events · Led weekly workshops</div>
+          </div>
+          <div class="tl-item"><div class="tl-dot"></div>
+            <div class="tl-year">2026 – Present</div>
+            <div class="tl-title">Waiter · Hai Di Lao Hot Pot</div>
+            <div class="tl-sub">Staff of the Month, Mar 2026 · 95%+ satisfaction rating</div>
+          </div>
+          <div class="tl-item"><div class="tl-dot"></div>
+            <div class="tl-year">In Progress</div>
+            <div class="tl-title">ISC2 Certified in Cybersecurity (CC)</div>
+            <div class="tl-sub">Expected 2028 · AWS Cloud Practitioner Completed 2027</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="port-section" id="contact">
+    <div class="section-label">// 04 — contact</div>
+    <div class="section-title">Get In <span>Touch</span></div>
+    <div class="contact-box">
+      <p>I'm currently seeking opportunities as a Cybersecurity Analyst.<br>Feel free to reach out — I'd love to connect.</p>
+      <div class="contact-links">
+        <a href="mailto:241077X@mymail.nyp.edu.sg" class="contact-link">✉ Email</a>
+        <a href="https://www.linkedin.com/in/vrishabd-rai-80a9b5394/" class="contact-link" target="_blank">in LinkedIn</a>
+        <a href="https://github.com/StarMrGamer" class="contact-link" target="_blank">⌥ GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">VRISHABD RAI</div>
+    <div class="footer-links">
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+    </div>
+    <div class="footer-copy">© 2028 · Diploma in Cybersecurity · Nanyang Polytechnic</div>
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* CURSOR */
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);})();
+
+/* PARTICLES */
+const pc=document.getElementById('particle-canvas'),ctx2=pc.getContext('2d');
+let PW,PH,ptc=[];
+function rPC(){PW=pc.width=innerWidth;PH=pc.height=innerHeight;}
+rPC();window.addEventListener('resize',rPC);
+for(let i=0;i<55;i++)ptc.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+  r:Math.random()*1.4+.3,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.4+.1});
+function drawPtc(){
+  ctx2.clearRect(0,0,PW,PH);
+  ptc.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=PW;if(p.x>PW)p.x=0;if(p.y<0)p.y=PH;if(p.y>PH)p.y=0;
+    ctx2.beginPath();ctx2.arc(p.x,p.y,p.r,0,Math.PI*2);ctx2.fillStyle=`rgba(0,200,232,${p.a})`;ctx2.fill();});
+}
+
+/* THREE.JS */
+const canvas=document.getElementById('shield-canvas');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(devicePixelRatio);renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.1,100);
+camera.position.set(0,0,5);
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);rPC();});
+
+/* Shield */
+const ss=new THREE.Shape();
+ss.moveTo(0,1.4);ss.bezierCurveTo(.9,1.4,1.3,.8,1.3,.1);ss.bezierCurveTo(1.3,-.6,.7,-1.2,0,-1.6);
+ss.bezierCurveTo(-.7,-1.2,-1.3,-.6,-1.3,.1);ss.bezierCurveTo(-1.3,.8,-.9,1.4,0,1.4);
+const sg=new THREE.ExtrudeGeometry(ss,{depth:.28,bevelEnabled:true,bevelThickness:.06,bevelSize:.06,bevelSegments:6,curveSegments:32});
+sg.center();
+const shieldMat=new THREE.MeshStandardMaterial({color:0x071828,metalness:.9,roughness:.15});
+const wireMat=new THREE.MeshBasicMaterial({color:0x00c8e8,wireframe:true,transparent:true,opacity:.06});
+const edgeMat=new THREE.LineBasicMaterial({color:0x00c8e8,transparent:true,opacity:.65});
+const lockMat=new THREE.MeshStandardMaterial({color:0x00c8e8,metalness:.8,roughness:.1,emissive:0x003040});
+const lockBody=new THREE.Mesh(new THREE.BoxGeometry(.3,.26,.08),lockMat);lockBody.position.set(0,-.08,.22);
+const shackle=new THREE.Mesh(new THREE.TorusGeometry(.1,.022,12,20,Math.PI),lockMat);
+shackle.position.set(0,.09,.22);shackle.rotation.z=Math.PI;
+const shieldGroup=new THREE.Group();
+shieldGroup.add(new THREE.Mesh(sg,shieldMat),new THREE.Mesh(sg,wireMat),
+  new THREE.LineSegments(new THREE.EdgesGeometry(sg,10),edgeMat),lockBody,shackle);
+scene.add(shieldGroup);
+
+/* Rings */
+function mkR(r,t,c,o){return new THREE.Mesh(new THREE.TorusGeometry(r,t,8,80),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o}));}
+const r1=mkR(2,.004,0x00c8e8,.35),r2=mkR(2.5,.003,0x00ffb3,.2),r3=mkR(3,.002,0x00c8e8,.12);
+r1.rotation.x=Math.PI/2;r2.rotation.x=Math.PI/3;r2.rotation.y=Math.PI/4;r3.rotation.x=Math.PI/6;
+scene.add(r1,r2,r3);
+
+/* Nodes */
+const nodes=[];
+for(let i=0;i<12;i++){const a=i/12*Math.PI*2,r=1.8+Math.random()*.8;
+  const n=new THREE.Mesh(new THREE.SphereGeometry(.035,8,8),new THREE.MeshBasicMaterial({color:Math.random()>.5?0x00c8e8:0x00ffb3,transparent:true,opacity:.7}));
+  n.userData={bx:Math.cos(a)*r,by:(Math.random()-.5)*.8,bz:Math.sin(a)*r,ph:Math.random()*Math.PI*2};
+  scene.add(n);nodes.push(n);}
+
+/* Lights */
+scene.add(new THREE.AmbientLight(0x0a2030,.8));
+const kl=new THREE.DirectionalLight(0x00c8e8,2);kl.position.set(3,4,3);scene.add(kl);
+const rl=new THREE.DirectionalLight(0x00ffb3,1.2);rl.position.set(-3,-2,-3);scene.add(rl);
+const fl=new THREE.PointLight(0x00c8e8,1.5,8);fl.position.set(0,0,3);scene.add(fl);
+
+/* Phases */
+const phases=[document.getElementById('phase-hero'),document.getElementById('phase-monitor'),
+  document.getElementById('phase-response'),document.getElementById('phase-cta')];
+const scrollHint=document.getElementById('scroll-hint');
+function setPhase(i){phases.forEach((p,j)=>p.classList.toggle('visible',i===j));scrollHint.style.opacity=i===0?'1':'0';}
+
+let sp=0,tsp=0;
+window.addEventListener('scroll',()=>{const sc=document.getElementById('scroll-container');tsp=window.scrollY/(sc.scrollHeight-innerHeight);});
+
+/* Skill bar observer */
+const sbo=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){
+  e.target.querySelectorAll('.skill-bar-fill').forEach(b=>{b.style.width=b.dataset.width+'%';});sbo.unobserve(e.target);}});},{threshold:.3});
+document.querySelectorAll('#skills').forEach(el=>sbo.observe(el));
+
+/* Main loop */
+const clock=new THREE.Clock();
+function lerp(a,b,t){return a+(b-a)*t;}
+(function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+  sp=lerp(sp,tsp,.06);
+  const pi=sp<.15?0:sp<.45?1:sp<.72?2:3;
+  setPhase(pi);
+  shieldGroup.rotation.y=sp*Math.PI*2.5+Math.sin(t*.4)*.04;
+  shieldGroup.rotation.x=Math.sin(sp*Math.PI)*.4+Math.sin(t*.3)*.03;
+  let scale=sp<.08?sp/.08:sp<.82?1:1-(sp-.82)/.18;
+  scale=Math.max(0,Math.min(1,scale));
+  shieldGroup.scale.setScalar(1.3*scale);
+  shieldGroup.position.x=Math.sin(sp*Math.PI*2)*.5;
+  shieldGroup.position.y=Math.sin(t*.5)*.05;
+  const pulse=Math.sin(t*2)*.5+.5;
+  if(pi===1){shieldMat.emissive.setHex(0x001a24);shieldMat.emissiveIntensity=pulse*.3;edgeMat.color.set(0x00c8e8);lockMat.emissiveIntensity=.5+pulse*.4;}
+  else if(pi===2){shieldMat.emissive.setHex(0x001a10);shieldMat.emissiveIntensity=pulse*.4;edgeMat.color.set(0x00ffb3);lockMat.emissiveIntensity=.5+pulse*.4;}
+  else if(pi===3){shieldMat.emissive.setHex(0x051020);shieldMat.emissiveIntensity=.5+pulse*.5;}
+  else{shieldMat.emissive.setHex(0x000000);shieldMat.emissiveIntensity=0;edgeMat.color.set(0x00c8e8);}
+  const ro=sp<.05?sp/.05:sp>.9?(1-(sp-.9)/.1):1;
+  r1.rotation.z+=.003;r2.rotation.z-=.002;r3.rotation.y+=.0015;
+  r1.material.opacity=.35*ro;r2.material.opacity=.2*ro;r3.material.opacity=.12*ro;
+  nodes.forEach(n=>{const nt=t*.5+n.userData.ph;
+    n.position.x=n.userData.bx*Math.cos(nt*.3)-n.userData.bz*Math.sin(nt*.3);
+    n.position.z=n.userData.bx*Math.sin(nt*.3)+n.userData.bz*Math.cos(nt*.3);
+    n.position.y=n.userData.by+Math.sin(t+n.userData.ph)*.15;
+    n.material.opacity=(.4+Math.sin(t*2+n.userData.ph)*.3)*ro;});
+  fl.intensity=1.2+Math.sin(t*1.5)*.4;fl.color.setHSL(.53,1,.5+pulse*.15);
+  drawPtc();renderer.render(scene,camera);
+})();
+
+function toggleStar(btn){
+  const c=btn.nextElementSibling;
+  c.classList.toggle('open');
+  btn.textContent=c.classList.contains('open')?'[ HIDE STAR BREAKDOWN ]':'[ VIEW STAR BREAKDOWN ]';
+}
+</script>
+</body>
+</html>

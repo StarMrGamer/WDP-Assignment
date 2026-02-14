@@ -325,7 +325,8 @@
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                document.getElementById('messageForm').submit();
+                // Let the submit event handler in chat.js handle it
+                document.getElementById('messageForm').dispatchEvent(new Event('submit'));
             }
         });
     }

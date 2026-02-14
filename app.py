@@ -12,7 +12,7 @@ Description: This is the entry point for the Flask application. It:
              - Provides the main route (index/landing page)
 """
 
-from flask import Flask, render_template, session, redirect, url_for, request
+from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from config import get_config
 from models import db
@@ -33,9 +33,11 @@ app.config.from_object(config_class)
 if hasattr(config_class, 'init_app'):
     config_class.init_app(app)
 
-# Initialize SocketIO with restricted CORS
-# SECURITY: Only allow connections from trusted origins
-ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:5000,http://localhost:5001,http://127.0.0.1:5000,http://127.0.0.1:5001').split(',')
+# Initialize SocketIO
+# ALLOWED_ORIGINS can be set as a comma-separated env var to restrict origins in production
+ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*')
+if ALLOWED_ORIGINS != '*':
+    ALLOWED_ORIGINS = ALLOWED_ORIGINS.split(',')
 socketio = SocketIO(app, cors_allowed_origins=ALLOWED_ORIGINS, async_mode='eventlet')
 
 # Initialize database with app
@@ -776,6 +778,13 @@ def mark_all_notifications_read():
 @app.route('/favicon.ico')
 def favicon():
     return app.send_static_file('images/default-avatar.png')
+
+
+# ==================== PORTFOLIO ====================
+@app.route('/profolio/<path:filename>')
+def profolio(filename):
+    profolio_dir = os.path.join(app.root_path, 'profolio')
+    return send_from_directory(profolio_dir, filename)
 
 
 # ==================== STREAK API ====================
