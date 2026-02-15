@@ -559,7 +559,7 @@ def add_security_headers(response):
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
-        "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; "
+        "font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; "
         "img-src 'self' data: blob: https:; "
         "connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
         "worker-src 'self' blob:;"
@@ -781,8 +781,9 @@ def favicon():
 
 
 # ==================== PORTFOLIO ====================
+@app.route('/profolio/')
 @app.route('/profolio/<path:filename>')
-def profolio(filename):
+def profolio(filename='index.html'):
     profolio_dir = os.path.join(app.root_path, 'profolio')
     return send_from_directory(profolio_dir, filename)
 
