@@ -295,9 +295,11 @@ def send_pair_reminder(pair_id):
 @admin_required
 def events():
     """Display all events."""
-    all_events = Event.query.order_by(Event.date.desc()).all()
+    # Separate pending and approved/past events
+    pending_events = Event.query.filter_by(status='pending').order_by(Event.created_at.asc()).all()
+    approved_events = Event.query.filter(Event.status != 'pending').order_by(Event.date.desc()).all()
 
-    return render_template('admin/events.html', events=all_events, now=datetime.utcnow())
+    return render_template('admin/events.html', events=approved_events, pending_events=pending_events, now=datetime.utcnow())
 
 
 @admin_bp.route('/events/<int:event_id>')
@@ -336,6 +338,10 @@ def edit_event(event_id):
         
         capacity = request.form.get('capacity')
         event.capacity = int(capacity) if capacity and capacity.strip() else None
+        
+        # Update justification if present (for suggested events)
+        if 'justification' in request.form:
+            event.justification = request.form.get('justification')
         
         db.session.commit()
         flash('Event updated successfully!', 'success')
@@ -393,6 +399,57 @@ def delete_event(event_id):
     except Exception as e:
         db.session.rollback()
         flash('Error deleting event. It may have active participants.', 'danger')
+    return redirect(url_for('admin.events'))
+
+
+@admin_bp.route('/events/<int:event_id>/approve', methods=['POST'])
+@admin_required
+def approve_event(event_id):
+    """Approve a suggested event."""
+    event = Event.query.get_or_404(event_id)
+    event.status = 'approved'
+    
+    # Remove [Suggestion] prefix if present to make it look official
+    if event.title.startswith('[Suggestion] '):
+        event.title = event.title[13:]
+        
+    db.session.commit()
+    
+    # Notify creator
+    from models import Notification
+    notif = Notification(
+        user_id=event.created_by,
+        title='Event Approved!',
+        message=f"Your event suggestion '{event.title}' has been approved and published.",
+        type='event',
+        link=url_for(f"{event.creator.role}.events")
+    )
+    db.session.add(notif)
+    db.session.commit()
+    
+    flash('Event approved and published.', 'success')
+    return redirect(url_for('admin.events'))
+
+@admin_bp.route('/events/<int:event_id>/reject', methods=['POST'])
+@admin_required
+def reject_event(event_id):
+    """Reject a suggested event."""
+    event = Event.query.get_or_404(event_id)
+    
+    # Notify creator before deletion
+    from models import Notification
+    notif = Notification(
+        user_id=event.created_by,
+        title='Event Suggestion Update',
+        message=f"Your event suggestion '{event.title}' was not approved at this time.",
+        type='info'
+    )
+    db.session.add(notif)
+    
+    db.session.delete(event)
+    db.session.commit()
+    
+    flash('Event suggestion rejected.', 'info')
     return redirect(url_for('admin.events'))
 
 
@@ -682,6 +739,18 @@ def analytics():
     Aggregates data across users, stories, messages, and pairs to provide
     a comprehensive view of platform usage and health.
     """
+    # Get time slicer parameter
+    days_param = request.args.get('days', '30')
+    start_date = None
+    
+    if days_param != 'all':
+        try:
+            days = int(days_param)
+            start_date = datetime.utcnow() - timedelta(days=days)
+        except ValueError:
+            days_param = '30'
+            start_date = datetime.utcnow() - timedelta(days=30)
+
     # Calculate various metrics
 
     # User growth: Total non-admin users and new signups in last 30 days
@@ -725,6 +794,12 @@ def analytics():
         Pair.last_interaction < inactive_threshold
     ).count()
 
+    # Events Suggested Metric (Filtered by time)
+    events_suggested_query = Event.query.filter(Event.title.like('[Suggestion]%'))
+    if start_date:
+        events_suggested_query = events_suggested_query.filter(Event.created_at >= start_date)
+    events_suggested_count = events_suggested_query.count()
+
     # Reports and Moderation stats
     pending_reports_count = ChatReport.query.filter_by(status='pending').count()
     resolved_reports = ChatReport.query.filter_by(status='resolved').count()
@@ -746,7 +821,9 @@ def analytics():
                          inactive_users=inactive_users,
                          inactive_pairs_count=inactive_pairs_count,
                          pending_reports_count=pending_reports_count,
-                         resolution_rate=resolution_rate)
+                         resolution_rate=resolution_rate,
+                         events_suggested_count=events_suggested_count,
+                         current_days=days_param)
 
 
 # ==================== REGISTRATION CODES ====================

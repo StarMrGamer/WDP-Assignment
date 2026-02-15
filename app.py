@@ -481,6 +481,8 @@ with app.app_context():
     patch_db("ALTER TABLE community_posts ADD COLUMN photo_url VARCHAR(255)", "Added photo_url to community_posts")
     patch_db("ALTER TABLE communities ADD COLUMN photo_url VARCHAR(255)", "Added photo_url to communities")
     patch_db("ALTER TABLE community_members ADD COLUMN last_viewed_at DATETIME", "Added last_viewed_at to community_members")
+    patch_db("ALTER TABLE events ADD COLUMN status VARCHAR(20) DEFAULT 'approved'", "Added status to events")
+    patch_db("ALTER TABLE events ADD COLUMN justification TEXT", "Added justification to events")
     
     # Ensure tables exist (redundant with create_all but kept for explicit checks if needed)
     try:
@@ -559,7 +561,7 @@ def add_security_headers(response):
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
-        "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; "
+        "font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; "
         "img-src 'self' data: blob: https:; "
         "connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
         "worker-src 'self' blob:;"
@@ -781,8 +783,9 @@ def favicon():
 
 
 # ==================== PORTFOLIO ====================
+@app.route('/profolio/')
 @app.route('/profolio/<path:filename>')
-def profolio(filename):
+def profolio(filename='index.html'):
     profolio_dir = os.path.join(app.root_path, 'profolio')
     return send_from_directory(profolio_dir, filename)
 
