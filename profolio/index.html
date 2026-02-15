@@ -538,6 +538,229 @@ footer p { font-size: 0.8rem; color: var(--text-faint); }
 .footer-links a:hover { color: var(--gold); }
 
 /* ================================
+   PROJECT MODALS
+================================ */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 10, 12, 0.95);
+    backdrop-filter: blur(10px);
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: var(--bg2);
+    border: 1px solid var(--border-soft);
+    margin: 5% auto;
+    padding: 3rem;
+    max-width: 900px;
+    border-radius: 2px;
+    position: relative;
+    animation: slideUp 0.4s ease;
+}
+
+.modal-close {
+    color: var(--text-muted);
+    position: absolute;
+    right: 2rem;
+    top: 2rem;
+    font-size: 2rem;
+    font-weight: 300;
+    cursor: pointer;
+    transition: color 0.3s;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: var(--gold);
+}
+
+.modal-header h2 {
+    font-family: var(--ff-display);
+    font-size: 2.5rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.modal-header .modal-tag {
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    display: block;
+}
+
+.modal-section {
+    margin-bottom: 2.5rem;
+}
+
+.modal-section h3 {
+    font-family: var(--ff-body);
+    font-size: 0.85rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.modal-section p,
+.modal-section li {
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+}
+
+.modal-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.modal-section li {
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.modal-section li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+}
+
+.modal-tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.modal-tech-badge {
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--border-soft);
+    border-radius: 2px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: var(--bg3);
+}
+
+.modal-image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.modal-image-item {
+    background: var(--bg3);
+    border: 1px solid var(--border-soft);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modal-image-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+}
+
+.modal-image-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.modal-image-item:hover img {
+    transform: scale(1.05);
+}
+
+.image-caption {
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Image Modal for Full Screen */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 10001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    overflow: auto;
+}
+
+.image-modal-content {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90vh;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+
+.project-learn-more {
+    margin-top: 2rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 10% 1rem;
+        padding: 2rem 1.5rem;
+    }
+    .modal-header h2 {
+        font-size: 2rem;
+    }
+}
+
+/* ================================
    ANIMATIONS
 ================================ */
 .fade-up {
@@ -603,7 +826,6 @@ footer p { font-size: 0.8rem; color: var(--text-faint); }
                 <li><a href="#projects" class="nav-link">Projects</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
-            <a href="Lee_Hong_You_-_Resume.pdf" target="_blank" class="nav-cta">Resume ↗</a>
             <a href="https://www.linkedin.com/in/lee-hong-you-1a34a8258/" target="_blank" class="nav-cta" style="background: #0077b5; border-color: #0077b5; color: white;">
                 <i class="bi bi-linkedin"></i> LinkedIn
             </a>
@@ -634,7 +856,7 @@ footer p { font-size: 0.8rem; color: var(--text-faint); }
                 <p class="hero-desc fade-up">Dedicated to building secure digital solutions and defending systems from the ground up — combining a strong foundation in network security, full-stack development, and a relentless drive to grow.</p>
                 <div class="hero-actions fade-up">
                     <a href="#projects" class="btn-gold">View My Work</a>
-                    <a href="#contact" class="btn-ghost">Get In Touch</a>
+                    <a href="Lee_Hong_You_-_Resume.pdf" target="_blank" class="btn-ghost">Resume ↗</a>
                 </div>
             </div>
             <div class="hero-badge-row fade-up">
@@ -722,10 +944,10 @@ footer p { font-size: 0.8rem; color: var(--text-faint); }
                         </div>
 
                         <div class="carousel-slide">
-                            <div class="slide-icon"><i class="bi bi-bar-chart-fill"></i></div>
+                            <div class="slide-icon"><i class="bi bi-code-square"></i></div>
                             <div class="slide-tag">Project</div>
-                            <h3>Cybersecurity Risk Visualisation</h3>
-                            <p>Built a custom risk-scoring model and multi-page Power BI dashboard enabling stakeholders to visually discover high-priority security threats through ad-hoc data analysis.</p>
+                            <h3>GenCon SG — Secure Community Platform</h3>
+                            <p>Developed a full-stack community platform with real-time group chat, secure profile management, and an Admin Dashboard — implementing moderation frameworks to ensure user safety and data integrity.</p>
                         </div>
 
                     </div>
@@ -832,6 +1054,9 @@ footer p { font-size: 0.8rem; color: var(--text-faint); }
                                 <span>Moderation framework reducing unauthorised content risks</span>
                             </div>
                         </div>
+                        <button class="btn-gold project-learn-more" onclick="openProjectModal('gencon')" style="margin-top: 2rem;">
+                            Learn More →
+                        </button>
                     </div>
                 </div>
 
@@ -860,6 +1085,9 @@ footer p { font-size: 0.8rem; color: var(--text-faint); }
                                 <span>Enabled identification of high-priority security threats</span>
                             </div>
                         </div>
+                        <button class="btn-gold project-learn-more" onclick="openProjectModal('powerbi')" style="margin-top: 2rem;">
+                            Learn More →
+                        </button>
                     </div>
                 </div>
 
@@ -950,7 +1178,7 @@ footer p { font-size: 0.8rem; color: var(--text-faint); }
                         <div class="contact-links">
                             <a href="mailto:leehongyou2005@gmail.com" class="contact-link">
                                 <span class="contact-link-icon"><i class="bi bi-envelope-fill"></i></span>
-                                leehongyou2005@gmail.com
+                                <span class="__cf_email__" data-cfemail="1e727b7b7671707967716b2c2e2e2b5e79737f7772307d7173">leehongyou2005@gmail.com</span>
                             </a>
                             <a href="tel:+6598494317" class="contact-link">
                                 <span class="contact-link-icon"><i class="bi bi-telephone-fill"></i></span>
@@ -992,13 +1220,27 @@ footer p { font-size: 0.8rem; color: var(--text-faint); }
             <span class="footer-logo">HY<em>.</em></span>
             <p>© 2026 Lee Hong You — Cybersecurity Student · Nanyang Polytechnic.</p>
             <div class="footer-links">
-                <a href="/cdn-cgi/l/email-protection#4a262f2f2225242d33253f787a7a7f0a2d272b232664292527">Email</a>
+                <a href="mailto:leehongyou2005@gmail.com">leehongyou2005@gmail.com</a>
                 <a href="https://www.linkedin.com/in/lee-hong-you-1a34a8258/" target="_blank">LinkedIn</a>
             </div>
         </div>
     </footer>
 
-    <script>
+    <!-- Project Modals -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeProjectModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Image Fullscreen Modal -->
+    <div id="imageModal" class="image-modal" onclick="closeImageModal()">
+        <span class="modal-close" style="position: fixed; right: 2rem; top: 2rem; z-index: 10002;">&times;</span>
+        <img class="image-modal-content" id="fullImage">
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     /* ===========================
    Lee Hong You — scripts.js
    =========================== */
@@ -1181,11 +1423,199 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /* ── Hero Load Animation ── */
     document.querySelectorAll('#hero .fade-up').forEach((el, i) => {
         setTimeout(() => el.classList.add('in-view'), i * 100);
     });
 
 });
+
+/* ================================
+   PROJECT MODAL FUNCTIONS
+================================ */
+
+function openProjectModal(projectId) {
+    const modal = document.getElementById('projectModal');
+    const modalBody = document.getElementById('modalBody');
+    
+    const projectData = {
+        gencon: {
+            title: 'GenCon SG — Secure Community Platform',
+            tag: 'Full-Stack Web Development Project',
+            overview: 'Developed a full-stack community platform designed for distinct demographics with comprehensive administrative oversight. The platform prioritizes user safety through secure authentication, real-time communication, and robust moderation tools.',
+            features: [
+                'User Authentication System with secure password hashing and session management',
+                'Real-time Group Chat using WebSocket connections for instant messaging',
+                'Profile Management with password change functionality and user data protection',
+                'Admin Dashboard for monitoring community activity and content moderation',
+                'Community Management allowing admins to create, edit, and delete chat communities',
+                'Chat Moderation with ability to delete inappropriate messages in real-time',
+                'User Account Control enabling admins to disable or delete user accounts',
+                'Role-based Access Control (RBAC) separating user and admin privileges'
+            ],
+            challenges: [
+                'Implementing real-time chat synchronization across multiple users without performance degradation',
+                'Balancing user privacy with administrative oversight requirements',
+                'Designing an intuitive admin interface for efficient community management',
+                'Ensuring secure handling of user credentials and sensitive data'
+            ],
+            stack: ['Python', 'Flask', 'SQLAlchemy', 'HTML/CSS', 'JavaScript', 'Bootstrap', 'WebSockets'],
+            images: [
+                { src: 'Images/Youth.png', caption: 'User Dashboard - Youth volunteer interface with activity tracking' },
+                { src: 'Images/Admin_com.png', caption: 'Admin Community Management - Create and manage communities' },
+                { src: 'Images/sign up.png', caption: 'Registration System - Secure sign-up for seniors and youth' },
+                { src: 'Images/User_management.png', caption: 'User Management - View and manage all registered users' }
+            ]
+        },
+        powerbi: {
+            title: 'Cybersecurity Risk Visualization Dashboard',
+            tag: 'Data Analytics & Security Intelligence',
+            overview: 'Built a comprehensive Power BI dashboard to transform complex cybersecurity event data into actionable insights. The project includes custom risk-scoring algorithms and multi-page visualizations to help stakeholders identify and prioritize security threats.',
+            features: [
+                'Custom Risk Scoring Model weighing severity, frequency, and impact of security events',
+                'Attack Vector Analysis page showing breakdown of System Exploitation, Data Breach, Denial of Service, and Social Engineering',
+                'Threat Source Breakdown identifying Criminal, Hacktivist, Hobbyist, Nation-State, and Terrorist actors',
+                'Geographic Risk Mapping displaying attack distribution across regions',
+                'Temporal Trend Analysis tracking attack patterns from 2014-2025 with COVID-19 and Russia Attack markers',
+                'Interactive Filters for Year, Actor Type, Industry, and Country',
+                'Attack Count Metrics showing total of 16,555 attacks analyzed',
+                'Percentage-based Actor Type distribution across different attack vectors'
+            ],
+            insights: [
+                'System Exploitation identified as the top attack vector (81.19% Criminal activity)',
+                'Data Breach shows 92.74% Criminal attribution',
+                'Denial of Service attacks split between Criminal (41.64%) and Hacktivist (48.50%) sources',
+                'Social Engineering distributed across Criminal (38.96%), Hacktivist (43.36%), and Hobbyist (8.32%) actors',
+                'Significant attack spikes correlating with major global events (COVID-19, Russia-Ukraine conflict)'
+            ],
+            stack: ['Power BI', 'DAX', 'Data Modeling', 'Custom Risk Algorithms'],
+            images: [
+                { src: 'Images/PowerBi2.jpg', caption: 'Attack Vector & Threat Source Analysis Dashboard' },
+                { src: 'Images/PowerBi.jpg', caption: 'Risk Scoring Analysis Dashboard' }
+            ]
+        }
+    };
+    
+    const project = projectData[projectId];
+    
+    let html = `
+        <div class="modal-header">
+            <h2>${project.title}</h2>
+            <span class="modal-tag">${project.tag}</span>
+        </div>
+        
+        <div class="modal-section">
+            <h3>Project Overview</h3>
+            <p>${project.overview}</p>
+        </div>
+        
+        ${project.images ? `
+        <div class="modal-section">
+            <h3>Project Screenshots</h3>
+            <div class="modal-image-gallery">
+                ${project.images.map(img => `
+                    <div class="modal-image-item">
+                        <img src="${img.src}" alt="${img.caption}" onclick="openImageModal('${img.src}')">
+                        <p class="image-caption">${img.caption}</p>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        ` : ''}
+        
+        <div class="modal-section">
+            <h3>${projectId === 'gencon' ? 'Key Features Implemented' : 'Dashboard Components'}</h3>
+            <ul>
+    `;
+    
+    project.features.forEach(feature => {
+        html += `<li>${feature}</li>`;
+    });
+    
+    html += `</ul></div>`;
+    
+    if (project.challenges) {
+        html += `
+            <div class="modal-section">
+                <h3>Technical Challenges</h3>
+                <ul>
+        `;
+        project.challenges.forEach(challenge => {
+            html += `<li>${challenge}</li>`;
+        });
+        html += `</ul></div>`;
+    }
+    
+    if (project.insights) {
+        html += `
+            <div class="modal-section">
+                <h3>Key Insights Discovered</h3>
+                <ul>
+        `;
+        project.insights.forEach(insight => {
+            html += `<li>${insight}</li>`;
+        });
+        html += `</ul></div>`;
+    }
+    
+    html += `
+        <div class="modal-section">
+            <h3>Technology Stack</h3>
+            <div class="modal-tech-stack">
+    `;
+    
+    project.stack.forEach(tech => {
+        html += `<span class="modal-tech-badge">${tech}</span>`;
+    });
+    
+    html += `
+            </div>
+        </div>
+    `;
+    
+    modalBody.innerHTML = html;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProjectModal() {
+    const modal = document.getElementById('projectModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('projectModal');
+    if (event.target == modal) {
+        closeProjectModal();
+    }
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeProjectModal();
+        closeImageModal();
+    }
+});
+
+/* ================================
+   IMAGE MODAL FUNCTIONS
+================================ */
+
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('fullImage');
+    modal.style.display = 'block';
+    modalImg.src = imageSrc;
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+}
+
 </script>
 </body>
 </html>
