@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lee Hong You — Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+    <div class="grain-overlay"></div>
+
+    <nav id="navbar">
+        <div class="nav-inner">
+            <a href="#hero" class="nav-logo">HY<em>.</em></a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#experience" class="nav-link">Experience</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <a href="Lee_Hong_You_-_Resume.pdf" target="_blank" class="nav-cta">Resume ↗</a>
+            <a href="https://www.linkedin.com/in/lee-hong-you-1a34a8258/" target="_blank" class="nav-cta" style="background: #0077b5; border-color: #0077b5; color: white;">
+                <i class="bi bi-linkedin"></i> LinkedIn
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#about" class="mob-link">About</a>
+        <a href="#experience" class="mob-link">Experience</a>
+        <a href="#projects" class="mob-link">Projects</a>
+        <a href="#contact" class="mob-link">Contact</a>
+    </div>
+
+    <main>
+
+        <!-- HERO -->
+        <section id="hero">
+            <div class="hero-inner">
+                <div class="hero-tag fade-up">Open to Opportunities · Singapore</div>
+                <h1 class="hero-name fade-up">
+                    <span>Lee</span>
+                    <em>Hong You</em>
+                </h1>
+                <p class="hero-subtitle fade-up">Cybersecurity Student &amp; Aspiring Security Analyst</p>
+                <p class="hero-desc fade-up">Dedicated to building secure digital solutions and defending systems from the ground up — combining a strong foundation in network security, full-stack development, and a relentless drive to grow.</p>
+                <div class="hero-actions fade-up">
+                    <a href="#projects" class="btn-gold">View My Work</a>
+                    <a href="#contact" class="btn-ghost">Get In Touch</a>
+                </div>
+            </div>
+            <div class="hero-badge-row fade-up">
+                <div class="badge">Python (Flask)</div>
+                <div class="badge">Cisco Networking</div>
+                <div class="badge">HTML / CSS / JS</div>
+                <div class="badge">Endpoint Hardening</div>
+                <div class="badge">PacketTracer</div>
+                <div class="badge">Power BI</div>
+                <div class="badge">SQLAlchemy</div>
+                <div class="badge">Bootstrap</div>
+            </div>
+            <div class="hero-deco" aria-hidden="true">SEC</div>
+        </section>
+
+        <!-- ABOUT -->
+        <section id="about">
+            <div class="section-inner">
+                <div class="section-label">01 — About</div>
+                <div class="about-grid">
+                    <div class="about-img-col">
+                        <div class="img-frame">
+    <img src="Image/About_me.jpeg" alt="Lee Hong You">
+    <div class="img-caption">Lee Hong You · 2026</div>
+</div>
+                    </div>
+                    <div class="about-text-col">
+                        <h2 class="section-heading">Aspiring <em>Cybersecurity</em> Analyst &amp; lifelong learner.</h2>
+                        <p>I'm a Cybersecurity &amp; Digital Forensics student at Nanyang Polytechnic, passionate about developing secure digital solutions and challenging myself to solve complex technical problems.</p>
+                        <p>I leverage a strong foundation in network security and full-stack development to build resilient, user-centric systems that prioritise data integrity and community safety.</p>
+                        <p>Fluent in English and Chinese, I bring both technical depth and strong interpersonal skills to every team I join.</p>
+                        <div class="about-stats">
+                            <div class="stat">
+                                <span class="stat-n">4.0</span>
+                                <span class="stat-l">GPA at ITE</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-n">3</span>
+                                <span class="stat-l">Certifications</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-n">3+</span>
+                                <span class="stat-l">Work Experiences</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CAROUSEL -->
+        <section id="carousel-section">
+            <div class="section-inner">
+                <div class="section-label">Highlights</div>
+                <h2 class="section-heading carousel-title">What defines me</h2>
+                <div class="carousel-wrapper">
+                    <div class="carousel-track" id="carouselTrack">
+
+                        <div class="carousel-slide active">
+                            <div class="slide-icon"><i class="bi bi-mortarboard-fill"></i></div>
+                            <div class="slide-tag">Education</div>
+                            <h3>Nanyang Polytechnic</h3>
+                            <p>Diploma in Cybersecurity &amp; Digital Forensics · 2025–2028. Building deep expertise in network security, digital forensics, and full-stack development.</p>
+                        </div>
+
+                        <div class="carousel-slide">
+                            <div class="slide-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                            <div class="slide-tag">Internship</div>
+                            <h3>Ace Business · IT Technician</h3>
+                            <p>Led a team of 3 colleagues in a week-long server rack migration project — completed ahead of schedule with zero data loss and 100% uptime for client security systems. May 2023–April 2024.</p>
+                        </div>
+
+                        <div class="carousel-slide">
+                            <div class="slide-icon"><i class="bi bi-trophy-fill"></i></div>
+                            <div class="slide-tag">Leadership</div>
+                            <h3>Drama Club EXCO · Excellence Award</h3>
+                            <p>As EXCO member at ITE Drama Club, managed performance logistics and stage management for a major event at SOTA — earning the club an Excellence Award while performing as a lead actor.</p>
+                        </div>
+
+                        <div class="carousel-slide">
+                            <div class="slide-icon"><i class="bi bi-patch-check-fill"></i></div>
+                            <div class="slide-tag">Certification</div>
+                            <h3>AI Fluency · Anthropic</h3>
+                            <p>Certified in AI Fluency: Framework &amp; Foundations (Feb 2026), plus Web Development Fundamentals and UX Design Fundamentals from IBM — staying ahead of the technology curve.</p>
+                        </div>
+
+                        <div class="carousel-slide">
+                            <div class="slide-icon"><i class="bi bi-bar-chart-fill"></i></div>
+                            <div class="slide-tag">Project</div>
+                            <h3>Cybersecurity Risk Visualisation</h3>
+                            <p>Built a custom risk-scoring model and multi-page Power BI dashboard enabling stakeholders to visually discover high-priority security threats through ad-hoc data analysis.</p>
+                        </div>
+
+                    </div>
+                    <div class="carousel-controls">
+                        <button class="c-prev" id="cPrev" aria-label="Previous">←</button>
+                        <div class="carousel-dots" id="carouselDots"></div>
+                        <button class="c-next" id="cNext" aria-label="Next">→</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXPERIENCE -->
+        <section id="experience">
+            <div class="section-inner">
+                <div class="section-label">02 — Experience</div>
+                <h2 class="section-heading">Professional <em>Journey</em></h2>
+                <div class="exp-grid">
+
+                    <div class="exp-card featured-exp">
+                        <span class="exp-date">Mar 2025 — Present</span>
+                        <div class="exp-body">
+                            <h3>Service &amp; Sales Associate</h3>
+                            <h4>Prime Taxi</h4>
+                            <p>Engaging with customers to promote services, handling transactions, and resolving inquiries in a professional manner within a fast-paced environment.</p>
+                        </div>
+                        <div class="exp-tag highlight">Current</div>
+                    </div>
+
+                    <div class="exp-card">
+                        <span class="exp-date">Oct 2024 — Mar 2025</span>
+                        <div class="exp-body">
+                            <h3>Storage Assistant</h3>
+                            <h4>Baggage Storage — Changi Airport</h4>
+                            <p>Managed POS storage systems in a high-pressure airport environment while collaborating with team members to deliver excellent customer service.</p>
+                        </div>
+                        <div class="exp-tag">Operations</div>
+                    </div>
+
+                    <div class="exp-card">
+                        <span class="exp-date">May 2023 — Apr 2024</span>
+                        <div class="exp-body">
+                            <h3>IT Technician (Intern)</h3>
+                            <h4>Ace Business</h4>
+                            <p>Provided remote and onsite support including endpoint hardening. Led 3 colleagues in dismantling and managing 4 server racks — completed ahead of schedule with zero data loss and 100% uptime.</p>
+                        </div>
+                        <div class="exp-tag highlight">IT</div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- EDUCATION -->
+        <section id="education">
+            <div class="section-inner">
+                <div class="section-label">03 — Education</div>
+                <h2 class="section-heading">Academic <em>Background</em></h2>
+                <div class="edu-row">
+                    <div class="edu-card">
+                        <div class="edu-year">2025 — 2028</div>
+                        <h3>Nanyang Polytechnic</h3>
+                        <p class="edu-degree">Diploma in Cybersecurity &amp; Digital Forensics</p>
+                        <p>Focused on network security, digital forensics, and full-stack development — building the technical and analytical skills needed to protect modern digital infrastructure.</p>
+                    </div>
+                    <div class="edu-card">
+                        <div class="edu-year">2022 — 2024</div>
+                        <h3>Institute of Technical Education</h3>
+                        <p class="edu-degree">Higher NITEC in Network &amp; System Administration</p>
+                        <p>Graduated with a <strong style="color:var(--gold)">GPA of 4.0 / 4.0</strong>. Active EXCO member of the Drama Club — achieved an Excellence Award at a major performance held at the School of the Arts (SOTA).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECTS -->
+        <section id="projects">
+            <div class="section-inner">
+                <div class="section-label">04 — Projects</div>
+                <h2 class="section-heading">Featured <em>Work</em></h2>
+
+                <div class="project-showcase">
+                    <div class="project-img-side">
+                        <div class="proj-img-wrap">
+                            <img src="Image/Home.png" alt="GenCon SG Platform Screenshot">
+                        </div>
+                        <div class="proj-number">01</div>
+                    </div>
+                    <div class="project-info-side">
+                        <span class="proj-tag-label">Full-Stack Developer · Web Development Project</span>
+                        <h3>GenCon SG — Secure Community Platform</h3>
+                        <p>Created a secure community platform for distinct demographics with strict administrative oversight. Engineered real-time group chat, a secure profile module with password management, and an Admin Dashboard to monitor activity and manage account lifecycles.</p>
+                        <div class="proj-details">
+                            <div class="proj-detail-item">
+                                <span class="detail-label">Role</span>
+                                <span>Full-Stack Developer</span>
+                            </div>
+                            <div class="proj-detail-item">
+                                <span class="detail-label">Stack</span>
+                                <span>Python · Flask · SQLAlchemy · HTML/CSS · JS · Bootstrap</span>
+                            </div>
+                            <div class="proj-detail-item">
+                                <span class="detail-label">Result</span>
+                                <span>Moderation framework reducing unauthorised content risks</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-showcase project-showcase-reverse">
+                    <div class="project-img-side">
+                        <div class="proj-img-wrap">
+                            <img src="Image/PowerBi.jpg" alt="Security Dashboard Screenshot">
+                        </div>
+                        <div class="proj-number">02</div>
+                    </div>
+                    <div class="project-info-side">
+                        <span class="proj-tag-label">Data Analyst · Security Visualisation</span>
+                        <h3>Cybersecurity Risk Visualisation</h3>
+                        <p>Transformed complex security event data into actionable stakeholder insights. Developed a custom risk-scoring model and multi-page storytelling dashboard, enabling ad-hoc visual discovery of high-priority security threat patterns.</p>
+                        <div class="proj-details">
+                            <div class="proj-detail-item">
+                                <span class="detail-label">Role</span>
+                                <span>Data Analyst</span>
+                            </div>
+                            <div class="proj-detail-item">
+                                <span class="detail-label">Tools</span>
+                                <span>Power BI · DAX · Custom Risk Scoring Model</span>
+                            </div>
+                            <div class="proj-detail-item">
+                                <span class="detail-label">Result</span>
+                                <span>Enabled identification of high-priority security threats</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CERTIFICATIONS -->
+        <section id="certifications">
+            <div class="section-inner">
+                <div class="section-label">05 — Credentials</div>
+                <h2 class="section-heading">Certifications &amp; <em>Skills</em></h2>
+                <div class="cred-grid">
+                    <div class="cred-col">
+                        <h3 class="cred-heading">Certifications</h3>
+                        <div class="cred-list">
+                            <div class="cred-item">
+                                <span class="cred-icon">✦</span>
+                                <div>
+                                    <strong>AI Fluency: Framework &amp; Foundations</strong>
+                                    <span>Anthropic · Feb 2026</span>
+                                </div>
+                            </div>
+                            <div class="cred-item">
+                                <span class="cred-icon">✦</span>
+                                <div>
+                                    <strong>Web Development Fundamentals</strong>
+                                    <span>IBM · Jul 2025</span>
+                                </div>
+                            </div>
+                            <div class="cred-item">
+                                <span class="cred-icon">✦</span>
+                                <div>
+                                    <strong>UX Design Fundamentals</strong>
+                                    <span>IBM · Jul 2025</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cred-col">
+                        <h3 class="cred-heading">Technical Skills</h3>
+                        <div class="cred-list">
+                            <div class="cred-item">
+                                <span class="cred-icon">◆</span>
+                                <div><strong>Security</strong><span>Cisco Networking · PacketTracer · Endpoint Hardening</span></div>
+                            </div>
+                            <div class="cred-item">
+                                <span class="cred-icon">◆</span>
+                                <div><strong>Development</strong><span>Python (Flask) · SQLAlchemy · HTML/CSS · JS · Bootstrap</span></div>
+                            </div>
+                            <div class="cred-item">
+                                <span class="cred-icon">◆</span>
+                                <div><strong>Analytics</strong><span>Power BI · DAX · Data Visualisation</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cred-col skills-col">
+                        <h3 class="cred-heading">Professional Skills</h3>
+                        <div class="skills-cloud">
+                            <span>Critical Thinking</span>
+                            <span>Project Management</span>
+                            <span>Endpoint Hardening</span>
+                            <span>Public Relations</span>
+                            <span>Marketing</span>
+                            <span>Leadership</span>
+                            <span>Adaptability</span>
+                            <span>Teamwork</span>
+                            <span>Time Management</span>
+                            <span>Multi-tasking</span>
+                            <span>Effective Communication</span>
+                        </div>
+                        <div class="lang-row">
+                            <span class="lang-tag"><i class="bi bi-translate"></i> English</span>
+                            <span class="lang-tag"><i class="bi bi-translate"></i> Chinese</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT -->
+        <section id="contact">
+            <div class="section-inner">
+                <div class="section-label">06 — Contact</div>
+                <div class="contact-layout">
+                    <div class="contact-left">
+                        <h2 class="section-heading contact-heading">Let's <em>connect</em> and build something great.</h2>
+                        <p>Open to internship opportunities, cybersecurity roles, and collaborations. Reach out anytime.</p>
+                        <div class="contact-links">
+                            <a href="mailto:leehongyou2005@gmail.com" class="contact-link">
+                                <span class="contact-link-icon"><i class="bi bi-envelope-fill"></i></span>
+                                leehongyou2005@gmail.com
+                            </a>
+                            <a href="tel:+6598494317" class="contact-link">
+                                <span class="contact-link-icon"><i class="bi bi-telephone-fill"></i></span>
+                                +65 9849 4317
+                            </a>
+                            <a href="https://www.linkedin.com/in/lee-hong-you-1a34a8258/" target="_blank" class="contact-link">
+                                <span class="contact-link-icon"><i class="bi bi-linkedin"></i></span>
+                                LinkedIn Profile ↗
+                            </a>
+                        </div>
+                    </div>
+                    <div class="contact-right">
+                        <form id="contactForm">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label>Your Name</label>
+                                    <input type="text" placeholder="Hong You" required>
+                                </div>
+                                <div class="form-field">
+                                    <label>Email Address</label>
+                                    <input type="email" placeholder="hongyou@example.com" required>
+                                </div>
+                            </div>
+                            <div class="form-field full-field">
+                                <label>Message</label>
+                                <textarea rows="5" placeholder="Tell me about your project or opportunity..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn-gold form-submit">Send Message →</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <span class="footer-logo">HY<em>.</em></span>
+            <p>© 2026 Lee Hong You — Cybersecurity Student · Nanyang Polytechnic.</p>
+            <div class="footer-links">
+                <a href="/cdn-cgi/l/email-protection#4a262f2f2225242d33253f787a7a7f0a2d272b232664292527">Email</a>
+                <a href="https://www.linkedin.com/in/lee-hong-you-1a34a8258/" target="_blank">LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
