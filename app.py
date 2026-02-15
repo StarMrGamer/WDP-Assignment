@@ -12,7 +12,7 @@ Description: This is the entry point for the Flask application. It:
              - Provides the main route (index/landing page)
 """
 
-from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory
+from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory, Blueprint
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from config import get_config
 from models import db
@@ -788,12 +788,15 @@ def favicon():
 
 
 # ==================== PORTFOLIO ====================
-@app.route('/profolio/')
-@app.route('/profolio/<path:filename>')
-def profolio(filename='index.html'):
-    profolio_dir = os.path.join(app.root_path, 'profolio')
-    response = send_from_directory(profolio_dir, filename, max_age=300)
-    return response
+# Serve portfolio files as static assets via a dedicated Blueprint.
+# This bypasses session/DB overhead and is more reliable under load.
+profolio_bp = Blueprint('profolio', __name__, static_folder='profolio', static_url_path='/')
+
+@profolio_bp.route('/')
+def profolio_index():
+    return profolio_bp.send_static_file('index.html')
+
+app.register_blueprint(profolio_bp, url_prefix='/profolio')
 
 
 # ==================== STREAK API ====================
