@@ -99,7 +99,7 @@ class Config:
 
     # Enable debug mode (shows detailed error pages)
     # MUST be False in production!
-    DEBUG = True
+    DEBUG = False
 
     # Enable testing mode
     TESTING = False
@@ -185,9 +185,9 @@ class DevelopmentConfig(Config):
     Development environment configuration.
     Inherits from base Config class and overrides specific settings.
     """
-    DEBUG = True
+    DEBUG = False
     TESTING = False
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
 
     @staticmethod
     def init_app(app):
