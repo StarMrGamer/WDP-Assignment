@@ -46,7 +46,27 @@
                     <hr>
                     <h6>Description</h6>
                     <p class="text-muted">{{ event.description or 'No description provided.' }}</p>
+                    
+                    {% if event.justification %}
+                    <div class="alert alert-info mt-3">
+                        <h6 class="alert-heading"><i class="fas fa-comment-alt me-2"></i>Justification</h6>
+                        <p class="mb-0 small">{{ event.justification }}</p>
+                    </div>
+                    {% endif %}
                 </div>
+                
+                {% if event.status == 'pending' %}
+                <div class="card-footer bg-white">
+                    <div class="d-grid gap-2">
+                        <form action="{{ url_for('admin.approve_event', event_id=event.id) }}" method="POST">
+                            <button type="submit" class="btn btn-success w-100"><i class="fas fa-check me-2"></i>Approve Event</button>
+                        </form>
+                        <form action="{{ url_for('admin.reject_event', event_id=event.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to reject this suggestion?');">
+                            <button type="submit" class="btn btn-outline-danger w-100"><i class="fas fa-times me-2"></i>Reject Event</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
 

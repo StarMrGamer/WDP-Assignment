@@ -164,6 +164,17 @@
                 </div>
             </div>
 
+            <!-- Justification (for suggestions) -->
+            {% if event.status == 'pending' %}
+            <div class="form-card">
+                <h5><i class="fas fa-comment-alt me-2"></i>Justification</h5>
+                <div class="mb-3">
+                    <label for="justification" class="form-label fw-bold">Reason for Suggestion</label>
+                    <textarea class="form-control" id="justification" name="justification" rows="3">{{ event.justification or '' }}</textarea>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Submit Buttons -->
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary btn-lg">

@@ -380,7 +380,7 @@ def events():
     user_id = session['user_id']
     
     # Get all upcoming events
-    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow()).order_by(Event.date).all()
+    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow(), Event.status == 'approved').order_by(Event.date).all()
     
     # Get IDs of events user is registered for (use set for O(1) lookup)
     registered_event_ids = {p.event_id for p in EventParticipant.query.filter_by(user_id=user_id).all()}
@@ -448,6 +448,62 @@ def register_event(event_id):
         'status': status,
         'participant_count': event.participants.count()
     }
+
+
+@youth_bp.route('/events/suggest', methods=['GET', 'POST'])
+@login_required
+def suggest_event():
+    """Suggest a new event."""
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        event_type = request.form.get('event_type')
+        location = request.form.get('location')
+        date_str = request.form.get('date')
+        capacity = request.form.get('capacity')
+        reason = request.form.get('reason')
+
+        # Parse date (SG time adjustment)
+        try:
+            event_date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M') - timedelta(hours=8)
+        except ValueError:
+            flash('Invalid date format', 'danger')
+            return redirect(url_for('youth.suggest_event'))
+
+        # Create event with [Suggestion] prefix
+        new_event = Event(
+            title=f"[Suggestion] {title}",
+            description=description,
+            event_type=event_type,
+            location=location,
+            date=event_date,
+            capacity=int(capacity) if capacity else None,
+            status='pending',
+            justification=reason,
+            created_by=session['user_id']
+        )
+
+        db.session.add(new_event)
+        db.session.commit()
+
+        # Notify Admins
+        from models import Notification
+        admins = User.query.filter_by(role='admin').all()
+        for admin in admins:
+            notif = Notification(
+                user_id=admin.id,
+                title='New Event Suggestion',
+                message=f"Suggestion from {session.get('full_name')}: {title}",
+                type='info',
+                link=url_for('admin.event_detail', event_id=new_event.id)
+            )
+            db.session.add(notif)
+        db.session.commit()
+
+        flash('Event suggestion submitted successfully!', 'success')
+        return redirect(url_for('youth.events'))
+
+    return render_template('youth/suggest_event.html')
 
 
 # ==================== COMMUNITIES ====================

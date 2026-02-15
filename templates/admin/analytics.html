@@ -152,11 +152,11 @@
                 <p class="mb-0">Insights and metrics for GenCon SG</p>
             </div>
             <div class="d-flex gap-2">
-                <select class="form-select" style="width: auto;">
-                    <option>Last 30 Days</option>
-                    <option>Last 7 Days</option>
-                    <option>Last 90 Days</option>
-                    <option>All Time</option>
+                <select class="form-select" style="width: auto;" onchange="window.location.href='?days='+this.value">
+                    <option value="30" {% if current_days == '30' %}selected{% endif %}>Last 30 Days</option>
+                    <option value="7" {% if current_days == '7' %}selected{% endif %}>Last 7 Days</option>
+                    <option value="90" {% if current_days == '90' %}selected{% endif %}>Last 90 Days</option>
+                    <option value="all" {% if current_days == 'all' %}selected{% endif %}>All Time</option>
                 </select>
                 <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
                     <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
@@ -234,9 +234,9 @@
         </div>
         <div class="col-md-4 mb-3">
             <div class="insight-card" style="background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);">
-                <div class="insight-icon"><i class="fas fa-fire"></i></div>
-                <div class="insight-title">Engagement</div>
-                <div class="insight-value">{{ total_messages }} messages exchanged between buddies</div>
+                <div class="insight-icon"><i class="fas fa-lightbulb"></i></div>
+                <div class="insight-title">Events Suggested</div>
+                <div class="insight-value">{{ events_suggested_count }} suggestions submitted</div>
             </div>
         </div>
     </div>
