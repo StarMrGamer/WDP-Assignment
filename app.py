@@ -556,7 +556,12 @@ def add_security_headers(response):
     """
     Add security headers to response.
     Specifically enables unsafe-eval for third-party libraries that require it.
+    Skips CSP for portfolio pages (static, self-contained).
     """
+    # Skip CSP for portfolio static files
+    if request.path.startswith('/profolio'):
+        return response
+
     csp = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
@@ -787,7 +792,8 @@ def favicon():
 @app.route('/profolio/<path:filename>')
 def profolio(filename='index.html'):
     profolio_dir = os.path.join(app.root_path, 'profolio')
-    return send_from_directory(profolio_dir, filename)
+    response = send_from_directory(profolio_dir, filename, max_age=300)
+    return response
 
 
 # ==================== STREAK API ====================
