@@ -42,6 +42,9 @@
         border-radius: 1rem;
         font-size: 0.85rem;
         position: relative;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
     }
     
     .game-msg-me {
@@ -146,39 +149,37 @@
             e.preventDefault();
             const content = gameChatInput.value.trim();
             if (!content) return;
-            
+
             // recipient_id is needed. We can get it from the opponent's ID in the game
             const opponentId = {% if active_session %}{{ player2.id if active_session.player1_id == session.user_id else player1.id }}{% else %}null{% endif %};
-            
+
             if (!opponentId) {
                 alert("Cannot send message: Opponent not found.");
                 return;
             }
-            
-            // Emit to server
+
+            // Emit to server - server will filter, flag, and broadcast back
             socket.emit('game_chat', {
                 game_id: typeof gameSessionId !== 'undefined' ? gameSessionId : (typeof tictactoeSessionId !== 'undefined' ? tictactoeSessionId : null),
                 recipient_id: opponentId,
                 content: content
             });
-            
-            // Append immediately for better UX
-            appendMessage({
-                sender_id: currentUserId,
-                content: content,
-                is_me: true,
-                created_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                is_flagged: false // Initially false, server will handle flagging in DB
-            });
-            
+
             gameChatInput.value = '';
         };
-        
-        // Listen for new messages
+
+        // Listen for all messages (including own, filtered by server)
         socket.on('new_game_message', function(data) {
-            // Check if it's from me (already appended) or other
-            if (data.sender_id != currentUserId) {
-                appendMessage(data);
+            appendMessage(data);
+            // Notify sender if their message was flagged
+            if (data.is_flagged && data.sender_id == currentUserId) {
+                const warn = document.createElement('div');
+                warn.className = 'text-center small py-1';
+                warn.style.cssText = 'color: #ffc107; font-size: 0.7rem;';
+                warn.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Your message was flagged for unkind language.';
+                gameChatMessages.appendChild(warn);
+                scrollToBottom();
+                setTimeout(() => { if (warn.parentNode) warn.remove(); }, 5000);
             }
         });
         

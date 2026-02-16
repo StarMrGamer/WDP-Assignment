@@ -30,8 +30,8 @@
     }
 
     .profile-avatar-large {
-        width: 150px;
-        height: 150px;
+        width: 180px;
+        height: 180px;
         border-radius: 50%;
         object-fit: cover;
         border: 5px solid white;
@@ -314,6 +314,76 @@
         font-size: 0.9rem;
     }
 
+    /* Dark mode overrides for senior profile */
+    body[data-theme="dark"] .profile-tabs {
+        background: #232428 !important;
+    }
+
+    body[data-theme="dark"] .profile-card {
+        background: #232428 !important;
+    }
+
+    body[data-theme="dark"] .profile-card h3 {
+        color: #f2f3f5 !important;
+        border-bottom-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .form-label {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .form-control {
+        background-color: #1e1f22 !important;
+        color: #f2f3f5 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .tab-buttons {
+        border-bottom-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .tab-btn {
+        color: #949ba4 !important;
+    }
+
+    body[data-theme="dark"] .tab-btn.active {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .history-item {
+        background: #2b2d31 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .history-title {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .history-details {
+        color: #949ba4 !important;
+    }
+
+    body[data-theme="dark"] .preference-item {
+        background: #2b2d31 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .preference-item:hover {
+        background: #313338 !important;
+    }
+
+    body[data-theme="dark"] .preference-title {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .preference-description {
+        color: #949ba4 !important;
+    }
+
+    body[data-theme="dark"] .form-check-label {
+        color: #f2f3f5 !important;
+    }
+
     @media (max-width: 768px) {
         .profile-header-content {
             flex-direction: column;
@@ -584,6 +654,26 @@
     <!-- Tab Content: Settings -->
     <div class="tab-content-area" id="settingsTab">
         <div class="profile-card">
+            <h3><i class="fas fa-palette me-2"></i>Theme Settings</h3>
+            <div class="preferences-grid">
+                <div class="preference-item" onclick="setSeniorTheme('light')" style="cursor: pointer;">
+                    <div class="preference-header">
+                        <span class="preference-title"><i class="fas fa-sun text-warning me-2"></i>Light</span>
+                        <i class="fas fa-check-circle text-success theme-check light-check d-none"></i>
+                    </div>
+                    <p class="preference-description">Clean and bright interface</p>
+                </div>
+                <div class="preference-item" onclick="setSeniorTheme('dark')" style="cursor: pointer;">
+                    <div class="preference-header">
+                        <span class="preference-title"><i class="fas fa-moon me-2"></i>Dark</span>
+                        <i class="fas fa-check-circle text-success theme-check dark-check d-none"></i>
+                    </div>
+                    <p class="preference-description">Easy on the eyes, Discord-style</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card">
             <h3><i class="fas fa-universal-access me-2"></i>Accessibility Settings</h3>
             <div class="preferences-grid">
                 <div class="preference-item">
@@ -639,6 +729,21 @@
 
 {% block extra_js %}
 <script>
+    // Theme Selection Logic (Senior)
+    function updateSeniorThemeUI() {
+        const currentTheme = document.body.getAttribute('data-theme') || 'light';
+        document.querySelectorAll('.theme-check').forEach(el => el.classList.add('d-none'));
+        const activeCheck = document.querySelector(`.${currentTheme}-check`);
+        if (activeCheck) activeCheck.classList.remove('d-none');
+    }
+
+    window.setSeniorTheme = function(theme) {
+        setTheme(theme); // Call global function from main.js
+        updateSeniorThemeUI();
+    }
+
+    document.addEventListener('DOMContentLoaded', updateSeniorThemeUI);
+
     // High Contrast Toggle Logic
     function toggleHighContrastProfile() {
         toggleHighContrast(); // Call global function

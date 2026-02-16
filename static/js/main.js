@@ -110,7 +110,7 @@ function loadAccessibilityPreferences() {
         if (checkbox) checkbox.checked = true;
     }
 
-    // Load theme preference (youth)
+    // Load theme preference - copy from html to body (html was set by inline script to prevent flash)
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         document.body.setAttribute('data-theme', savedTheme);
@@ -714,9 +714,14 @@ function fixNavbarProfile() {
     
     navImages.forEach(img => {
         // Apply styling if it looks like a profile pic (or just apply to all small nav images)
-        if (img.classList.contains('rounded-circle') || (img.width > 0 && img.width < 60)) {
-            img.style.width = '40px';
-            img.style.height = '40px';
+        if (img.classList.contains('rounded-circle') || (img.width > 0 && img.width < 65)) {
+            // Only set default size if not already explicitly sized in style
+            if (!img.style.width && !img.getAttribute('width')) {
+                img.style.width = '40px';
+                img.style.height = '40px';
+            }
+            
+            img.style.aspectRatio = '1 / 1';
             img.style.objectFit = 'cover';
             img.style.borderRadius = '50%';
             img.style.marginRight = '10px'; // Padding so it doesn't overlap with name

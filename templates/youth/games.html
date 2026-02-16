@@ -623,6 +623,162 @@
             width: 100%;
         }
     }
+
+    /* ===== DARK MODE FOR GAMES PAGE ===== */
+    body[data-theme="dark"] .stats-bar,
+    body[data-theme="dark"] .active-games-section {
+        background: #232428 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .stat-item {
+        background: linear-gradient(135deg, #2b2d31 0%, #232428 100%) !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .stat-item .value {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .stat-item .label {
+        color: #949ba4 !important;
+    }
+
+    body[data-theme="dark"] .game-card {
+        background: #232428 !important;
+        border-color: #3f4147 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .game-card:hover {
+        border-color: #5865f2 !important;
+    }
+
+    body[data-theme="dark"] .game-header h3 {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .game-description {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .game-meta {
+        background: #2b2d31 !important;
+    }
+
+    body[data-theme="dark"] .game-meta-item {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .game-badge {
+        background: rgba(254, 231, 92, 0.15) !important;
+        color: #fee75c !important;
+        font-weight: 700 !important;
+    }
+
+    body[data-theme="dark"] .game-badge.traditional {
+        background: rgba(88, 101, 242, 0.2) !important;
+        color: #8b9fff !important;
+        font-weight: 700 !important;
+    }
+
+    body[data-theme="dark"] .game-badge.modern {
+        background: rgba(242, 63, 67, 0.2) !important;
+        color: #ff8a8e !important;
+        font-weight: 700 !important;
+    }
+
+    body[data-theme="dark"] .btn-learn {
+        background: #2b2d31 !important;
+        color: #5865f2 !important;
+        border-color: #5865f2 !important;
+    }
+
+    body[data-theme="dark"] .btn-learn:hover {
+        background: #5865f2 !important;
+        color: #fff !important;
+    }
+
+    body[data-theme="dark"] .active-game-item {
+        background: #2b2d31 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .active-game-item:hover {
+        background: #313338 !important;
+    }
+
+    body[data-theme="dark"] .active-game-details h4 {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .active-game-details p {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .active-games-section h2 {
+        color: #f2f3f5 !important;
+    }
+
+    /* Game history table in dark mode */
+    body[data-theme="dark"] .table {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .table-light,
+    body[data-theme="dark"] .table thead {
+        background: #1e1f22 !important;
+    }
+
+    body[data-theme="dark"] .table th {
+        color: #b5bac1 !important;
+        background: #1e1f22 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .table td {
+        color: #f2f3f5 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .table-hover tbody tr:hover {
+        background: #2b2d31 !important;
+        color: #f2f3f5 !important;
+    }
+
+    /* Rules modal in dark mode */
+    body[data-theme="dark"] .modal-content {
+        background: #232428 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .modal-body {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .modal-body .rules-section p,
+    body[data-theme="dark"] .modal-body .rules-section li {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .modal-body .bg-light {
+        background: #2b2d31 !important;
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .section-header h2 {
+        color: #f2f3f5 !important;
+    }
+
+    /* Glow effect dark mode */
+    body[data-theme="dark"] [data-glow] {
+        --backdrop: hsl(0 0% 13% / 1);
+        --backup-border: hsl(0 0% 25% / 0.3);
+    }
+
+    body[data-theme="dark"] .game-image::before {
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 60%) !important;
+    }
 </style>
 {% endblock %}
 
