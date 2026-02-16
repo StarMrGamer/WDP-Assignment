@@ -16,13 +16,14 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 from utils import filter_text, check_unkind_words, save_uploaded_file, sanitize_for_display
 import os
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
-translator = Translator()
-
-# Map app language codes to googletrans codes
-GOOGLETRANS_LANG_MAP = {
-    'zh': 'zh-cn',
+# Map app language codes to deep-translator codes
+LANG_MAP = {
+    'zh': 'zh-CN',
+    'ms': 'ms',
+    'ta': 'ta',
+    'en': 'en',
 }
 
 # Create youth blueprint
@@ -334,9 +335,8 @@ def get_messages_json():
                 translated = msg.translated_content
             else:
                 try:
-                    gt_lang = GOOGLETRANS_LANG_MAP.get(target_lang, target_lang)
-                    result = translator.translate(msg.content, dest=gt_lang)
-                    translated = result.text
+                    dt_lang = LANG_MAP.get(target_lang, target_lang)
+                    translated = GoogleTranslator(source='auto', target=dt_lang).translate(msg.content)
                     # Cache the translation
                     msg.translated_content = translated
                     msg.original_language = target_lang
