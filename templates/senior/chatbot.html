@@ -103,6 +103,9 @@
         line-height: 1.5;
         box-shadow: 0 3px 10px rgba(0,0,0,0.03);
         width: fit-content;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
     }
 
     .message-wrapper.me .message-bubble {
@@ -189,14 +192,18 @@
     const sendBtn = document.getElementById('sendBtn');
     const typingIndicator = document.getElementById('typingIndicator');
 
-    // Conversation history for context
-    let conversation = [];
+    // Conversation history for context - load from sessionStorage
+    let conversation = JSON.parse(sessionStorage.getItem('chatbot_conversation') || '[]');
+
+    function saveConversation() {
+        sessionStorage.setItem('chatbot_conversation', JSON.stringify(conversation));
+    }
 
     function scrollToBottom() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function addMessage(content, isMe) {
+    function addMessage(content, isMe, skipSave) {
         const wrapper = document.createElement('div');
         wrapper.className = `message-wrapper ${isMe ? 'me' : 'other'}`;
 
@@ -222,6 +229,14 @@
         return div.innerHTML;
     }
 
+    // Restore previous messages on page load
+    if (conversation.length > 0) {
+        chatMessages.innerHTML = '';
+        conversation.forEach(msg => {
+            addMessage(msg.content, msg.role === 'user', true);
+        });
+    }
+
     function autoExpand(textarea) {
         textarea.style.height = 'auto';
         textarea.style.height = (textarea.scrollHeight) + 'px';
@@ -244,6 +259,7 @@
         // Add user message
         addMessage(content, true);
         conversation.push({ role: 'user', content: content });
+        saveConversation();
 
         chatbotInput.value = '';
         autoExpand(chatbotInput);
@@ -262,6 +278,7 @@
             if (data.reply) {
                 addMessage(data.reply, false);
                 conversation.push({ role: 'assistant', content: data.reply });
+                saveConversation();
             } else {
                 addMessage(data.error || 'Sorry, I had trouble responding. Please try again.', false);
             }
@@ -276,6 +293,7 @@
 
     function clearChat() {
         conversation = [];
+        saveConversation();
         chatMessages.innerHTML = `
             <div class="message-wrapper other">
                 <div class="message-bubble">
