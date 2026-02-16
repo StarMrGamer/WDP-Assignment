@@ -27,7 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
      * Fetch messages from the server and update the UI
      */
     function fetchMessages() {
-        fetch(apiEndpoint)
+        const lang = localStorage.getItem('translationLanguage') || 'en';
+        const url = apiEndpoint + '?lang=' + encodeURIComponent(lang);
+        fetch(url)
             .then(response => response.json())
             .then(data => {
                 const messages = data.messages;
@@ -145,6 +147,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error sending message:', error));
         });
     }
+
+    // Expose fetchMessages so the language switcher can trigger a refresh
+    window.chatFetchMessages = function() {
+        lastMessageCount = 0; // Force re-render
+        fetchMessages();
+    };
 
     // Initial fetch
     fetchMessages();

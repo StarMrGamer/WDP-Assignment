@@ -16,6 +16,14 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 from utils import filter_text, check_unkind_words, save_uploaded_file, sanitize_for_display
 import os
+from googletrans import Translator
+
+translator = Translator()
+
+# Map app language codes to googletrans codes
+GOOGLETRANS_LANG_MAP = {
+    'zh': 'zh-cn',
+}
 
 # Create youth blueprint
 youth_bp = Blueprint('youth', __name__)
@@ -310,16 +318,41 @@ def get_messages_json():
     ).order_by(Message.created_at.desc()).limit(100).all()
     messages.reverse()  # Restore chronological order
 
+    # Check if user requested translation to a specific language
+    target_lang = request.args.get('lang', 'en')
+    supported = current_app.config.get('SUPPORTED_LANGUAGES', {})
+    if target_lang not in supported:
+        target_lang = 'en'
+
     # Convert message objects to a list of dictionaries (JSON-serializable)
-    messages_data = [{
-        'id': msg.id,
-        'content': msg.content,
-        'sender_id': msg.sender_id,
-        'is_me': msg.sender_id == user_id,
-        'created_at': (msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'), # Format: 02:30 PM
-        'is_flagged': msg.is_flagged,
-        'translated_content': msg.translated_content if msg.original_language != 'en' else None
-    } for msg in messages]
+    messages_data = []
+    for msg in messages:
+        translated = None
+        if target_lang != 'en' and msg.content:
+            # Use cached translation if available for this language
+            if msg.translated_content and msg.original_language == target_lang:
+                translated = msg.translated_content
+            else:
+                try:
+                    gt_lang = GOOGLETRANS_LANG_MAP.get(target_lang, target_lang)
+                    result = translator.translate(msg.content, dest=gt_lang)
+                    translated = result.text
+                    # Cache the translation
+                    msg.translated_content = translated
+                    msg.original_language = target_lang
+                    db.session.commit()
+                except Exception:
+                    translated = None
+
+        messages_data.append({
+            'id': msg.id,
+            'content': msg.content,
+            'sender_id': msg.sender_id,
+            'is_me': msg.sender_id == user_id,
+            'created_at': (msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'),
+            'is_flagged': msg.is_flagged,
+            'translated_content': translated
+        })
 
     return {'messages': messages_data}
 

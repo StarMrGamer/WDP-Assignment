@@ -34,14 +34,14 @@
                     </div>
                     <div class="dropdown">
                         <button class="btn btn-white border rounded-pill shadow-sm dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fas fa-language me-2 text-primary"></i>Translate
+                            <i class="fas fa-language me-2 text-primary"></i><span class="lang-label">Translate</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
                             <li><h6 class="dropdown-header">Auto-Translate to:</h6></li>
-                            <li><a class="dropdown-item" href="#" onclick="setLanguage('en')">English</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="setLanguage('zh')">Chinese (中文)</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="setLanguage('ms')">Malay (Melayu)</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="setLanguage('ta')">Tamil (தமிழ்)</a></li>
+                            <li><a class="dropdown-item lang-option" href="#" data-lang="en" onclick="setLanguage('en')">English</a></li>
+                            <li><a class="dropdown-item lang-option" href="#" data-lang="zh" onclick="setLanguage('zh')">Chinese (中文)</a></li>
+                            <li><a class="dropdown-item lang-option" href="#" data-lang="ms" onclick="setLanguage('ms')">Malay (Melayu)</a></li>
+                            <li><a class="dropdown-item lang-option" href="#" data-lang="ta" onclick="setLanguage('ta')">Tamil (தமிழ்)</a></li>
                         </ul>
                     </div>
                 </div>
@@ -336,11 +336,31 @@
         textarea.style.height = (textarea.scrollHeight) + 'px';
     }
 
+    const langNames = { en: 'English', zh: 'Chinese (中文)', ms: 'Malay (Melayu)', ta: 'Tamil (தமிழ்)' };
+
     function setLanguage(lang) {
         localStorage.setItem('translationLanguage', lang);
-        if (typeof showToast === 'function') showToast('Language updated', 'success');
+        // Update the dropdown button text
+        const btn = document.querySelector('.dropdown-toggle .lang-label');
+        if (btn) btn.textContent = langNames[lang] || 'Translate';
+        // Highlight active item
+        document.querySelectorAll('.lang-option').forEach(el => {
+            el.classList.toggle('active', el.dataset.lang === lang);
+        });
+        // Trigger immediate refresh of messages
+        if (typeof window.chatFetchMessages === 'function') window.chatFetchMessages();
     }
-    
+
+    // On load, highlight the currently selected language
+    (function() {
+        const current = localStorage.getItem('translationLanguage') || 'en';
+        const btn = document.querySelector('.dropdown-toggle .lang-label');
+        if (btn && current !== 'en') btn.textContent = langNames[current] || 'Translate';
+        document.querySelectorAll('.lang-option').forEach(el => {
+            el.classList.toggle('active', el.dataset.lang === current);
+        });
+    })();
+
     // Auto-scroll to bottom
     const chatMessages = document.getElementById('chatMessages');
     if (chatMessages) {
