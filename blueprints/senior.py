@@ -339,15 +339,20 @@ def get_messages_json():
             # Use cached translation if available for this language
             if msg.translated_content and msg.original_language == target_lang:
                 translated = msg.translated_content
+                print(f"[TRANSLATE] Using cached translation for msg {msg.id}: '{msg.content[:30]}' -> '{translated[:30]}'")
             else:
                 try:
                     dt_lang = LANG_MAP.get(target_lang, target_lang)
+                    print(f"[TRANSLATE] Translating msg {msg.id}: '{msg.content[:50]}' to '{dt_lang}'...")
                     translated = GoogleTranslator(source='auto', target=dt_lang).translate(msg.content)
+                    print(f"[TRANSLATE] Success: '{translated[:50]}'")
                     # Cache the translation
                     msg.translated_content = translated
                     msg.original_language = target_lang
                     db.session.commit()
-                except Exception:
+                    print(f"[TRANSLATE] Cached translation for msg {msg.id}")
+                except Exception as e:
+                    print(f"[TRANSLATE] ERROR translating msg {msg.id}: {type(e).__name__}: {e}")
                     translated = None
 
         messages_data.append({
