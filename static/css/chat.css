@@ -30,6 +30,10 @@
 }
 
 /* Scrollbar Styling for Message Feed */
+.message-feed {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.1) transparent;
+}
 .message-feed::-webkit-scrollbar {
     width: 6px;
 }
@@ -57,6 +61,7 @@
     font-size: 1.05rem;
     line-height: 1.5;
     box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    width: -moz-fit-content;
     width: fit-content;
 }
 

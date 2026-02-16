@@ -154,7 +154,11 @@
     chatbotInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            chatbotForm.dispatchEvent(new Event('submit'));
+            if (chatbotForm.requestSubmit) {
+                chatbotForm.requestSubmit();
+            } else {
+                chatbotForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            }
         }
     });
 
