@@ -506,6 +506,8 @@ with app.app_context():
         print("Creating game_history table...")
         db.create_all()
 
+    patch_db("ALTER TABLE chat_reports ADD COLUMN ai_analysis TEXT", "Added ai_analysis to chat_reports")
+
     print("Database tables created successfully")
 
 

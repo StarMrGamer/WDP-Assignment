@@ -372,23 +372,28 @@ def get_messages_json():
 @login_required
 def report_message(message_id):
     """API to report a message."""
+    from ai_utils import analyze_report
     data = request.get_json()
     reason = data.get('reason')
     description = data.get('description')
-    
+
     msg = Message.query.get_or_404(message_id)
-    
+
+    # Generate AI analysis
+    ai_analysis = analyze_report(msg.content, reason, description)
+
     report = ChatReport(
         message_id=msg.id,
         reported_by=session['user_id'],
         reported_user_id=msg.sender_id,
         reason=reason,
         description=description,
+        ai_analysis=ai_analysis,
         status='pending'
     )
     db.session.add(report)
     db.session.commit()
-    
+
     return {'success': True}, 200
 
 
@@ -396,24 +401,59 @@ def report_message(message_id):
 @login_required
 def report_community_post(post_id):
     """API to report a community post."""
+    from ai_utils import analyze_report
     data = request.get_json()
     reason = data.get('reason')
     description = data.get('description')
-    
+
     post = CommunityPost.query.get_or_404(post_id)
-    
+
+    # Generate AI analysis
+    ai_analysis = analyze_report(post.content, reason, description)
+
     report = ChatReport(
         community_post_id=post.id,
         reported_by=session['user_id'],
         reported_user_id=post.user_id,
         reason=reason,
         description=description,
+        ai_analysis=ai_analysis,
         status='pending'
     )
     db.session.add(report)
     db.session.commit()
-    
+
     return {'success': True}, 200
+
+
+# ==================== AI CHATBOT ====================
+@senior_bp.route('/chatbot')
+@login_required
+def chatbot():
+    """AI Chatbot page for seniors."""
+    return render_template('senior/chatbot.html')
+
+
+@senior_bp.route('/api/chatbot', methods=['POST'])
+@login_required
+def chatbot_api():
+    """API endpoint for AI chatbot messages."""
+    from ai_utils import chatbot_reply
+    data = request.get_json()
+    conversation = data.get('conversation', [])
+
+    if not conversation:
+        return {'error': 'No conversation provided'}, 400
+
+    # Limit conversation history to last 20 messages to control token usage
+    conversation = conversation[-20:]
+
+    reply = chatbot_reply(conversation)
+
+    if reply is None:
+        return {'error': 'AI service unavailable. Please try again later.'}, 503
+
+    return {'reply': reply}
 
 
 # ==================== EVENTS ====================

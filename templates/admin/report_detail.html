@@ -32,6 +32,18 @@
                 </div>
             </div>
 
+            <!-- AI Analysis -->
+            {% if report.ai_analysis %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header" style="background: #eef2ff;">
+                    <h5 class="mb-0" style="color: #667eea;"><i class="fas fa-robot me-2"></i>AI Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0" style="white-space: pre-line;">{{ report.ai_analysis }}</p>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Actions -->
             <div class="card shadow-sm">
                 <div class="card-header bg-light">

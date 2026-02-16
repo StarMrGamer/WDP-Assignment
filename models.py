@@ -676,6 +676,7 @@ class ChatReport(db.Model):
     description = db.Column(db.Text)
     status = db.Column(db.String(20), default='pending')  # pending, under_review, resolved, dismissed
     admin_notes = db.Column(db.Text)
+    ai_analysis = db.Column(db.Text)  # AI-generated severity assessment
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
 
     # Relationships
