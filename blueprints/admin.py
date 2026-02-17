@@ -10,7 +10,7 @@ Description: Handles all administrative functions including user moderation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode, EventParticipant
+from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode, EventParticipant, SupportTicket
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -863,3 +863,56 @@ def profile():
     """Admin profile page."""
     user = User.query.get(session['user_id'])
     return render_template('admin/profile.html', user=user)
+
+
+# ==================== SUPPORT TICKET MANAGEMENT ====================
+@admin_bp.route('/support-tickets')
+@admin_required
+def support_tickets():
+    """Display all support tickets with filtering."""
+    status_filter = request.args.get('status', 'all')
+    type_filter = request.args.get('type', 'all')
+
+    query = SupportTicket.query
+
+    if status_filter != 'all':
+        query = query.filter_by(status=status_filter)
+
+    if type_filter != 'all':
+        query = query.filter_by(ticket_type=type_filter)
+
+    tickets = query.order_by(SupportTicket.created_at.desc()).all()
+
+    return render_template('admin/support_tickets.html',
+                           tickets=tickets,
+                           status_filter=status_filter,
+                           type_filter=type_filter)
+
+
+@admin_bp.route('/support-tickets/<int:ticket_id>', methods=['GET', 'POST'])
+@admin_required
+def support_ticket_detail(ticket_id):
+    """View and manage individual support ticket."""
+    ticket = SupportTicket.query.get_or_404(ticket_id)
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        admin_notes = request.form.get('admin_notes')
+
+        if action == 'open':
+            ticket.status = 'open'
+            flash('Ticket marked as open.', 'info')
+        elif action == 'in_progress':
+            ticket.status = 'in_progress'
+            flash('Ticket marked as in progress.', 'info')
+        elif action == 'close':
+            ticket.status = 'closed'
+            flash('Ticket closed.', 'success')
+
+        if admin_notes is not None:
+            ticket.admin_notes = admin_notes
+
+        db.session.commit()
+        return redirect(url_for('admin.support_tickets'))
+
+    return render_template('admin/support_ticket_detail.html', ticket=ticket)

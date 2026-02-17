@@ -2,7 +2,7 @@ import re
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, IntegerField, TextAreaField, SelectField, SubmitField
-from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, NumberRange
+from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, NumberRange, Optional
 from models import User, RegistrationCode
 
 
@@ -100,3 +100,16 @@ class StoryForm(FlaskForm):
 class MessageForm(FlaskForm):
     message = TextAreaField('Message', validators=[DataRequired(), Length(min=1)])
     submit = SubmitField('Send')
+
+
+class SupportTicketForm(FlaskForm):
+    guest_email = StringField('Email', validators=[Optional(), Email(), Length(max=120)])
+    ticket_type = SelectField('Issue Type', choices=[
+        ('Bug Report', 'Bug Report'),
+        ('Feature Request', 'Feature Request'),
+        ('Account Issue', 'Account Issue'),
+        ('General Inquiry', 'General Inquiry')
+    ], validators=[DataRequired()])
+    subject = StringField('Subject', validators=[DataRequired(), Length(min=5, max=200)])
+    description = TextAreaField('Description', validators=[DataRequired(), Length(min=10, max=1000)])
+    submit = SubmitField('Submit Ticket')

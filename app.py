@@ -12,7 +12,7 @@ Description: This is the entry point for the Flask application. It:
              - Provides the main route (index/landing page)
 """
 
-from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory, Blueprint
+from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory, Blueprint, flash
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from config import get_config
 from models import db
@@ -508,6 +508,13 @@ with app.app_context():
 
     patch_db("ALTER TABLE chat_reports ADD COLUMN ai_analysis TEXT", "Added ai_analysis to chat_reports")
 
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("SELECT count(*) FROM support_tickets"))
+    except Exception:
+        print("Creating support_tickets table...")
+        db.create_all()
+
     print("Database tables created successfully")
 
 
@@ -550,6 +557,61 @@ def index():
             return redirect(url_for('admin.dashboard'))
 
     return render_template('index.html')
+
+
+# ==================== SUPPORT TICKET ROUTE ====================
+@app.route('/support', methods=['GET', 'POST'])
+def support():
+    """
+    Public support ticket submission page.
+    Logged-in users have their info pre-filled.
+    Guests must provide an email address.
+    """
+    from forms import SupportTicketForm
+    from models import SupportTicket
+
+    form = SupportTicketForm()
+
+    if form.validate_on_submit():
+        ticket = SupportTicket(
+            ticket_type=form.ticket_type.data,
+            subject=form.subject.data,
+            description=form.description.data
+        )
+
+        if 'user_id' in session:
+            ticket.user_id = session['user_id']
+        else:
+            if not form.guest_email.data:
+                flash('Email is required for guest submissions.', 'danger')
+                return render_template('support.html', form=form)
+            ticket.guest_email = form.guest_email.data
+
+        db.session.add(ticket)
+        db.session.commit()
+        flash(f'Your support ticket #{ticket.id} has been submitted successfully! We will get back to you soon.', 'success')
+        return redirect(url_for('support'))
+
+    return render_template('support.html', form=form)
+
+
+# ==================== GENERAL STATIC PAGES ====================
+@app.route('/about')
+def about():
+    """Render the About Us page."""
+    return render_template('about.html')
+
+
+@app.route('/privacy')
+def privacy():
+    """Render the Privacy Policy page."""
+    return render_template('privacy.html')
+
+
+@app.route('/terms')
+def terms():
+    """Render the Terms of Service page."""
+    return render_template('terms.html')
 
 
 # ==================== SECURITY HEADERS ====================

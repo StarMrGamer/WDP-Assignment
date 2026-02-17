@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Privacy Policy - GenCon SG{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Privacy Policy</li>
+                </ol>
+            </nav>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+                <div class="card-body p-5">
+                    <div class="mb-5">
+                        <i class="fas fa-shield-alt text-primary fs-1 mb-3"></i>
+                        <h1 class="fw-bold">Privacy Policy</h1>
+                        <p class="text-muted small">Effective Date: October 1, 2025 | Last Updated: February 17, 2026</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">Introduction</h4>
+                        <p>
+                            At GenCon SG, we value your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, and safeguard your information when you use our platform, in accordance with the Personal Data Protection Act (PDPA) of Singapore.
+                        </p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">Information We Collect</h4>
+                        <ul class="text-muted small">
+                            <li><strong>Account Information:</strong> Name, email address, password, profile picture, and role (senior/youth).</li>
+                            <li><strong>User Content:</strong> Stories, community posts, messages, and event registrations.</li>
+                            <li><strong>System Data:</strong> Browser information, device type, and usage patterns for site optimization.</li>
+                            <li><strong>Badge & Streak Progress:</strong> Activity logs used for gamification and volunteer certification.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">How We Use Your Data</h4>
+                        <p>
+                            Your data is used solely for the purpose of providing and improving our services:
+                        </p>
+                        <ul class="text-muted small">
+                            <li>To facilitate communication between youth and seniors.</li>
+                            <li>To personalize your experience and track your volunteer progress.</li>
+                            <li>To provide customer support and respond to inquiries.</li>
+                            <li>To ensure the safety and security of all users through content moderation.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">Data Sharing</h4>
+                        <p>
+                            We do not sell your personal data to third parties. We only share information when:
+                        </p>
+                        <ul class="text-muted small">
+                            <li>Explicit consent is given.</li>
+                            <li>Required by law or to protect user safety.</li>
+                            <li>Service providers (like cloud storage) require it to maintain our platform.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">Your Rights</h4>
+                        <p>
+                            You have the right to access, correct, or request the deletion of your personal data at any time. You can manage your profile settings directly or contact our support team for assistance.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="fw-bold mb-3">Contact Us</h4>
+                        <p class="small mb-0">
+                            If you have any questions regarding this Privacy Policy, please email us at <a href="mailto:privacy@genconsg.com">privacy@genconsg.com</a> or use our <a href="{{ url_for('support') }}">Support Portal</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

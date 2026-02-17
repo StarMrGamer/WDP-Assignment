@@ -721,6 +721,60 @@ class Checkin(db.Model):
         return f'<Checkin {self.id}: User {self.user_id} - {self.mood}>'
 
 
+# ==================== SUPPORT TICKET MODEL ====================
+class SupportTicket(db.Model):
+    """
+    Support tickets submitted by users or guests.
+
+    Attributes:
+        id (int): Primary key
+        user_id (int): Foreign key to User (nullable - guests can submit)
+        guest_email (str): Email for guest submissions
+        ticket_type (str): Bug Report, Feature Request, Account Issue, General Inquiry
+        subject (str): Brief summary of the issue
+        description (text): Detailed description
+        status (str): submitted, open, in_progress, closed
+        admin_notes (text): Admin response/notes
+        created_at (datetime): Submission timestamp
+        updated_at (datetime): Last update timestamp
+
+    Relationships:
+        user: Many-to-one with User (optional)
+    """
+    __tablename__ = 'support_tickets'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, index=True)
+
+    guest_email = db.Column(db.String(120), nullable=True)
+    ticket_type = db.Column(db.String(50), nullable=False)
+    subject = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='submitted')
+    admin_notes = db.Column(db.Text)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('support_tickets', lazy='dynamic'))
+
+    @property
+    def submitter_email(self):
+        if self.user:
+            return self.user.email
+        return self.guest_email
+
+    @property
+    def submitter_name(self):
+        if self.user:
+            return self.user.full_name
+        return 'Guest'
+
+    def __repr__(self):
+        return f'<SupportTicket {self.id}: {self.status}>'
+
+
 # ==================== NOTIFICATION MODEL ====================
 class Notification(db.Model):
     """

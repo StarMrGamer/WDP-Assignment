@@ -12,23 +12,70 @@
 {% block extra_css %}
 <style>
     .badges-header {
-        background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+        background: linear-gradient(135deg, #f59e0b 0%, #e67e22 40%, #d97706 100%);
         color: white;
-        padding: 2.5rem 0;
+        padding: 2.5rem 2rem;
         margin-bottom: 2rem;
-        border-radius: 1rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .badges-header::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -5%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 50%;
+        animation: headerFloat 6s ease-in-out infinite;
+    }
+
+    .badges-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: 10%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        animation: headerFloat 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes headerFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
     }
 
     .badges-header h1 {
         font-size: 2.5rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
 
     .badges-header p {
         font-size: 1.125rem;
         opacity: 0.95;
         margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .badges-header-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.95rem !important;
+        margin-top: 0.75rem !important;
     }
 
     .stats-overview {
@@ -510,15 +557,28 @@
 {% block content %}
 <div class="container py-4">
     <!-- Page Header -->
-    <div class="badges-header text-center">
-        <h1>
-            <i class="fas fa-trophy me-3"></i>My Achievements
-        </h1>
-        <p>Track your volunteer journey and earn badges</p>
-        <div class="mt-3">
-            <a href="{{ url_for('youth.download_portfolio') }}" class="btn btn-light btn-lg">
-                <i class="fas fa-file-pdf me-2"></i>Download Volunteer Portfolio
-            </a>
+    <div class="badges-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>
+                    <i class="fas fa-trophy me-3"></i>My Achievements
+                </h1>
+                <p class="badges-header-badge">
+                    <i class="fas fa-star me-2"></i>
+                    Track your volunteer journey and earn badges
+                </p>
+                <div class="mt-3" style="position: relative; z-index: 1;">
+                    <a href="{{ url_for('youth.download_portfolio') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-file-pdf me-2"></i>Download Volunteer Portfolio
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 text-end d-none d-md-block">
+                <div style="font-size: 4rem; opacity: 0.2; position: relative; z-index: 1;">
+                    <i class="fas fa-medal"></i>
+                    <i class="fas fa-award ms-2"></i>
+                </div>
+            </div>
         </div>
     </div>
 

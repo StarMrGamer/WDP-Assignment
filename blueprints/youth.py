@@ -65,7 +65,7 @@ def dashboard():
     buddy = User.query.get(pair.senior_id) if pair else None
 
     # Get recent stories from all seniors
-    recent_stories = Story.query.order_by(Story.created_at.desc()).limit(10).all()
+    recent_stories = Story.query.order_by(Story.created_at.desc()).limit(20).all()
 
     # Get user badges
     badges = Badge.query.filter_by(user_id=user.id).count()

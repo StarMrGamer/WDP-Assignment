@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+<!--
+    File: admin/support_ticket_detail.html
+    Purpose: Admin support ticket detail and management page
+    Date: February 2026
+    Feature: View ticket details and update status/notes
+-->
+
+{% block title %}Support Ticket #{{ ticket.id }} - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="{{ url_for('admin.support_tickets') }}" class="btn btn-outline-secondary mb-2">
+                <i class="fas fa-arrow-left me-2"></i>Back to Support Tickets
+            </a>
+            <h2>Support Ticket #{{ ticket.id }}</h2>
+        </div>
+        <div>
+            <span class="badge fs-5
+                {% if ticket.status == 'submitted' %}bg-warning text-dark
+                {% elif ticket.status == 'open' %}bg-info
+                {% elif ticket.status == 'in_progress' %}bg-primary
+                {% else %}bg-success{% endif %}">
+                {{ ticket.status|replace('_', ' ')|title }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Ticket Info + Actions -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Ticket Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Type:</strong>
+                        <span class="badge
+                            {% if ticket.ticket_type == 'Bug Report' %}bg-danger
+                            {% elif ticket.ticket_type == 'Feature Request' %}bg-success
+                            {% elif ticket.ticket_type == 'Account Issue' %}bg-warning text-dark
+                            {% else %}bg-info{% endif %}">
+                            {{ ticket.ticket_type }}
+                        </span>
+                    </p>
+                    <p><strong>Submitted By:</strong> {{ ticket.submitter_name }}</p>
+                    <p><strong>Email:</strong> {{ ticket.submitter_email or 'N/A' }}</p>
+                    {% if ticket.user %}
+                    <p><strong>Role:</strong> {{ ticket.user.role|title }}</p>
+                    {% endif %}
+                    <p><strong>Status:</strong> {{ ticket.status|replace('_', ' ')|title }}</p>
+                    <p><strong>Created:</strong> {{ ticket.created_at.strftime('%b %d, %Y at %I:%M %p') }}</p>
+                    {% if ticket.updated_at and ticket.updated_at != ticket.created_at %}
+                    <p><strong>Last Updated:</strong> {{ ticket.updated_at.strftime('%b %d, %Y at %I:%M %p') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Admin Notes / Response</label>
+                            <textarea name="admin_notes" class="form-control" rows="4" placeholder="Add notes or a response...">{{ ticket.admin_notes or '' }}</textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            {% if ticket.status != 'open' %}
+                            <button type="submit" name="action" value="open" class="btn btn-info">
+                                <i class="fas fa-folder-open me-2"></i>Mark as Open
+                            </button>
+                            {% endif %}
+                            {% if ticket.status != 'in_progress' %}
+                            <button type="submit" name="action" value="in_progress" class="btn btn-warning">
+                                <i class="fas fa-spinner me-2"></i>Mark In Progress
+                            </button>
+                            {% endif %}
+                            {% if ticket.status != 'closed' %}
+                            <button type="submit" name="action" value="close" class="btn btn-success">
+                                <i class="fas fa-check-circle me-2"></i>Close Ticket
+                            </button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Ticket Content -->
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>{{ ticket.subject }}</h5>
+                </div>
+                <div class="card-body">
+                    <p style="white-space: pre-wrap; line-height: 1.7;">{{ ticket.description }}</p>
+                </div>
+                <div class="card-footer text-muted small">
+                    Submitted {{ ticket.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                    by {{ ticket.submitter_name }}
+                    {% if ticket.submitter_email %}({{ ticket.submitter_email }}){% endif %}
+                </div>
+            </div>
+
+            {% if ticket.admin_notes %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-reply me-2"></i>Admin Response</h5>
+                </div>
+                <div class="card-body">
+                    <p style="white-space: pre-wrap; line-height: 1.7;">{{ ticket.admin_notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

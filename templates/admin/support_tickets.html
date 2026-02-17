@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+<!--
+    File: admin/support_tickets.html
+    Purpose: Admin support ticket management page
+    Date: February 2026
+    Feature: View and manage support tickets submitted by users and guests
+-->
+
+{% block title %}Support Tickets - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .ticket-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        border-left: 4px solid #6C757D;
+        transition: all 0.3s ease;
+    }
+    .ticket-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+    .ticket-card.status-submitted { border-left-color: #F39C12; }
+    .ticket-card.status-open { border-left-color: #3498DB; }
+    .ticket-card.status-in_progress { border-left-color: #9B59B6; }
+    .ticket-card.status-closed { border-left-color: #27AE60; }
+
+    .ticket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+    .ticket-id {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    .ticket-subject {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .ticket-desc {
+        color: #6C757D;
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+    }
+    .ticket-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        font-size: 0.9rem;
+        color: #6C757D;
+    }
+    .type-badge {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 1rem;
+        font-weight: 600;
+    }
+    .type-badge.bug { background: #fdecea; color: #c0392b; }
+    .type-badge.feature { background: #e8f8f5; color: #27ae60; }
+    .type-badge.account { background: #fef9e7; color: #f39c12; }
+    .type-badge.general { background: #eaf2f8; color: #2980b9; }
+
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 1rem;
+        font-weight: 600;
+    }
+    .status-badge.submitted { background: #fef3cd; color: #856404; }
+    .status-badge.open { background: #cce5ff; color: #004085; }
+    .status-badge.in-progress { background: #e8daef; color: #6c3483; }
+    .status-badge.closed { background: #d4edda; color: #155724; }
+
+    /* Dark mode */
+    body[data-theme="dark"] .ticket-card {
+        background: #232428;
+        color: #f2f3f5;
+    }
+    body[data-theme="dark"] .ticket-desc {
+        color: #b5bac1;
+    }
+    body[data-theme="dark"] .ticket-meta {
+        color: #949ba4;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-headset me-2"></i>Support Tickets</h1>
+                <p class="mb-0">Manage user support requests</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <form method="GET" class="d-flex gap-3 flex-wrap align-items-center w-100">
+            <div class="d-flex align-items-center gap-2">
+                <label for="status" class="fw-bold text-nowrap">Status:</label>
+                <select name="status" id="status" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Tickets</option>
+                    <option value="submitted" {% if status_filter == 'submitted' %}selected{% endif %}>Submitted</option>
+                    <option value="open" {% if status_filter == 'open' %}selected{% endif %}>Open</option>
+                    <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label for="type" class="fw-bold text-nowrap">Type:</label>
+                <select name="type" id="type" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if type_filter == 'all' %}selected{% endif %}>All Types</option>
+                    <option value="Bug Report" {% if type_filter == 'Bug Report' %}selected{% endif %}>Bug Report</option>
+                    <option value="Feature Request" {% if type_filter == 'Feature Request' %}selected{% endif %}>Feature Request</option>
+                    <option value="Account Issue" {% if type_filter == 'Account Issue' %}selected{% endif %}>Account Issue</option>
+                    <option value="General Inquiry" {% if type_filter == 'General Inquiry' %}selected{% endif %}>General Inquiry</option>
+                </select>
+            </div>
+            <div class="ms-auto">
+                <span class="badge bg-primary fs-6">{{ tickets|length }} ticket{{ 's' if tickets|length != 1 }}</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Statistics Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #F39C12;">
+                <div class="stat-icon" style="color: #F39C12;"><i class="fas fa-inbox"></i></div>
+                <div class="stat-value">{{ tickets|selectattr('status', 'equalto', 'submitted')|list|length }}</div>
+                <div class="stat-label">Submitted</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #3498DB;">
+                <div class="stat-icon" style="color: #3498DB;"><i class="fas fa-folder-open"></i></div>
+                <div class="stat-value">{{ tickets|selectattr('status', 'equalto', 'open')|list|length }}</div>
+                <div class="stat-label">Open</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #9B59B6;">
+                <div class="stat-icon" style="color: #9B59B6;"><i class="fas fa-spinner"></i></div>
+                <div class="stat-value">{{ tickets|selectattr('status', 'equalto', 'in_progress')|list|length }}</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #27AE60;">
+                <div class="stat-icon" style="color: #27AE60;"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-value">{{ tickets|selectattr('status', 'equalto', 'closed')|list|length }}</div>
+                <div class="stat-label">Closed</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tickets List -->
+    {% if tickets %}
+    <div class="row">
+        {% for ticket in tickets %}
+        <div class="col-12 mb-3">
+            <div class="ticket-card status-{{ ticket.status }}">
+                <div class="ticket-header">
+                    <div>
+                        <span class="ticket-id">Ticket #{{ ticket.id }}</span>
+                        <span class="type-badge ms-2 {% if ticket.ticket_type == 'Bug Report' %}bug{% elif ticket.ticket_type == 'Feature Request' %}feature{% elif ticket.ticket_type == 'Account Issue' %}account{% else %}general{% endif %}">
+                            {{ ticket.ticket_type }}
+                        </span>
+                    </div>
+                    <span class="status-badge {{ ticket.status|replace('_', '-') }}">
+                        {% if ticket.status == 'submitted' %}
+                        <i class="fas fa-inbox me-1"></i>
+                        {% elif ticket.status == 'open' %}
+                        <i class="fas fa-folder-open me-1"></i>
+                        {% elif ticket.status == 'in_progress' %}
+                        <i class="fas fa-spinner me-1"></i>
+                        {% else %}
+                        <i class="fas fa-check-circle me-1"></i>
+                        {% endif %}
+                        {{ ticket.status|replace('_', ' ')|title }}
+                    </span>
+                </div>
+
+                <div class="ticket-subject">{{ ticket.subject }}</div>
+                <div class="ticket-desc">{{ ticket.description[:150] }}{% if ticket.description|length > 150 %}...{% endif %}</div>
+
+                <div class="ticket-meta">
+                    <span>
+                        <i class="fas fa-user me-1"></i>{{ ticket.submitter_name }}
+                    </span>
+                    <span>
+                        <i class="fas fa-envelope me-1"></i>{{ ticket.submitter_email or 'N/A' }}
+                    </span>
+                    <span>
+                        <i class="fas fa-calendar me-1"></i>{{ ticket.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                    </span>
+                </div>
+
+                <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                    <a href="{{ url_for('admin.support_ticket_detail', ticket_id=ticket.id) }}"
+                       class="btn btn-primary w-100">
+                        <i class="fas fa-eye me-1"></i>View & Manage
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="data-table-container">
+        <div class="text-center py-5">
+            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+            <h5 class="text-muted">No support tickets found</h5>
+            <p class="text-muted">
+                {% if status_filter != 'all' or type_filter != 'all' %}
+                No tickets match the selected filters.
+                {% else %}
+                No support tickets have been submitted yet.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

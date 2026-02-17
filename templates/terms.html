@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Terms of Service - GenCon SG{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Terms of Service</li>
+                </ol>
+            </nav>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+                <div class="card-body p-5">
+                    <div class="mb-5">
+                        <i class="fas fa-file-contract text-primary fs-1 mb-3"></i>
+                        <h1 class="fw-bold">Terms of Service</h1>
+                        <p class="text-muted small">Effective Date: October 1, 2025 | Last Updated: February 17, 2026</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">Introduction</h4>
+                        <p>
+                            Welcome to GenCon SG. By using our platform, you agree to comply with and be bound by the following terms and conditions. If you do not agree, please do not use our services.
+                        </p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">User Conduct</h4>
+                        <p>
+                            At GenCon SG, we maintain a respectful and safe environment for all users:
+                        </p>
+                        <ul class="text-muted small">
+                            <li><strong>Respect:</strong> Always use respectful language with other users. Harassment, hate speech, or bullying will not be tolerated.</li>
+                            <li><strong>Integrity:</strong> Provide accurate information when registering and interacting with our platform.</li>
+                            <li><strong>Safety:</strong> Do not share personal contact information (like home address) with other users unless through established official channels.</li>
+                            <li><strong>Content:</strong> Users are responsible for the stories and posts they upload. Inappropriate content will be removed immediately.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">Account Security</h4>
+                        <p>
+                            You are responsible for maintaining the confidentiality of your account password. If you suspect any unauthorized use, notify us immediately. Accounts may be suspended or terminated for violations of these terms.
+                        </p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">Platform Use</h4>
+                        <p>
+                            GenCon SG is intended for community connection and volunteering purposes. Users may not use the platform for commercial advertising, spamming, or any illegal activities.
+                        </p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">Intellectual Property</h4>
+                        <p>
+                            Users retain ownership of the content they create. However, by posting on GenCon SG, you grant us a non-exclusive license to display and distribute that content within our platform for community engagement purposes.
+                        </p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold mb-3">Limitation of Liability</h4>
+                        <p>
+                            GenCon SG provides this platform "as is" and is not liable for any damages arising from your use of the site or interactions with other users. We reserve the right to modify or discontinue the service at any time.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="fw-bold mb-3">Contact</h4>
+                        <p class="small mb-0">
+                            For any inquiries regarding these terms, please contact <a href="mailto:legal@genconsg.com">legal@genconsg.com</a> or use our <a href="{{ url_for('support') }}">Support Portal</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
