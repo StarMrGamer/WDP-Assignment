@@ -53,7 +53,7 @@
     /* Neutral Colors - Softer, warmer tones */
     --white: #FFFFFF;
     --black: #1E1E2E;                /* Soft black - easier on eyes */
-    --gray-100: #FAFAFA;             /* Warm white - backgrounds */
+    --gray-100: #F0F2F5;             /* LinkedIn-style gray background */
     --gray-200: #F4F4F5;             /* Soft gray - borders */
     --gray-300: #E4E4E7;             /* Light gray */
     --gray-400: #D4D4D8;             /* Medium gray */
@@ -85,19 +85,19 @@
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
 
-    /* Spacing Scale (based on 8px grid) */
+    /* Spacing Scale - Tighter LinkedIn/Instagram style */
     --spacing-xs: 0.25rem;           /* 4px */
-    --spacing-sm: 0.5rem;            /* 8px */
-    --spacing-md: 1rem;              /* 16px */
-    --spacing-lg: 1.5rem;            /* 24px */
-    --spacing-xl: 2rem;              /* 32px */
-    --spacing-xxl: 3rem;             /* 48px */
+    --spacing-sm: 0.375rem;          /* 6px */
+    --spacing-md: 0.75rem;           /* 12px */
+    --spacing-lg: 1rem;              /* 16px */
+    --spacing-xl: 1.5rem;            /* 24px */
+    --spacing-xxl: 2rem;             /* 32px */
 
-    /* Border Radius - Extra rounded for playfulness */
-    --border-radius-sm: 0.5rem;      /* 8px - small elements */
-    --border-radius-md: 0.75rem;     /* 12px - default */
-    --border-radius-lg: 1.25rem;     /* 20px - cards */
-    --border-radius-xl: 2rem;        /* 32px - special elements */
+    /* Border Radius - Clean, modern */
+    --border-radius-sm: 0.375rem;    /* 6px - small elements */
+    --border-radius-md: 0.5rem;      /* 8px - default */
+    --border-radius-lg: 0.75rem;     /* 12px - cards */
+    --border-radius-xl: 1rem;        /* 16px - special elements */
     --border-radius-pill: 50rem;     /* Pill-shaped (fully rounded) */
     --border-radius-blob: 30% 70% 70% 30% / 30% 30% 70% 70%; /* Fun blob shape */
 
@@ -160,7 +160,7 @@ body {
     font-family: var(--font-family);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-normal);
-    line-height: 1.6;
+    line-height: 1.5;
     color: var(--gray-900);
     background-color: var(--gray-100);
     overflow-x: hidden; /* Prevent horizontal scroll */
@@ -169,26 +169,26 @@ body {
 /* Main content container */
 .main-content {
     min-height: calc(100vh - 200px); /* Ensure footer stays at bottom */
-    padding: var(--spacing-xl) 0;
+    padding: 0.5rem 0;
 }
 
 /* ==================== TYPOGRAPHY ==================== */
 h1, h2, h3, h4, h5, h6 {
     font-weight: var(--font-weight-bold);
     line-height: 1.2;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 0.5rem;
     color: var(--gray-900);
 }
 
-h1 { font-size: 2.5rem; }   /* 40px */
-h2 { font-size: 2rem; }     /* 32px */
-h3 { font-size: 1.75rem; }  /* 28px */
-h4 { font-size: 1.5rem; }   /* 24px */
-h5 { font-size: 1.25rem; }  /* 20px */
-h6 { font-size: 1rem; }     /* 16px */
+h1 { font-size: 2rem; }     /* 32px */
+h2 { font-size: 1.75rem; }  /* 28px */
+h3 { font-size: 1.5rem; }   /* 24px */
+h4 { font-size: 1.25rem; }  /* 20px */
+h5 { font-size: 1.1rem; }   /* 17.6px */
+h6 { font-size: 0.95rem; }  /* 15.2px */
 
 p {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 0.5rem;
 }
 
 /* Text utility classes */
@@ -230,12 +230,11 @@ p {
 }
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    filter: brightness(1.05);
 }
 
 .btn:active {
-    transform: translateY(0);
+    filter: brightness(0.95);
 }
 
 .btn:disabled {
@@ -256,13 +255,8 @@ p {
 
 .btn-primary:hover {
     background: linear-gradient(135deg, var(--primary-hover) 0%, var(--secondary-color) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 107, 157, 0.35);
     color: var(--white);
-}
-
-.btn-primary:active {
-    transform: translateY(0);
 }
 
 .btn-success {
@@ -273,8 +267,7 @@ p {
 }
 
 .btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
     color: var(--white);
 }
 
@@ -286,8 +279,7 @@ p {
 }
 
 .btn-danger:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(244, 63, 94, 0.4);
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.35);
     color: var(--white);
 }
 
@@ -299,8 +291,7 @@ p {
 }
 
 .btn-warning:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.35);
 }
 
 .btn-outline-primary {
@@ -326,39 +317,36 @@ p {
 }
 
 /* ==================== CARDS ==================== */
-/* Playful Card Styles */
+/* LinkedIn/Instagram-style clean cards */
 .card {
     background-color: var(--white);
     border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-md);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    padding: 0;
+    margin-bottom: 0.75rem;
+    transition: box-shadow 0.2s ease;
+    border: none;
 }
 
 .card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
-    border-color: rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
-    font-size: var(--font-size-lg);
+    font-size: 1rem;
     font-weight: var(--font-weight-semibold);
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 2px solid var(--gray-200);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-200);
+    background-color: transparent;
 }
 
 .card-body {
-    padding: var(--spacing-md) 0;
+    padding: 0.75rem 1rem;
 }
 
 .card-footer {
-    padding-top: var(--spacing-md);
+    padding: 0.75rem 1rem;
     border-top: 1px solid var(--gray-200);
-    margin-top: var(--spacing-md);
 }
 
 /* ==================== FORMS ==================== */
@@ -372,7 +360,7 @@ p {
 .form-control {
     display: block;
     width: 100%;
-    padding: 0.625rem 0.875rem;
+    padding: 0.5rem 0.75rem;
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
@@ -890,6 +878,7 @@ body[data-theme="dark"] .community-card {
 
 body[data-theme="dark"] .card:hover {
     border-color: var(--dc-border) !important;
+    box-shadow: 0 0 0 1px var(--dc-border), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* List group items */
@@ -2188,4 +2177,443 @@ body[data-theme="dark"] .modal-header {
     border-color: #3f4147 !important;
 }
 
+/* ==================== DARK MODE: Additional fixes ==================== */
+
+/* Game page elements */
+body[data-theme="dark"] .side-panel {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .player-card {
+    background: #2b2d31 !important;
+    color: #f2f3f5 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] #pgn {
+    background: #1e1f22 !important;
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] #waitingOverlay {
+    background: rgba(35, 36, 40, 0.97) !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .game-image {
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .lobby-game-card {
+    background: #232428 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .lobby-game-card:hover {
+    border-color: #9B59B6 !important;
+}
+
+body[data-theme="dark"] .game-header h3 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .game-description {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .game-meta {
+    background: #1e1f22 !important;
+}
+
+body[data-theme="dark"] .game-meta-item {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .btn-learn {
+    background: #232428 !important;
+    color: #9B59B6 !important;
+    border-color: #9B59B6 !important;
+}
+
+/* Stats bar */
+body[data-theme="dark"] .stats-bar {
+    background: #232428 !important;
+}
+
+body[data-theme="dark"] .stat-item {
+    background: linear-gradient(135deg, #2b2d31 0%, #232428 100%) !important;
+}
+
+body[data-theme="dark"] .stat-item .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .stat-item .label {
+    color: #949ba4 !important;
+}
+
+/* Active games section */
+body[data-theme="dark"] .active-games-section {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .active-games-section h2 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .active-game-item {
+    background: #2b2d31 !important;
+}
+
+body[data-theme="dark"] .active-game-item:hover {
+    background: #313338 !important;
+}
+
+body[data-theme="dark"] .active-game-details h4 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .active-game-details p {
+    color: #949ba4 !important;
+}
+
+/* Analytics cards */
+body[data-theme="dark"] .analytics-card {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .analytics-card h5 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .big-stat .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .big-stat .label {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .metric-row .label {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .metric-row .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .metric-row {
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .chart-placeholder {
+    background: linear-gradient(135deg, #2b2d31 0%, #1e1f22 100%) !important;
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .progress-stat .label {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .progress-stat .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .progress {
+    background-color: #3f4147 !important;
+}
+
+/* User detail info cards */
+body[data-theme="dark"] .user-info-card {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .info-row {
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .info-label {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .info-value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .user-profile-header {
+    background: linear-gradient(135deg, #1e1f22 0%, #232428 100%) !important;
+}
+
+/* Community card dark mode */
+body[data-theme="dark"] .community-stats {
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .community-stat .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .community-stat .label {
+    color: #949ba4 !important;
+}
+
+/* Background light sections in dark mode */
+body[data-theme="dark"] .bg-light {
+    background-color: #2b2d31 !important;
+}
+
+body[data-theme="dark"] .bg-white {
+    background-color: #232428 !important;
+}
+
+/* Table light header */
+body[data-theme="dark"] .table-light {
+    background-color: #1e1f22 !important;
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] .table-light th {
+    background-color: #1e1f22 !important;
+    color: #b5bac1 !important;
+}
+
+/* Text colors that become invisible in dark mode */
+body[data-theme="dark"] .text-dark {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .fw-bold {
+    color: #f2f3f5;
+}
+
+body[data-theme="dark"] .card-header {
+    background-color: #2b2d31 !important;
+}
+
+body[data-theme="dark"] .card-body {
+    color: #f2f3f5 !important;
+}
+
+/* ==================== HIGH CONTRAST MODE ==================== */
+html[data-high-contrast="true"] body,
+body[data-high-contrast="true"] {
+    --hc-bg: #000000;
+    --hc-text: #ffffff;
+    --hc-link: #ffff00;
+    --hc-border: #ffffff;
+}
+
+html[data-high-contrast="true"] {
+    background-color: #000000 !important;
+}
+
+body[data-high-contrast="true"] {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .navbar {
+    background-color: #000000 !important;
+    border-bottom: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .navbar-brand,
+body[data-high-contrast="true"] .navbar-brand span,
+body[data-high-contrast="true"] .nav-link {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .nav-link:hover,
+body[data-high-contrast="true"] .nav-link.active {
+    color: #ffff00 !important;
+}
+
+body[data-high-contrast="true"] h1,
+body[data-high-contrast="true"] h2,
+body[data-high-contrast="true"] h3,
+body[data-high-contrast="true"] h4,
+body[data-high-contrast="true"] h5,
+body[data-high-contrast="true"] h6,
+body[data-high-contrast="true"] p,
+body[data-high-contrast="true"] span,
+body[data-high-contrast="true"] label,
+body[data-high-contrast="true"] strong,
+body[data-high-contrast="true"] b,
+body[data-high-contrast="true"] .fw-bold {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .text-muted,
+body[data-high-contrast="true"] small,
+body[data-high-contrast="true"] .small {
+    color: #cccccc !important;
+}
+
+body[data-high-contrast="true"] a {
+    color: #ffff00 !important;
+}
+
+body[data-high-contrast="true"] .card,
+body[data-high-contrast="true"] .stat-card,
+body[data-high-contrast="true"] .story-card,
+body[data-high-contrast="true"] .event-card,
+body[data-high-contrast="true"] .community-card,
+body[data-high-contrast="true"] .alert-card,
+body[data-high-contrast="true"] .analytics-card,
+body[data-high-contrast="true"] .user-info-card,
+body[data-high-contrast="true"] .lobby-game-card,
+body[data-high-contrast="true"] .stats-bar,
+body[data-high-contrast="true"] .active-games-section,
+body[data-high-contrast="true"] .data-table-container,
+body[data-high-contrast="true"] .filter-bar,
+body[data-high-contrast="true"] .profile-card {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .form-control,
+body[data-high-contrast="true"] .form-select {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .btn {
+    border-width: 2px !important;
+}
+
+body[data-high-contrast="true"] .btn-outline-primary,
+body[data-high-contrast="true"] .btn-outline-secondary,
+body[data-high-contrast="true"] .btn-outline-success,
+body[data-high-contrast="true"] .btn-outline-warning,
+body[data-high-contrast="true"] .btn-outline-danger {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .table,
+body[data-high-contrast="true"] .data-table {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .table th,
+body[data-high-contrast="true"] .data-table th {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .table td,
+body[data-high-contrast="true"] .data-table td {
+    color: #ffffff !important;
+    border-color: #666666 !important;
+}
+
+body[data-high-contrast="true"] .dropdown-menu {
+    background-color: #1a1a1a !important;
+    border: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .dropdown-item {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .dropdown-item:hover {
+    background-color: #333333 !important;
+}
+
+body[data-high-contrast="true"] .modal-content {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .list-group-item {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border-color: #666666 !important;
+}
+
+body[data-high-contrast="true"] footer {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-top: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .bg-light {
+    background-color: #1a1a1a !important;
+}
+
+body[data-high-contrast="true"] .bg-white {
+    background-color: #1a1a1a !important;
+}
+
+body[data-high-contrast="true"] .text-dark {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .badge {
+    border: 1px solid #ffffff !important;
+}
+
+/* ==================== Voice Input Button ==================== */
+.voice-input-btn {
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    font-size: 1.1rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.voice-input-btn:hover {
+    color: #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.voice-input-btn.recording {
+    color: #fff;
+    background: #dc3545;
+    animation: voice-pulse 1.2s ease-in-out infinite;
+}
+
+/* Story page dictate button (has text, not just icon) */
+.form-section .voice-input-btn {
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    padding: 0.3rem 0.75rem;
+}
+
+.form-section .voice-input-btn.recording {
+    color: #fff;
+    background: #dc3545;
+    border-color: #dc3545;
+}
+
+@keyframes voice-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5); }
+    50% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
+}
+
+/* Dark mode */
+[data-theme="dark"] .voice-input-btn {
+    color: #adb5bd;
+}
+
+[data-theme="dark"] .voice-input-btn:hover {
+    color: #ff6b7a;
+    background: rgba(220, 53, 69, 0.15);
+}
+
+[data-theme="dark"] .voice-input-btn.recording {
+    color: #fff;
+    background: #dc3545;
+}
 

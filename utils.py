@@ -109,7 +109,7 @@ def save_uploaded_file(file, upload_folder, prefix='', allowed_extensions=None):
         return None
 
     if allowed_extensions is None:
-        allowed_extensions = getattr(Config, 'ALLOWED_EXTENSIONS', {'png', 'jpg', 'jpeg', 'gif'})
+        allowed_extensions = getattr(Config, 'ALLOWED_EXTENSIONS', {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'bmp', 'mp4', 'mov', 'avi', 'webm', 'mkv'})
 
     filename = secure_filename(file.filename)
     ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''

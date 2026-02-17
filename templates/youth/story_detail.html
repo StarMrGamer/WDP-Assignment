@@ -3,9 +3,9 @@
 {% block body_class %}youth-dashboard{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-2">
     <div class="mb-4">
-        <a href="{{ url_for('youth.story_feed') }}" class="btn btn-outline-secondary">
+        <a href="{{ url_for('youth.dashboard') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Back to Stories
         </a>
     </div>
@@ -30,9 +30,15 @@
                     <!-- Title -->
                     <h2 class="h3 fw-bold mb-3">{{ story.title }}</h2>
 
-                    <!-- Image -->
+                    <!-- Image/Video -->
                     {% if story.photo_url %}
-                    <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" class="img-fluid rounded mb-4 w-100">
+                        {% if story.photo_url.rsplit('.', 1)[1].lower() in ['mp4', 'mov', 'avi', 'webm', 'mkv'] %}
+                        <video src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}"
+                               class="img-fluid rounded mb-4 w-100" autoplay loop muted playsinline controls
+                               onmouseenter="this.muted=false" onmouseleave="this.muted=true"></video>
+                        {% else %}
+                        <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" class="img-fluid rounded mb-4 w-100">
+                        {% endif %}
                     {% endif %}
 
                     <!-- Content -->

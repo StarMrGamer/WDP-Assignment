@@ -9,7 +9,7 @@ Description: Handles all routes for senior users including story creation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport, Badge
+from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport, Badge, StoryReaction, StoryComment
 from forms import StoryForm, MessageForm
 from datetime import datetime, timedelta
 from functools import wraps
@@ -65,9 +65,17 @@ def dashboard():
     pair = Pair.query.filter_by(senior_id=user.id, status='active').first()
     buddy = User.query.get(pair.youth_id) if pair else None
 
-    # Get recent stories
-    recent_stories = Story.query.filter_by(user_id=user.id)\
-        .order_by(Story.created_at.desc()).limit(5).all()
+    # Get filters from query parameters
+    category_filter = request.args.get('category', 'all')
+    role_filter = request.args.get('role', 'all')
+
+    # Query all stories with filters
+    query = Story.query.join(User)
+    if category_filter != 'all':
+        query = query.filter(Story.category == category_filter)
+    if role_filter != 'all':
+        query = query.filter(User.role == role_filter)
+    recent_stories = query.order_by(Story.created_at.desc()).all()
 
     # Get upcoming events
     upcoming_events = Event.query.filter(Event.date >= datetime.utcnow())\
@@ -78,34 +86,12 @@ def dashboard():
                          stories_count=stories_count,
                          buddy=buddy,
                          recent_stories=recent_stories,
-                         upcoming_events=upcoming_events)
-
-
-# ==================== STORIES ====================
-@senior_bp.route('/story_feed')
-@login_required
-def story_feed():
-    """Instagram-style story feed with all stories."""
-    # Get filters from query parameters
-    category_filter = request.args.get('category', 'all')
-    role_filter = request.args.get('role', 'all')
-
-    # Query stories with user join for role filtering
-    query = Story.query.join(User)
-
-    if category_filter != 'all':
-        query = query.filter(Story.category == category_filter)
-    
-    if role_filter != 'all':
-        query = query.filter(User.role == role_filter)
-
-    stories = query.order_by(Story.created_at.desc()).all()
-
-    return render_template('senior/story_feed.html',
-                         stories=stories,
+                         upcoming_events=upcoming_events,
                          current_category=category_filter,
                          current_role=role_filter)
 
+
+# ==================== STORIES ====================
 
 @senior_bp.route('/story/<int:story_id>')
 @login_required
@@ -1128,5 +1114,71 @@ def save_accessibility_settings():
     
     user.accessibility_settings = settings
     db.session.commit()
-    
+
+    return {'success': True}
+
+
+# ==================== STORY INTERACTIONS API ====================
+@senior_bp.route('/api/stories/<int:story_id>/react', methods=['POST'])
+@login_required
+def api_react_story(story_id):
+    """API endpoint to handle story reactions for seniors."""
+    data = request.get_json()
+    reaction_type = data.get('reaction_type')
+    user_id = session['user_id']
+
+    if not reaction_type:
+        return {'success': False, 'message': 'Missing reaction type'}, 400
+
+    existing_reaction = StoryReaction.query.filter_by(
+        story_id=story_id,
+        user_id=user_id
+    ).first()
+
+    if existing_reaction:
+        if existing_reaction.reaction_type == reaction_type:
+            db.session.delete(existing_reaction)
+            action = 'removed'
+        else:
+            existing_reaction.reaction_type = reaction_type
+            action = 'updated'
+    else:
+        new_reaction = StoryReaction(
+            story_id=story_id,
+            user_id=user_id,
+            reaction_type=reaction_type
+        )
+        db.session.add(new_reaction)
+        action = 'added'
+
+    db.session.commit()
+
+    count = StoryReaction.query.filter_by(
+        story_id=story_id,
+        reaction_type=reaction_type
+    ).count()
+
+    return {'success': True, 'action': action, 'count': count}
+
+
+@senior_bp.route('/api/stories/<int:story_id>/comment', methods=['POST'])
+@login_required
+def api_comment_story(story_id):
+    """API endpoint to add a comment to a story for seniors."""
+    data = request.get_json()
+    content = data.get('content')
+    user_id = session['user_id']
+
+    if not content or not content.strip():
+        return {'success': False, 'message': 'Comment cannot be empty'}, 400
+
+    new_comment = StoryComment(
+        story_id=story_id,
+        user_id=user_id,
+        content=content.strip()
+    )
+
+    db.session.add(new_comment)
+    db.session.commit()
+
     return {'success': True}

@@ -2,10 +2,9 @@
 <!--
     File: senior/dashboard.html
     Purpose: Senior dashboard - main page after login
-    Author: to be assigned
     Date: December 2025
-    Description: Displays welcome message, quick stats, recent stories,
-                 buddy information, and upcoming events for seniors
+    Description: LinkedIn/Instagram-style 3-column dashboard with profile sidebar,
+                 story feed center, and widgets sidebar
 -->
 
 {% block title %}Senior Dashboard - GenCon SG{% endblock %}
@@ -13,292 +12,342 @@
 {% block body_class %}senior-dashboard{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <!-- Welcome Header -->
-    <div class="dashboard-header mb-4">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="mb-2">
-                    <i class="fas fa-sun text-warning me-2"></i>
-                    Welcome back, {{ user.full_name.split()[0] }}!
-                </h1>
-                <p class="bg-primary text-white px-3 py-1 rounded-pill d-inline-block mb-0 shadow-sm">
-                    <i class="fas fa-calendar me-2"></i>
-                    {{ "now"|date("%A, %B %d, %Y") }}
-                </p>
-            </div>
-            <div class="col-md-4 text-end">
+<div class="container-fluid px-4 py-2">
+    <div class="row g-3">
+
+        <!-- LEFT SIDEBAR - Profile Widget + Quick Actions -->
+        <div class="col-lg-2">
+            <div class="sticky-sidebar">
+                <!-- Profile Card -->
+                <div class="card profile-widget mb-2">
+                    <div class="profile-widget-banner"></div>
+                    <div class="card-body text-center" style="margin-top: -40px;">
+                        <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
+                             alt="{{ user.full_name }}"
+                             class="rounded-circle border border-3 border-white shadow-sm"
+                             style="width: 70px; height: 70px; object-fit: cover;">
+                        <h6 class="mt-2 mb-0 fw-bold" style="font-size: 0.85rem;">{{ user.full_name }}</h6>
+                        <small class="text-muted" style="font-size: 0.75rem;">Senior Member</small>
+
+                        <!-- Stats Row -->
+                        <div class="d-flex justify-content-around mt-2 pt-2 border-top">
+                            <div class="text-center">
+                                <div class="fw-bold" style="color: var(--senior-primary); font-size: 0.9rem;">{{ stories_count }}</div>
+                                <small class="text-muted" style="font-size: 0.65rem;">Stories</small>
+                            </div>
+                            <div class="text-center">
+                                <div class="fw-bold" style="color: var(--senior-primary); font-size: 0.9rem;">{{ user.sent_messages.count() }}</div>
+                                <small class="text-muted" style="font-size: 0.65rem;">Messages</small>
+                            </div>
+                            <div class="text-center">
+                                <div class="fw-bold" style="color: var(--senior-primary); font-size: 0.9rem;">0</div>
+                                <small class="text-muted" style="font-size: 0.65rem;">Events</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Quick Actions -->
-                <a href="{{ url_for('senior.create_story') }}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-plus-circle me-2"></i>Share a Story
-                </a>
+                <div class="card">
+                    <div class="card-body p-0">
+                        <a href="{{ url_for('senior.create_story') }}" class="sidebar-link">
+                            <i class="fas fa-plus-circle text-primary"></i> Share Story
+                        </a>
+                        <a href="{{ url_for('senior.messages') }}" class="sidebar-link">
+                            <i class="fas fa-comments text-success"></i> Messages
+                        </a>
+                        <a href="{{ url_for('senior.events') }}" class="sidebar-link">
+                            <i class="fas fa-calendar text-warning"></i> Events
+                        </a>
+                        <a href="{{ url_for('senior.communities') }}" class="sidebar-link">
+                            <i class="fas fa-users text-info"></i> Communities
+                        </a>
+                        <a href="{{ url_for('senior.games') }}" class="sidebar-link">
+                            <i class="fas fa-gamepad text-danger"></i> Games
+                        </a>
+                        <a href="{{ url_for('senior.chatbot') }}" class="sidebar-link">
+                            <i class="fas fa-robot text-primary"></i> AI Assistant
+                        </a>
+                        <a href="{{ url_for('senior.checkin') }}" class="sidebar-link">
+                            <i class="fas fa-smile text-warning"></i> Check-in
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <!-- Left Column - Stats and Buddy Info -->
-        <div class="col-lg-8">
-            <!-- Statistics Cards -->
-            <div class="row mb-4">
-                <!-- Total Stories -->
-                <div class="col-md-4 mb-3">
-                    <div class="stat-card">
-                        <div class="icon">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <div class="value">{{ stories_count }}</div>
-                        <div class="label">Stories Shared</div>
-                    </div>
+        <!-- CENTER FEED - Stories -->
+        <div class="col-lg-7">
+            <!-- Create Post Box + Filters -->
+            <div class="card mb-2">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
+                         class="rounded-circle"
+                         style="width: 44px; height: 44px; object-fit: cover;">
+                    <a href="{{ url_for('senior.create_story') }}" class="form-control bg-light text-muted" style="text-decoration: none; cursor: pointer; border: none;">
+                        Share a story or memory...
+                    </a>
                 </div>
-
-                <!-- Messages Sent -->
-                <div class="col-md-4 mb-3">
-                    <div class="stat-card">
-                        <div class="icon">
-                            <i class="fas fa-comments"></i>
-                        </div>
-                        <div class="value">{{ user.sent_messages.count() }}</div>
-                        <div class="label">Messages Sent</div>
-                    </div>
-                </div>
-
-                <!-- Events Attended -->
-                <div class="col-md-4 mb-3">
-                    <div class="stat-card">
-                        <div class="icon">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="value">0</div>
-                        <div class="label">Events Joined</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- My Youth Buddy Card -->
-            {% if buddy %}
-            <div class="card buddy-card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user-friends me-2"></i>
-                        My Youth Buddy
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <img src="{{ url_for('static', filename=buddy.profile_picture|fix_pfp) }}"
-                                 alt="{{ buddy.full_name }}"
-                                 class="rounded-circle"
-                                 style="width: 100px; height: 100px; object-fit: cover;">
-                        </div>
-                        <div class="col">
-                            <h4 class="mb-2">{{ buddy.full_name }}</h4>
-                            <p class="text-muted mb-2">
-                                <i class="fas fa-heart text-danger me-2"></i>
-                                Your volunteer buddy
-                            </p>
-                            {% if buddy.interests %}
-                            <div class="mb-3">
-                                <strong>Interests:</strong>
-                                <div class="mt-2">
-                                    {% for interest in buddy.interests[:3] %}
-                                    <span class="badge bg-primary me-1">{{ interest }}</span>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-                            <div class="d-flex gap-2">
-                                <a href="{{ url_for('senior.messages') }}" class="btn btn-primary">
-                                    <i class="fas fa-comment me-2"></i>Send Message
-                                </a>
-                                <a href="{{ url_for('senior.games') }}" class="btn btn-outline-primary">
-                                    <i class="fas fa-gamepad me-2"></i>Play Games
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <!-- No Buddy Assigned -->
-            <div class="card mb-4">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
-                    <h4>No Buddy Assigned Yet</h4>
-                    <p class="text-muted">You will be paired with a youth volunteer soon!</p>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Recent Stories -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-book-open me-2"></i>
-                        My Recent Stories
-                    </h5>
+                <div class="card-footer d-flex justify-content-between align-items-center py-1">
                     <a href="{{ url_for('senior.stories') }}" class="btn btn-sm btn-outline-primary">
-                        View All
+                        <i class="fas fa-layer-group me-1"></i>Your Posts
                     </a>
-                </div>
-                <div class="card-body">
-                    {% if recent_stories %}
-                        {% for story in recent_stories %}
-                        <div class="story-card">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h6 class="mb-1">{{ story.title }}</h6>
-                                    <small class="text-muted">
-                                        <i class="fas fa-clock me-1"></i>
-                                        {{ story.created_at|timeago }}
-                                    </small>
-                                </div>
-                                <span class="category-badge">{{ story.category }}</span>
-                            </div>
-                            <p class="text-muted mb-2">
-                                {{ story.content[:150] }}{% if story.content|length > 150 %}...{% endif %}
-                            </p>
-                            <div class="d-flex gap-3 text-muted small">
-                                <span>
-                                    {% set user_liked = story.reactions.filter_by(user_id=session.user_id, reaction_type='heart').first() is not none %}
-                                    <i class="{{ 'fas' if user_liked else 'far' }} fa-heart text-danger"></i>
-                                    {{ story.reactions.count() }}
-                                </span>
-                                <span>
-                                    <i class="fas fa-comment"></i>
-                                    {{ story.comments.count() }}
-                                </span>
-                            </div>
+                    <div class="d-flex gap-2">
+                        <!-- Role Filter -->
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-tag me-1"></i>
+                                {% if current_role == 'senior' %}Seniors
+                                {% elif current_role == 'youth' %}Youth
+                                {% else %}All{% endif %}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('senior.dashboard', category=current_category, role='all') }}">All Roles</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('senior.dashboard', category=current_category, role='senior') }}">Seniors</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('senior.dashboard', category=current_category, role='youth') }}">Youth</a></li>
+                            </ul>
                         </div>
-                        {% if not loop.last %}<hr>{% endif %}
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-book fa-2x text-muted mb-3"></i>
-                            <p class="text-muted mb-3">You haven't shared any stories yet</p>
-                            <a href="{{ url_for('senior.create_story') }}" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>Share Your First Story
+                        <!-- Category Filter -->
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-filter me-1"></i>
+                                {% if current_category != 'all' %}{{ current_category }}{% else %}All{% endif %}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('senior.dashboard', category='all', role=current_role) }}">All Categories</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('senior.dashboard', category='Childhood', role=current_role) }}">Childhood</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('senior.dashboard', category='Work Life', role=current_role) }}">Work Life</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('senior.dashboard', category='Family', role=current_role) }}">Family</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('senior.dashboard', category='Hobbies', role=current_role) }}">Hobbies</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Story Feed -->
+            {% if recent_stories %}
+                {% for story in recent_stories %}
+                <div class="card post-card">
+                    <!-- Post Header -->
+                    <div class="card-body pb-0">
+                        <div class="d-flex align-items-center mb-2">
+                            <a href="{{ url_for('senior.public_profile', user_id=story.user.id) }}">
+                                <img src="{{ url_for('static', filename=story.user.profile_picture|fix_pfp) }}"
+                                     alt="{{ story.user.full_name }}"
+                                     class="rounded-circle me-2"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                            </a>
+                            <div class="flex-grow-1">
+                                <a href="{{ url_for('senior.public_profile', user_id=story.user.id) }}" class="text-dark text-decoration-none">
+                                    <strong style="font-size: 0.9rem;">{{ story.user.full_name }}</strong>
+                                </a>
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">{{ story.created_at|timeago }}</small>
+                            </div>
+                            <span class="badge bg-light text-dark border" style="font-size: 0.7rem;">{{ story.category }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Post Image/Video -->
+                    {% if story.photo_url %}
+                        {% if story.photo_url.rsplit('.', 1)[1].lower() in ['mp4', 'mov', 'avi', 'webm', 'mkv'] %}
+                        <video src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}"
+                               class="w-100" style="max-height: 500px; object-fit: contain; background: #f0f0f0;" autoplay loop muted playsinline
+                               onmouseenter="this.muted=false" onmouseleave="this.muted=true"></video>
+                        {% else %}
+                        <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}"
+                             class="w-100" style="max-height: 500px; object-fit: contain; background: #f0f0f0;">
+                        {% endif %}
+                    {% endif %}
+
+                    <div class="card-body pt-2">
+                        <h6 class="mb-1 fw-bold" style="font-size: 0.95rem;">{{ story.title }}</h6>
+                        <p class="text-muted mb-0" style="font-size: 0.85rem; line-height: 1.4;">
+                            {{ story.content[:200] }}{% if story.content|length > 200 %}...{% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Post Actions -->
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <div class="d-flex gap-3">
+                            {% set user_liked = story.reactions.filter_by(user_id=session.user_id, reaction_type='heart').first() is not none %}
+                            <span class="post-action"><i class="{{ 'fas' if user_liked else 'far' }} fa-heart{% if user_liked %} text-danger{% endif %}"></i> {{ story.reactions.count() }}</span>
+                            <span class="post-action"><i class="far fa-comment"></i> {{ story.comments.count() }}</span>
+                        </div>
+                        <a href="{{ url_for('senior.story_detail', story_id=story.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.8rem;">
+                            Read More
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-book-open fa-2x text-muted mb-2"></i>
+                        <h6 class="text-muted">No stories found</h6>
+                        <p class="text-muted small">Try changing the filter or check back later.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- RIGHT SIDEBAR - Buddy + Events + Check-in -->
+        <div class="col-lg-3">
+            <div class="sticky-sidebar">
+                <!-- Buddy Card -->
+                {% if buddy %}
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-user-friends me-1"></i> My Youth Buddy
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="{{ url_for('static', filename=buddy.profile_picture|fix_pfp) }}"
+                             alt="{{ buddy.full_name }}"
+                             class="rounded-circle mb-2"
+                             style="width: 64px; height: 64px; object-fit: cover;">
+                        <h6 class="mb-0 fw-bold">{{ buddy.full_name }}</h6>
+                        <small class="text-muted">Youth Volunteer</small>
+                        {% if buddy.interests %}
+                        <div class="mt-2">
+                            {% for interest in buddy.interests[:3] %}
+                            <span class="badge bg-light text-dark border" style="font-size: 0.65rem;">{{ interest }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="d-flex gap-1 mt-2 justify-content-center">
+                            <a href="{{ url_for('senior.messages') }}" class="btn btn-sm btn-primary" style="font-size: 0.75rem;">
+                                <i class="fas fa-comment"></i> Message
+                            </a>
+                            <a href="{{ url_for('senior.games') }}" class="btn btn-sm btn-outline-primary" style="font-size: 0.75rem;">
+                                <i class="fas fa-gamepad"></i> Play
                             </a>
                         </div>
-                    {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="card mb-2">
+                    <div class="card-body text-center py-3">
+                        <i class="fas fa-user-plus fa-2x text-muted mb-2"></i>
+                        <p class="text-muted small mb-0">No buddy assigned yet</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Upcoming Events -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-alt me-1"></i> Upcoming Events
+                    </div>
+                    <div class="card-body">
+                        {% if upcoming_events %}
+                            {% for event in upcoming_events %}
+                            <div class="mb-2">
+                                <small class="text-muted" style="font-size: 0.7rem;">
+                                    <i class="fas fa-calendar me-1"></i>{{ event.date|format_date('%b %d, %Y') }}
+                                </small>
+                                <div class="fw-bold" style="font-size: 0.85rem;">{{ event.title }}</div>
+                                <small class="text-muted" style="font-size: 0.7rem;">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ event.location if event.location else 'Online' }}
+                                </small>
+                            </div>
+                            {% if not loop.last %}<hr class="my-1">{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-2">
+                                <i class="fas fa-calendar-times text-muted mb-1"></i>
+                                <p class="text-muted small mb-0">No upcoming events</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Weekly Check-in -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-smile text-warning me-1"></i> How are you?
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-muted mb-2">Share your mood this week</p>
+                        <a href="{{ url_for('senior.checkin') }}" class="btn btn-warning btn-sm w-100" style="font-size: 0.8rem;">
+                            <i class="fas fa-clipboard-check me-1"></i>Weekly Check-in
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column - Upcoming Events & Quick Links -->
-        <div class="col-lg-4">
-            <!-- Quick Links -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bolt me-2"></i>
-                        Quick Actions
-                    </h5>
-                </div>
-                <div class="card-body p-2">
-                    <a href="{{ url_for('senior.create_story') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-plus-circle text-primary me-2"></i>
-                        Share a New Story
-                    </a>
-                    <a href="{{ url_for('senior.messages') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-comments text-success me-2"></i>
-                        Message My Buddy
-                    </a>
-                    <a href="{{ url_for('senior.events') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-calendar text-warning me-2"></i>
-                        Browse Events
-                    </a>
-                    <a href="{{ url_for('senior.communities') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-users text-info me-2"></i>
-                        Join Communities
-                    </a>
-                    <a href="{{ url_for('senior.games') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-gamepad text-danger me-2"></i>
-                        Play Games
-                    </a>
-                    <a href="{{ url_for('senior.checkin') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-smile text-warning me-2"></i>
-                        Weekly Check-in
-                    </a>
-                </div>
-            </div>
-
-            <!-- Upcoming Events -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        Upcoming Events
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if upcoming_events %}
-                        {% for event in upcoming_events %}
-                        <div class="event-card">
-                            <div class="event-date">
-                                <i class="fas fa-calendar me-2"></i>
-                                {{ event.date|format_date('%b %d, %Y') }}
-                            </div>
-                            <h6 class="mb-2">{{ event.title }}</h6>
-                            <p class="text-muted small mb-2">
-                                <i class="fas fa-map-marker-alt me-1"></i>
-                                {{ event.location if event.location else 'Online' }}
-                            </p>
-                            <a href="{{ url_for('senior.events') }}" class="btn btn-sm btn-outline-primary">
-                                View Details
-                            </a>
-                        </div>
-                        {% if not loop.last %}<hr>{% endif %}
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center py-3">
-                            <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
-                            <p class="text-muted small mb-0">No upcoming events</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Weekly Check-in Reminder -->
-            <div class="card border-warning">
-                <div class="card-body">
-                    <h6 class="mb-2">
-                        <i class="fas fa-smile text-warning me-2"></i>
-                        How are you feeling?
-                    </h6>
-                    <p class="small text-muted mb-3">
-                        Share your mood with us this week
-                    </p>
-                    <a href="{{ url_for('senior.checkin') }}" class="btn btn-warning btn-sm w-100">
-                        <i class="fas fa-clipboard-check me-2"></i>
-                        Weekly Check-in
-                    </a>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    .dashboard-header {
-        background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    /* Sticky sidebars */
+    .sticky-sidebar {
+        position: sticky;
+        top: 75px;
     }
 
-    .list-group-item {
-        border: none;
-        padding: 0.875rem 1rem;
-        transition: all 0.2s;
+    /* Profile widget */
+    .profile-widget-banner {
+        height: 60px;
+        background: linear-gradient(135deg, #F97316 0%, #FACC15 50%, #22C55E 100%);
+        border-radius: 0.75rem 0.75rem 0 0;
     }
 
-    .list-group-item:hover {
-        background-color: #F8F9FA;
-        transform: translateX(5px);
+    /* Sidebar links */
+    .sidebar-link {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        color: var(--gray-700);
+        text-decoration: none;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.15s;
+    }
+
+    .sidebar-link:last-child {
+        border-bottom: none;
+    }
+
+    .sidebar-link:hover {
+        background: #f5f5f5;
+        color: var(--gray-900);
+    }
+
+    .sidebar-link i {
+        width: 20px;
+        text-align: center;
+        margin-right: 0.5rem;
+    }
+
+    /* Post cards */
+    .post-card {
+        margin-bottom: 0.5rem;
+    }
+
+    /* Post action icons */
+    .post-action {
+        font-size: 0.85rem;
+        color: var(--gray-600);
+        cursor: pointer;
+        transition: color 0.15s;
+    }
+
+    .post-action:hover {
+        color: var(--danger-color);
+    }
+
+    .post-action i {
+        margin-right: 0.25rem;
+    }
+
+    @media (max-width: 991px) {
+        .sticky-sidebar {
+            position: static;
+        }
     }
 </style>
 {% endblock %}

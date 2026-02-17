@@ -64,8 +64,17 @@ def dashboard():
     pair = Pair.query.filter_by(youth_id=user.id, status='active').first()
     buddy = User.query.get(pair.senior_id) if pair else None
 
-    # Get recent stories from all seniors
-    recent_stories = Story.query.order_by(Story.created_at.desc()).limit(20).all()
+    # Get filters from query parameters
+    category_filter = request.args.get('category', 'all')
+    role_filter = request.args.get('role', 'all')
+
+    # Query all stories with filters
+    query = Story.query.join(User)
+    if category_filter != 'all':
+        query = query.filter(Story.category == category_filter)
+    if role_filter != 'all':
+        query = query.filter(User.role == role_filter)
+    recent_stories = query.order_by(Story.created_at.desc()).all()
 
     # Get user badges
     badges = Badge.query.filter_by(user_id=user.id).count()
@@ -74,7 +83,9 @@ def dashboard():
                          user=user,
                          buddy=buddy,
                          recent_stories=recent_stories,
-                         badges_count=badges)
+                         badges_count=badges,
+                         current_category=category_filter,
+                         current_role=role_filter)
 
 
 # ==================== STORY FEED ====================
@@ -104,21 +115,16 @@ def create_story():
             category=form.category.data
         )
 
-        # Handle photo upload
+        # Handle photo/video upload
         if form.photo.data:
             file = form.photo.data
             if file:
                 filename = secure_filename(file.filename)
-                # Check extension
                 ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
                 if ext in current_app.config['ALLOWED_EXTENSIONS']:
-                    # Ensure upload directory exists
                     os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
-                    
-                    # Save file with unique name
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
                     unique_filename = timestamp + filename
-                    
                     file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
                     new_story.photo_url = unique_filename
 
@@ -208,30 +214,6 @@ def delete_story(story_id):
         db.session.rollback()
         return {'success': False, 'message': str(e)}, 500
 
-
-@youth_bp.route('/story_feed')
-@login_required
-def story_feed():
-    """Instagram-style story feed with all senior stories."""
-    # Get filters from query parameters
-    category_filter = request.args.get('category', 'all')
-    role_filter = request.args.get('role', 'all')
-
-    # Query stories with user join for role filtering
-    query = Story.query.join(User)
-
-    if category_filter != 'all':
-        query = query.filter(Story.category == category_filter)
-    
-    if role_filter != 'all':
-        query = query.filter(User.role == role_filter)
-
-    stories = query.order_by(Story.created_at.desc()).all()
-
-    return render_template('youth/story_feed.html',
-                         stories=stories,
-                         current_category=category_filter,
-                         current_role=role_filter)
 
 
 @youth_bp.route('/story/<int:story_id>')

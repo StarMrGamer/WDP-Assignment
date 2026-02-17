@@ -70,12 +70,14 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
 
     # ==================== FILE UPLOAD CONFIGURATION ====================
-    # Maximum file size for uploads (5MB)
-    # Used for profile pictures, story photos, etc.
-    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB in bytes
+    # Maximum file size for uploads (50MB to support videos)
+    # Used for profile pictures, story photos, videos, etc.
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB in bytes
 
-    # Allowed file extensions for image uploads
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    # Allowed file extensions for uploads (images + videos)
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'bmp', 'mp4', 'mov', 'avi', 'webm', 'mkv'}
+    ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'bmp'}
+    ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'webm', 'mkv'}
 
     # Upload folder for user-uploaded files
     UPLOAD_FOLDER = os.path.join(basedir, 'static', 'images', 'uploads')

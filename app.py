@@ -448,7 +448,7 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 # senior_bp: Handles /senior/dashboard, /senior/stories, etc.
 app.register_blueprint(senior_bp, url_prefix='/senior')
 
-# youth_bp: Handles /youth/dashboard, /youth/story_feed, etc.
+# youth_bp: Handles /youth/dashboard, /youth/stories, etc.
 app.register_blueprint(youth_bp, url_prefix='/youth')
 
 # admin_bp: Handles /admin/dashboard, /admin/users, etc.

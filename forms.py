@@ -94,7 +94,7 @@ class StoryForm(FlaskForm):
         ('Hobbies', 'Hobbies'), 
         ('Other', 'Other')
     ], validators=[DataRequired()])
-    photo = FileField('Photo', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'])])
+    photo = FileField('Photo', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif', 'webp', 'heic', 'bmp', 'mp4', 'mov', 'avi', 'webm', 'mkv'])])
     submit = SubmitField('Share Story')
 
 class MessageForm(FlaskForm):
