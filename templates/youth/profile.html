@@ -30,8 +30,8 @@
     }
 
     .profile-avatar-large {
-        width: 150px;
-        height: 150px;
+        width: 180px;
+        height: 180px;
         border-radius: 50%;
         object-fit: cover;
         border: 5px solid white;
@@ -168,7 +168,7 @@
 
     .profile-card {
         background: white;
-        padding: 2.5rem;
+        padding: 1.5rem;
         border-radius: 1rem;
         box-shadow: 0 2px 12px rgba(0,0,0,0.08);
         margin-bottom: 2rem;
@@ -364,6 +364,81 @@
         font-size: 0.9rem;
     }
 
+    /* Dark mode overrides for profile page elements */
+    body[data-theme="dark"] .profile-tabs {
+        background: #232428 !important;
+    }
+
+    body[data-theme="dark"] .profile-card {
+        background: #232428 !important;
+    }
+
+    body[data-theme="dark"] .profile-card h3 {
+        color: #f2f3f5 !important;
+        border-bottom-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .form-label {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .form-control {
+        background-color: #1e1f22 !important;
+        color: #f2f3f5 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .tab-buttons {
+        border-bottom-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .tab-btn {
+        color: #949ba4 !important;
+    }
+
+    body[data-theme="dark"] .tab-btn.active {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .history-item {
+        background: #2b2d31 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .history-title {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .history-details {
+        color: #949ba4 !important;
+    }
+
+    body[data-theme="dark"] .history-description {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .preference-item {
+        background: #2b2d31 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .preference-item:hover {
+        background: #313338 !important;
+        border-color: #5865f2 !important;
+    }
+
+    body[data-theme="dark"] .preference-title {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .preference-description {
+        color: #949ba4 !important;
+    }
+
+    body[data-theme="dark"] .form-section-title {
+        color: #f2f3f5 !important;
+    }
+
     @media (max-width: 768px) {
         .profile-header-content {
             flex-direction: column;
@@ -402,7 +477,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-2">
     <!-- Profile Header -->
     <div class="profile-header">
         <div class="container">
@@ -581,7 +656,12 @@
     <!-- Tab Content: Volunteer History -->
     <div class="tab-content-area" id="historyTab">
         <div class="profile-card">
-            <h3><i class="fas fa-history me-2"></i>Volunteer History</h3>
+            <h3>
+                <i class="fas fa-history me-2"></i>Volunteer History
+                <a href="{{ url_for('youth.download_portfolio') }}" class="btn btn-outline-success btn-sm float-end">
+                    <i class="fas fa-file-pdf me-2"></i>Download Portfolio
+                </a>
+            </h3>
             <div class="volunteer-history-list">
                 <div class="history-item">
                     <div class="history-icon">

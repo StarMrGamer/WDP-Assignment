@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+<!--
+    File: support.html
+    Purpose: Public support ticket submission page
+    Date: February 2026
+    Feature: Support ticket system - accessible to all users and guests
+-->
+
+{% block title %}Help & Support - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    .support-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 40%, #7c3aed 100%);
+        color: white;
+        padding: 1.5rem 1.25rem;
+        margin-bottom: 2rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .support-header::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -5%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 50%;
+        animation: headerFloat 6s ease-in-out infinite;
+    }
+
+    .support-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: 10%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        animation: headerFloat 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes headerFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .support-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .support-header-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.95rem;
+        position: relative;
+        z-index: 1;
+        margin-top: 0.5rem;
+    }
+
+    .support-form-card {
+        border: none;
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    .support-form-card .card-header {
+        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        color: white;
+        border-radius: 1.25rem 1.25rem 0 0 !important;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .char-counter {
+        font-size: 0.85rem;
+        transition: color 0.3s;
+    }
+
+    .char-counter.text-danger {
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .support-header h1 {
+            font-size: 1.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-2">
+    <!-- Page Header -->
+    <div class="support-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>
+                    <i class="fas fa-headset me-3"></i>Help & Support
+                </h1>
+                <p class="support-header-badge">
+                    <i class="fas fa-life-ring me-2"></i>
+                    We're here to help! Submit a ticket and we'll get back to you.
+                </p>
+            </div>
+            <div class="col-md-4 text-end d-none d-md-block">
+                <div style="font-size: 4rem; opacity: 0.2; position: relative; z-index: 1;">
+                    <i class="fas fa-envelope"></i>
+                    <i class="fas fa-comments ms-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card support-form-card">
+                <div class="card-header text-center">
+                    <h4 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>Submit a Support Ticket</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger mb-3">
+                            <strong>Please fix the following errors:</strong>
+                            <ul class="mb-0 mt-1">
+                                {% for field, errors in form.errors.items() %}
+                                    {% for error in errors %}
+                                    <li>{{ field }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        {% if not session.get('user_id') %}
+                        <!-- Email field for guests -->
+                        <div class="mb-3">
+                            <label for="guest_email" class="form-label fw-bold">
+                                <i class="fas fa-envelope me-2"></i>Your Email <span class="text-danger">*</span>
+                            </label>
+                            {{ form.guest_email(class="form-control", id="guest_email", placeholder="your@email.com") }}
+                            {% for error in form.guest_email.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info py-2 mb-3">
+                            <i class="fas fa-user-check me-2"></i>
+                            Submitting as <strong>{{ session.get('username', 'User') }}</strong>
+                        </div>
+                        {% endif %}
+
+                        <!-- Issue Type -->
+                        <div class="mb-3">
+                            <label for="ticket_type" class="form-label fw-bold">
+                                <i class="fas fa-tag me-2"></i>Issue Type <span class="text-danger">*</span>
+                            </label>
+                            {{ form.ticket_type(class="form-select", id="ticket_type") }}
+                            {% for error in form.ticket_type.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="mb-3">
+                            <label for="subject" class="form-label fw-bold">
+                                <i class="fas fa-heading me-2"></i>Subject <span class="text-danger">*</span>
+                            </label>
+                            {{ form.subject(class="form-control", id="subject", placeholder="Brief summary of your issue") }}
+                            {% for error in form.subject.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold">
+                                <i class="fas fa-align-left me-2"></i>Description <span class="text-danger">*</span>
+                            </label>
+                            {{ form.description(class="form-control", id="description", rows="6", placeholder="Please describe your issue in detail...") }}
+                            <div class="d-flex justify-content-between mt-1">
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                                <div class="char-counter text-muted ms-auto"><span id="charCount">0</span>/1000</div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const desc = document.getElementById('description');
+        const counter = document.getElementById('charCount');
+        if (desc && counter) {
+            // Set initial count
+            counter.textContent = desc.value.length;
+
+            desc.addEventListener('input', function() {
+                counter.textContent = this.value.length;
+                const counterEl = counter.parentElement;
+                if (this.value.length > 1000) {
+                    counterEl.classList.add('text-danger');
+                    counterEl.classList.remove('text-muted');
+                } else {
+                    counterEl.classList.remove('text-danger');
+                    counterEl.classList.add('text-muted');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

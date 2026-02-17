@@ -10,7 +10,7 @@ Description: Handles all administrative functions including user moderation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode, EventParticipant
+from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode, EventParticipant, SupportTicket
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -149,6 +149,17 @@ def toggle_user_status(user_id):
         flash(f'User {user.username} has been reactivated.', 'success')
         
     db.session.commit()
+    return redirect(url_for('admin.user_detail', user_id=user.id))
+
+
+@admin_bp.route('/users/<int:user_id>/reset_password', methods=['POST'])
+@admin_required
+def reset_user_password(user_id):
+    """Reset a user's password to 'password123'."""
+    user = User.query.get_or_404(user_id)
+    user.set_password('password123')
+    db.session.commit()
+    flash(f'Password for {user.username} has been reset to "password123".', 'success')
     return redirect(url_for('admin.user_detail', user_id=user.id))
 
 
@@ -807,6 +818,26 @@ def analytics():
     # Calculate resolution rate percentage
     resolution_rate = int((resolved_reports / total_reports * 100)) if total_reports > 0 else 100
 
+    # ---- Chart Data: User Growth (last 6 months) ----
+    import json as _json
+    growth_labels = []
+    growth_seniors = []
+    growth_youth = []
+    now = datetime.utcnow()
+    for i in range(5, -1, -1):
+        # Calculate month boundaries
+        m_date = now - timedelta(days=i * 30)
+        label = m_date.strftime('%b %Y')
+        growth_labels.append(label)
+        # Count users created on or before this month boundary
+        growth_seniors.append(User.query.filter(User.role == 'senior', User.created_at <= m_date).count())
+        growth_youth.append(User.query.filter(User.role == 'youth', User.created_at <= m_date).count())
+
+    # ---- Chart Data: Activity Distribution ----
+    total_events = Event.query.count()
+    activity_labels = ['Messages', 'Stories', 'Events']
+    activity_data = [total_messages, total_stories, total_events]
+
     return render_template('admin/analytics.html',
                          total_users=total_users,
                          new_users_this_month=new_users_this_month,
@@ -823,7 +854,70 @@ def analytics():
                          pending_reports_count=pending_reports_count,
                          resolution_rate=resolution_rate,
                          events_suggested_count=events_suggested_count,
-                         current_days=days_param)
+                         current_days=days_param,
+                         growth_labels=_json.dumps(growth_labels),
+                         growth_seniors=_json.dumps(growth_seniors),
+                         growth_youth=_json.dumps(growth_youth),
+                         activity_labels=_json.dumps(activity_labels),
+                         activity_data=_json.dumps(activity_data))
+
+
+# ==================== ANALYTICS EXPORT ====================
+@admin_bp.route('/analytics/export')
+@admin_required
+def export_analytics():
+    """Export analytics data as CSV."""
+    import csv
+    import io
+    from flask import Response
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Header
+    writer.writerow(['Metric', 'Value'])
+
+    # Gather data
+    total_users = User.query.filter(User.role != 'admin').count()
+    total_seniors = User.query.filter_by(role='senior').count()
+    total_youth = User.query.filter_by(role='youth').count()
+    total_stories = Story.query.count()
+    total_messages = Message.query.count()
+    total_pairs = Pair.query.count()
+    active_pairs = Pair.query.filter_by(status='active').count()
+    pending_reports = ChatReport.query.filter_by(status='pending').count()
+    resolved_reports = ChatReport.query.filter_by(status='resolved').count()
+    total_reports = ChatReport.query.count()
+
+    writer.writerow(['Total Users (excl. admin)', total_users])
+    writer.writerow(['Total Seniors', total_seniors])
+    writer.writerow(['Total Youth', total_youth])
+    writer.writerow(['Total Stories', total_stories])
+    writer.writerow(['Total Messages', total_messages])
+    writer.writerow(['Total Pairs', total_pairs])
+    writer.writerow(['Active Pairs', active_pairs])
+    writer.writerow(['Pending Reports', pending_reports])
+    writer.writerow(['Resolved Reports', resolved_reports])
+    writer.writerow(['Total Reports', total_reports])
+
+    # User details
+    writer.writerow([])
+    writer.writerow(['Username', 'Full Name', 'Email', 'Role', 'Age', 'Phone', 'School', 'Status', 'Joined'])
+    users = User.query.filter(User.role != 'admin').order_by(User.created_at.desc()).all()
+    for u in users:
+        writer.writerow([
+            u.username, u.full_name, u.email, u.role, u.age,
+            u.phone or '', u.school or '',
+            'Active' if u.is_active else 'Inactive',
+            u.created_at.strftime('%Y-%m-%d') if u.created_at else ''
+        ])
+
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename=gencon_analytics_{datetime.now().strftime("%Y%m%d")}.csv'}
+    )
 
 
 # ==================== REGISTRATION CODES ====================
@@ -863,3 +957,56 @@ def profile():
     """Admin profile page."""
     user = User.query.get(session['user_id'])
     return render_template('admin/profile.html', user=user)
+
+
+# ==================== SUPPORT TICKET MANAGEMENT ====================
+@admin_bp.route('/support-tickets')
+@admin_required
+def support_tickets():
+    """Display all support tickets with filtering."""
+    status_filter = request.args.get('status', 'all')
+    type_filter = request.args.get('type', 'all')
+
+    query = SupportTicket.query
+
+    if status_filter != 'all':
+        query = query.filter_by(status=status_filter)
+
+    if type_filter != 'all':
+        query = query.filter_by(ticket_type=type_filter)
+
+    tickets = query.order_by(SupportTicket.created_at.desc()).all()
+
+    return render_template('admin/support_tickets.html',
+                           tickets=tickets,
+                           status_filter=status_filter,
+                           type_filter=type_filter)
+
+
+@admin_bp.route('/support-tickets/<int:ticket_id>', methods=['GET', 'POST'])
+@admin_required
+def support_ticket_detail(ticket_id):
+    """View and manage individual support ticket."""
+    ticket = SupportTicket.query.get_or_404(ticket_id)
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        admin_notes = request.form.get('admin_notes')
+
+        if action == 'open':
+            ticket.status = 'open'
+            flash('Ticket marked as open.', 'info')
+        elif action == 'in_progress':
+            ticket.status = 'in_progress'
+            flash('Ticket marked as in progress.', 'info')
+        elif action == 'close':
+            ticket.status = 'closed'
+            flash('Ticket closed.', 'success')
+
+        if admin_notes is not None:
+            ticket.admin_notes = admin_notes
+
+        db.session.commit()
+        return redirect(url_for('admin.support_tickets'))
+
+    return render_template('admin/support_ticket_detail.html', ticket=ticket)

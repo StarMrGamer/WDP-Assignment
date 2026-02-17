@@ -3,9 +3,9 @@
 {% block body_class %}senior-dashboard{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-2">
     <div class="mb-4">
-        <a href="{{ url_for('senior.story_feed') }}" class="btn btn-outline-secondary">
+        <a href="{{ url_for('senior.dashboard') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Back to Stories
         </a>
     </div>
@@ -30,9 +30,15 @@
                     <!-- Title -->
                     <h2 class="h3 fw-bold mb-3">{{ story.title }}</h2>
 
-                    <!-- Image -->
+                    <!-- Image/Video -->
                     {% if story.photo_url %}
-                    <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" class="img-fluid rounded mb-4 w-100">
+                        {% if story.photo_url.rsplit('.', 1)[1].lower() in ['mp4', 'mov', 'avi', 'webm', 'mkv'] %}
+                        <video src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}"
+                               class="img-fluid rounded mb-4 w-100" autoplay loop muted playsinline controls
+                               onmouseenter="this.muted=false" onmouseleave="this.muted=true"></video>
+                        {% else %}
+                        <img src="{{ url_for('static', filename='images/uploads/' + story.photo_url) }}" class="img-fluid rounded mb-4 w-100">
+                        {% endif %}
                     {% endif %}
 
                     <!-- Content -->
@@ -85,25 +91,13 @@
 <script>
 async function reactToStory(storyId, type) {
     try {
-        // Since we are in senior blueprint, we need an API endpoint.
-        // Currently youth has the API endpoints. I need to make sure senior has them too or use a shared one.
-        // Actually, senior.py doesn't have the API endpoints yet! I need to add them or use youth's if accessible?
-        // No, blueprints separate routes. I should add them to senior.py or create a shared api blueprint.
-        // For now, I'll assume I'll add them to senior.py as well.
-        const response = await fetch(`/youth/api/stories/${storyId}/react`, { 
-            // WAIT - I can use the youth API if I'm logged in as senior? 
-            // The @login_required decorator in youth.py checks if role == 'youth'.
-            // So a senior CANNOT use youth API.
-            // I must add API endpoints to senior.py or make them shared.
+        const response = await fetch(`/senior/api/stories/${storyId}/react`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({reaction_type: type})
         });
         if (response.ok) {
             location.reload();
-        } else {
-             // Fallback if API fails (e.g. 403 because I'm a senior calling youth api)
-             console.error("API Error");
         }
     } catch (error) {
         console.error('Error:', error);
@@ -114,7 +108,7 @@ async function postComment(event, storyId) {
     event.preventDefault();
     const input = document.getElementById('commentInput');
     try {
-        const response = await fetch(`/youth/api/stories/${storyId}/comment`, {
+        const response = await fetch(`/senior/api/stories/${storyId}/comment`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({content: input.value})

@@ -9,13 +9,22 @@ Description: Handles all routes for senior users including story creation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport, Badge
+from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport, Badge, StoryReaction, StoryComment
 from forms import StoryForm, MessageForm
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
 from utils import filter_text, check_unkind_words, save_uploaded_file, sanitize_for_display
 import os
+from deep_translator import GoogleTranslator
+
+# Map app language codes to deep-translator codes
+LANG_MAP = {
+    'zh': 'zh-CN',
+    'ms': 'ms',
+    'ta': 'ta',
+    'en': 'en',
+}
 
 # Create senior blueprint
 senior_bp = Blueprint('senior', __name__)
@@ -56,9 +65,17 @@ def dashboard():
     pair = Pair.query.filter_by(senior_id=user.id, status='active').first()
     buddy = User.query.get(pair.youth_id) if pair else None
 
-    # Get recent stories
-    recent_stories = Story.query.filter_by(user_id=user.id)\
-        .order_by(Story.created_at.desc()).limit(5).all()
+    # Get filters from query parameters
+    category_filter = request.args.get('category', 'all')
+    role_filter = request.args.get('role', 'all')
+
+    # Query all stories with filters
+    query = Story.query.join(User)
+    if category_filter != 'all':
+        query = query.filter(Story.category == category_filter)
+    if role_filter != 'all':
+        query = query.filter(User.role == role_filter)
+    recent_stories = query.order_by(Story.created_at.desc()).all()
 
     # Get upcoming events
     upcoming_events = Event.query.filter(Event.date >= datetime.utcnow())\
@@ -69,34 +86,12 @@ def dashboard():
                          stories_count=stories_count,
                          buddy=buddy,
                          recent_stories=recent_stories,
-                         upcoming_events=upcoming_events)
-
-
-# ==================== STORIES ====================
-@senior_bp.route('/story_feed')
-@login_required
-def story_feed():
-    """Instagram-style story feed with all stories."""
-    # Get filters from query parameters
-    category_filter = request.args.get('category', 'all')
-    role_filter = request.args.get('role', 'all')
-
-    # Query stories with user join for role filtering
-    query = Story.query.join(User)
-
-    if category_filter != 'all':
-        query = query.filter(Story.category == category_filter)
-    
-    if role_filter != 'all':
-        query = query.filter(User.role == role_filter)
-
-    stories = query.order_by(Story.created_at.desc()).all()
-
-    return render_template('senior/story_feed.html',
-                         stories=stories,
+                         upcoming_events=upcoming_events,
                          current_category=category_filter,
                          current_role=role_filter)
 
+
+# ==================== STORIES ====================
 
 @senior_bp.route('/story/<int:story_id>')
 @login_required
@@ -316,16 +311,45 @@ def get_messages_json():
     ).order_by(Message.created_at.desc()).limit(100).all()
     messages.reverse()  # Restore chronological order
 
+    # Check if user requested translation to a specific language
+    target_lang = request.args.get('lang', 'en')
+    supported = current_app.config.get('SUPPORTED_LANGUAGES', {})
+    if target_lang not in supported:
+        target_lang = 'en'
+
     # Convert message objects to a list of dictionaries (JSON-serializable)
-    messages_data = [{
-        'id': msg.id,
-        'content': msg.content,
-        'sender_id': msg.sender_id,
-        'is_me': msg.sender_id == user_id,
-        'created_at': (msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'), # Format: 02:30 PM
-        'is_flagged': msg.is_flagged,
-        'translated_content': msg.translated_content if msg.original_language != 'en' else None
-    } for msg in messages]
+    messages_data = []
+    for msg in messages:
+        translated = None
+        if target_lang != 'en' and msg.content:
+            # Use cached translation if available for this language
+            if msg.translated_content and msg.original_language == target_lang:
+                translated = msg.translated_content
+                print(f"[TRANSLATE] Using cached translation for msg {msg.id}: '{msg.content[:30]}' -> '{translated[:30]}'")
+            else:
+                try:
+                    dt_lang = LANG_MAP.get(target_lang, target_lang)
+                    print(f"[TRANSLATE] Translating msg {msg.id}: '{msg.content[:50]}' to '{dt_lang}'...")
+                    translated = GoogleTranslator(source='auto', target=dt_lang).translate(msg.content)
+                    print(f"[TRANSLATE] Success: '{translated[:50]}'")
+                    # Cache the translation
+                    msg.translated_content = translated
+                    msg.original_language = target_lang
+                    db.session.commit()
+                    print(f"[TRANSLATE] Cached translation for msg {msg.id}")
+                except Exception as e:
+                    print(f"[TRANSLATE] ERROR translating msg {msg.id}: {type(e).__name__}: {e}")
+                    translated = None
+
+        messages_data.append({
+            'id': msg.id,
+            'content': msg.content,
+            'sender_id': msg.sender_id,
+            'is_me': msg.sender_id == user_id,
+            'created_at': (msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'),
+            'is_flagged': msg.is_flagged,
+            'translated_content': translated
+        })
 
     return {'messages': messages_data}
 
@@ -334,23 +358,28 @@ def get_messages_json():
 @login_required
 def report_message(message_id):
     """API to report a message."""
+    from ai_utils import analyze_report
     data = request.get_json()
     reason = data.get('reason')
     description = data.get('description')
-    
+
     msg = Message.query.get_or_404(message_id)
-    
+
+    # Generate AI analysis
+    ai_analysis = analyze_report(msg.content, reason, description)
+
     report = ChatReport(
         message_id=msg.id,
         reported_by=session['user_id'],
         reported_user_id=msg.sender_id,
         reason=reason,
         description=description,
+        ai_analysis=ai_analysis,
         status='pending'
     )
     db.session.add(report)
     db.session.commit()
-    
+
     return {'success': True}, 200
 
 
@@ -358,24 +387,59 @@ def report_message(message_id):
 @login_required
 def report_community_post(post_id):
     """API to report a community post."""
+    from ai_utils import analyze_report
     data = request.get_json()
     reason = data.get('reason')
     description = data.get('description')
-    
+
     post = CommunityPost.query.get_or_404(post_id)
-    
+
+    # Generate AI analysis
+    ai_analysis = analyze_report(post.content, reason, description)
+
     report = ChatReport(
         community_post_id=post.id,
         reported_by=session['user_id'],
         reported_user_id=post.user_id,
         reason=reason,
         description=description,
+        ai_analysis=ai_analysis,
         status='pending'
     )
     db.session.add(report)
     db.session.commit()
-    
+
     return {'success': True}, 200
+
+
+# ==================== AI CHATBOT ====================
+@senior_bp.route('/chatbot')
+@login_required
+def chatbot():
+    """AI Chatbot page for seniors."""
+    return render_template('senior/chatbot.html')
+
+
+@senior_bp.route('/api/chatbot', methods=['POST'])
+@login_required
+def chatbot_api():
+    """API endpoint for AI chatbot messages."""
+    from ai_utils import chatbot_reply
+    data = request.get_json()
+    conversation = data.get('conversation', [])
+
+    if not conversation:
+        return {'error': 'No conversation provided'}, 400
+
+    # Limit conversation history to last 20 messages to control token usage
+    conversation = conversation[-20:]
+
+    reply = chatbot_reply(conversation)
+
+    if reply is None:
+        return {'error': 'AI service unavailable. Please try again later.'}, 503
+
+    return {'reply': reply}
 
 
 # ==================== EVENTS ====================
@@ -1050,5 +1114,71 @@ def save_accessibility_settings():
     
     user.accessibility_settings = settings
     db.session.commit()
-    
+
+    return {'success': True}
+
+
+# ==================== STORY INTERACTIONS API ====================
+@senior_bp.route('/api/stories/<int:story_id>/react', methods=['POST'])
+@login_required
+def api_react_story(story_id):
+    """API endpoint to handle story reactions for seniors."""
+    data = request.get_json()
+    reaction_type = data.get('reaction_type')
+    user_id = session['user_id']
+
+    if not reaction_type:
+        return {'success': False, 'message': 'Missing reaction type'}, 400
+
+    existing_reaction = StoryReaction.query.filter_by(
+        story_id=story_id,
+        user_id=user_id
+    ).first()
+
+    if existing_reaction:
+        if existing_reaction.reaction_type == reaction_type:
+            db.session.delete(existing_reaction)
+            action = 'removed'
+        else:
+            existing_reaction.reaction_type = reaction_type
+            action = 'updated'
+    else:
+        new_reaction = StoryReaction(
+            story_id=story_id,
+            user_id=user_id,
+            reaction_type=reaction_type
+        )
+        db.session.add(new_reaction)
+        action = 'added'
+
+    db.session.commit()
+
+    count = StoryReaction.query.filter_by(
+        story_id=story_id,
+        reaction_type=reaction_type
+    ).count()
+
+    return {'success': True, 'action': action, 'count': count}
+
+
+@senior_bp.route('/api/stories/<int:story_id>/comment', methods=['POST'])
+@login_required
+def api_comment_story(story_id):
+    """API endpoint to add a comment to a story for seniors."""
+    data = request.get_json()
+    content = data.get('content')
+    user_id = session['user_id']
+
+    if not content or not content.strip():
+        return {'success': False, 'message': 'Comment cannot be empty'}, 400
+
+    new_comment = StoryComment(
+        story_id=story_id,
+        user_id=user_id,
+        content=content.strip()
+    )
+
+    db.session.add(new_comment)
+    db.session.commit()
+
     return {'success': True}

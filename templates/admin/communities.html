@@ -189,9 +189,9 @@
                     <a href="{{ url_for('admin.manage_community', community_id=community.id) }}" class="btn btn-sm btn-outline-primary flex-grow-1">
                         <i class="fas fa-eye me-1"></i>View
                     </a>
-                    <button class="btn btn-sm btn-outline-warning" onclick="alert('Edit coming soon')">
+                    <a href="{{ url_for('admin.manage_community', community_id=community.id) }}" class="btn btn-sm btn-outline-warning" title="Edit Community">
                         <i class="fas fa-edit"></i>
-                    </button>
+                    </a>
                     <form action="{{ url_for('admin.delete_community', community_id=community.id) }}" method="POST" onsubmit="return confirm('Delete this community?');" class="d-inline">
                         <button type="submit" class="btn btn-sm btn-outline-danger">
                             <i class="fas fa-trash"></i>

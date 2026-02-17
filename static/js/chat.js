@@ -22,22 +22,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const postEndpoint = `/${role}/messages`;
     
     let lastMessageCount = 0;
+    let lastLang = localStorage.getItem('translationLanguage') || 'en';
+    let forceRender = false;
 
     /**
      * Fetch messages from the server and update the UI
      */
     function fetchMessages() {
-        fetch(apiEndpoint)
+        const lang = localStorage.getItem('translationLanguage') || 'en';
+        const url = apiEndpoint + '?lang=' + encodeURIComponent(lang);
+
+        // Detect language change
+        if (lang !== lastLang) {
+            forceRender = true;
+            lastLang = lang;
+        }
+
+        fetch(url)
             .then(response => response.json())
             .then(data => {
                 const messages = data.messages;
-                
-                // Only update if we have new messages or if it's the first load
-                // This is a simple optimization. Ideally, we'd check IDs.
-                if (messages.length !== lastMessageCount) {
+
+                if (messages.length !== lastMessageCount || forceRender) {
                     renderMessages(messages);
                     lastMessageCount = messages.length;
                     scrollToBottom();
+                    forceRender = false;
                 }
             })
             .catch(error => console.error('Error fetching messages:', error));
@@ -145,6 +155,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error sending message:', error));
         });
     }
+
+    // Expose fetchMessages so the language switcher can trigger a refresh
+    window.chatFetchMessages = function() {
+        lastMessageCount = 0; // Force re-render
+        fetchMessages();
+    };
 
     // Initial fetch
     fetchMessages();

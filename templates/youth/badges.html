@@ -12,23 +12,70 @@
 {% block extra_css %}
 <style>
     .badges-header {
-        background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+        background: linear-gradient(135deg, #f59e0b 0%, #e67e22 40%, #d97706 100%);
         color: white;
-        padding: 2.5rem 0;
+        padding: 1.5rem 1.25rem;
         margin-bottom: 2rem;
-        border-radius: 1rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .badges-header::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -5%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 50%;
+        animation: headerFloat 6s ease-in-out infinite;
+    }
+
+    .badges-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: 10%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        animation: headerFloat 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes headerFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
     }
 
     .badges-header h1 {
         font-size: 2.5rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
 
     .badges-header p {
         font-size: 1.125rem;
         opacity: 0.95;
         margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .badges-header-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.95rem !important;
+        margin-top: 0.75rem !important;
     }
 
     .stats-overview {
@@ -94,9 +141,10 @@
 
     .badges-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 2rem;
-        margin-bottom: 3rem;
+        margin: 0 auto 3rem;
+        max-width: 1100px;
     }
 
     .badge-card {
@@ -191,7 +239,7 @@
 
     .milestones-section {
         background: white;
-        padding: 2.5rem;
+        padding: 1.5rem;
         border-radius: 1.5rem;
         box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         margin-bottom: 3rem;
@@ -278,7 +326,7 @@
 
     .leaderboard-section {
         background: white;
-        padding: 2.5rem;
+        padding: 1.5rem;
         border-radius: 1.5rem;
         box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     }
@@ -354,6 +402,136 @@
         color: #F39C12;
     }
 
+    /* ===== DARK MODE FOR BADGES PAGE ===== */
+
+    /* All card/section backgrounds */
+    body[data-theme="dark"] .stat-card,
+    body[data-theme="dark"] .badge-card,
+    body[data-theme="dark"] .milestones-section,
+    body[data-theme="dark"] .leaderboard-section {
+        background: #232428 !important;
+        color: #f2f3f5 !important;
+        border-color: #3f4147 !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+    }
+
+    /* Badge cards - locked state in dark mode */
+    body[data-theme="dark"] .badge-card.locked {
+        background: #1e1f22 !important;
+        opacity: 0.5;
+    }
+
+    /* All headings and titles */
+    body[data-theme="dark"] .stat-value,
+    body[data-theme="dark"] .badge-title,
+    body[data-theme="dark"] .milestone-title,
+    body[data-theme="dark"] .leaderboard-name,
+    body[data-theme="dark"] .section-title {
+        color: #f2f3f5 !important;
+    }
+
+    /* All muted/description text */
+    body[data-theme="dark"] .stat-label,
+    body[data-theme="dark"] .badge-description,
+    body[data-theme="dark"] .milestone-description,
+    body[data-theme="dark"] .leaderboard-stats,
+    body[data-theme="dark"] .section-subtitle,
+    body[data-theme="dark"] .progress-text {
+        color: #949ba4 !important;
+    }
+
+    /* Hover states */
+    body[data-theme="dark"] .stat-card:hover {
+        border-color: #F39C12 !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+    }
+
+    body[data-theme="dark"] .badge-card:hover {
+        box-shadow: 0 12px 32px rgba(0,0,0,0.4) !important;
+    }
+
+    body[data-theme="dark"] .badge-card.earned {
+        border-color: #F39C12 !important;
+    }
+
+    /* Badge icon container */
+    body[data-theme="dark"] .badge-icon-container {
+        color: #f2f3f5 !important;
+    }
+
+    /* Badge checkmark */
+    body[data-theme="dark"] .badge-checkmark {
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.5) !important;
+    }
+
+    /* Milestone content cards */
+    body[data-theme="dark"] .milestone-content {
+        background: #2b2d31 !important;
+        color: #f2f3f5 !important;
+        border-left-color: #F39C12 !important;
+    }
+
+    body[data-theme="dark"] .milestone-item.locked .milestone-content {
+        background: #1e1f22 !important;
+        border-left-color: #3f4147 !important;
+        opacity: 0.6;
+    }
+
+    /* Milestone timeline dot border */
+    body[data-theme="dark"] .milestone-item::before {
+        border-color: #232428 !important;
+    }
+
+    body[data-theme="dark"] .milestone-item.locked::before {
+        background: #3f4147 !important;
+        box-shadow: 0 0 0 3px #3f4147 !important;
+    }
+
+    /* Milestone hours badge */
+    body[data-theme="dark"] .milestone-hours {
+        box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3) !important;
+    }
+
+    /* Leaderboard items */
+    body[data-theme="dark"] .leaderboard-item {
+        background: #2b2d31 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .leaderboard-item:hover {
+        background: #313338 !important;
+    }
+
+    body[data-theme="dark"] .leaderboard-hours {
+        color: #F39C12 !important;
+    }
+
+    body[data-theme="dark"] .leaderboard-avatar {
+        border-color: #F39C12 !important;
+    }
+
+    /* Progress bar */
+    body[data-theme="dark"] .progress-bar-container {
+        background: #3f4147 !important;
+    }
+
+    /* Download button in header */
+    body[data-theme="dark"] .badges-header .btn-light {
+        background: rgba(255,255,255,0.15) !important;
+        color: #f2f3f5 !important;
+        border-color: rgba(255,255,255,0.2) !important;
+    }
+
+    body[data-theme="dark"] .badges-header .btn-light:hover {
+        background: rgba(255,255,255,0.25) !important;
+    }
+
+    /* Avatar placeholder in leaderboard */
+    body[data-theme="dark"] .leaderboard-section .avatar-placeholder {
+        background: #3f4147 !important;
+        color: #f2f3f5 !important;
+    }
+
     @media (max-width: 768px) {
         .badges-header h1 {
             font-size: 2rem;
@@ -377,13 +555,31 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-2">
     <!-- Page Header -->
-    <div class="badges-header text-center">
-        <h1>
-            <i class="fas fa-trophy me-3"></i>My Achievements
-        </h1>
-        <p>Track your volunteer journey and earn badges</p>
+    <div class="badges-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>
+                    <i class="fas fa-trophy me-3"></i>My Achievements
+                </h1>
+                <p class="badges-header-badge">
+                    <i class="fas fa-star me-2"></i>
+                    Track your volunteer journey and earn badges
+                </p>
+                <div class="mt-3" style="position: relative; z-index: 1;">
+                    <a href="{{ url_for('youth.download_portfolio') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-file-pdf me-2"></i>Download Volunteer Portfolio
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 text-end d-none d-md-block">
+                <div style="font-size: 4rem; opacity: 0.2; position: relative; z-index: 1;">
+                    <i class="fas fa-medal"></i>
+                    <i class="fas fa-award ms-2"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Stats Overview -->

@@ -386,20 +386,16 @@
         <div class="col-lg-8 mb-4">
             <div class="analytics-card">
                 <h5><i class="fas fa-chart-area me-2"></i>User Growth Over Time</h5>
-                <div class="chart-placeholder">
-                    <i class="fas fa-chart-line"></i>
-                    <p class="mb-0">Chart visualization coming soon</p>
-                    <small>Integration with Chart.js planned</small>
+                <div style="position: relative; height: 320px;">
+                    <canvas id="growthChart"></canvas>
                 </div>
             </div>
         </div>
         <div class="col-lg-4 mb-4">
             <div class="analytics-card">
                 <h5><i class="fas fa-chart-pie me-2"></i>Activity Distribution</h5>
-                <div class="chart-placeholder">
-                    <i class="fas fa-chart-pie"></i>
-                    <p class="mb-0">Pie chart coming soon</p>
-                    <small>Messages, Stories, Events</small>
+                <div style="position: relative; height: 320px;">
+                    <canvas id="activityChart"></canvas>
                 </div>
             </div>
         </div>
@@ -413,15 +409,9 @@
                 <p class="text-muted mb-0">Download analytics reports for further analysis</p>
             </div>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary" onclick="exportData('csv')">
+                <a href="{{ url_for('admin.export_analytics') }}" class="btn btn-outline-primary">
                     <i class="fas fa-file-csv me-1"></i>Export CSV
-                </button>
-                <button class="btn btn-outline-success" onclick="exportData('excel')">
-                    <i class="fas fa-file-excel me-1"></i>Export Excel
-                </button>
-                <button class="btn btn-outline-danger" onclick="exportData('pdf')">
-                    <i class="fas fa-file-pdf me-1"></i>Export PDF
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -429,9 +419,98 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-    function exportData(format) {
-        alert(`Feature coming soon: Export data as ${format.toUpperCase()}`);
-    }
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+    const textColor = isDark ? '#ccc' : '#6C757D';
+
+    // User Growth Line Chart
+    new Chart(document.getElementById('growthChart'), {
+        type: 'line',
+        data: {
+            labels: {{ growth_labels|safe }},
+            datasets: [
+                {
+                    label: 'Seniors',
+                    data: {{ growth_seniors|safe }},
+                    borderColor: '#E67E22',
+                    backgroundColor: 'rgba(230,126,34,0.15)',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#E67E22',
+                    borderWidth: 2.5
+                },
+                {
+                    label: 'Youth Volunteers',
+                    data: {{ growth_youth|safe }},
+                    borderColor: '#3498DB',
+                    backgroundColor: 'rgba(52,152,219,0.15)',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#3498DB',
+                    borderWidth: 2.5
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+                legend: { labels: { color: textColor, usePointStyle: true, padding: 16 } },
+                tooltip: {
+                    backgroundColor: isDark ? '#333' : '#fff',
+                    titleColor: isDark ? '#fff' : '#2C3E50',
+                    bodyColor: isDark ? '#ddd' : '#6C757D',
+                    borderColor: isDark ? '#555' : '#dee2e6',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: 10
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: textColor } },
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, precision: 0 } }
+            }
+        }
+    });
+
+    // Activity Distribution Doughnut Chart
+    new Chart(document.getElementById('activityChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ activity_labels|safe }},
+            datasets: [{
+                data: {{ activity_data|safe }},
+                backgroundColor: ['#3498DB', '#9B59B6', '#27AE60'],
+                hoverBackgroundColor: ['#2980B9', '#8E44AD', '#229954'],
+                borderWidth: 2,
+                borderColor: isDark ? '#1a1a2e' : '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '55%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: textColor, usePointStyle: true, padding: 16, font: { size: 13 } }
+                },
+                tooltip: {
+                    backgroundColor: isDark ? '#333' : '#fff',
+                    titleColor: isDark ? '#fff' : '#2C3E50',
+                    bodyColor: isDark ? '#ddd' : '#6C757D',
+                    borderColor: isDark ? '#555' : '#dee2e6',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: 10
+                }
+            }
+        }
+    });
 </script>
 {% endblock %}

@@ -28,8 +28,8 @@
     }
 
     .profile-avatar {
-        width: 100px;
-        height: 100px;
+        width: 140px;
+        height: 140px;
         border-radius: 50%;
         object-fit: cover;
         border: 4px solid white;
@@ -68,11 +68,45 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
     }
+
+    /* Dark mode overrides for admin profile */
+    body[data-theme="dark"] .profile-header {
+        background: linear-gradient(135deg, #1e1f22 0%, #2b2d31 100%) !important;
+    }
+
+    body[data-theme="dark"] .profile-card {
+        background: #232428 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .profile-card h3 {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .form-label {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .form-control {
+        background-color: #1e1f22 !important;
+        color: #f2f3f5 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .preference-item {
+        background: #2b2d31 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .preference-item:hover {
+        background: #313338 !important;
+        border-color: #5865f2 !important;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-2">
     <div class="profile-header">
         {% if 'default-avatar' in user.profile_picture %}
             <div class="avatar-placeholder md mb-3 mx-auto">
@@ -126,6 +160,30 @@
             </div>
 
             <div class="profile-card">
+                <h3 class="mb-4"><i class="fas fa-palette me-2"></i>Theme Settings</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="preference-item p-3 rounded" onclick="setAdminTheme('light')" style="cursor: pointer; border: 2px solid #E9ECEF;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-sun text-warning me-2"></i><strong>Light</strong></span>
+                                <i class="fas fa-check-circle text-success theme-check light-check d-none"></i>
+                            </div>
+                            <p class="text-muted small mb-0 mt-1">Clean and bright interface</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="preference-item p-3 rounded" onclick="setAdminTheme('dark')" style="cursor: pointer; border: 2px solid #E9ECEF;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-moon me-2"></i><strong>Dark</strong></span>
+                                <i class="fas fa-check-circle text-success theme-check dark-check d-none"></i>
+                            </div>
+                            <p class="text-muted small mb-0 mt-1">Easy on the eyes, Discord-style</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
                 <h3 class="mb-4"><i class="fas fa-lock me-2"></i>Change Password</h3>
                 <form id="passwordForm">
                     <div class="row">
@@ -156,6 +214,21 @@
 
 {% block extra_js %}
 <script>
+    // Theme Selection Logic (Admin)
+    function updateAdminThemeUI() {
+        const currentTheme = document.body.getAttribute('data-theme') || 'light';
+        document.querySelectorAll('.theme-check').forEach(el => el.classList.add('d-none'));
+        const activeCheck = document.querySelector(`.${currentTheme}-check`);
+        if (activeCheck) activeCheck.classList.remove('d-none');
+    }
+
+    window.setAdminTheme = function(theme) {
+        setTheme(theme);
+        updateAdminThemeUI();
+    }
+
+    document.addEventListener('DOMContentLoaded', updateAdminThemeUI);
+
     document.getElementById('passwordForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
 

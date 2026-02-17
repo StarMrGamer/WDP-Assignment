@@ -53,7 +53,7 @@
     /* Neutral Colors - Softer, warmer tones */
     --white: #FFFFFF;
     --black: #1E1E2E;                /* Soft black - easier on eyes */
-    --gray-100: #FAFAFA;             /* Warm white - backgrounds */
+    --gray-100: #F0F2F5;             /* LinkedIn-style gray background */
     --gray-200: #F4F4F5;             /* Soft gray - borders */
     --gray-300: #E4E4E7;             /* Light gray */
     --gray-400: #D4D4D8;             /* Medium gray */
@@ -85,19 +85,19 @@
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
 
-    /* Spacing Scale (based on 8px grid) */
+    /* Spacing Scale - Tighter LinkedIn/Instagram style */
     --spacing-xs: 0.25rem;           /* 4px */
-    --spacing-sm: 0.5rem;            /* 8px */
-    --spacing-md: 1rem;              /* 16px */
-    --spacing-lg: 1.5rem;            /* 24px */
-    --spacing-xl: 2rem;              /* 32px */
-    --spacing-xxl: 3rem;             /* 48px */
+    --spacing-sm: 0.375rem;          /* 6px */
+    --spacing-md: 0.75rem;           /* 12px */
+    --spacing-lg: 1rem;              /* 16px */
+    --spacing-xl: 1.5rem;            /* 24px */
+    --spacing-xxl: 2rem;             /* 32px */
 
-    /* Border Radius - Extra rounded for playfulness */
-    --border-radius-sm: 0.5rem;      /* 8px - small elements */
-    --border-radius-md: 0.75rem;     /* 12px - default */
-    --border-radius-lg: 1.25rem;     /* 20px - cards */
-    --border-radius-xl: 2rem;        /* 32px - special elements */
+    /* Border Radius - Clean, modern */
+    --border-radius-sm: 0.375rem;    /* 6px - small elements */
+    --border-radius-md: 0.5rem;      /* 8px - default */
+    --border-radius-lg: 0.75rem;     /* 12px - cards */
+    --border-radius-xl: 1rem;        /* 16px - special elements */
     --border-radius-pill: 50rem;     /* Pill-shaped (fully rounded) */
     --border-radius-blob: 30% 70% 70% 30% / 30% 30% 70% 70%; /* Fun blob shape */
 
@@ -160,7 +160,7 @@ body {
     font-family: var(--font-family);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-normal);
-    line-height: 1.6;
+    line-height: 1.5;
     color: var(--gray-900);
     background-color: var(--gray-100);
     overflow-x: hidden; /* Prevent horizontal scroll */
@@ -169,26 +169,26 @@ body {
 /* Main content container */
 .main-content {
     min-height: calc(100vh - 200px); /* Ensure footer stays at bottom */
-    padding: var(--spacing-xl) 0;
+    padding: 0.5rem 0;
 }
 
 /* ==================== TYPOGRAPHY ==================== */
 h1, h2, h3, h4, h5, h6 {
     font-weight: var(--font-weight-bold);
     line-height: 1.2;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 0.5rem;
     color: var(--gray-900);
 }
 
-h1 { font-size: 2.5rem; }   /* 40px */
-h2 { font-size: 2rem; }     /* 32px */
-h3 { font-size: 1.75rem; }  /* 28px */
-h4 { font-size: 1.5rem; }   /* 24px */
-h5 { font-size: 1.25rem; }  /* 20px */
-h6 { font-size: 1rem; }     /* 16px */
+h1 { font-size: 2rem; }     /* 32px */
+h2 { font-size: 1.75rem; }  /* 28px */
+h3 { font-size: 1.5rem; }   /* 24px */
+h4 { font-size: 1.25rem; }  /* 20px */
+h5 { font-size: 1.1rem; }   /* 17.6px */
+h6 { font-size: 0.95rem; }  /* 15.2px */
 
 p {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 0.5rem;
 }
 
 /* Text utility classes */
@@ -230,12 +230,11 @@ p {
 }
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    filter: brightness(1.05);
 }
 
 .btn:active {
-    transform: translateY(0);
+    filter: brightness(0.95);
 }
 
 .btn:disabled {
@@ -256,13 +255,8 @@ p {
 
 .btn-primary:hover {
     background: linear-gradient(135deg, var(--primary-hover) 0%, var(--secondary-color) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 107, 157, 0.35);
     color: var(--white);
-}
-
-.btn-primary:active {
-    transform: translateY(0);
 }
 
 .btn-success {
@@ -273,8 +267,7 @@ p {
 }
 
 .btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
     color: var(--white);
 }
 
@@ -286,8 +279,7 @@ p {
 }
 
 .btn-danger:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(244, 63, 94, 0.4);
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.35);
     color: var(--white);
 }
 
@@ -299,8 +291,7 @@ p {
 }
 
 .btn-warning:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.35);
 }
 
 .btn-outline-primary {
@@ -326,39 +317,36 @@ p {
 }
 
 /* ==================== CARDS ==================== */
-/* Playful Card Styles */
+/* LinkedIn/Instagram-style clean cards */
 .card {
     background-color: var(--white);
     border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-md);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    padding: 0;
+    margin-bottom: 0.75rem;
+    transition: box-shadow 0.2s ease;
+    border: none;
 }
 
 .card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
-    border-color: rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
-    font-size: var(--font-size-lg);
+    font-size: 1rem;
     font-weight: var(--font-weight-semibold);
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 2px solid var(--gray-200);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-200);
+    background-color: transparent;
 }
 
 .card-body {
-    padding: var(--spacing-md) 0;
+    padding: 0.75rem 1rem;
 }
 
 .card-footer {
-    padding-top: var(--spacing-md);
+    padding: 0.75rem 1rem;
     border-top: 1px solid var(--gray-200);
-    margin-top: var(--spacing-md);
 }
 
 /* ==================== FORMS ==================== */
@@ -372,7 +360,7 @@ p {
 .form-control {
     display: block;
     width: 100%;
-    padding: 0.625rem 0.875rem;
+    padding: 0.5rem 0.75rem;
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
@@ -645,6 +633,19 @@ p {
 .rounded-lg { border-radius: var(--border-radius-lg); }
 .rounded-circle { border-radius: 50%; }
 
+/* Ensure all profile-related images and placeholders are perfect circles, not ovals */
+img.rounded-circle,
+.avatar-placeholder,
+.profile-avatar-large,
+.chat-avatar,
+.leaderboard-avatar,
+.buddy-card img,
+.story-header img,
+.story-header-compact img {
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+}
+
 /* Shadows */
 .shadow-sm { box-shadow: var(--shadow-sm); }
 .shadow { box-shadow: var(--shadow-md); }
@@ -757,6 +758,722 @@ p {
     }
 }
 
+/* ==================== DISCORD-STYLE DARK MODE (ALL ROLES) ==================== */
+/* Discord color reference:
+   --dc-bg-primary: #313338       (main background)
+   --dc-bg-secondary: #2b2d31     (sidebars, secondary areas)
+   --dc-bg-tertiary: #1e1f22      (navbar, deepest bg)
+   --dc-bg-floating: #232428      (cards, floating elements)
+   --dc-text-primary: #f2f3f5     (main text)
+   --dc-text-secondary: #b5bac1   (muted text)
+   --dc-text-muted: #949ba4       (very muted text)
+   --dc-border: #3f4147           (borders)
+   --dc-input-bg: #1e1f22         (input backgrounds)
+*/
+
+/* Apply dark bg on html element to prevent white flash before body loads */
+html[data-theme="dark"] {
+    background-color: #313338 !important;
+    color-scheme: dark;
+}
+
+body[data-theme="dark"],
+html[data-theme="dark"] body {
+    --dc-bg-primary: #313338;
+    --dc-bg-secondary: #2b2d31;
+    --dc-bg-tertiary: #1e1f22;
+    --dc-bg-floating: #232428;
+    --dc-text-primary: #f2f3f5;
+    --dc-text-secondary: #b5bac1;
+    --dc-text-muted: #949ba4;
+    --dc-border: #3f4147;
+    --dc-input-bg: #1e1f22;
+    --dc-accent: #5865f2;
+
+    background-color: var(--dc-bg-primary) !important;
+    color: var(--dc-text-primary) !important;
+}
+
+/* Navbar */
+body[data-theme="dark"] .navbar {
+    background-color: var(--dc-bg-tertiary) !important;
+    box-shadow: 0 1px 0 var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .navbar-brand,
+body[data-theme="dark"] .navbar-brand span {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .nav-link {
+    color: var(--dc-text-secondary) !important;
+}
+
+body[data-theme="dark"] .nav-link:hover,
+body[data-theme="dark"] .nav-link.active {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .animated-nav-item .nav-link {
+    color: var(--dc-text-secondary) !important;
+}
+
+body[data-theme="dark"] .animated-nav-item.active .nav-link {
+    color: var(--dc-text-primary) !important;
+}
+
+/* Headings */
+body[data-theme="dark"] h1,
+body[data-theme="dark"] h2,
+body[data-theme="dark"] h3,
+body[data-theme="dark"] h4,
+body[data-theme="dark"] h5,
+body[data-theme="dark"] h6 {
+    color: var(--dc-text-primary) !important;
+}
+
+/* Text */
+body[data-theme="dark"] p,
+body[data-theme="dark"] span,
+body[data-theme="dark"] label,
+body[data-theme="dark"] strong,
+body[data-theme="dark"] b {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .text-muted,
+body[data-theme="dark"] small,
+body[data-theme="dark"] .small {
+    color: var(--dc-text-muted) !important;
+}
+
+body[data-theme="dark"] .text-danger {
+    color: #f23f43 !important;
+}
+
+/* Cards & Boxes */
+body[data-theme="dark"] .card,
+body[data-theme="dark"] .profile-card,
+body[data-theme="dark"] .profile-tabs,
+body[data-theme="dark"] .stat-card,
+body[data-theme="dark"] .dashboard-card,
+body[data-theme="dark"] .story-card,
+body[data-theme="dark"] .event-card,
+body[data-theme="dark"] .badge-item,
+body[data-theme="dark"] .game-card,
+body[data-theme="dark"] .buddy-card,
+body[data-theme="dark"] .metric-card,
+body[data-theme="dark"] .pair-card,
+body[data-theme="dark"] .report-card,
+body[data-theme="dark"] .alert-card,
+body[data-theme="dark"] .activity-feed,
+body[data-theme="dark"] .chart-container,
+body[data-theme="dark"] .data-table-container,
+body[data-theme="dark"] .filter-bar,
+body[data-theme="dark"] .community-card {
+    background-color: var(--dc-bg-floating) !important;
+    color: var(--dc-text-primary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .card:hover {
+    border-color: var(--dc-border) !important;
+    box-shadow: 0 0 0 1px var(--dc-border), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* List group items */
+body[data-theme="dark"] .list-group-item {
+    background-color: var(--dc-bg-floating) !important;
+    color: var(--dc-text-primary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+/* Forms */
+body[data-theme="dark"] .form-control,
+body[data-theme="dark"] .form-select,
+body[data-theme="dark"] select.form-control {
+    background-color: var(--dc-input-bg) !important;
+    color: var(--dc-text-primary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .form-control:focus,
+body[data-theme="dark"] .form-select:focus {
+    border-color: var(--dc-accent) !important;
+    box-shadow: 0 0 0 0.2rem rgba(88, 101, 242, 0.25) !important;
+}
+
+body[data-theme="dark"] .form-control::placeholder {
+    color: var(--dc-text-muted) !important;
+}
+
+body[data-theme="dark"] .form-control:disabled,
+body[data-theme="dark"] .form-control[readonly] {
+    background-color: var(--dc-bg-tertiary) !important;
+    color: var(--dc-text-muted) !important;
+}
+
+body[data-theme="dark"] .form-label {
+    color: var(--dc-text-secondary) !important;
+}
+
+body[data-theme="dark"] .form-check-label {
+    color: var(--dc-text-primary) !important;
+}
+
+/* Tables */
+body[data-theme="dark"] .table,
+body[data-theme="dark"] .data-table {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .data-table thead,
+body[data-theme="dark"] .table thead {
+    background-color: var(--dc-bg-tertiary) !important;
+}
+
+body[data-theme="dark"] .data-table th,
+body[data-theme="dark"] .table th {
+    color: var(--dc-text-secondary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .data-table td,
+body[data-theme="dark"] .table td {
+    border-color: var(--dc-border) !important;
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .data-table tbody tr:hover,
+body[data-theme="dark"] .table tbody tr:hover {
+    background-color: var(--dc-bg-secondary) !important;
+}
+
+/* Dropdowns */
+body[data-theme="dark"] .dropdown-menu {
+    background-color: var(--dc-bg-floating) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .dropdown-item {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .dropdown-item:hover,
+body[data-theme="dark"] .dropdown-item:focus {
+    background-color: var(--dc-bg-secondary) !important;
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .dropdown-divider {
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .dropdown-header {
+    color: var(--dc-text-muted) !important;
+}
+
+/* Modals */
+body[data-theme="dark"] .modal,
+body[data-theme="dark"] .modal-content,
+body[data-theme="dark"] .custom-confirm-modal {
+    background-color: var(--dc-bg-floating) !important;
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .modal-header {
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .modal-footer {
+    border-color: var(--dc-border) !important;
+}
+
+/* Footer */
+body[data-theme="dark"] .footer,
+body[data-theme="dark"] footer {
+    background-color: var(--dc-bg-tertiary) !important;
+    color: var(--dc-text-secondary) !important;
+}
+
+body[data-theme="dark"] footer h5,
+body[data-theme="dark"] footer h6 {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] footer a {
+    color: var(--dc-text-muted) !important;
+}
+
+body[data-theme="dark"] footer hr {
+    border-color: var(--dc-border) !important;
+}
+
+/* Alerts in dark mode */
+body[data-theme="dark"] .alert-success {
+    background-color: rgba(35, 134, 54, 0.2) !important;
+    border-color: rgba(35, 134, 54, 0.3) !important;
+    color: #57f287 !important;
+}
+
+body[data-theme="dark"] .alert-danger {
+    background-color: rgba(237, 66, 69, 0.2) !important;
+    border-color: rgba(237, 66, 69, 0.3) !important;
+    color: #f23f43 !important;
+}
+
+body[data-theme="dark"] .alert-warning {
+    background-color: rgba(254, 231, 92, 0.15) !important;
+    border-color: rgba(254, 231, 92, 0.3) !important;
+    color: #fee75c !important;
+}
+
+body[data-theme="dark"] .alert-info {
+    background-color: rgba(88, 101, 242, 0.2) !important;
+    border-color: rgba(88, 101, 242, 0.3) !important;
+    color: #5865f2 !important;
+}
+
+/* Notification dropdown */
+body[data-theme="dark"] .notification-dropdown {
+    background-color: var(--dc-bg-floating) !important;
+}
+
+body[data-theme="dark"] .notification-item {
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .notification-item:hover {
+    background-color: var(--dc-bg-secondary) !important;
+}
+
+/* Profile page specific dark mode */
+body[data-theme="dark"] .tab-buttons {
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .tab-btn {
+    color: var(--dc-text-muted) !important;
+}
+
+body[data-theme="dark"] .tab-btn:hover {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .tab-btn.active {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .profile-card h3 {
+    color: var(--dc-text-primary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .card-header {
+    border-color: var(--dc-border) !important;
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .card-footer {
+    border-color: var(--dc-border) !important;
+}
+
+/* Preference items & history items */
+body[data-theme="dark"] .preference-item,
+body[data-theme="dark"] .history-item {
+    background-color: var(--dc-bg-secondary) !important;
+    border-color: var(--dc-border) !important;
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .preference-item:hover {
+    background-color: var(--dc-bg-primary) !important;
+}
+
+body[data-theme="dark"] .preference-title,
+body[data-theme="dark"] .history-title {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .preference-description,
+body[data-theme="dark"] .history-details,
+body[data-theme="dark"] .history-description {
+    color: var(--dc-text-muted) !important;
+}
+
+/* Toggle switches in dark mode */
+body[data-theme="dark"] .toggle-switch {
+    background: var(--dc-bg-tertiary) !important;
+}
+
+body[data-theme="dark"] .toggle-switch.active {
+    background: #23a559 !important;
+}
+
+/* Social media icons */
+body[data-theme="dark"] .social-media-icons li a {
+    background-color: var(--dc-bg-secondary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .social-media-icons li a .icon {
+    color: var(--dc-text-primary) !important;
+}
+
+/* Badge overrides */
+body[data-theme="dark"] .badge-item {
+    background-color: var(--dc-bg-floating) !important;
+}
+
+/* Comments section */
+body[data-theme="dark"] .comments-section {
+    background-color: var(--dc-bg-secondary) !important;
+}
+
+body[data-theme="dark"] .comment {
+    background-color: var(--dc-bg-floating) !important;
+}
+
+body[data-theme="dark"] .comment-input input {
+    background-color: var(--dc-input-bg) !important;
+    color: var(--dc-text-primary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+/* Message bubbles in dark mode */
+body[data-theme="dark"] .message-received {
+    background-color: var(--dc-bg-secondary) !important;
+    color: var(--dc-text-primary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .message-input-area {
+    background-color: var(--dc-bg-secondary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .message-input-area input,
+body[data-theme="dark"] .message-input {
+    background-color: var(--dc-input-bg) !important;
+    color: var(--dc-text-primary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+/* Story feed borders */
+body[data-theme="dark"] .story-header {
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .reaction-bar {
+    border-color: var(--dc-border) !important;
+}
+
+/* Mood options (senior) */
+body[data-theme="dark"] .mood-option {
+    background-color: var(--dc-bg-floating) !important;
+    border-color: var(--dc-border) !important;
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .mood-option.selected {
+    background-color: var(--dc-bg-secondary) !important;
+}
+
+/* Accessibility toolbar (senior) */
+body[data-theme="dark"] .accessibility-toolbar {
+    background-color: var(--dc-bg-secondary) !important;
+    box-shadow: 0 1px 0 var(--dc-border) !important;
+}
+
+/* Game board */
+body[data-theme="dark"] .game-board {
+    background-color: var(--dc-bg-floating) !important;
+}
+
+/* Report message */
+body[data-theme="dark"] .report-message {
+    background-color: var(--dc-bg-secondary) !important;
+    border-color: var(--dc-border) !important;
+    color: var(--dc-text-primary) !important;
+}
+
+/* Admin table header */
+body[data-theme="dark"] .table-header {
+    background-color: var(--dc-bg-tertiary) !important;
+}
+
+/* Strength bar */
+body[data-theme="dark"] .strength-bar {
+    background-color: var(--dc-bg-tertiary) !important;
+}
+
+/* Scrollbar styling for dark mode */
+body[data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+}
+
+body[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--dc-bg-tertiary);
+}
+
+body[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--dc-bg-secondary);
+    border-radius: 4px;
+}
+
+body[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Bootstrap bg-white and bg-light overrides */
+body[data-theme="dark"] .bg-white,
+body[data-theme="dark"] .bg-light {
+    background-color: var(--dc-bg-secondary) !important;
+}
+
+/* Navbar toggler for mobile */
+body[data-theme="dark"] .navbar-toggler {
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+/* Reaction buttons */
+body[data-theme="dark"] .reaction-btn {
+    color: var(--dc-text-muted) !important;
+}
+
+/* Sticker picker */
+body[data-theme="dark"] .sticker-picker {
+    background-color: var(--dc-bg-floating) !important;
+}
+
+body[data-theme="dark"] .sticker-picker .sticker:hover {
+    background-color: var(--dc-bg-secondary) !important;
+}
+
+/* btn-close */
+body[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Chat interface dark mode */
+body[data-theme="dark"] .message-feed {
+    background: rgba(43, 45, 49, 0.5) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .message-wrapper.other .message-bubble {
+    background: var(--dc-bg-secondary) !important;
+    color: var(--dc-text-primary) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .pill-input-wrapper {
+    background: var(--dc-input-bg) !important;
+    border-color: var(--dc-border) !important;
+}
+
+body[data-theme="dark"] .pill-input-wrapper:focus-within {
+    border-color: var(--dc-accent) !important;
+}
+
+body[data-theme="dark"] .auto-expand {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .icon-circle {
+    background: var(--dc-bg-secondary) !important;
+}
+
+body[data-theme="dark"] .empty-chat-state {
+    color: var(--dc-text-muted) !important;
+}
+
+body[data-theme="dark"] .text-dark {
+    color: var(--dc-text-primary) !important;
+}
+
+body[data-theme="dark"] .border {
+    border-color: var(--dc-border) !important;
+}
+
+/* ==================== SENIOR DASHBOARD DARK MODE - BOLD & HIGH CONTRAST ==================== */
+
+/* Senior dashboard header - vibrant gradient in dark mode */
+body[data-theme="dark"] .dashboard-header {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #4c1d95 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4) !important;
+}
+
+body[data-theme="dark"] .dashboard-header h1,
+body[data-theme="dark"] .dashboard-header p,
+body[data-theme="dark"] .dashboard-header span {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+body[data-theme="dark"] .dashboard-header .rounded-pill {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+/* Senior stat cards - bold colored borders and bright values */
+body[data-theme="dark"] .stat-card {
+    background-color: #232428 !important;
+    border-color: #3f4147 !important;
+    border-bottom: 4px solid #7c3aed !important;
+}
+
+body[data-theme="dark"] .stat-card::after {
+    background: linear-gradient(90deg, #7c3aed, #f59e0b) !important;
+}
+
+body[data-theme="dark"] .stat-card .icon {
+    color: #a78bfa !important;
+}
+
+body[data-theme="dark"] .stat-card .value {
+    background: linear-gradient(135deg, #c084fc, #f59e0b) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    font-weight: 800 !important;
+}
+
+body[data-theme="dark"] .stat-card .label {
+    color: #d4d7dc !important;
+    font-weight: 600 !important;
+}
+
+body[data-theme="dark"] .stat-card:hover {
+    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.35) !important;
+    border-color: #7c3aed !important;
+}
+
+/* Senior buddy card - vibrant dark version */
+body[data-theme="dark"] .buddy-card {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+    border-color: #7c3aed !important;
+}
+
+body[data-theme="dark"] .buddy-card .card-header {
+    background: rgba(124, 58, 237, 0.2) !important;
+    border-color: rgba(124, 58, 237, 0.3) !important;
+}
+
+body[data-theme="dark"] .buddy-card h4,
+body[data-theme="dark"] .buddy-card h5 {
+    color: #ffffff !important;
+}
+
+body[data-theme="dark"] .buddy-card .text-muted {
+    color: #c4b5fd !important;
+}
+
+body[data-theme="dark"] .buddy-card img {
+    border-color: #a78bfa !important;
+}
+
+/* Senior story cards in dark - bright left border */
+body[data-theme="dark"] .story-card {
+    background-color: #2b2d31 !important;
+    border-left: 4px solid #f59e0b !important;
+}
+
+body[data-theme="dark"] .story-card h6 {
+    color: #f2f3f5 !important;
+    font-weight: 700 !important;
+}
+
+body[data-theme="dark"] .story-card .category-badge {
+    background-color: #f59e0b !important;
+    color: #1e1f22 !important;
+    font-weight: 700 !important;
+}
+
+/* Senior event cards in dark */
+body[data-theme="dark"] .event-card {
+    background-color: #2b2d31 !important;
+    border-color: #3f4147 !important;
+    border-left: 4px solid #22c55e !important;
+}
+
+body[data-theme="dark"] .event-card .event-date {
+    color: #4ade80 !important;
+    font-weight: 700 !important;
+}
+
+body[data-theme="dark"] .event-card h6 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .event-card:hover {
+    border-color: #22c55e !important;
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.25) !important;
+}
+
+/* Card headers in dark - bolder */
+body[data-theme="dark"] .card-header h5 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* Quick actions list items - bolder hover */
+body[data-theme="dark"] .list-group-item:hover {
+    background-color: #313338 !important;
+    border-left: 3px solid #5865f2 !important;
+}
+
+/* Weekly check-in card dark mode */
+body[data-theme="dark"] .card.border-warning {
+    border-color: #f59e0b !important;
+    background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+body[data-theme="dark"] .card.border-warning h6 {
+    color: #fbbf24 !important;
+}
+
+body[data-theme="dark"] .card.border-warning p {
+    color: #d4d7dc !important;
+}
+
+body[data-theme="dark"] .btn-warning {
+    background-color: #f59e0b !important;
+    border-color: #f59e0b !important;
+    color: #1e1f22 !important;
+    font-weight: 700 !important;
+}
+
+/* Horizontal rules in dark mode */
+body[data-theme="dark"] hr {
+    border-color: #3f4147 !important;
+    opacity: 1 !important;
+}
+
+/* Badges (Bootstrap) brighter in dark mode */
+body[data-theme="dark"] .badge.bg-primary {
+    background-color: #5865f2 !important;
+    color: #ffffff !important;
+}
+
+/* btn-outline-primary in dark mode */
+body[data-theme="dark"] .btn-outline-primary {
+    color: #818cf8 !important;
+    border-color: #818cf8 !important;
+}
+
+body[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: #818cf8 !important;
+    color: #ffffff !important;
+}
+
+/* ==================== END DISCORD DARK MODE ==================== */
+
 /* Default Avatar */
 .avatar-placeholder {
     display: flex;
@@ -773,8 +1490,8 @@ p {
 
 /* Specific Sizes */
 .avatar-placeholder.sm { width: 40px; height: 40px; font-size: 1rem; }
-.avatar-placeholder.md { width: 80px; height: 80px; font-size: 2rem; }
-.avatar-placeholder.lg { width: 150px; height: 150px; font-size: 4rem; }
+.avatar-placeholder.md { width: 100px; height: 100px; font-size: 2.5rem; }
+.avatar-placeholder.lg { width: 180px; height: 180px; font-size: 4.5rem; }
 
 /* Senior specific color */
 .senior-theme .avatar-placeholder {
@@ -1208,8 +1925,695 @@ p {
     margin-top: 0;
     width: auto;
     transform: scale(1.0); /* Restore to full size */
-    margin-left: 0; 
+    margin-left: 0;
     flex-shrink: 0; /* Prevent shrinking too much */
 }
 
+/* ==================== DARK MODE: Chess/Xiangqi Game Pages ==================== */
+body[data-theme="dark"] .side-panel {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+    border-color: #3f4147 !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
+}
+
+body[data-theme="dark"] #pgn {
+    background: #1e1f22 !important;
+    color: #b5bac1 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .player-card,
+body[data-theme="dark"] .player-card.bg-white {
+    background: #2b2d31 !important;
+    color: #f2f3f5 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .player-card .fw-bold {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] #waitingOverlay {
+    background: rgba(35,36,40,0.95) !important;
+    color: #f2f3f5 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+
+body[data-theme="dark"] #waitingOverlay p {
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] .status-label {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .bot-selection,
+body[data-theme="dark"] .settings {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .bot-selection label,
+body[data-theme="dark"] .settings label {
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] .bot-avatar {
+    border-color: #3f4147 !important;
+}
+
+/* ==================== DARK MODE: Game Chat ==================== */
+body[data-theme="dark"] #gameChatMessages {
+    background: #1e1f22 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .game-msg-other {
+    background: #3f4147 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .game-msg-flagged {
+    background: rgba(255, 193, 7, 0.15) !important;
+    color: #ffd54f !important;
+    border-color: rgba(255, 193, 7, 0.3) !important;
+}
+
+body[data-theme="dark"] .chat-header .badge.bg-light {
+    background: #3f4147 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .game-chat-wrapper .form-control {
+    background: #1e1f22 !important;
+    color: #f2f3f5 !important;
+    border-color: #3f4147 !important;
+}
+
+/* ==================== DARK MODE: Senior Games Lobby ==================== */
+body[data-theme="dark"] .stats-bar {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3) !important;
+}
+
+body[data-theme="dark"] .stat-item {
+    background: linear-gradient(135deg, #2b2d31 0%, #232428 100%) !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .stat-item .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .stat-item .label {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .lobby-game-card {
+    background: #232428 !important;
+    border-color: #3f4147 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .lobby-game-card:hover {
+    border-color: #5865f2 !important;
+}
+
+body[data-theme="dark"] .game-header h3 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .game-description {
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] .game-meta {
+    background: #1e1f22 !important;
+}
+
+body[data-theme="dark"] .game-meta-item {
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] .game-badge.traditional {
+    background: rgba(88, 101, 242, 0.2) !important;
+    color: #8b9fff !important;
+    font-weight: 700 !important;
+}
+
+body[data-theme="dark"] .game-badge.modern {
+    background: rgba(242, 63, 67, 0.2) !important;
+    color: #ff8a8e !important;
+    font-weight: 700 !important;
+}
+
+body[data-theme="dark"] .game-badge {
+    background: rgba(255, 193, 7, 0.2) !important;
+    color: #ffd54f !important;
+    font-weight: 700 !important;
+}
+
+body[data-theme="dark"] .btn-learn {
+    background: #2b2d31 !important;
+    color: #8b9fff !important;
+    border-color: #5865f2 !important;
+}
+
+body[data-theme="dark"] .btn-learn:hover {
+    background: #5865f2 !important;
+    color: white !important;
+}
+
+body[data-theme="dark"] .active-games-section {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3) !important;
+}
+
+body[data-theme="dark"] .active-games-section h2 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .active-game-item {
+    background: #2b2d31 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .active-game-item:hover {
+    background: #313338 !important;
+}
+
+body[data-theme="dark"] .active-game-details h4 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .active-game-details p {
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] .section-header h2 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .rules-section .bg-light {
+    background: #2b2d31 !important;
+    color: #b5bac1 !important;
+}
+
+/* ==================== DARK MODE: Game History Table (global) ==================== */
+body[data-theme="dark"] .table,
+html[data-theme="dark"] .table {
+    --bs-table-bg: transparent !important;
+    --bs-table-striped-bg: #2b2d31 !important;
+    --bs-table-hover-bg: #313338 !important;
+    --bs-table-color: #f2f3f5 !important;
+    color: #f2f3f5 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .table thead,
+body[data-theme="dark"] .table-light,
+body[data-theme="dark"] thead.table-light {
+    --bs-table-bg: #1e1f22 !important;
+    background-color: #1e1f22 !important;
+}
+
+body[data-theme="dark"] .table thead th,
+body[data-theme="dark"] .table-light th {
+    background-color: #1e1f22 !important;
+    color: #b5bac1 !important;
+    border-color: #3f4147 !important;
+    border-bottom-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .table td {
+    color: #f2f3f5 !important;
+    border-color: #3f4147 !important;
+    background-color: transparent !important;
+}
+
+body[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+    --bs-table-hover-bg: #313338 !important;
+    background-color: #313338 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .table-responsive {
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .table td .text-muted {
+    color: #949ba4 !important;
+}
+
+/* ==================== DARK MODE: Modal Footer ==================== */
+body[data-theme="dark"] .modal-footer {
+    background: #232428 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .modal-header {
+    border-color: #3f4147 !important;
+}
+
+/* ==================== DARK MODE: Additional fixes ==================== */
+
+/* Game page elements */
+body[data-theme="dark"] .side-panel {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .player-card {
+    background: #2b2d31 !important;
+    color: #f2f3f5 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] #pgn {
+    background: #1e1f22 !important;
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] #waitingOverlay {
+    background: rgba(35, 36, 40, 0.97) !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .game-image {
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .lobby-game-card {
+    background: #232428 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .lobby-game-card:hover {
+    border-color: #9B59B6 !important;
+}
+
+body[data-theme="dark"] .game-header h3 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .game-description {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .game-meta {
+    background: #1e1f22 !important;
+}
+
+body[data-theme="dark"] .game-meta-item {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .btn-learn {
+    background: #232428 !important;
+    color: #9B59B6 !important;
+    border-color: #9B59B6 !important;
+}
+
+/* Stats bar */
+body[data-theme="dark"] .stats-bar {
+    background: #232428 !important;
+}
+
+body[data-theme="dark"] .stat-item {
+    background: linear-gradient(135deg, #2b2d31 0%, #232428 100%) !important;
+}
+
+body[data-theme="dark"] .stat-item .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .stat-item .label {
+    color: #949ba4 !important;
+}
+
+/* Active games section */
+body[data-theme="dark"] .active-games-section {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .active-games-section h2 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .active-game-item {
+    background: #2b2d31 !important;
+}
+
+body[data-theme="dark"] .active-game-item:hover {
+    background: #313338 !important;
+}
+
+body[data-theme="dark"] .active-game-details h4 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .active-game-details p {
+    color: #949ba4 !important;
+}
+
+/* Analytics cards */
+body[data-theme="dark"] .analytics-card {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .analytics-card h5 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .big-stat .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .big-stat .label {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .metric-row .label {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .metric-row .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .metric-row {
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .chart-placeholder {
+    background: linear-gradient(135deg, #2b2d31 0%, #1e1f22 100%) !important;
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .progress-stat .label {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .progress-stat .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .progress {
+    background-color: #3f4147 !important;
+}
+
+/* User detail info cards */
+body[data-theme="dark"] .user-info-card {
+    background: #232428 !important;
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .info-row {
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .info-label {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .info-value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .user-profile-header {
+    background: linear-gradient(135deg, #1e1f22 0%, #232428 100%) !important;
+}
+
+/* Community card dark mode */
+body[data-theme="dark"] .community-stats {
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .community-stat .value {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .community-stat .label {
+    color: #949ba4 !important;
+}
+
+/* Background light sections in dark mode */
+body[data-theme="dark"] .bg-light {
+    background-color: #2b2d31 !important;
+}
+
+body[data-theme="dark"] .bg-white {
+    background-color: #232428 !important;
+}
+
+/* Table light header */
+body[data-theme="dark"] .table-light {
+    background-color: #1e1f22 !important;
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] .table-light th {
+    background-color: #1e1f22 !important;
+    color: #b5bac1 !important;
+}
+
+/* Text colors that become invisible in dark mode */
+body[data-theme="dark"] .text-dark {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .fw-bold {
+    color: #f2f3f5;
+}
+
+body[data-theme="dark"] .card-header {
+    background-color: #2b2d31 !important;
+}
+
+body[data-theme="dark"] .card-body {
+    color: #f2f3f5 !important;
+}
+
+/* ==================== HIGH CONTRAST MODE ==================== */
+html[data-high-contrast="true"] body,
+body[data-high-contrast="true"] {
+    --hc-bg: #000000;
+    --hc-text: #ffffff;
+    --hc-link: #ffff00;
+    --hc-border: #ffffff;
+}
+
+html[data-high-contrast="true"] {
+    background-color: #000000 !important;
+}
+
+body[data-high-contrast="true"] {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .navbar {
+    background-color: #000000 !important;
+    border-bottom: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .navbar-brand,
+body[data-high-contrast="true"] .navbar-brand span,
+body[data-high-contrast="true"] .nav-link {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .nav-link:hover,
+body[data-high-contrast="true"] .nav-link.active {
+    color: #ffff00 !important;
+}
+
+body[data-high-contrast="true"] h1,
+body[data-high-contrast="true"] h2,
+body[data-high-contrast="true"] h3,
+body[data-high-contrast="true"] h4,
+body[data-high-contrast="true"] h5,
+body[data-high-contrast="true"] h6,
+body[data-high-contrast="true"] p,
+body[data-high-contrast="true"] span,
+body[data-high-contrast="true"] label,
+body[data-high-contrast="true"] strong,
+body[data-high-contrast="true"] b,
+body[data-high-contrast="true"] .fw-bold {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .text-muted,
+body[data-high-contrast="true"] small,
+body[data-high-contrast="true"] .small {
+    color: #cccccc !important;
+}
+
+body[data-high-contrast="true"] a {
+    color: #ffff00 !important;
+}
+
+body[data-high-contrast="true"] .card,
+body[data-high-contrast="true"] .stat-card,
+body[data-high-contrast="true"] .story-card,
+body[data-high-contrast="true"] .event-card,
+body[data-high-contrast="true"] .community-card,
+body[data-high-contrast="true"] .alert-card,
+body[data-high-contrast="true"] .analytics-card,
+body[data-high-contrast="true"] .user-info-card,
+body[data-high-contrast="true"] .lobby-game-card,
+body[data-high-contrast="true"] .stats-bar,
+body[data-high-contrast="true"] .active-games-section,
+body[data-high-contrast="true"] .data-table-container,
+body[data-high-contrast="true"] .filter-bar,
+body[data-high-contrast="true"] .profile-card {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .form-control,
+body[data-high-contrast="true"] .form-select {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .btn {
+    border-width: 2px !important;
+}
+
+body[data-high-contrast="true"] .btn-outline-primary,
+body[data-high-contrast="true"] .btn-outline-secondary,
+body[data-high-contrast="true"] .btn-outline-success,
+body[data-high-contrast="true"] .btn-outline-warning,
+body[data-high-contrast="true"] .btn-outline-danger {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .table,
+body[data-high-contrast="true"] .data-table {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .table th,
+body[data-high-contrast="true"] .data-table th {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .table td,
+body[data-high-contrast="true"] .data-table td {
+    color: #ffffff !important;
+    border-color: #666666 !important;
+}
+
+body[data-high-contrast="true"] .dropdown-menu {
+    background-color: #1a1a1a !important;
+    border: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .dropdown-item {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .dropdown-item:hover {
+    background-color: #333333 !important;
+}
+
+body[data-high-contrast="true"] .modal-content {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .list-group-item {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border-color: #666666 !important;
+}
+
+body[data-high-contrast="true"] footer {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-top: 2px solid #ffffff !important;
+}
+
+body[data-high-contrast="true"] .bg-light {
+    background-color: #1a1a1a !important;
+}
+
+body[data-high-contrast="true"] .bg-white {
+    background-color: #1a1a1a !important;
+}
+
+body[data-high-contrast="true"] .text-dark {
+    color: #ffffff !important;
+}
+
+body[data-high-contrast="true"] .badge {
+    border: 1px solid #ffffff !important;
+}
+
+/* ==================== Voice Input Button ==================== */
+.voice-input-btn {
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    font-size: 1.1rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.voice-input-btn:hover {
+    color: #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.voice-input-btn.recording {
+    color: #fff;
+    background: #dc3545;
+    animation: voice-pulse 1.2s ease-in-out infinite;
+}
+
+/* Story page dictate button (has text, not just icon) */
+.form-section .voice-input-btn {
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    padding: 0.3rem 0.75rem;
+}
+
+.form-section .voice-input-btn.recording {
+    color: #fff;
+    background: #dc3545;
+    border-color: #dc3545;
+}
+
+@keyframes voice-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5); }
+    50% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
+}
+
+/* Dark mode */
+[data-theme="dark"] .voice-input-btn {
+    color: #adb5bd;
+}
+
+[data-theme="dark"] .voice-input-btn:hover {
+    color: #ff6b7a;
+    background: rgba(220, 53, 69, 0.15);
+}
+
+[data-theme="dark"] .voice-input-btn.recording {
+    color: #fff;
+    background: #dc3545;
+}
 

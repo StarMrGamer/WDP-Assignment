@@ -60,15 +60,19 @@
         </div>
 
         {% if users %}
+        <div class="table-responsive">
         <table class="data-table">
             <thead>
                 <tr>
                     <th>User</th>
                     <th>Role</th>
                     <th>Email</th>
+                    <th>Phone</th>
                     <th>Age</th>
-                    <th>Joined</th>
-                    <th>Last Active</th>
+                    <th>School</th>
+                    <th>Bio</th>
+                    <th>Language</th>
+                    <th>Interests</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -78,10 +82,10 @@
                 <tr>
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                                    <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}" 
-                                         alt="{{ user.username }}" 
-                                         class="rounded-circle me-2" 
-                                         width="32" height="32" 
+                                    <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
+                                         alt="{{ user.username }}"
+                                         class="rounded-circle me-2"
+                                         width="32" height="32"
                                          style="object-fit: cover;">
                             <div>
                                 <div class="fw-bold">{{ user.full_name }}</div>
@@ -94,10 +98,13 @@
                             {{ user.role|capitalize }}
                         </span>
                     </td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.age }}</td>
-                    <td>{{ user.created_at|format_date('%b %d, %Y') }}</td>
-                    <td>{{ user.last_active|format_date('%b %d, %Y') }}</td>
+                    <td style="font-size: 0.85rem;">{{ user.email or '-' }}</td>
+                    <td style="font-size: 0.85rem;">{{ user.phone or '-' }}</td>
+                    <td>{{ user.age or '-' }}</td>
+                    <td style="font-size: 0.85rem; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ user.school or '-' }}</td>
+                    <td style="font-size: 0.85rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ user.bio or '' }}">{{ user.bio[:50] + '...' if user.bio and user.bio|length > 50 else (user.bio or '-') }}</td>
+                    <td style="font-size: 0.85rem;">{{ user.languages|join(', ') if user.languages else '-' }}</td>
+                    <td style="font-size: 0.85rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ user.interests|join(', ') if user.interests else '' }}">{{ user.interests|join(', ') if user.interests else '-' }}</td>
                     <td>
                         {% if user.is_active %}
                         <span class="status-badge active">Active</span>
@@ -124,6 +131,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
         {% else %}
         <div class="text-center py-5">
             <i class="fas fa-users fa-3x text-muted mb-3"></i>

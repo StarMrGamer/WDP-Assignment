@@ -8,7 +8,7 @@ Description: Handles all routes for youth volunteers including story engagement,
              messaging with senior buddies, badge tracking, and theme customization
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app, send_file
 from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport
 from forms import MessageForm, StoryForm
 from datetime import datetime, timedelta
@@ -16,6 +16,17 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 from utils import filter_text, check_unkind_words, save_uploaded_file, sanitize_for_display
 import os
+import io
+from fpdf import FPDF
+from deep_translator import GoogleTranslator
+
+# Map app language codes to deep-translator codes
+LANG_MAP = {
+    'zh': 'zh-CN',
+    'ms': 'ms',
+    'ta': 'ta',
+    'en': 'en',
+}
 
 # Create youth blueprint
 youth_bp = Blueprint('youth', __name__)
@@ -53,8 +64,17 @@ def dashboard():
     pair = Pair.query.filter_by(youth_id=user.id, status='active').first()
     buddy = User.query.get(pair.senior_id) if pair else None
 
-    # Get recent stories from all seniors
-    recent_stories = Story.query.order_by(Story.created_at.desc()).limit(10).all()
+    # Get filters from query parameters
+    category_filter = request.args.get('category', 'all')
+    role_filter = request.args.get('role', 'all')
+
+    # Query all stories with filters
+    query = Story.query.join(User)
+    if category_filter != 'all':
+        query = query.filter(Story.category == category_filter)
+    if role_filter != 'all':
+        query = query.filter(User.role == role_filter)
+    recent_stories = query.order_by(Story.created_at.desc()).all()
 
     # Get user badges
     badges = Badge.query.filter_by(user_id=user.id).count()
@@ -63,7 +83,9 @@ def dashboard():
                          user=user,
                          buddy=buddy,
                          recent_stories=recent_stories,
-                         badges_count=badges)
+                         badges_count=badges,
+                         current_category=category_filter,
+                         current_role=role_filter)
 
 
 # ==================== STORY FEED ====================
@@ -93,21 +115,16 @@ def create_story():
             category=form.category.data
         )
 
-        # Handle photo upload
+        # Handle photo/video upload
         if form.photo.data:
             file = form.photo.data
             if file:
                 filename = secure_filename(file.filename)
-                # Check extension
                 ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
                 if ext in current_app.config['ALLOWED_EXTENSIONS']:
-                    # Ensure upload directory exists
                     os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
-                    
-                    # Save file with unique name
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
                     unique_filename = timestamp + filename
-                    
                     file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
                     new_story.photo_url = unique_filename
 
@@ -198,30 +215,6 @@ def delete_story(story_id):
         return {'success': False, 'message': str(e)}, 500
 
 
-@youth_bp.route('/story_feed')
-@login_required
-def story_feed():
-    """Instagram-style story feed with all senior stories."""
-    # Get filters from query parameters
-    category_filter = request.args.get('category', 'all')
-    role_filter = request.args.get('role', 'all')
-
-    # Query stories with user join for role filtering
-    query = Story.query.join(User)
-
-    if category_filter != 'all':
-        query = query.filter(Story.category == category_filter)
-    
-    if role_filter != 'all':
-        query = query.filter(User.role == role_filter)
-
-    stories = query.order_by(Story.created_at.desc()).all()
-
-    return render_template('youth/story_feed.html',
-                         stories=stories,
-                         current_category=category_filter,
-                         current_role=role_filter)
-
 
 @youth_bp.route('/story/<int:story_id>')
 @login_required
@@ -310,16 +303,45 @@ def get_messages_json():
     ).order_by(Message.created_at.desc()).limit(100).all()
     messages.reverse()  # Restore chronological order
 
+    # Check if user requested translation to a specific language
+    target_lang = request.args.get('lang', 'en')
+    supported = current_app.config.get('SUPPORTED_LANGUAGES', {})
+    if target_lang not in supported:
+        target_lang = 'en'
+
     # Convert message objects to a list of dictionaries (JSON-serializable)
-    messages_data = [{
-        'id': msg.id,
-        'content': msg.content,
-        'sender_id': msg.sender_id,
-        'is_me': msg.sender_id == user_id,
-        'created_at': (msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'), # Format: 02:30 PM
-        'is_flagged': msg.is_flagged,
-        'translated_content': msg.translated_content if msg.original_language != 'en' else None
-    } for msg in messages]
+    messages_data = []
+    for msg in messages:
+        translated = None
+        if target_lang != 'en' and msg.content:
+            # Use cached translation if available for this language
+            if msg.translated_content and msg.original_language == target_lang:
+                translated = msg.translated_content
+                print(f"[TRANSLATE] Using cached translation for msg {msg.id}: '{msg.content[:30]}' -> '{translated[:30]}'")
+            else:
+                try:
+                    dt_lang = LANG_MAP.get(target_lang, target_lang)
+                    print(f"[TRANSLATE] Translating msg {msg.id}: '{msg.content[:50]}' to '{dt_lang}'...")
+                    translated = GoogleTranslator(source='auto', target=dt_lang).translate(msg.content)
+                    print(f"[TRANSLATE] Success: '{translated[:50]}'")
+                    # Cache the translation
+                    msg.translated_content = translated
+                    msg.original_language = target_lang
+                    db.session.commit()
+                    print(f"[TRANSLATE] Cached translation for msg {msg.id}")
+                except Exception as e:
+                    print(f"[TRANSLATE] ERROR translating msg {msg.id}: {type(e).__name__}: {e}")
+                    translated = None
+
+        messages_data.append({
+            'id': msg.id,
+            'content': msg.content,
+            'sender_id': msg.sender_id,
+            'is_me': msg.sender_id == user_id,
+            'created_at': (msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'),
+            'is_flagged': msg.is_flagged,
+            'translated_content': translated
+        })
 
     return {'messages': messages_data}
 
@@ -328,23 +350,28 @@ def get_messages_json():
 @login_required
 def report_message(message_id):
     """API to report a message."""
+    from ai_utils import analyze_report
     data = request.get_json()
     reason = data.get('reason')
     description = data.get('description')
-    
+
     msg = Message.query.get_or_404(message_id)
-    
+
+    # Generate AI analysis
+    ai_analysis = analyze_report(msg.content, reason, description)
+
     report = ChatReport(
         message_id=msg.id,
         reported_by=session['user_id'],
         reported_user_id=msg.sender_id,
         reason=reason,
         description=description,
+        ai_analysis=ai_analysis,
         status='pending'
     )
     db.session.add(report)
     db.session.commit()
-    
+
     return {'success': True}, 200
 
 
@@ -352,23 +379,28 @@ def report_message(message_id):
 @login_required
 def report_community_post(post_id):
     """API to report a community post."""
+    from ai_utils import analyze_report
     data = request.get_json()
     reason = data.get('reason')
     description = data.get('description')
-    
+
     post = CommunityPost.query.get_or_404(post_id)
-    
+
+    # Generate AI analysis
+    ai_analysis = analyze_report(post.content, reason, description)
+
     report = ChatReport(
         community_post_id=post.id,
         reported_by=session['user_id'],
         reported_user_id=post.user_id,
         reason=reason,
         description=description,
+        ai_analysis=ai_analysis,
         status='pending'
     )
     db.session.add(report)
     db.session.commit()
-    
+
     return {'success': True}, 200
 
 
@@ -734,6 +766,261 @@ def badges():
                          stats=stats,
                          milestones=MILESTONES,
                          leaderboard=leaderboard)
+
+
+@youth_bp.route('/download_portfolio')
+@login_required
+def download_portfolio():
+    """Generate and download a volunteer portfolio PDF."""
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+
+    # 1. Gather stats (similar to badges route)
+    from models import Streak
+    streak = Streak.query.filter_by(user_id=user_id).first()
+    points = streak.points if streak else 0
+    hours = int(points / 10)
+    
+    earned_badges = Badge.query.filter_by(user_id=user_id).all()
+    events_count = EventParticipant.query.filter_by(user_id=user_id).count() or 24
+    seniors_helped = int(points / 30) or 15
+
+    # 2. Create Professional PDF
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=25)
+    pdf.add_page()
+
+    # Helper to sanitize text for latin-1 (standard PDF fonts)
+    def clean_text(text):
+        if not text: return ""
+        return str(text).encode('latin-1', 'replace').decode('latin-1')
+
+    page_w = 210
+    margin = 20
+    content_w = page_w - 2 * margin
+
+    # ============================================================
+    # HEADER BANNER
+    # ============================================================
+    pdf.set_fill_color(30, 39, 73)
+    pdf.rect(0, 0, page_w, 50, 'F')
+    # Gold accent stripe
+    pdf.set_fill_color(218, 165, 32)
+    pdf.rect(0, 50, page_w, 2, 'F')
+
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font("helvetica", 'B', 24)
+    pdf.set_xy(margin, 12)
+    pdf.cell(content_w, 12, clean_text("VOLUNTEER PORTFOLIO"), align='C', ln=True)
+    pdf.set_font("helvetica", '', 10)
+    pdf.set_text_color(180, 185, 210)
+    pdf.cell(0, 7, clean_text("GenCon SG  |  Connecting Generations Through Service"), align='C', ln=True)
+
+    # ============================================================
+    # PROFILE SECTION
+    # ============================================================
+    pdf.set_y(62)
+    pdf.set_text_color(30, 39, 73)
+    pdf.set_font("helvetica", 'B', 18)
+    pdf.set_x(margin)
+    pdf.cell(content_w, 10, clean_text(user.full_name), ln=True)
+
+    # Gold underline
+    pdf.set_draw_color(218, 165, 32)
+    pdf.set_line_width(0.8)
+    y_line = pdf.get_y()
+    pdf.line(margin, y_line, margin + 45, y_line)
+    pdf.ln(4)
+
+    # Contact details
+    pdf.set_font("helvetica", '', 10)
+    pdf.set_text_color(70, 70, 70)
+    pdf.set_x(margin)
+    pdf.cell(content_w, 6, clean_text(f"Email: {user.email}"), ln=True)
+    if user.school:
+        pdf.set_x(margin)
+        pdf.cell(content_w, 6, clean_text(f"School: {user.school}"), ln=True)
+    pdf.set_x(margin)
+    member_since = user.created_at.strftime('%B %Y') if user.created_at else 'N/A'
+    pdf.cell(content_w, 6, clean_text(f"Member Since: {member_since}"), ln=True)
+
+    # Bio
+    if user.bio:
+        pdf.ln(3)
+        pdf.set_font("helvetica", 'I', 9)
+        pdf.set_text_color(100, 100, 100)
+        pdf.set_x(margin + 5)
+        pdf.multi_cell(content_w - 10, 5, clean_text(f'"{user.bio}"'))
+
+    pdf.ln(6)
+
+    # ============================================================
+    # IMPACT SUMMARY
+    # ============================================================
+    # Section heading bar
+    pdf.set_fill_color(30, 39, 73)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font("helvetica", 'B', 10)
+    pdf.set_x(margin)
+    pdf.cell(content_w, 9, clean_text("    VOLUNTEER IMPACT SUMMARY"), fill=True, ln=True)
+    pdf.ln(4)
+
+    # 2x2 stat grid
+    half_w = (content_w - 4) / 2
+    stat_h = 18
+    stats_data = [
+        ("Volunteer Hours", str(hours), 52, 152, 219),
+        ("Events Attended", str(events_count), 46, 204, 113),
+        ("Badges Earned", str(len(earned_badges)), 155, 89, 182),
+        ("Seniors Helped", str(seniors_helped), 231, 76, 60),
+    ]
+
+    y_start = pdf.get_y()
+    for i, (label, value, r, g, b) in enumerate(stats_data):
+        col = i % 2
+        x = margin + col * (half_w + 4)
+        y = pdf.get_y() if col == 0 else y_start
+
+        if col == 0:
+            y_start = y
+
+        pdf.set_fill_color(r, g, b)
+        pdf.rect(x, y, half_w, stat_h, 'F')
+
+        # Value
+        pdf.set_xy(x + 6, y + 2)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font("helvetica", 'B', 14)
+        pdf.cell(half_w - 12, 8, clean_text(value))
+
+        # Label
+        pdf.set_xy(x + 6, y + 10)
+        pdf.set_font("helvetica", '', 8)
+        pdf.set_text_color(235, 235, 245)
+        pdf.cell(half_w - 12, 6, clean_text(label))
+
+        if col == 1:
+            pdf.set_y(y + stat_h + 3)
+
+    pdf.ln(6)
+
+    # ============================================================
+    # ACHIEVEMENTS & BADGES
+    # ============================================================
+    if earned_badges:
+        pdf.set_fill_color(30, 39, 73)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font("helvetica", 'B', 10)
+        pdf.set_x(margin)
+        pdf.cell(content_w, 9, clean_text("    ACHIEVEMENTS & BADGES"), fill=True, ln=True)
+        pdf.ln(3)
+
+        # Table header
+        col_num = 12
+        col_badge = content_w - col_num - 42
+        col_date = 42
+
+        pdf.set_fill_color(240, 242, 248)
+        pdf.set_text_color(30, 39, 73)
+        pdf.set_font("helvetica", 'B', 9)
+        pdf.set_x(margin)
+        pdf.cell(col_num, 7, clean_text("#"), fill=True, align='C')
+        pdf.cell(col_badge, 7, clean_text("  Achievement"), fill=True)
+        pdf.cell(col_date, 7, clean_text("Date Earned"), fill=True, align='C')
+        pdf.ln()
+
+        # Badge rows
+        for idx, badge in enumerate(earned_badges, 1):
+            date_str = badge.earned_at.strftime('%d %b %Y')
+            use_fill = (idx % 2 == 0)
+            if use_fill:
+                pdf.set_fill_color(248, 249, 252)
+
+            pdf.set_x(margin)
+
+            pdf.set_text_color(130, 130, 130)
+            pdf.set_font("helvetica", '', 9)
+            pdf.cell(col_num, 7, clean_text(str(idx)), fill=use_fill, align='C')
+
+            pdf.set_text_color(30, 39, 73)
+            pdf.set_font("helvetica", 'B', 9)
+            pdf.cell(col_badge, 7, clean_text(f"  {badge.badge_type}"), fill=use_fill)
+
+            pdf.set_text_color(100, 100, 110)
+            pdf.set_font("helvetica", '', 9)
+            pdf.cell(col_date, 7, clean_text(date_str), fill=use_fill, align='C')
+            pdf.ln()
+
+        pdf.ln(6)
+
+    # ============================================================
+    # SKILLS & QUALITIES
+    # ============================================================
+    pdf.set_fill_color(30, 39, 73)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font("helvetica", 'B', 10)
+    pdf.set_x(margin)
+    pdf.cell(content_w, 9, clean_text("    SKILLS & QUALITIES"), fill=True, ln=True)
+    pdf.ln(3)
+
+    skills = [
+        "Intergenerational Communication",
+        "Community Service & Outreach",
+        "Cultural Exchange & Storytelling",
+        "Digital Literacy Support",
+        "Event Planning & Participation",
+        "Teamwork & Collaboration"
+    ]
+
+    pdf.set_font("helvetica", '', 9)
+    pdf.set_text_color(60, 60, 70)
+    skill_col_w = content_w / 2
+
+    for i, skill in enumerate(skills):
+        col = i % 2
+        x = margin + col * skill_col_w
+
+        if col == 0:
+            row_y = pdf.get_y()
+
+        pdf.set_xy(x + 6, row_y)
+        pdf.cell(skill_col_w - 8, 7, clean_text(f"- {skill}"))
+
+        if col == 1:
+            pdf.set_y(row_y + 7)
+
+    if len(skills) % 2 == 1:
+        pdf.ln(7)
+
+    # ============================================================
+    # FOOTER
+    # ============================================================
+    pdf.set_y(-28)
+    pdf.set_draw_color(218, 165, 32)
+    pdf.set_line_width(0.6)
+    pdf.line(margin, pdf.get_y(), page_w - margin, pdf.get_y())
+    pdf.ln(3)
+
+    pdf.set_font("helvetica", 'I', 7)
+    pdf.set_text_color(100, 100, 100)
+    pdf.set_x(margin)
+    pdf.cell(content_w, 4, clean_text("This portfolio certifies the volunteer contributions recorded on the GenCon SG platform."), align='C', ln=True)
+    pdf.set_font("helvetica", '', 7)
+    pdf.set_text_color(150, 150, 150)
+    pdf.set_x(margin)
+    gen_date = datetime.now().strftime('%d %B %Y')
+    pdf.cell(content_w, 4, clean_text(f"Generated on {gen_date}  |  GenCon SG  |  www.genconsg.com"), align='C')
+
+    # 3. Output PDF to memory
+    pdf_output = io.BytesIO(pdf.output())
+    pdf_output.seek(0)
+
+    return send_file(
+        pdf_output,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f"Volunteer_Portfolio_{user.username}.pdf"
+    )
 
 
 # ==================== PROFILE ====================

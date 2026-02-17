@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cat:*)"
+      "Bash(pip show:*)",
+      "Bash(pip install:*)",
+      "Bash(venv/Scripts/python.exe:*)",
+      "Bash(find:*)",
+      "Bash(python:*)"
     ]
   }
 }

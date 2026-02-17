@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - GenCon SG{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item active">About Us</li>
+                </ol>
+            </nav>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <i class="fas fa-hands-helping text-primary fs-1 mb-3"></i>
+                        <h1 class="fw-bold">About GenCon SG</h1>
+                        <p class="text-muted lead">Bridging generations through meaningful connections.</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h3 class="fw-bold mb-3">Our Mission</h3>
+                        <p>
+                            GenCon SG (Generational Connect Singapore) is a platform dedicated to fostering relationships between youth volunteers and seniors in our community. Our mission is to combat social isolation among seniors while providing youth with valuable opportunities for cultural exchange, storytelling, and personal growth.
+                        </p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h3 class="fw-bold mb-3">What We Do</h3>
+                        <div class="row g-4 mt-2">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                                        <i class="fas fa-book-open text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold">Storytelling</h5>
+                                        <p class="small text-muted mb-0">Preserving history and wisdom through shared stories and digital scrapbooks.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3">
+                                        <i class="fas fa-calendar-check text-success"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold">Community Events</h5>
+                                        <p class="small text-muted mb-0">Organizing interactive workshops, games, and cultural celebrations.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-warning bg-opacity-10 p-3 rounded-3 me-3">
+                                        <i class="fas fa-gamepad text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold">Interactive Play</h5>
+                                        <p class="small text-muted mb-0">Engaging in traditional and modern games to build cognitive skills and fun.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-info bg-opacity-10 p-3 rounded-3 me-3">
+                                        <i class="fas fa-heart text-info"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold">Support Network</h5>
+                                        <p class="small text-muted mb-0">Creating a safe space for seniors to find companionship and digital assistance.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="fw-bold mb-3">Our Story</h3>
+                        <p>
+                            Developed as part of the NYP Web Development Project by Team Rai, GenCon SG was born from the observation that our aging population often lacks digital connection with the younger generation. By leveraging modern technology, we aim to make volunteering more accessible and rewarding for youth, while providing seniors with the social engagement they deserve.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <h4 class="fw-bold mb-3">Ready to join us?</h4>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary px-4 py-2 rounded-pill">Sign Up Now</a>
+                    <a href="{{ url_for('support') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

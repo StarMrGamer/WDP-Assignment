@@ -128,23 +128,70 @@
     }
 
     .games-header {
-        background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
+        background: linear-gradient(135deg, #6366f1 0%, #3b82f6 40%, #06b6d4 100%);
         color: white;
-        padding: 2.5rem 0;
+        padding: 1.5rem 1.25rem;
         margin-bottom: 2rem;
-        border-radius: 1rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .games-header::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -5%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 50%;
+        animation: headerFloat 6s ease-in-out infinite;
+    }
+
+    .games-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: 10%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        animation: headerFloat 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes headerFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
     }
 
     .games-header h1 {
         font-size: 2.5rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
 
     .games-header p {
         font-size: 1.125rem;
         opacity: 0.95;
         margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .games-header-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.95rem !important;
+        margin-top: 0.75rem !important;
     }
 
     .stats-bar {
@@ -623,17 +670,186 @@
             width: 100%;
         }
     }
+
+    /* ===== DARK MODE FOR GAMES PAGE ===== */
+    body[data-theme="dark"] .stats-bar,
+    body[data-theme="dark"] .active-games-section {
+        background: #232428 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .stat-item {
+        background: linear-gradient(135deg, #2b2d31 0%, #232428 100%) !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .stat-item .value {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .stat-item .label {
+        color: #949ba4 !important;
+    }
+
+    body[data-theme="dark"] .game-card {
+        background: #232428 !important;
+        border-color: #3f4147 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .game-card:hover {
+        border-color: #5865f2 !important;
+    }
+
+    body[data-theme="dark"] .game-header h3 {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .game-description {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .game-meta {
+        background: #2b2d31 !important;
+    }
+
+    body[data-theme="dark"] .game-meta-item {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .game-badge {
+        background: rgba(254, 231, 92, 0.15) !important;
+        color: #fee75c !important;
+        font-weight: 700 !important;
+    }
+
+    body[data-theme="dark"] .game-badge.traditional {
+        background: rgba(88, 101, 242, 0.2) !important;
+        color: #8b9fff !important;
+        font-weight: 700 !important;
+    }
+
+    body[data-theme="dark"] .game-badge.modern {
+        background: rgba(242, 63, 67, 0.2) !important;
+        color: #ff8a8e !important;
+        font-weight: 700 !important;
+    }
+
+    body[data-theme="dark"] .btn-learn {
+        background: #2b2d31 !important;
+        color: #5865f2 !important;
+        border-color: #5865f2 !important;
+    }
+
+    body[data-theme="dark"] .btn-learn:hover {
+        background: #5865f2 !important;
+        color: #fff !important;
+    }
+
+    body[data-theme="dark"] .active-game-item {
+        background: #2b2d31 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .active-game-item:hover {
+        background: #313338 !important;
+    }
+
+    body[data-theme="dark"] .active-game-details h4 {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .active-game-details p {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .active-games-section h2 {
+        color: #f2f3f5 !important;
+    }
+
+    /* Game history table in dark mode */
+    body[data-theme="dark"] .table {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .table-light,
+    body[data-theme="dark"] .table thead {
+        background: #1e1f22 !important;
+    }
+
+    body[data-theme="dark"] .table th {
+        color: #b5bac1 !important;
+        background: #1e1f22 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .table td {
+        color: #f2f3f5 !important;
+        border-color: #3f4147 !important;
+    }
+
+    body[data-theme="dark"] .table-hover tbody tr:hover {
+        background: #2b2d31 !important;
+        color: #f2f3f5 !important;
+    }
+
+    /* Rules modal in dark mode */
+    body[data-theme="dark"] .modal-content {
+        background: #232428 !important;
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .modal-body {
+        color: #f2f3f5 !important;
+    }
+
+    body[data-theme="dark"] .modal-body .rules-section p,
+    body[data-theme="dark"] .modal-body .rules-section li {
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .modal-body .bg-light {
+        background: #2b2d31 !important;
+        color: #b5bac1 !important;
+    }
+
+    body[data-theme="dark"] .section-header h2 {
+        color: #f2f3f5 !important;
+    }
+
+    /* Glow effect dark mode */
+    body[data-theme="dark"] [data-glow] {
+        --backdrop: hsl(0 0% 13% / 1);
+        --backup-border: hsl(0 0% 25% / 0.3);
+    }
+
+    body[data-theme="dark"] .game-image::before {
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 60%) !important;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-2">
     <!-- Page Header -->
-    <div class="games-header text-center">
-        <h1>
-            <i class="fas fa-gamepad me-3"></i>Game Lobby
-        </h1>
-        <p>Challenge your senior buddy to traditional Singapore games!</p>
+    <div class="games-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>
+                    <i class="fas fa-gamepad me-3"></i>Game Lobby
+                </h1>
+                <p class="games-header-badge">
+                    <i class="fas fa-chess-knight me-2"></i>
+                    Challenge your senior buddy to traditional Singapore games!
+                </p>
+            </div>
+            <div class="col-md-4 text-end d-none d-md-block">
+                <div style="font-size: 4rem; opacity: 0.2; position: relative; z-index: 1;">
+                    <i class="fas fa-dice"></i>
+                    <i class="fas fa-chess ms-2"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Stats Bar & Profile Hotbar -->

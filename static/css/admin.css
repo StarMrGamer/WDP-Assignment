@@ -692,6 +692,52 @@ body[data-role="admin"] .chart-container h3 {
     body[data-role="admin"] .filter-bar .search-input {
         width: 100%;
     }
+
+    body[data-role="admin"] .admin-header {
+        padding: 1rem;
+    }
+
+    body[data-role="admin"] .admin-header h1 {
+        font-size: 1.25rem;
+    }
+
+    body[data-role="admin"] .admin-header .d-flex {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch !important;
+    }
+
+    body[data-role="admin"] .admin-header .d-flex .btn {
+        width: 100%;
+    }
+
+    body[data-role="admin"] .table-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+
+    body[data-role="admin"] .pair-stats {
+        grid-template-columns: 1fr;
+    }
+
+    body[data-role="admin"] .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .user-profile-header {
+        padding: 1.5rem !important;
+    }
+
+    .user-profile-header h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .user-avatar {
+        width: 80px !important;
+        height: 80px !important;
+    }
 }
 
 /* ==================== PRINT STYLES ==================== */

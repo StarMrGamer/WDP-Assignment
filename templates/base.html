@@ -40,6 +40,25 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     {% endif %}
 
+    <!-- Theme persistence: apply theme before render to prevent white flash -->
+    <script>
+        (function() {
+            var isAuth = {{ 'true' if (request.endpoint and request.endpoint.startswith('auth.')) or not session.get('user_id') else 'false' }};
+            if (!isAuth) {
+                var t = localStorage.getItem('theme');
+                if (t) document.documentElement.setAttribute('data-theme', t);
+                var fs = localStorage.getItem('fontSize');
+                if (fs) document.documentElement.setAttribute('data-font-size', fs);
+                var hc = localStorage.getItem('highContrast');
+                if (hc === 'true') document.documentElement.setAttribute('data-high-contrast', 'true');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.documentElement.removeAttribute('data-font-size');
+                document.documentElement.removeAttribute('data-high-contrast');
+            }
+        })();
+    </script>
+
     <!-- Additional CSS block for child templates -->
     {% block extra_css %}{% endblock %}
     <style>
@@ -120,6 +139,11 @@
                                             <i class="fas fa-flag"></i> Reports
                                         </a>
                                     </li>
+                                    <li class="nav-item animated-nav-item" id="nav-support">
+                                        <a class="nav-link" href="{{ url_for('admin.support_tickets') }}">
+                                            <i class="fas fa-headset"></i> Support
+                                        </a>
+                                    </li>
                                     <li class="nav-item animated-nav-item" id="nav-analytics">
                                         <a class="nav-link" href="{{ url_for('admin.analytics') }}">
                                             <i class="fas fa-chart-line"></i> Analytics
@@ -128,11 +152,6 @@
 
                                 {% else %}
                                     <!-- Senior & Youth Navigation -->
-                                    <li class="nav-item animated-nav-item" id="nav-stories">
-                                        <a class="nav-link" href="{% if session.role == 'senior' %}{{ url_for('senior.story_feed') }}{% else %}{{ url_for('youth.story_feed') }}{% endif %}">
-                                            <i class="fas fa-book-open"></i> Stories
-                                        </a>
-                                    </li>
                                     <li class="nav-item animated-nav-item" id="nav-messages">
                                         <a class="nav-link" href="{{ url_for(session.role + '.messages') }}">
                                             <i class="fas fa-comments"></i> Messages
@@ -154,10 +173,18 @@
                                             <i class="fas fa-trophy"></i> Badges
                                         </a>
                                     </li>
+                                    <!-- Portfolio link removed from nav - available in Badges page -->
                                     {% endif %}
                                     <li class="nav-item animated-nav-item" id="nav-games">
                                         <a class="nav-link" href="{{ url_for(session.role + '.games') }}">
                                             <i class="fas fa-gamepad"></i> Games
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if session.get('role') == 'senior' %}
+                                    <li class="nav-item animated-nav-item" id="nav-chatbot">
+                                        <a class="nav-link" href="{{ url_for('senior.chatbot') }}">
+                                            <i class="fas fa-robot"></i> AI Assistant
                                         </a>
                                     </li>
                                 {% endif %}
@@ -210,8 +237,8 @@
                                 {% if session.get('profile_picture') %}
                                     <img src="{{ url_for('static', filename=session.get('profile_picture')|fix_pfp) }}" 
                                          alt="User" 
-                                         class="rounded-circle me-2" 
-                                         width="32" height="32" 
+                                         class="rounded-circle me-2"
+                                         width="40" height="40"
                                          style="object-fit: cover;">
                                 {% else %}
                                     <div class="avatar-placeholder sm me-2">
@@ -285,7 +312,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer bg-light mt-5 py-4">
+    <footer class="footer bg-light mt-3 py-3">
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
@@ -298,10 +325,10 @@
                 <div class="col-md-4">
                     <h6 class="fw-bold mb-3">Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none small">About Us</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none small">Help & Support</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none small">Privacy Policy</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none small">Terms of Service</a></li>
+                        <li><a href="{{ url_for('about') }}" class="text-muted text-decoration-none small">About Us</a></li>
+                        <li><a href="{{ url_for('support') }}" class="text-muted text-decoration-none small">Help & Support</a></li>
+                        <li><a href="{{ url_for('privacy') }}" class="text-muted text-decoration-none small">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('terms') }}" class="text-muted text-decoration-none small">Terms of Service</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
@@ -314,22 +341,22 @@
                     </p>
                     <ul class="social-media-icons d-flex mt-3">
                         <li>
-                            <a href="#">
+                            <a href="https://facebook.com" target="_blank">
                                 <i class="fab fa-facebook-f icon"></i>
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="https://twitter.com" target="_blank">
                                 <i class="fab fa-twitter icon"></i>
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="https://linkedin.com" target="_blank">
                                 <i class="fab fa-linkedin-in icon"></i>
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="https://google.com" target="_blank">
                                 <i class="fab fa-google-plus-g icon"></i>
                             </a>
                         </li>

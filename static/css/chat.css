@@ -30,6 +30,10 @@
 }
 
 /* Scrollbar Styling for Message Feed */
+.message-feed {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.1) transparent;
+}
 .message-feed::-webkit-scrollbar {
     width: 6px;
 }
@@ -57,6 +61,7 @@
     font-size: 1.05rem;
     line-height: 1.5;
     box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    width: -moz-fit-content;
     width: fit-content;
 }
 
@@ -233,4 +238,91 @@
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     z-index: 100;
+}
+
+/* ==================== DISCORD DARK MODE FOR CHAT ==================== */
+body[data-theme="dark"] .message-feed {
+    background: rgba(43, 45, 49, 0.5) !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .message-feed::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.1) !important;
+}
+
+body[data-theme="dark"] .message-wrapper.other .message-bubble {
+    background: #2b2d31 !important;
+    color: #f2f3f5 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .pill-input-wrapper {
+    background: #1e1f22 !important;
+    border-color: #3f4147 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+}
+
+body[data-theme="dark"] .pill-input-wrapper:focus-within {
+    border-color: #5865f2 !important;
+}
+
+body[data-theme="dark"] .auto-expand {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .auto-expand::placeholder {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .emoji-trigger {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .emoji-trigger:hover {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .icon-circle {
+    background: #2b2d31 !important;
+}
+
+body[data-theme="dark"] .empty-chat-state {
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .sticker:hover {
+    background: #2b2d31 !important;
+}
+
+body[data-theme="dark"] .sticker-menu {
+    background: #232428 !important;
+    border-color: #3f4147 !important;
+}
+
+body[data-theme="dark"] .upload-preview-container {
+    background: #232428 !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important;
+}
+
+body[data-theme="dark"] .status-dot {
+    border-color: #1e1f22 !important;
+}
+
+body[data-theme="dark"] .message-sender-name {
+    color: #b5bac1 !important;
+}
+
+body[data-theme="dark"] .message-wrapper.other .translation-text {
+    border-top-color: #3f4147 !important;
+    color: #949ba4 !important;
+}
+
+body[data-theme="dark"] .message-wrapper.other .flagged-warning {
+    background: rgba(254, 231, 92, 0.15) !important;
+    color: #fee75c !important;
+}
+
+/* Fix text-dark class in dark mode */
+body[data-theme="dark"] .text-dark {
+    color: #f2f3f5 !important;
 }
