@@ -1311,6 +1311,178 @@ body[data-theme="dark"] .border {
     border-color: var(--dc-border) !important;
 }
 
+/* ==================== SENIOR DASHBOARD DARK MODE - BOLD & HIGH CONTRAST ==================== */
+
+/* Senior dashboard header - vibrant gradient in dark mode */
+body[data-theme="dark"] .dashboard-header {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #4c1d95 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4) !important;
+}
+
+body[data-theme="dark"] .dashboard-header h1,
+body[data-theme="dark"] .dashboard-header p,
+body[data-theme="dark"] .dashboard-header span {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+body[data-theme="dark"] .dashboard-header .rounded-pill {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+/* Senior stat cards - bold colored borders and bright values */
+body[data-theme="dark"] .stat-card {
+    background-color: #232428 !important;
+    border-color: #3f4147 !important;
+    border-bottom: 4px solid #7c3aed !important;
+}
+
+body[data-theme="dark"] .stat-card::after {
+    background: linear-gradient(90deg, #7c3aed, #f59e0b) !important;
+}
+
+body[data-theme="dark"] .stat-card .icon {
+    color: #a78bfa !important;
+}
+
+body[data-theme="dark"] .stat-card .value {
+    background: linear-gradient(135deg, #c084fc, #f59e0b) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    font-weight: 800 !important;
+}
+
+body[data-theme="dark"] .stat-card .label {
+    color: #d4d7dc !important;
+    font-weight: 600 !important;
+}
+
+body[data-theme="dark"] .stat-card:hover {
+    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.35) !important;
+    border-color: #7c3aed !important;
+}
+
+/* Senior buddy card - vibrant dark version */
+body[data-theme="dark"] .buddy-card {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+    border-color: #7c3aed !important;
+}
+
+body[data-theme="dark"] .buddy-card .card-header {
+    background: rgba(124, 58, 237, 0.2) !important;
+    border-color: rgba(124, 58, 237, 0.3) !important;
+}
+
+body[data-theme="dark"] .buddy-card h4,
+body[data-theme="dark"] .buddy-card h5 {
+    color: #ffffff !important;
+}
+
+body[data-theme="dark"] .buddy-card .text-muted {
+    color: #c4b5fd !important;
+}
+
+body[data-theme="dark"] .buddy-card img {
+    border-color: #a78bfa !important;
+}
+
+/* Senior story cards in dark - bright left border */
+body[data-theme="dark"] .story-card {
+    background-color: #2b2d31 !important;
+    border-left: 4px solid #f59e0b !important;
+}
+
+body[data-theme="dark"] .story-card h6 {
+    color: #f2f3f5 !important;
+    font-weight: 700 !important;
+}
+
+body[data-theme="dark"] .story-card .category-badge {
+    background-color: #f59e0b !important;
+    color: #1e1f22 !important;
+    font-weight: 700 !important;
+}
+
+/* Senior event cards in dark */
+body[data-theme="dark"] .event-card {
+    background-color: #2b2d31 !important;
+    border-color: #3f4147 !important;
+    border-left: 4px solid #22c55e !important;
+}
+
+body[data-theme="dark"] .event-card .event-date {
+    color: #4ade80 !important;
+    font-weight: 700 !important;
+}
+
+body[data-theme="dark"] .event-card h6 {
+    color: #f2f3f5 !important;
+}
+
+body[data-theme="dark"] .event-card:hover {
+    border-color: #22c55e !important;
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.25) !important;
+}
+
+/* Card headers in dark - bolder */
+body[data-theme="dark"] .card-header h5 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* Quick actions list items - bolder hover */
+body[data-theme="dark"] .list-group-item:hover {
+    background-color: #313338 !important;
+    border-left: 3px solid #5865f2 !important;
+}
+
+/* Weekly check-in card dark mode */
+body[data-theme="dark"] .card.border-warning {
+    border-color: #f59e0b !important;
+    background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+body[data-theme="dark"] .card.border-warning h6 {
+    color: #fbbf24 !important;
+}
+
+body[data-theme="dark"] .card.border-warning p {
+    color: #d4d7dc !important;
+}
+
+body[data-theme="dark"] .btn-warning {
+    background-color: #f59e0b !important;
+    border-color: #f59e0b !important;
+    color: #1e1f22 !important;
+    font-weight: 700 !important;
+}
+
+/* Horizontal rules in dark mode */
+body[data-theme="dark"] hr {
+    border-color: #3f4147 !important;
+    opacity: 1 !important;
+}
+
+/* Badges (Bootstrap) brighter in dark mode */
+body[data-theme="dark"] .badge.bg-primary {
+    background-color: #5865f2 !important;
+    color: #ffffff !important;
+}
+
+/* btn-outline-primary in dark mode */
+body[data-theme="dark"] .btn-outline-primary {
+    color: #818cf8 !important;
+    border-color: #818cf8 !important;
+}
+
+body[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: #818cf8 !important;
+    color: #ffffff !important;
+}
+
 /* ==================== END DISCORD DARK MODE ==================== */
 
 /* Default Avatar */

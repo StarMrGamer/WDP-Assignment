@@ -43,12 +43,19 @@
     <!-- Theme persistence: apply theme before render to prevent white flash -->
     <script>
         (function() {
-            var t = localStorage.getItem('theme');
-            if (t) document.documentElement.setAttribute('data-theme', t);
-            var fs = localStorage.getItem('fontSize');
-            if (fs) document.documentElement.setAttribute('data-font-size', fs);
-            var hc = localStorage.getItem('highContrast');
-            if (hc === 'true') document.documentElement.setAttribute('data-high-contrast', 'true');
+            var isAuth = {{ 'true' if (request.endpoint and request.endpoint.startswith('auth.')) or not session.get('user_id') else 'false' }};
+            if (!isAuth) {
+                var t = localStorage.getItem('theme');
+                if (t) document.documentElement.setAttribute('data-theme', t);
+                var fs = localStorage.getItem('fontSize');
+                if (fs) document.documentElement.setAttribute('data-font-size', fs);
+                var hc = localStorage.getItem('highContrast');
+                if (hc === 'true') document.documentElement.setAttribute('data-high-contrast', 'true');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.documentElement.removeAttribute('data-font-size');
+                document.documentElement.removeAttribute('data-high-contrast');
+            }
         })();
     </script>
 

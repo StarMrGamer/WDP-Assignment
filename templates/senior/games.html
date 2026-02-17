@@ -18,23 +18,70 @@
 <style>
     /* Original Page Styles */
     .games-header {
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 40%, #6d28d9 100%);
         color: white;
-        padding: 2.5rem 0;
+        padding: 2.5rem 2rem;
         margin-bottom: 2rem;
-        border-radius: 1rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px rgba(124, 58, 237, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .games-header::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -5%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 50%;
+        animation: headerFloat 6s ease-in-out infinite;
+    }
+
+    .games-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: 10%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        animation: headerFloat 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes headerFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
     }
 
     .games-header h1 {
         font-size: 2.5rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
 
     .games-header p {
         font-size: 1.125rem;
         opacity: 0.95;
         margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .games-header-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.95rem !important;
+        margin-top: 0.75rem !important;
     }
 
     .stats-bar {
@@ -489,26 +536,6 @@
         gap: .5rem;
     }
 
-    .games-header {
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
-        color: white;
-        padding: 2.5rem 0;
-        margin-bottom: 2rem;
-        border-radius: 1rem;
-    }
-
-    .games-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .games-header p {
-        font-size: 1.125rem;
-        opacity: 0.95;
-        margin: 0;
-    }
-
     /* Stats Bar Layout */
     .stats-bar-layout {
         display: flex;
@@ -540,11 +567,24 @@
 {% block content %}
 <div class="container py-4">
     <!-- Page Header -->
-    <div class="games-header text-center">
-        <h1>
-            <i class="fas fa-gamepad me-3"></i>Game Lobby
-        </h1>
-        <p>Play traditional Singapore games and connect with youth</p>
+    <div class="games-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>
+                    <i class="fas fa-gamepad me-3"></i>Game Lobby
+                </h1>
+                <p class="games-header-badge">
+                    <i class="fas fa-chess-knight me-2"></i>
+                    Play traditional Singapore games and connect with youth
+                </p>
+            </div>
+            <div class="col-md-4 text-end d-none d-md-block">
+                <div style="font-size: 4rem; opacity: 0.2; position: relative; z-index: 1;">
+                    <i class="fas fa-dice"></i>
+                    <i class="fas fa-chess ms-2"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Stats Bar & Profile Hotbar -->

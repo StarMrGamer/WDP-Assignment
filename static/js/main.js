@@ -96,6 +96,10 @@ function setTheme(theme) {
  * Restores font size, contrast mode, and theme from localStorage
  */
 function loadAccessibilityPreferences() {
+    // Skip theme/preferences on auth pages (login/register should always be light)
+    const isAuthPage = document.body.getAttribute('data-role') === 'guest';
+    if (isAuthPage) return;
+
     // Load font size preference (seniors)
     const savedFontSize = localStorage.getItem('fontSize');
     if (savedFontSize) {
