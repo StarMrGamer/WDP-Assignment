@@ -10,7 +10,7 @@ Description: Handles all administrative functions including user moderation,
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
-from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode, EventParticipant, SupportTicket
+from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode, EventParticipant, SupportTicket, StoryReaction, StoryComment, Badge, GameSession, GameHistory, Notification, Checkin, TicTacToeSession
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from blueprints.decorators import admin_required
@@ -157,22 +157,67 @@ def delete_user(user_id):
         return redirect(url_for('admin.user_detail', user_id=user.id))
         
     try:
-        # 1. Delete or unlink dependencies (Optional but recommended)
-        # SQLAlchemy 'cascade' usually handles this if configured, 
-        # but manual cleanup is safer for complex relationships.
+        # Manual cleanup of dependencies to avoid Foreign Key errors
         
-        # 2. Delete the user
+        # 1. Remove from Pairs
+        Pair.query.filter((Pair.senior_id == user.id) | (Pair.youth_id == user.id)).delete()
+        
+        # 2. Remove Stories (and their reactions/comments via cascade if configured, else manual)
+        # Also delete reactions/comments THIS user made on OTHER stories
+        StoryReaction.query.filter_by(user_id=user.id).delete()
+        StoryComment.query.filter_by(user_id=user.id).delete()
+        
+        # Delete user's stories (iterating to ensure cascades work if configured on DB side or ORM events)
+        for story in user.stories.all():
+            db.session.delete(story)
+            
+        # 3. Messages
+        Message.query.filter((Message.sender_id == user.id) | (Message.recipient_id == user.id)).delete()
+        
+        # 4. Community
+        CommunityMember.query.filter_by(user_id=user.id).delete()
+        CommunityPost.query.filter_by(user_id=user.id).delete()
+        
+        # Reassign communities/events created by user to an admin to prevent deletion/orphan
+        admin_user = User.query.filter_by(role='admin').first()
+        if admin_user and admin_user.id != user.id:
+             Community.query.filter_by(created_by=user.id).update({'created_by': admin_user.id})
+             Event.query.filter_by(created_by=user.id).update({'created_by': admin_user.id})
+        
+        # 5. Events Participation
+        EventParticipant.query.filter_by(user_id=user.id).delete()
+        
+        # 6. Gamification & Engagement
+        if user.streak:
+            db.session.delete(user.streak)
+        Badge.query.filter_by(user_id=user.id).delete()
+        Checkin.query.filter_by(user_id=user.id).delete()
+        
+        # 7. Games
+        GameSession.query.filter((GameSession.player1_id == user.id) | (GameSession.player2_id == user.id)).delete()
+        TicTacToeSession.query.filter((TicTacToeSession.player1_id == user.id) | (TicTacToeSession.player2_id == user.id)).delete()
+        GameHistory.query.filter((GameHistory.player1_id == user.id) | (GameHistory.player2_id == user.id)).delete()
+        
+        # 8. Support & Reports
+        SupportTicket.query.filter_by(user_id=user.id).update({'user_id': None})
+        ChatReport.query.filter((ChatReport.reported_by == user.id) | (ChatReport.reported_user_id == user.id)).delete()
+        
+        # 9. Notifications & Codes
+        Notification.query.filter_by(user_id=user.id).delete()
+        RegistrationCode.query.filter_by(used_by_id=user.id).update({'used_by_id': None})
+
+        # Finally delete the user
         username = user.username
         db.session.delete(user)
         db.session.commit()
         
-        flash(f'User {username} has been permanently deleted.', 'success')
+        flash(f'User {username} and all associated data have been permanently deleted.', 'success')
         return redirect(url_for('admin.users'))
         
     except Exception as e:
         db.session.rollback()
         print(f"Delete error: {e}")
-        flash('Error deleting user. Ensure all related records are cleared.', 'danger')
+        flash(f'Error deleting user: {str(e)}', 'danger')
         return redirect(url_for('admin.user_detail', user_id=user.id))
 
 # ==================== PAIR MANAGEMENT ====================
