@@ -199,7 +199,7 @@
         <div class="d-flex gap-2 flex-wrap">
             <form action="{{ url_for('admin.reset_user_password', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Reset this user\'s password to password123?');">
                 <button type="submit" class="btn btn-outline-warning">
-                    <i class="fas fa-key me-1"></i>Reset Password to password123
+                    <i class="fas fa-key me-1"></i>Reset Password
                 </button>
             </form>
             <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Permanently delete this user?');">
