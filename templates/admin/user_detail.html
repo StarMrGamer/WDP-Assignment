@@ -197,14 +197,9 @@
     <div class="user-info-card mt-2">
         <h5 class="fw-bold mb-3"><i class="fas fa-cog me-2"></i>Admin Actions</h5>
         <div class="d-flex gap-2 flex-wrap">
-            <form action="{{ url_for('admin.reset_user_password', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Reset this user\'s password to password123?');">
+            <form action="{{ url_for('admin.reset_user_password', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Reset this user\'s password?');">
                 <button type="submit" class="btn btn-outline-warning">
                     <i class="fas fa-key me-1"></i>Reset Password
-                </button>
-            </form>
-            <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Permanently delete this user?');">
-                <button type="submit" class="btn btn-outline-danger">
-                    <i class="fas fa-trash me-1"></i>Delete Account
                 </button>
             </form>
         </div>
