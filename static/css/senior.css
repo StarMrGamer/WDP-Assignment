@@ -246,7 +246,6 @@ body[data-role="senior"] .form-control {
 }
 
 body[data-role="senior"] .card {
-    padding: 2rem;                   /* More spacious cards */
     margin-bottom: 2rem;
     background: var(--senior-card-bg);
 }

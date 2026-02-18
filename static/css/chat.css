@@ -48,6 +48,7 @@
 .message-wrapper {
     display: flex;
     width: 100%;
+    align-items: center;
 }
 
 .message-wrapper.me { justify-content: flex-end; }
@@ -161,24 +162,35 @@
 .emoji-trigger:hover { color: #9B59B6; }
 
 .circle-send-btn {
-    background: #9B59B6;
+    background: linear-gradient(135deg, #9B59B6 0%, #3498DB 100%);
     color: white;
-    width: 45px;
-    height: 45px;
-    min-width: 45px;
-    border-radius: 50%;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px;
+    max-width: 48px;
+    border-radius: 50% !important;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    padding: 0;
+    padding: 0 !important;
     border: none;
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.35);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    line-height: 1;
 }
 
 .circle-send-btn:hover {
-    background: #3498DB;
-    transform: scale(1.1) rotate(-10deg);
+    background: linear-gradient(135deg, #8E44AD 0%, #2980B9 100%);
+    transform: scale(1.12);
     color: white;
+    box-shadow: 0 6px 20px rgba(155, 89, 182, 0.5);
+}
+
+.circle-send-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
 }
 
 /* Empty State */
@@ -218,6 +230,8 @@
     border-radius: 50%;
     object-fit: cover;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    align-self: center;
+    flex-shrink: 0;
 }
 
 .message-sender-name {

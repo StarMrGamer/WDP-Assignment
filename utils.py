@@ -94,9 +94,9 @@ def check_unkind_words(content, unkind_words=None):
     if unkind_words is None:
         unkind_words = getattr(Config, 'UNKIND_WORDS', [])
 
-    content_lower = content.lower()
     for word in unkind_words:
-        if word.lower() in content_lower:
+        pattern = re.compile(r'\b' + re.escape(word) + r'\b', re.IGNORECASE)
+        if pattern.search(content):
             return True
     return False
 
