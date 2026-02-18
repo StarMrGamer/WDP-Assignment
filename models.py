@@ -16,13 +16,11 @@ Description: Defines all database tables and relationships:
 """
 
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 
-# Initialize SQLAlchemy database object
-# This will be initialized in app.py with db.init_app(app)
-db = SQLAlchemy()
+# db is defined in extensions.py and bound to the app via db.init_app(app)
+from extensions import db
 
 
 # ==================== USER MODEL ====================

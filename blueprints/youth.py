@@ -12,42 +12,16 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models import db, User, Story, Message, Event, Community, Pair, Badge, StoryReaction, StoryComment, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport
 from forms import MessageForm, StoryForm
 from datetime import datetime, timedelta
-from functools import wraps
 from werkzeug.utils import secure_filename
-from utils import filter_text, check_unkind_words, save_uploaded_file, sanitize_for_display
+from utils import filter_text, check_unkind_words, save_uploaded_file, sanitize_for_display, LANG_MAP
+from blueprints.decorators import youth_required as login_required
 import os
 import io
 from fpdf import FPDF
 from deep_translator import GoogleTranslator
 
-# Map app language codes to deep-translator codes
-LANG_MAP = {
-    'zh': 'zh-CN',
-    'ms': 'ms',
-    'ta': 'ta',
-    'en': 'en',
-}
-
 # Create youth blueprint
 youth_bp = Blueprint('youth', __name__)
-
-
-# ==================== AUTHENTICATION DECORATOR ====================
-def login_required(f):
-    """
-    Decorator to require login for routes.
-    Ensures user is logged in and is a youth volunteer.
-    """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            flash('Please login to access this page', 'warning')
-            return redirect(url_for('auth.login', role='youth'))
-        if session.get('role') != 'youth':
-            flash('Access denied. Youth account required.', 'danger')
-            return redirect(url_for('index'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 
 # ==================== DASHBOARD ====================
@@ -1311,7 +1285,7 @@ def games():
 @login_required
 def challenge_buddy(game_id):
     """Create a new game session and challenge buddy."""
-    from app import socketio
+    from extensions import socketio
     user_id = session['user_id']
     pair = Pair.query.filter_by(youth_id=user_id, status='active').first()
     if not pair:

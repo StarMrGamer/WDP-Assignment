@@ -6,6 +6,16 @@ from werkzeug.utils import secure_filename
 from config import Config
 
 
+# Map app language codes to deep-translator language codes.
+# Shared by blueprints/senior.py and blueprints/youth.py.
+LANG_MAP = {
+    'zh': 'zh-CN',
+    'ms': 'ms',
+    'ta': 'ta',
+    'en': 'en',
+}
+
+
 def escape_html(text):
     """
     Escape HTML special characters to prevent XSS attacks.
