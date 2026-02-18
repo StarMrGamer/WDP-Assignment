@@ -131,11 +131,24 @@ class Config:
         'fuck', 'fucking', 'fucker', 'shit', 'shitty', 'asshole',
         'bitch', 'bastard', 'cunt', 'dick', 'pussy', 'slut', 'whore',
         'damn', 'hell', 'piss', 'crap', 'fag', 'faggot', 'nigger',
-        'chink', 'retard', 'retarded', 'die', 'kill', 'suicide',
+        'chink', 'retard', 'retarded', 'retards',
+        'nigga', 'niggas', 'niggah', 'niga', 'niger',
+        'die', 'kill', 'suicide',
         'moron', 'prick', 'bastard', 'dickhead', 'twat', 'wanker',
         'scum', 'garbage', 'scumbag', 'bollocks', 'bugger',
-        'lan jiao', 'knn', 'ccb', 'lim peh', 'wa lau', 'bodoh',
-        'pukimak', 'sohai', 'kan ni na', 'lan jiao', 'mak kau hijau'
+        'lan jiao', 'knn', 'ccb', 'lim peh', 'bodoh',
+        'pukimak', 'sohai', 'kan ni na', 'mak kau hijau',
+        'chao chee bye', 'cb', 'knnbccb', 'kanina',
+        'nabei', 'na bei', 'nabe', 'lanjiao', 'lj',
+        'kaninabeh', 'knnccb', 'smlj', 'dllm', 'diu',
+        'ham ka chan', 'pui', 'sei', 'tiu',
+        'babi', 'anjing', 'sial', 'celaka', 'haram jadah',
+        'pariah', 'keling', 'apunehneh', 'ah tiong',
+        'mat rep', 'minah', 'bangla',
+        'chibai', 'lanciau', 'mahai', 'niama',
+        'pundek', 'thevadiya', 'otha', 'thevidiya',
+        'sundalai', 'baigan', 'kudhi', 'vesam',
+        'goondu', 'sotong'
     ]
 
     # ==================== NOTIFICATION SETTINGS ====================
