@@ -12,30 +12,12 @@ Description: Handles all administrative functions including user moderation,
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from models import db, User, Pair, Event, Community, ChatReport, Story, Message, CommunityPost, CommunityMember, RegistrationCode, EventParticipant, SupportTicket
 from datetime import datetime, timedelta
-from functools import wraps
 from werkzeug.utils import secure_filename
+from blueprints.decorators import admin_required
 import os
 
 # Create admin blueprint
 admin_bp = Blueprint('admin', __name__)
-
-
-# ==================== AUTHENTICATION DECORATOR ====================
-def admin_required(f):
-    """
-    Decorator to require admin login for routes.
-    Ensures user is logged in and is an admin.
-    """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            flash('Please login to access this page', 'warning')
-            return redirect(url_for('auth.login', role='admin'))
-        if session.get('role') != 'admin':
-            flash('Access denied. Admin privileges required.', 'danger')
-            return redirect(url_for('index'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 
 # ==================== DASHBOARD ====================

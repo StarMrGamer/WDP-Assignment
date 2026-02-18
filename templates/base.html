@@ -83,7 +83,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container-fluid">
             <!-- Brand/Logo -->
-            <a class="navbar-brand d-flex align-items-center" href="{% if session.role %}{{ url_for(session.role + '.dashboard') }}{% else %}{{ url_for('index') }}{% endif %}">
+            <a class="navbar-brand d-flex align-items-center" href="{% if session.role %}{{ url_for(session.role + '.dashboard') }}{% else %}{{ url_for('main.index') }}{% endif %}">
                 <i class="fas fa-hands-helping text-primary me-2 fs-2"></i>
                 <span class="fw-bold fs-3">GenCon SG</span>
             </a>
@@ -325,10 +325,10 @@
                 <div class="col-md-4">
                     <h6 class="fw-bold mb-3">Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('about') }}" class="text-muted text-decoration-none small">About Us</a></li>
-                        <li><a href="{{ url_for('support') }}" class="text-muted text-decoration-none small">Help & Support</a></li>
-                        <li><a href="{{ url_for('privacy') }}" class="text-muted text-decoration-none small">Privacy Policy</a></li>
-                        <li><a href="{{ url_for('terms') }}" class="text-muted text-decoration-none small">Terms of Service</a></li>
+                        <li><a href="{{ url_for('main.about') }}" class="text-muted text-decoration-none small">About Us</a></li>
+                        <li><a href="{{ url_for('main.support') }}" class="text-muted text-decoration-none small">Help & Support</a></li>
+                        <li><a href="{{ url_for('main.privacy') }}" class="text-muted text-decoration-none small">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('main.terms') }}" class="text-muted text-decoration-none small">Terms of Service</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">

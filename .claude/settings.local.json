@@ -5,7 +5,18 @@
       "Bash(pip install:*)",
       "Bash(venv/Scripts/python.exe:*)",
       "Bash(find:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(source venv/Scripts/activate)",
+      "Bash(source:*)",
+      "Bash(venv/Scripts/pip install:*)",
+      "Bash(venv/Scripts/pip.exe install:*)",
+      "Bash(dir:*)",
+      "Bash(pip --version:*)",
+      "Bash(if not exist services mkdir services)",
+      "Bash(ls:*)",
+      "Bash(venv/Scripts/pip.exe list:*)",
+      "Bash(C:/Users/rai/Documents/GitHub/WDP-Assignment/venv/Scripts/pip.exe list)",
+      "Bash(C:/Users/rai/Documents/GitHub/WDP-Assignment/venv/Scripts/python.exe -c \"\nimport os; os.environ[''FLASK_ENV''] = ''testing''\ntry:\n    import app as a\n    print\\(''App imported successfully''\\)\nexcept Exception as e:\n    print\\(f''Import error: {type\\(e\\).__name__}: {e}''\\)\n\")"
     ]
   }
 }
