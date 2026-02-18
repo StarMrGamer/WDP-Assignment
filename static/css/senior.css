@@ -68,44 +68,160 @@ body[data-role="senior"][data-font-size="xlarge"] h3 { font-size: 2.5rem; }
 body[data-role="senior"][data-font-size="xlarge"] .btn { font-size: 1.25rem; }
 body[data-role="senior"][data-font-size="xlarge"] .nav-link { font-size: 1.25rem; }
 
-/* ==================== SENIOR HIGH CONTRAST (Standard: Black on White) ==================== */
+/* ==================== SENIOR HIGH CONTRAST (Enhanced contrast, same color palette) ==================== */
 body[data-role="senior"][data-high-contrast="true"] {
-    background-color: #FFFFFF !important;  /* Pure White Background */
-    color: #000000 !important;             /* Pure Black Text */
+    background-color: #FFF8F0 !important;
+    color: #1A0800 !important;             /* Deeper warm brown for stronger contrast */
 }
 
-/* Force specific containers to be white with black text */
+/* Enhanced contrast for cards - keep warm palette, strengthen borders */
 body[data-role="senior"][data-high-contrast="true"] .card,
 body[data-role="senior"][data-high-contrast="true"] .community-card,
 body[data-role="senior"][data-high-contrast="true"] .dashboard-card,
-body[data-role="senior"][data-high-contrast="true"] .stat-card {
+body[data-role="senior"][data-high-contrast="true"] .stat-card,
+body[data-role="senior"][data-high-contrast="true"] .profile-card,
+body[data-role="senior"][data-high-contrast="true"] .story-card,
+body[data-role="senior"][data-high-contrast="true"] .event-card,
+body[data-role="senior"][data-high-contrast="true"] .game-card {
     background-color: #FFFFFF !important;
-    color: #000000 !important;
-    border: 3px solid #000000 !important; /* Thick border for definition */
-    box-shadow: none !important;
+    color: #1A0800 !important;
+    border: 3px solid var(--senior-primary) !important;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25) !important;
 }
 
-/* Force Headers and Text to Black */
+/* Stronger text colors - deepened warm brown, not black */
 body[data-role="senior"][data-high-contrast="true"] h1,
 body[data-role="senior"][data-high-contrast="true"] h2,
 body[data-role="senior"][data-high-contrast="true"] h3,
 body[data-role="senior"][data-high-contrast="true"] h4,
 body[data-role="senior"][data-high-contrast="true"] h5,
+body[data-role="senior"][data-high-contrast="true"] h6,
 body[data-role="senior"][data-high-contrast="true"] p,
-body[data-role="senior"][data-high-contrast="true"] .card-text,
-body[data-role="senior"][data-high-contrast="true"] .text-muted {
-    color: #000000 !important;
-    font-weight: bold !important;
+body[data-role="senior"][data-high-contrast="true"] span,
+body[data-role="senior"][data-high-contrast="true"] label,
+body[data-role="senior"][data-high-contrast="true"] strong,
+body[data-role="senior"][data-high-contrast="true"] b,
+body[data-role="senior"][data-high-contrast="true"] .fw-bold,
+body[data-role="senior"][data-high-contrast="true"] .card-text {
+    color: #1A0800 !important;
+    font-weight: 700 !important;
 }
 
-/* Fix Navbar for Senior */
+/* Muted text gets more contrast but stays warm */
+body[data-role="senior"][data-high-contrast="true"] .text-muted,
+body[data-role="senior"][data-high-contrast="true"] small,
+body[data-role="senior"][data-high-contrast="true"] .small {
+    color: #5C2D00 !important;
+    font-weight: 600 !important;
+}
+
+/* Links use deeper orange */
+body[data-role="senior"][data-high-contrast="true"] a {
+    color: #C2410C !important;
+    text-decoration: underline !important;
+}
+
+/* Navbar - warm with strong border */
 body[data-role="senior"][data-high-contrast="true"] .navbar {
     background-color: #FFFFFF !important;
-    border-bottom: 3px solid #000000 !important;
+    border-bottom: 3px solid var(--senior-primary) !important;
 }
+
 body[data-role="senior"][data-high-contrast="true"] .nav-link {
-    color: #000000 !important;
-    font-weight: bold;
+    color: #1A0800 !important;
+    font-weight: 700 !important;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .nav-link:hover,
+body[data-role="senior"][data-high-contrast="true"] .nav-link.active {
+    color: var(--senior-primary) !important;
+}
+
+/* Form controls - stronger borders */
+body[data-role="senior"][data-high-contrast="true"] .form-control,
+body[data-role="senior"][data-high-contrast="true"] .form-select {
+    background-color: #FFFFFF !important;
+    color: #1A0800 !important;
+    border: 2px solid var(--senior-primary) !important;
+}
+
+/* Buttons get thicker borders */
+body[data-role="senior"][data-high-contrast="true"] .btn {
+    border-width: 3px !important;
+    font-weight: 700 !important;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .btn-outline-primary,
+body[data-role="senior"][data-high-contrast="true"] .btn-outline-secondary {
+    border-color: var(--senior-primary) !important;
+    color: #1A0800 !important;
+}
+
+/* Tables */
+body[data-role="senior"][data-high-contrast="true"] .table th,
+body[data-role="senior"][data-high-contrast="true"] .data-table th {
+    color: #1A0800 !important;
+    border-color: var(--senior-primary) !important;
+    font-weight: 700 !important;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .table td,
+body[data-role="senior"][data-high-contrast="true"] .data-table td {
+    color: #1A0800 !important;
+    border-color: var(--senior-border) !important;
+}
+
+/* Dropdowns */
+body[data-role="senior"][data-high-contrast="true"] .dropdown-menu {
+    background-color: #FFFFFF !important;
+    border: 2px solid var(--senior-primary) !important;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .dropdown-item {
+    color: #1A0800 !important;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .dropdown-item:hover {
+    background-color: #FFF3E0 !important;
+}
+
+/* Modals */
+body[data-role="senior"][data-high-contrast="true"] .modal-content {
+    background-color: #FFFFFF !important;
+    color: #1A0800 !important;
+    border: 3px solid var(--senior-primary) !important;
+}
+
+/* Footer */
+body[data-role="senior"][data-high-contrast="true"] footer {
+    background-color: #FFF8F0 !important;
+    color: #1A0800 !important;
+    border-top: 3px solid var(--senior-primary) !important;
+}
+
+/* Badges */
+body[data-role="senior"][data-high-contrast="true"] .badge {
+    border: 2px solid var(--senior-primary) !important;
+    font-weight: 700 !important;
+}
+
+/* Fix bg-light badges - keep light background with dark text */
+body[data-role="senior"][data-high-contrast="true"] .badge.bg-light {
+    background-color: #FFFFFF !important;
+    color: #1A0800 !important;
+    border: 2px solid var(--senior-primary) !important;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .bg-light {
+    background-color: #FFFFFF !important;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .text-dark {
+    color: #1A0800 !important;
+}
+
+body[data-role="senior"][data-high-contrast="true"] .bg-white {
+    background-color: #FFFFFF !important;
 }
 
 /* ==================== TOUCH-OPTIMIZED ELEMENTS ==================== */

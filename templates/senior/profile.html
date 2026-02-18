@@ -384,6 +384,18 @@
         color: #f2f3f5 !important;
     }
 
+    /* Disable high contrast toggle in dark mode */
+    body[data-theme="dark"] #highContrastProfileToggle {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    body[data-theme="dark"] #highContrastProfileToggle + .preference-description,
+    body[data-theme="dark"] .high-contrast-disabled-note {
+        color: #949ba4 !important;
+    }
+
     @media (max-width: 768px) {
         .profile-header-content {
             flex-direction: column;
@@ -693,6 +705,9 @@
                         <div class="toggle-switch" id="highContrastProfileToggle" onclick="toggleHighContrastProfile()"></div>
                     </div>
                     <p class="preference-description">Increase contrast between text and background</p>
+                    <p class="preference-description high-contrast-disabled-note d-none mt-1" style="font-style: italic; font-size: 0.85rem;">
+                        <i class="fas fa-info-circle me-1"></i>Not available in dark mode
+                    </p>
                 </div>
                 <div class="preference-item">
                     <div class="preference-header">
@@ -740,15 +755,36 @@
     window.setSeniorTheme = function(theme) {
         setTheme(theme); // Call global function from main.js
         updateSeniorThemeUI();
+        updateHighContrastAvailability();
     }
 
     document.addEventListener('DOMContentLoaded', updateSeniorThemeUI);
 
     // High Contrast Toggle Logic
     function toggleHighContrastProfile() {
+        const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+        if (isDarkMode) return; // Do nothing in dark mode
         toggleHighContrast(); // Call global function
         const toggle = document.getElementById('highContrastProfileToggle');
         if (toggle) toggle.classList.toggle('active');
+    }
+
+    // Disable high contrast when in dark mode, show/hide note
+    function updateHighContrastAvailability() {
+        const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+        const toggle = document.getElementById('highContrastProfileToggle');
+        const note = document.querySelector('.high-contrast-disabled-note');
+
+        if (isDarkMode) {
+            // If high contrast is on, turn it off
+            if (document.body.getAttribute('data-high-contrast') === 'true') {
+                toggleHighContrast();
+            }
+            if (toggle) toggle.classList.remove('active');
+            if (note) note.classList.remove('d-none');
+        } else {
+            if (note) note.classList.add('d-none');
+        }
     }
 
     // Initialize toggle state
@@ -756,6 +792,7 @@
         const isHighContrast = document.body.getAttribute('data-high-contrast') === 'true';
         const toggle = document.getElementById('highContrastProfileToggle');
         if (toggle && isHighContrast) toggle.classList.add('active');
+        updateHighContrastAvailability();
     });
 
     // Preview profile picture
