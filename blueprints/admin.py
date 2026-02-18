@@ -171,18 +171,35 @@ def delete_user(user_id):
         for story in user.stories.all():
             db.session.delete(story)
             
-        # 3. Messages
-        Message.query.filter((Message.sender_id == user.id) | (Message.recipient_id == user.id)).delete()
+        # 3. Messages & Reports linked to them
+        # Find messages involving user
+        messages = Message.query.filter((Message.sender_id == user.id) | (Message.recipient_id == user.id)).all()
+        message_ids = [m.id for m in messages]
         
-        # 4. Community
+        if message_ids:
+            # Delete reports linked to these messages first
+            ChatReport.query.filter(ChatReport.message_id.in_(message_ids)).delete(synchronize_session=False)
+            # Delete the messages
+            Message.query.filter(Message.id.in_(message_ids)).delete(synchronize_session=False)
+        
+        # 4. Community & Posts
         CommunityMember.query.filter_by(user_id=user.id).delete()
-        CommunityPost.query.filter_by(user_id=user.id).delete()
+        
+        # Posts by user (and their reports)
+        posts = CommunityPost.query.filter_by(user_id=user.id).all()
+        post_ids = [p.id for p in posts]
+        
+        if post_ids:
+            # Delete reports linked to these posts
+            ChatReport.query.filter(ChatReport.community_post_id.in_(post_ids)).delete(synchronize_session=False)
+            # Delete the posts
+            CommunityPost.query.filter(CommunityPost.id.in_(post_ids)).delete(synchronize_session=False)
         
         # Reassign communities/events created by user to an admin to prevent deletion/orphan
-        admin_user = User.query.filter_by(role='admin').first()
-        if admin_user and admin_user.id != user.id:
-             Community.query.filter_by(created_by=user.id).update({'created_by': admin_user.id})
-             Event.query.filter_by(created_by=user.id).update({'created_by': admin_user.id})
+        fallback_admin = User.query.filter(User.role == 'admin', User.id != user.id).first()
+        if fallback_admin:
+             Community.query.filter_by(created_by=user.id).update({'created_by': fallback_admin.id})
+             Event.query.filter_by(created_by=user.id).update({'created_by': fallback_admin.id})
         
         # 5. Events Participation
         EventParticipant.query.filter_by(user_id=user.id).delete()
