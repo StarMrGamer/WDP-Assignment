@@ -367,9 +367,12 @@ def seed_usage():
         # 7. EVENT PARTICIPATION
         # ============================================================
         print("Adding event participants...")
+        now = datetime.utcnow()
         events = Event.query.all()
         for event in events:
             participants = random.sample(all_users, min(random.randint(3, 10), len(all_users)))
+            # Events in the past: reminders were already sent
+            is_past = event.date < now
             for user in participants:
                 existing = EventParticipant.query.filter_by(
                     event_id=event.id, user_id=user.id
@@ -378,7 +381,9 @@ def seed_usage():
                     ep = EventParticipant(
                         event_id=event.id,
                         user_id=user.id,
-                        registered_at=datetime.utcnow() - timedelta(days=random.randint(1, 14))
+                        registered_at=datetime.utcnow() - timedelta(days=random.randint(1, 14)),
+                        reminder_24h_sent=is_past,
+                        reminder_1h_sent=is_past,
                     )
                     db.session.add(ep)
         db.session.flush()

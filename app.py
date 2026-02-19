@@ -96,6 +96,12 @@ def create_app(config_name=None):
                       "Added status to events")
             _patch_db(app, "ALTER TABLE events ADD COLUMN justification TEXT",
                       "Added justification to events")
+            _patch_db(app,
+                "ALTER TABLE event_participants ADD COLUMN reminder_24h_sent BOOLEAN NOT NULL DEFAULT 0",
+                "Added reminder_24h_sent to event_participants")
+            _patch_db(app,
+                "ALTER TABLE event_participants ADD COLUMN reminder_1h_sent BOOLEAN NOT NULL DEFAULT 0",
+                "Added reminder_1h_sent to event_participants")
 
             try:
                 with db.engine.connect() as conn:
@@ -133,6 +139,24 @@ def create_app(config_name=None):
                 db.create_all()
 
             print("Database tables created successfully")
+
+        import atexit
+        from apscheduler.schedulers.background import BackgroundScheduler
+        from services.reminders import send_event_reminders
+
+        scheduler = BackgroundScheduler(daemon=True)
+        scheduler.add_job(
+            func=send_event_reminders,
+            args=[app],
+            trigger='interval',
+            minutes=15,
+            id='event_reminders',
+            misfire_grace_time=300,
+            max_instances=1,
+        )
+        scheduler.start()
+        atexit.register(lambda: scheduler.shutdown(wait=False))
+        print("Event reminder scheduler started (every 15 minutes)")
 
     return app
 

@@ -3,3 +3,4 @@ __pycache__/
 database.db
 *.pyc
 .env
+Project_Guidebook.pdf

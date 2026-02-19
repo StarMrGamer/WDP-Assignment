@@ -220,9 +220,67 @@ def seed_data():
             created_by=admin.id
         )
 
+        # ~24h from now — triggers the 24h reminder on next scheduler tick
+        event4 = Event(
+            title='Morning Tai Chi with Seniors',
+            description='Join us for a gentle tai chi session at the park, guided by our senior instructors. Great for all fitness levels.',
+            event_type='in-person',
+            location='Bishan Park Pavilion',
+            date=datetime.utcnow() + timedelta(hours=24),
+            capacity=30,
+            status='approved',
+            created_by=admin.id
+        )
+
+        # Past event — both reminders already sent
+        event5 = Event(
+            title='Seniors Photography Walk',
+            description='A guided photography walk around the Civic District with seniors sharing stories about how the area has changed.',
+            event_type='in-person',
+            location='Padang, City Hall',
+            date=datetime.utcnow() - timedelta(days=3),
+            capacity=20,
+            status='approved',
+            created_by=admin.id
+        )
+
         db.session.add(event1)
         db.session.add(event2)
         db.session.add(event3)
+        db.session.add(event4)
+        db.session.add(event5)
+        db.session.commit()
+
+        # Register senior + youth for the upcoming 24h event and the past event
+        ep_upcoming = EventParticipant(
+            event_id=event4.id,
+            user_id=senior.id,
+            registered_at=datetime.utcnow() - timedelta(days=5),
+            reminder_24h_sent=False,
+            reminder_1h_sent=False
+        )
+        ep_upcoming2 = EventParticipant(
+            event_id=event4.id,
+            user_id=youth.id,
+            registered_at=datetime.utcnow() - timedelta(days=5),
+            reminder_24h_sent=False,
+            reminder_1h_sent=False
+        )
+        ep_past = EventParticipant(
+            event_id=event5.id,
+            user_id=senior.id,
+            registered_at=datetime.utcnow() - timedelta(days=10),
+            reminder_24h_sent=True,
+            reminder_1h_sent=True
+        )
+        ep_past2 = EventParticipant(
+            event_id=event5.id,
+            user_id=youth.id,
+            registered_at=datetime.utcnow() - timedelta(days=10),
+            reminder_24h_sent=True,
+            reminder_1h_sent=True
+        )
+        db.session.add_all([ep_upcoming, ep_upcoming2, ep_past, ep_past2])
         db.session.commit()
         print("Database seeded with events.")
 
