@@ -1,93 +1,205 @@
-# WDP-assignment
+# GenCon SG
 
+A **Flask-based intergenerational platform** connecting seniors and youths in Singapore through stories, events, communities, real-time chat, and multiplayer board games.
 
+---
 
-## Getting started
+## Features
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### 👴 Senior Portal
+- **Stories** – Share and browse life stories with photo/video uploads
+- **Messages** – 1-on-1 real-time chat with youth partners (with translation support)
+- **Events** – Browse, RSVP, and view upcoming community events
+- **Communities** – Join interest groups and participate in group chats
+- **Games** – Play Chess, Xiangqi, and Tic-Tac-Toe with matched youth
+- **Daily Check-in** – Earn points and maintain login streaks
+- **Profile** – Manage profile picture, bio, and accessibility settings (font size)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### 🧑 Youth Portal
+- **Story Feed** – React to and comment on senior stories
+- **Messages** – Chat with paired seniors; automatic multi-language translation
+- **Events** – Browse and RSVP to events
+- **Communities** – Join groups and chat
+- **Games** – Challenge paired seniors to multiplayer board games
+- **Badges** – Earn achievement badges for engagement milestones
+- **Profile** – Manage profile and choose app themes
 
-## Add your files
+### 🔧 Admin Portal
+- **Dashboard** – Platform-wide analytics and activity overview
+- **User Management** – View, activate/deactivate all user accounts
+- **Pair Management** – Create and manage senior–youth pairings
+- **Event Management** – Create, edit, approve/reject events
+- **Community Management** – Create and moderate communities
+- **Chat Moderation** – Review AI-analysed chat reports
+- **Analytics** – Engagement trends, ELO game rankings, inactive user alerts
 
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Web Framework | Flask 3.0 + Werkzeug |
+| Database | SQLite via Flask-SQLAlchemy 3.1 |
+| Forms & Validation | Flask-WTF / WTForms |
+| Real-time | Flask-SocketIO 5.3 + eventlet |
+| Translation | deep-translator (EN / ZH / MS / TA) |
+| PDF Export | fpdf2 |
+| AI Moderation | DeepSeek API (via `requests`) |
+| Testing | pytest |
+
+---
+
+## Project Structure
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/241077X/wdp-assignment.git
-git branch -M main
-git push -uf origin main
+WDP-Assignment/
+├── app.py                  # Application factory (create_app)
+├── config.py               # Dev / Testing / Production config classes
+├── extensions.py           # Shared Flask extensions (db, socketio)
+├── models.py               # 16 SQLAlchemy database models
+├── forms.py                # WTForms form definitions
+├── socket_handlers.py      # Socket.IO event handlers (real-time chat/games)
+├── ai_utils.py             # DeepSeek AI integration for chat moderation
+├── utils.py                # Shared helpers (text filtering, file uploads)
+├── seed_db.py              # Database seeding script
+├── blueprints/
+│   ├── auth.py             # /auth — Login, Register, Logout
+│   ├── main.py             # / — Landing page, support, public API
+│   ├── senior.py           # /senior — All senior-facing routes
+│   ├── youth.py            # /youth — All youth-facing routes
+│   ├── admin.py            # /admin — All admin-facing routes
+│   └── decorators.py       # Role-based access decorators
+├── templates/              # Jinja2 HTML templates (68 files)
+├── static/                 # CSS, JS, images
+│   ├── css/
+│   └── js/
+├── requirements.txt
+└── database.db             # SQLite database (auto-created on first run)
 ```
 
-## Integrate with your tools
+---
 
-* [Set up project integrations](https://gitlab.com/241077X/wdp-assignment/-/settings/integrations)
+## Getting Started
 
-## Collaborate with your team
+### Prerequisites
+- **Python 3.10+**
+- `pip` package manager
 
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### 1. Clone the Repository
 
-## Test and Deploy
+```bash
+git clone <repository-url>
+cd WDP-Assignment
+```
 
-Use the built-in continuous integration in GitLab.
+### 2. Create a Virtual Environment
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```bash
+python -m venv venv
 
-***
+# Windows
+venv\Scripts\activate
 
-# Editing this README
+# macOS / Linux
+source venv/bin/activate
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### 3. Install Dependencies
 
-## Suggestions for a good README
+```bash
+pip install -r requirements.txt
+```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### 4. Set Environment Variables
 
-## Name
-Choose a self-explaining name for your project.
+```bash
+# Generate a secure secret key
+python -c "import secrets; print(secrets.token_hex(32))"
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+# Windows (PowerShell)
+$env:SECRET_KEY = "<your-generated-key>"
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+# macOS / Linux
+export SECRET_KEY="<your-generated-key>"
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+> **Note:** In development mode, a fallback insecure key is used automatically with a warning if `SECRET_KEY` is not set. Always set it for production.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### 5. (Optional) Seed the Database
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```bash
+python seed_db.py
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### 6. Run the Application
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```bash
+python app.py
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+The server will start at **http://localhost:5001**.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+---
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## Environment Variables
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+| Variable | Required | Description |
+|---|---|---|
+| `SECRET_KEY` | Yes (Production) | Flask secret key for session signing and CSRF |
+| `FLASK_ENV` | No | `development` (default), `testing`, or `production` |
+| `DATABASE_URL` | No | Override SQLite with a custom DB URI (e.g., PostgreSQL) |
+| `ALLOWED_ORIGINS` | No | Comma-separated CORS origins for Socket.IO (default: `*`) |
+
+---
+
+## Running Tests
+
+```bash
+pytest
+```
+
+Test files:
+- `test_basic.py` — Smoke tests for core routes
+- `test_characterization.py` — Characterization tests for all blueprints
+- `conftest.py` — Shared pytest fixtures (in-memory SQLite DB)
+
+---
+
+## User Roles
+
+| Role | Registration | Default Landing |
+|---|---|---|
+| **Senior** | Requires an invite code from Admin | `/senior/dashboard` |
+| **Youth** | Requires an invite code from Admin | `/youth/dashboard` |
+| **Admin** | Pre-seeded via `seed_db.py` | `/admin/dashboard` |
+
+---
+
+## Configuration Environments
+
+| Environment | Debug | Database | Use case |
+|---|---|---|---|
+| `development` | Off | `database.db` | Local development |
+| `testing` | Off | In-memory SQLite | Automated tests |
+| `production` | Off | `DATABASE_URL` env var | Deployment |
+
+---
+
+## Key Database Models
+
+`User`, `SeniorProfile`, `YouthProfile`, `Message`, `Story`, `StoryReaction`, `Comment`, `Event`, `EventRSVP`, `Community`, `CommunityMember`, `CommunityPost`, `GameSession`, `GameHistory`, `ChatReport`, `SupportTicket`
+
+---
+
+## Accessibility & Localisation
+
+- **Font sizes** for seniors: Normal (18px), Large (20px), XL (24px)
+- **Themes** for youth: Light, Dark, Blue, Purple
+- **In-chat translation**: English, Chinese (Simplified), Malay, Tamil — powered by `deep-translator`
+
+---
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This project is developed as a Web Development Project (WDP) assignment. All rights reserved.
