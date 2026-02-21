@@ -1,0 +1,53 @@
+GENCON SG - CORE FUNCTIONALITY DOCUMENTATION
+
+1. SENIOR & YOUTH AREA
+============================================================
+
+A. Messaging Functions
+------------------------------------------------------------
+* Curse Word Filtering:
+  - Logic: Handled by 'filter_text' in 'utils.py'.
+  - Configuration: Uses 'Config.UNKIND_WORDS' from 'config.py'.
+  - Capability: A multi-lingual list (English, Malay, Chinese dialects, Tamil) that automatically censors offensive terms.
+  - Implementation: Replaces matching whole words with asterisks (*) matching the word length to ensure a safe community environment.
+
+* Voice Messaging (Voice-to-Text):
+  - Technology: Uses the browser-native Web Speech API.
+  - Script: 'static/js/voice-input.js'.
+  - Purpose: Specifically designed for seniors who find typing difficult. It transcribes spoken words directly into the message or story text area in real-time.
+
+B. Story Post Interactions
+------------------------------------------------------------
+* Reactions (Likes):
+  - Logic: 'api_react_story' in Senior/Youth blueprints.
+  - Functionality: Allows users to add or toggle reactions (like/love/etc.) on stories. It updates the reaction count dynamically via API.
+* Comments:
+  - Logic: 'api_comment_story' in Senior/Youth blueprints.
+  - Functionality: Allows users to post text comments to stories, fostering intergenerational dialogue.
+
+C. AI Functions (DeepSeek AI)
+------------------------------------------------------------
+* Senior Chatbot:
+  - Function: 'chatbot_reply' in 'ai_utils.py'.
+  - Persona: A warm, patient, and respectful companion.
+  - Scope: Discusses technology tips, Singapore culture, and local food while avoiding medical, political, or controversial topics.
+* Content Moderation AI:
+  - Function: 'analyze_report' in 'ai_utils.py'.
+  - Purpose: Automatically analyzes reported content for admins. It classifies the "Severity" (LOW to CRITICAL) and provides an "Analysis" and "Recommendation."
+
+
+2. ADMIN AREA
+============================================================
+
+A. Reports Management
+------------------------------------------------------------
+* Review Logic: 'reports' and 'report_detail' in 'blueprints/admin.py'.
+* Admin Workflow: 
+  - Admins can view a list of all pending reports.
+  - When reviewing a report, the system pulls the last 20 messages of the conversation context.
+  - AI-generated analysis assists the admin in making quick, informed decisions (Resolve, Dismiss, or Review).
+
+B. Support System
+------------------------------------------------------------
+* Ticketing Logic: 'support_tickets' and 'support_ticket_detail'.
+* Purpose: A centralized system for handling user help requests and technical issues. Admins can track the status of each ticket and keep private notes for internal tracking.

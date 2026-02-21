@@ -444,6 +444,8 @@ class EventParticipant(db.Model):
     event_id = db.Column(db.Integer, db.ForeignKey('events.id'), nullable=False, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     registered_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    reminder_24h_sent = db.Column(db.Boolean, default=False, nullable=False)
+    reminder_1h_sent  = db.Column(db.Boolean, default=False, nullable=False)
 
     # Relationships
     event = db.relationship('Event', back_populates='participants')
