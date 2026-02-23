@@ -3,10 +3,19 @@
  * Uses the Web Speech API to transcribe speech into a target textarea.
  *
  * Usage:
- *   initVoiceInput(document.getElementById('voiceBtn'), document.getElementById('myTextarea'));
+ *   initVoiceInput(btnEl, textareaEl);                        // defaults to en-US
+ *   initVoiceInput(btnEl, textareaEl, langSelectEl);          // language from <select>
  */
 
-function initVoiceInput(buttonEl, targetTextarea) {
+// Map app language codes → BCP-47 locale tags for the Web Speech API
+var VOICE_LANG_MAP = {
+    'en': 'en-US',
+    'zh': 'zh-CN',
+    'ms': 'ms-MY',
+    'ta': 'ta-IN'
+};
+
+function initVoiceInput(buttonEl, targetTextarea, langSelectEl) {
     if (!buttonEl || !targetTextarea) return;
 
     var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -15,22 +24,44 @@ function initVoiceInput(buttonEl, targetTextarea) {
         buttonEl.title = 'Voice input not supported in this browser';
         buttonEl.disabled = true;
         buttonEl.classList.add('disabled');
+        if (langSelectEl) { langSelectEl.disabled = true; }
         return;
     }
 
     var recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = document.documentElement.lang || 'en-US';
+
+    // Helper: resolve current language code → BCP-47 locale
+    function getCurrentLang() {
+        var code = (langSelectEl && langSelectEl.value)
+            || localStorage.getItem('voiceLang')
+            || 'en';
+        return VOICE_LANG_MAP[code] || 'en-US';
+    }
+
+    recognition.lang = getCurrentLang();
+
+    // Restore persisted language in the select element
+    if (langSelectEl) {
+        var saved = localStorage.getItem('voiceLang') || 'en';
+        langSelectEl.value = saved;
+
+        langSelectEl.addEventListener('change', function () {
+            localStorage.setItem('voiceLang', langSelectEl.value);
+            recognition.lang = getCurrentLang();
+        });
+    }
 
     var isRecording = false;
-    var finalTranscript = '';
+    var processedUpTo = 0;
 
     buttonEl.addEventListener('click', function () {
         if (isRecording) {
             recognition.stop();
         } else {
-            finalTranscript = '';
+            processedUpTo = 0;
+            recognition.lang = getCurrentLang(); // refresh lang on every start
             try {
                 recognition.start();
             } catch (e) {
@@ -56,25 +87,19 @@ function initVoiceInput(buttonEl, targetTextarea) {
     };
 
     recognition.onresult = function (event) {
-        var interim = '';
-        finalTranscript = '';
+        var newFinal = '';
 
-        for (var i = 0; i < event.results.length; i++) {
-            var transcript = event.results[i][0].transcript;
+        for (var i = processedUpTo; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
-                finalTranscript += transcript;
-            } else {
-                interim += transcript;
+                newFinal += event.results[i][0].transcript;
+                processedUpTo = i + 1;
             }
         }
 
-        if (finalTranscript) {
-            // Append final transcript to textarea
+        if (newFinal) {
             var current = targetTextarea.value;
             var separator = current && !current.endsWith(' ') && !current.endsWith('\n') ? ' ' : '';
-            targetTextarea.value = current + separator + finalTranscript;
-
-            // Trigger input event so char counters and auto-expand update
+            targetTextarea.value = current + separator + newFinal;
             targetTextarea.dispatchEvent(new Event('input', { bubbles: true }));
         }
     };

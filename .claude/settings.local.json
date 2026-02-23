@@ -3,7 +3,8 @@
     "allow": [
       "Bash(pip show:*)",
       "Bash(python:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pip install:*)"
     ]
   }
 }

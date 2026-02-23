@@ -34,6 +34,9 @@ class Config:
     # Generate with: python -c "import secrets; print(secrets.token_hex(32))"
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
+    # ==================== GOOGLE OAUTH ====================
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
+
     @staticmethod
     def init_app(app):
         """Validate critical configuration on app initialization."""

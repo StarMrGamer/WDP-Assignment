@@ -26,5 +26,8 @@ deep-translator==1.11.4   # message translation
 fpdf2==2.8.3              # PDF export
 requests==2.32.5          # DeepSeek AI API calls (ai_utils.py)
 
+# ── Authentication ───────────────────────────────────────────
+google-auth==2.29.0       # Google Sign-In token verification
+
 # ── Testing ───────────────────────────────────────────────────
 pytest==9.0.2

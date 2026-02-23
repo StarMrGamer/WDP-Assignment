@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Registration - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #e29454 0%, #c54836 40%, #781543 70%, #4f084c 100%);
+        background-attachment: fixed;
+    }
+
+    .main-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+        min-height: 100vh;
+    }
+
+    .register-container {
+        max-width: 560px;
+        width: 100%;
+        margin: auto;
+    }
+
+    .register-card {
+        background: white;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .register-header {
+        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .register-header .icon {
+        font-size: 3rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .register-header h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .register-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .register-body {
+        padding: 2rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2C3E50;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #c54836;
+        box-shadow: 0 0 0 0.2rem rgba(197, 72, 54, 0.25);
+        outline: none;
+    }
+
+    .google-info {
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .google-info img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .google-info .info-text {
+        flex: 1;
+    }
+
+    .google-info .info-name {
+        font-weight: 600;
+        color: #2C3E50;
+    }
+
+    .google-info .info-email {
+        font-size: 0.9rem;
+        color: #6C757D;
+    }
+
+    .btn-register {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(197, 72, 54, 0.4);
+        background: linear-gradient(135deg, #781543 0%, #c54836 100%);
+    }
+
+    .btn-register.senior-mode {
+        background: linear-gradient(135deg, #e29454 0%, #c54836 100%);
+    }
+
+    .btn-register.senior-mode:hover {
+        background: linear-gradient(135deg, #c54836 0%, #e29454 100%);
+    }
+
+    .btn-register.youth-mode {
+        background: linear-gradient(135deg, #781543 0%, #4f084c 100%);
+    }
+
+    .btn-register.youth-mode:hover {
+        background: linear-gradient(135deg, #4f084c 0%, #781543 100%);
+    }
+
+    @media (max-width: 576px) {
+        .register-body { padding: 1.5rem; }
+        .register-header h2 { font-size: 1.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <div class="icon"><i class="fab fa-google"></i></div>
+            <h2>Complete Your Account</h2>
+            <p>Just a few more details to get started</p>
+        </div>
+
+        <div class="register-body">
+            <!-- Google account info -->
+            <div class="google-info">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                <div class="info-text">
+                    <div class="info-name">{{ google_info.full_name }}</div>
+                    <div class="info-email">{{ google_info.email }}</div>
+                </div>
+                <i class="fas fa-check-circle text-success"></i>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.google_complete') }}" id="completeForm">
+                {{ form.hidden_tag() }}
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username"
+                               placeholder="Choose a username" required
+                               value="{{ form.username.data or '' }}">
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" name="phone"
+                               placeholder="e.g. 91234567" required
+                               value="{{ form.phone.data or '' }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Age
+                        <span id="roleBadge"></span>
+                    </label>
+                    <input type="number" class="form-control" name="age" id="ageInput"
+                           placeholder="Your age" min="13" required
+                           value="{{ form.age.data or '' }}">
+                    <div id="roleHint" class="text-muted mt-1" style="font-size: 0.85rem;"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Registration Code</label>
+                    <input type="text" class="form-control" name="registration_code"
+                           placeholder="Enter code provided by admin" required
+                           value="{{ form.registration_code.data or '' }}">
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password"
+                               placeholder="Min. 8 characters" required>
+                        <div class="form-text">So you can also log in without Google</div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" name="confirm_password"
+                               placeholder="Repeat password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-register" id="submitBtn">
+                    <i class="fas fa-check me-2"></i>Complete Registration
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ageInput  = document.getElementById('ageInput');
+    const roleBadge = document.getElementById('roleBadge');
+    const roleHint  = document.getElementById('roleHint');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function updateRole() {
+        const age = parseInt(ageInput.value);
+
+        if (!ageInput.value || isNaN(age)) {
+            roleBadge.style.display = 'none';
+            roleHint.textContent = '';
+            submitBtn.className = 'btn btn-register';
+            submitBtn.textContent = 'Complete Registration';
+            return;
+        }
+
+        if (age < 13) {
+            roleBadge.textContent = '';
+            var badge = document.createElement('span');
+            badge.className = 'badge bg-danger ms-2';
+            badge.textContent = 'Too young';
+            roleBadge.appendChild(badge);
+            roleBadge.style.display = 'inline';
+            roleHint.textContent = 'You must be at least 13 years old to register.';
+            roleHint.style.color = '#dc3545';
+            submitBtn.disabled = true;
+            return;
+        }
+
+        submitBtn.disabled = false;
+        roleBadge.textContent = '';
+        var badge = document.createElement('span');
+        badge.className = 'badge ms-2';
+
+        if (age >= 60) {
+            badge.style.background = '#e29454';
+            badge.textContent = 'Senior';
+            roleBadge.appendChild(badge);
+            roleBadge.style.display = 'inline';
+            roleHint.textContent = 'You will be registered as a Senior.';
+            roleHint.style.color = '#e29454';
+            submitBtn.className = 'btn btn-register senior-mode';
+            submitBtn.textContent = 'Join as Senior';
+        } else {
+            badge.style.background = '#781543';
+            badge.textContent = 'Youth';
+            roleBadge.appendChild(badge);
+            roleBadge.style.display = 'inline';
+            roleHint.textContent = 'You will be registered as a Youth volunteer.';
+            roleHint.style.color = '#781543';
+            submitBtn.className = 'btn btn-register youth-mode';
+            submitBtn.textContent = 'Join as Youth';
+        }
+    }
+
+    ageInput.addEventListener('input', updateRole);
+    updateRole();
+</script>
+{% endblock %}

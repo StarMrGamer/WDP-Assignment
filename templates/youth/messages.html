@@ -21,9 +21,8 @@
                 <div class="chat-header-minimal d-flex align-items-center mb-4">
                     <div class="position-relative">
                         <img src="{{ url_for('static', filename=buddy.profile_picture|fix_pfp) }}"
-                             alt="{{ buddy.full_name }}"
-                             class="rounded-circle border border-2 border-primary shadow-sm"
-                             style="width: 65px; height: 65px; object-fit: cover;">
+                            alt="{{ buddy.full_name }}" class="rounded-circle border border-2 border-primary shadow-sm"
+                            style="width: 65px; height: 65px; object-fit: cover;">
                         <span class="status-dot online"></span>
                     </div>
                     <div class="ms-3 flex-grow-1">
@@ -31,15 +30,22 @@
                         <span class="badge bg-light text-primary border">Buddy Conversation</span>
                     </div>
                     <div class="dropdown">
-                        <button class="btn btn-white border rounded-pill shadow-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <button class="btn btn-white border rounded-pill shadow-sm dropdown-toggle"
+                            data-bs-toggle="dropdown">
                             <i class="fas fa-language me-2 text-primary"></i><span class="lang-label">Translate</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                            <li><h6 class="dropdown-header">Auto-Translate to:</h6></li>
-                            <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="en" onclick="setLanguage('en')">English</a></li>
-                            <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="zh" onclick="setLanguage('zh')">Chinese (中文)</a></li>
-                            <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="ms" onclick="setLanguage('ms')">Malay (Melayu)</a></li>
-                            <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="ta" onclick="setLanguage('ta')">Tamil (தமிழ்)</a></li>
+                            <li>
+                                <h6 class="dropdown-header">Auto-Translate to:</h6>
+                            </li>
+                            <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="en"
+                                    onclick="setLanguage('en')">English</a></li>
+                            <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="zh"
+                                    onclick="setLanguage('zh')">Chinese (中文)</a></li>
+                            <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="ms"
+                                    onclick="setLanguage('ms')">Malay (Melayu)</a></li>
+                            <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="ta"
+                                    onclick="setLanguage('ta')">Tamil (தமிழ்)</a></li>
                         </ul>
                     </div>
                 </div>
@@ -47,40 +53,42 @@
                 <!-- Ghost Message Area (No outer box) -->
                 <div class="message-feed" id="chatMessages">
                     {% if messages %}
-                        {% for message in messages %}
-                        <div class="message-wrapper {% if message.sender_id == session.user_id %}me{% else %}other{% endif %}">
-                            <div class="message-bubble">
-                                {% if message.is_flagged %}
-                                <div class="flagged-warning">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>
-                                    <small>Content flagged</small>
-                                </div>
-                                {% endif %}
+                    {% for message in messages %}
+                    <div
+                        class="message-wrapper {% if message.sender_id == session.user_id %}me{% else %}other{% endif %}">
+                        <div class="message-bubble">
+                            {% if message.is_flagged %}
+                            <div class="flagged-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                <small>Content flagged</small>
+                            </div>
+                            {% endif %}
 
-                                <div class="content-text">{{ message.content }}</div>
+                            <div class="content-text">{{ message.content }}</div>
 
-                                {% if message.translated_content and message.original_language != 'en' %}
-                                <div class="translation-text">
-                                    <i class="fas fa-language"></i> {{ message.translated_content }}
-                                </div>
+                            {% if message.translated_content and message.original_language != 'en' %}
+                            <div class="translation-text">
+                                <i class="fas fa-language"></i> {{ message.translated_content }}
+                            </div>
+                            {% endif %}
+                            <div class="d-flex justify-content-end align-items-center mt-1">
+                                <div class="time-stamp mb-0">{{ message.created_at|format_date('%I:%M %p') }}</div>
+                                {% if message.sender_id != session.user_id %}
+                                <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn"
+                                    onclick="openReportModal({{ message.id }})" title="Report Message">
+                                    <i class="far fa-flag" style="font-size: 0.8rem;"></i>
+                                </button>
                                 {% endif %}
-                                <div class="d-flex justify-content-end align-items-center mt-1">
-                                    <div class="time-stamp mb-0">{{ message.created_at|format_date('%I:%M %p') }}</div>
-                                    {% if message.sender_id != session.user_id %}
-                                    <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal({{ message.id }})" title="Report Message">
-                                        <i class="far fa-flag" style="font-size: 0.8rem;"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
                             </div>
                         </div>
-                        {% endfor %}
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <div class="empty-chat-state text-center py-5">
-                            <div class="icon-circle mb-3 shadow-sm"><i class="fas fa-comments"></i></div>
-                            <h5 class="text-dark">No messages yet</h5>
-                            <p class="text-muted">Say hello to your buddy {{ buddy.full_name.split(' ')[0] }}!</p>
-                        </div>
+                    <div class="empty-chat-state text-center py-5">
+                        <div class="icon-circle mb-3 shadow-sm"><i class="fas fa-comments"></i></div>
+                        <h5 class="text-dark">No messages yet</h5>
+                        <p class="text-muted">Say hello to your buddy {{ buddy.full_name.split(' ')[0] }}!</p>
+                    </div>
                     {% endif %}
                 </div>
 
@@ -105,23 +113,30 @@
                                 </div>
                             </div>
 
-                            <textarea class="form-control auto-expand"
-                                   id="messageInput"
-                                   name="message"
-                                   placeholder="Type a message..."
-                                   rows="1"
-                                   required></textarea>
+                            <textarea class="form-control auto-expand" id="messageInput" name="message"
+                                placeholder="Type a message..." rows="1" required></textarea>
 
-                            <button class="btn voice-input-btn" type="button" id="voiceBtn" title="Voice input">
-                                <i class="fas fa-microphone"></i>
-                            </button>
+                            <div class="d-flex align-items-center gap-1">
+                                <select id="voiceLangSelect" class="form-select form-select-sm voice-lang-select"
+                                    title="Dictation language"
+                                    style="width:auto; font-size:0.75rem; padding:0.2rem 0.4rem;">
+                                    <option value="en">EN</option>
+                                    <option value="zh">中文</option>
+                                    <option value="ms">MS</option>
+                                    <option value="ta">தமிழ்</option>
+                                </select>
+                                <button class="btn voice-input-btn" type="button" id="voiceBtn" title="Voice input">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
 
                             <button class="btn circle-send-btn" type="submit">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
                         <div class="d-flex justify-content-between mt-2 px-3">
-                            <small class="text-muted"><i class="fas fa-shield-alt text-success me-1"></i> Encryption Active</small>
+                            <small class="text-muted"><i class="fas fa-shield-alt text-success me-1"></i> Encryption
+                                Active</small>
                         </div>
                     </form>
                 </div>
@@ -131,7 +146,8 @@
             <!-- No Buddy Placeholder -->
             <div class="card border-0 shadow-sm rounded-4 py-5">
                 <div class="card-body text-center">
-                    <div class="icon-circle mb-4 bg-light mx-auto" style="width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ddd;">
+                    <div class="icon-circle mb-4 bg-light mx-auto"
+                        style="width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ddd;">
                         <i class="fas fa-user-friends"></i>
                     </div>
                     <h3 class="fw-bold">No Buddy Assigned</h3>
@@ -165,8 +181,8 @@
 
     const messageInput = document.getElementById('messageInput');
     if (messageInput) {
-        messageInput.addEventListener('input', function() { autoExpand(this); });
-        messageInput.addEventListener('keydown', function(e) {
+        messageInput.addEventListener('input', function () { autoExpand(this); });
+        messageInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 // Let the submit event handler in chat.js handle it
@@ -196,7 +212,7 @@
     }
 
     // On load, highlight the currently selected language
-    (function() {
+    (function () {
         const current = localStorage.getItem('translationLanguage') || 'en';
         const btn = document.querySelector('.dropdown-toggle .lang-label');
         if (btn && current !== 'en') btn.textContent = langNames[current] || 'Translate';
@@ -212,6 +228,6 @@
     }
 
     // Voice input
-    initVoiceInput(document.getElementById('voiceBtn'), document.getElementById('messageInput'));
+    initVoiceInput(document.getElementById('voiceBtn'), document.getElementById('messageInput'), document.getElementById('voiceLangSelect'));
 </script>
 {% endblock %}

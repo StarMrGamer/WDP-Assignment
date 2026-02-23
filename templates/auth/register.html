@@ -138,6 +138,59 @@
         border-top: 1px solid #E9ECEF;
     }
 
+    .btn-google {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        background: white;
+        border: 2px solid #E9ECEF;
+        color: #2C3E50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-google:hover {
+        border-color: #c54836;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+    }
+
+    .btn-google img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .google-divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+    }
+
+    .google-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #E9ECEF;
+    }
+
+    .google-divider span {
+        background: white;
+        padding: 0 1rem;
+        position: relative;
+        color: #6C757D;
+        font-size: 0.9rem;
+    }
+
     @media (max-width: 576px) {
         .register-body { padding: 1.5rem; }
         .register-header h2 { font-size: 1.75rem; }
@@ -215,6 +268,29 @@
                 </button>
             </form>
 
+            {% if config.GOOGLE_CLIENT_ID %}
+            <div class="google-divider">
+                <span>or</span>
+            </div>
+
+            <div id="google-btn-wrapper">
+                <div id="g_id_onload"
+                     data-client_id="{{ config.GOOGLE_CLIENT_ID }}"
+                     data-callback="handleGoogleCredential"
+                     data-auto_prompt="false">
+                </div>
+                <button type="button" class="btn-google" id="googleSignUpBtn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    Sign up with Google
+                </button>
+            </div>
+
+            <form id="google-login-form" method="POST" action="{{ url_for('auth.google_login') }}" style="display:none;">
+                <input type="hidden" name="credential" id="google-credential">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            </form>
+            {% endif %}
+
             <div class="login-link">
                 <p class="text-muted mb-0">
                     Already have an account?
@@ -227,6 +303,24 @@
 {% endblock %}
 
 {% block extra_js %}
+{% if config.GOOGLE_CLIENT_ID %}
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+    function handleGoogleCredential(response) {
+        document.getElementById('google-credential').value = response.credential;
+        document.getElementById('google-login-form').submit();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('googleSignUpBtn');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                google.accounts.id.prompt();
+            });
+        }
+    });
+</script>
+{% endif %}
 <script>
     const ageInput   = document.getElementById('ageInput');
     const roleInput  = document.getElementById('roleInput');

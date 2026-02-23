@@ -202,6 +202,34 @@
         font-size: 0.9rem;
     }
 
+    .btn-google {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        background: white;
+        border: 2px solid #E9ECEF;
+        color: #2C3E50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-google:hover {
+        border-color: #c54836;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+    }
+
+    .btn-google img {
+        width: 20px;
+        height: 20px;
+    }
+
     .register-link {
         text-align: center;
     }
@@ -313,6 +341,31 @@
                 </button>
             </form>
 
+            <!-- Google Divider -->
+            {% if config.GOOGLE_CLIENT_ID %}
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <!-- Google Sign-In Button -->
+            <div id="google-btn-wrapper">
+                <div id="g_id_onload"
+                     data-client_id="{{ config.GOOGLE_CLIENT_ID }}"
+                     data-callback="handleGoogleCredential"
+                     data-auto_prompt="false">
+                </div>
+                <button type="button" class="btn-google" id="googleSignInBtn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    Sign in with Google
+                </button>
+            </div>
+
+            <form id="google-login-form" method="POST" action="{{ url_for('auth.google_login') }}" style="display:none;">
+                <input type="hidden" name="credential" id="google-credential">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            </form>
+            {% endif %}
+
             <!-- Divider -->
             <div class="divider">
                 <span>New to GenCon SG?</span>
@@ -337,6 +390,24 @@
 {% endblock %}
 
 {% block extra_js %}
+{% if config.GOOGLE_CLIENT_ID %}
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+    function handleGoogleCredential(response) {
+        document.getElementById('google-credential').value = response.credential;
+        document.getElementById('google-login-form').submit();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('googleSignInBtn');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                google.accounts.id.prompt();
+            });
+        }
+    });
+</script>
+{% endif %}
 <script>
     // Auto-focus username field on page load
     document.addEventListener('DOMContentLoaded', function() {

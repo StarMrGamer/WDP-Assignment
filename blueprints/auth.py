@@ -6,10 +6,10 @@ Date: December 2025
 Feature: Authentication & User Management
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app, jsonify
 from models import db, User, Streak, RegistrationCode, Notification
 from utils import check_unkind_words, sanitize_for_display
-from forms import LoginForm, RegistrationForm
+from forms import LoginForm, RegistrationForm, GoogleCompleteForm
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
@@ -234,6 +234,179 @@ def register():
 
     # GET request - display registration form
     return render_template('auth/register.html', role=role, form=form)
+
+
+# ==================== GOOGLE SIGN-IN ROUTES ====================
+@auth_bp.route('/google-login', methods=['POST'])
+def google_login():
+    """
+    Handle Google Sign-In callback.
+    Receives a Google JWT credential, verifies it, and either logs in
+    an existing user or redirects to complete registration.
+    """
+    from google.oauth2 import id_token
+    from google.auth.transport import requests as google_requests
+
+    credential = request.form.get('credential')
+    if not credential:
+        flash('Google sign-in failed. No credential received.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    client_id = current_app.config.get('GOOGLE_CLIENT_ID')
+    if not client_id:
+        flash('Google sign-in is not configured.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            credential, google_requests.Request(), client_id
+        )
+    except Exception:
+        flash('Google sign-in failed. Invalid token.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    google_id = idinfo.get('sub')
+    email = idinfo.get('email')
+    full_name = idinfo.get('name', '')
+
+    if not email:
+        flash('Google sign-in failed. No email provided.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    # Case 1: User with this google_id already exists → login
+    user = User.query.filter_by(google_id=google_id).first()
+    if user:
+        return _login_user(user)
+
+    # Case 2: User with this email exists but no google_id → link & login
+    user = User.query.filter_by(email=email).first()
+    if user:
+        user.google_id = google_id
+        db.session.commit()
+        return _login_user(user)
+
+    # Case 3: New user → store Google info in session, redirect to complete registration
+    session['google_pending'] = {
+        'google_id': google_id,
+        'email': email,
+        'full_name': full_name
+    }
+    return redirect(url_for('auth.google_complete'))
+
+
+@auth_bp.route('/google-complete', methods=['GET', 'POST'])
+def google_complete():
+    """
+    Complete registration for a new Google Sign-In user.
+    Requires invite code, username, password, age, and phone.
+    """
+    google_info = session.get('google_pending')
+    if not google_info:
+        flash('Please sign in with Google first.', 'warning')
+        return redirect(url_for('auth.login'))
+
+    form = GoogleCompleteForm()
+
+    if request.method == 'POST':
+        # Profanity check on username
+        unkind_words = current_app.config.get('UNKIND_WORDS', [])
+        raw_username = request.form.get('username', '')
+        if check_unkind_words(raw_username, unkind_words):
+            flash('Your username contains inappropriate language. Please choose a different one.', 'danger')
+            return render_template('auth/google_complete.html', form=form, google_info=google_info)
+
+    if form.validate_on_submit():
+        age = form.age.data
+        role = 'senior' if age >= 60 else 'youth'
+
+        new_user = User(
+            username=form.username.data,
+            email=google_info['email'],
+            full_name=google_info['full_name'],
+            phone=form.phone.data,
+            age=age,
+            role=role,
+            google_id=google_info['google_id'],
+            profile_picture='images/default-avatar.png',
+            is_approved=True
+        )
+        new_user.set_password(form.password.data)
+
+        if role == 'senior':
+            new_user.accessibility_settings = {
+                'font_size': 'normal',
+                'high_contrast': False,
+                'color_blind_friendly': False
+            }
+        else:
+            new_user.accessibility_settings = {
+                'theme': 'light'
+            }
+
+        try:
+            # Mark registration code as used
+            code_record = RegistrationCode.query.filter_by(code=form.registration_code.data).first()
+
+            db.session.add(new_user)
+            db.session.commit()
+
+            # Create initial streak record
+            streak = Streak(user_id=new_user.id)
+            db.session.add(streak)
+
+            code_record.is_used = True
+            code_record.used_by = new_user
+
+            db.session.commit()
+
+            # Clear pending Google info
+            session.pop('google_pending', None)
+
+            flash(f'Welcome, {new_user.full_name}! Your account has been created.', 'success')
+            return _login_user(new_user)
+
+        except Exception as e:
+            db.session.rollback()
+            print(f"Google registration error: {e}")
+            flash('An error occurred during registration. Please try again.', 'danger')
+            return render_template('auth/google_complete.html', form=form, google_info=google_info)
+
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", 'danger')
+
+    return render_template('auth/google_complete.html', form=form, google_info=google_info)
+
+
+def _login_user(user):
+    """Helper to log in a user and redirect to their dashboard."""
+    if not user.is_approved:
+        flash('Your account is pending admin approval.', 'warning')
+        return redirect(url_for('auth.login'))
+
+    if not user.is_active:
+        reason = user.disable_reason or "Account disabled by administrator."
+        flash(f'Your account has been disabled. Reason: {reason}', 'danger')
+        return redirect(url_for('auth.login'))
+
+    # Clear google_pending if present
+    google_pending = session.get('google_pending')
+    session.clear()
+
+    session['user_id'] = user.id
+    session['username'] = user.username
+    session['role'] = user.role
+    session['profile_picture'] = user.profile_picture
+    session['full_name'] = user.full_name
+    session.permanent = True
+
+    user.last_active = datetime.utcnow()
+    update_user_streak(user)
+    db.session.commit()
+
+    flash(f'Welcome back, {user.full_name}!', 'success')
+    return redirect(url_for(f'{user.role}.dashboard'))
 
 
 # ==================== LOGOUT ROUTE ====================

@@ -27,7 +27,8 @@
             <!-- Story Creation Form -->
             <div class="card">
                 <div class="card-body p-4">
-                    <form method="POST" action="{{ url_for('senior.create_story') }}" enctype="multipart/form-data" novalidate>
+                    <form method="POST" action="{{ url_for('senior.create_story') }}" enctype="multipart/form-data"
+                        novalidate>
                         {{ form.hidden_tag() }}
                         <!-- Step 1: Story Category -->
                         <div class="form-section mb-4">
@@ -94,11 +95,8 @@
                                 Choose a catchy title that captures the essence of your story
                             </p>
 
-                            <input type="text"
-                                   class="form-control form-control-lg"
-                                   name="title"
-                                   placeholder="e.g., My First Day at the Factory"
-                                   maxlength="200">
+                            <input type="text" class="form-control form-control-lg" name="title"
+                                placeholder="e.g., My First Day at the Factory" maxlength="200">
                             <small class="text-muted">Maximum 200 characters</small>
                         </div>
 
@@ -114,17 +112,22 @@
                                 Share your memories, feelings, and experiences. Take your time!
                             </p>
 
-                            <div class="d-flex justify-content-end mb-2">
-                                <button class="btn btn-outline-secondary btn-sm voice-input-btn" type="button" id="voiceBtn" title="Dictate your story">
+                            <div class="d-flex justify-content-end align-items-center mb-2 gap-2">
+                                <select id="voiceLangSelect" class="form-select form-select-sm"
+                                    title="Dictation language" style="width:auto; max-width:120px; font-size:0.8rem;">
+                                    <option value="en">EN - English</option>
+                                    <option value="zh">中文 - Chinese</option>
+                                    <option value="ms">MS - Malay</option>
+                                    <option value="ta">தமிழ் - Tamil</option>
+                                </select>
+                                <button class="btn btn-outline-secondary btn-sm voice-input-btn" type="button"
+                                    id="voiceBtn" title="Dictate your story">
                                     <i class="fas fa-microphone me-1"></i>Dictate
                                 </button>
                             </div>
 
-                            <textarea class="form-control"
-                                      id="storyContent"
-                                      name="content"
-                                      rows="10"
-                                      placeholder="Start writing your story here... What happened? How did you feel? What did you learn?"></textarea>
+                            <textarea class="form-control" id="storyContent" name="content" rows="10"
+                                placeholder="Start writing your story here... What happened? How did you feel? What did you learn?"></textarea>
 
                             <div class="d-flex justify-content-between mt-2">
                                 <small class="text-muted">
@@ -148,28 +151,16 @@
                             </p>
 
                             <div class="photo-upload-area">
-                                <input type="file"
-                                       class="form-control"
-                                       name="photo"
-                                       id="photoInput"
-                                       accept="image/*,video/*"
-                                       onchange="previewMedia(this)">
+                                <input type="file" class="form-control" name="photo" id="photoInput"
+                                    accept="image/*,video/*" onchange="previewMedia(this)">
 
                                 <!-- Media Preview -->
                                 <div id="photoPreviewContainer" class="mt-3 d-none">
-                                    <img id="photoPreview"
-                                         src=""
-                                         alt="Preview"
-                                         class="img-fluid rounded d-none"
-                                         style="max-height: 300px;">
-                                    <video id="videoPreview"
-                                           src=""
-                                           class="img-fluid rounded d-none"
-                                           style="max-height: 300px;"
-                                           autoplay loop muted playsinline controls></video>
-                                    <button type="button"
-                                            class="btn btn-sm btn-danger mt-2"
-                                            onclick="removePhoto()">
+                                    <img id="photoPreview" src="" alt="Preview" class="img-fluid rounded d-none"
+                                        style="max-height: 300px;">
+                                    <video id="videoPreview" src="" class="img-fluid rounded d-none"
+                                        style="max-height: 300px;" autoplay loop muted playsinline controls></video>
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removePhoto()">
                                         <i class="fas fa-times me-1"></i>Remove
                                     </button>
                                 </div>
@@ -180,8 +171,7 @@
 
                         <!-- Form Actions -->
                         <div class="d-flex gap-3">
-                            <a href="{{ url_for('senior.stories') }}"
-                               class="btn btn-outline-secondary btn-lg">
+                            <a href="{{ url_for('senior.stories') }}" class="btn btn-outline-secondary btn-lg">
                                 <i class="fas fa-times me-2"></i>Cancel
                             </a>
                             <button type="submit" class="btn btn-primary btn-lg flex-fill">
@@ -270,13 +260,13 @@
         box-shadow: 0 4px 12px rgba(155, 89, 182, 0.2);
     }
 
-    .category-option input:checked + .category-card {
+    .category-option input:checked+.category-card {
         border-color: var(--senior-primary);
         background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
         box-shadow: 0 4px 16px rgba(155, 89, 182, 0.3);
     }
 
-    .category-option input:checked + .category-card i {
+    .category-option input:checked+.category-card i {
         color: var(--senior-primary);
     }
 
@@ -292,6 +282,17 @@
         font-size: 1.25rem;
         padding: 0.875rem 1rem;
     }
+
+    /* Remove dropdown arrow from voice language select */
+    #voiceLangSelect {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: none;
+        cursor: pointer;
+        padding-right: 0.4rem !important;
+        text-align: center;
+    }
 </style>
 {% endblock %}
 
@@ -299,14 +300,14 @@
 <script src="{{ url_for('static', filename='js/voice-input.js') }}"></script>
 <script>
     // Voice input for story dictation
-    initVoiceInput(document.getElementById('voiceBtn'), document.getElementById('storyContent'));
+    initVoiceInput(document.getElementById('voiceBtn'), document.getElementById('storyContent'), document.getElementById('voiceLangSelect'));
 
     // Character counter for story content
     const contentTextarea = document.querySelector('textarea[name="content"]');
     const charCount = document.getElementById('charCount');
 
     if (contentTextarea) {
-        contentTextarea.addEventListener('input', function() {
+        contentTextarea.addEventListener('input', function () {
             charCount.textContent = this.value.length + ' characters';
         });
     }
@@ -344,7 +345,7 @@
     }
 
     // Form validation
-    document.querySelector('form').addEventListener('submit', function(e) {
+    document.querySelector('form').addEventListener('submit', function (e) {
         const category = document.querySelector('input[name="category"]:checked');
         const title = document.querySelector('input[name="title"]').value.trim();
         const content = document.querySelector('textarea[name="content"]').value.trim();
