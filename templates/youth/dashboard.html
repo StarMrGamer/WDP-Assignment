@@ -179,12 +179,29 @@
                     <div class="card-footer d-flex justify-content-between align-items-center">
                         <div class="d-flex gap-3">
                             {% set user_liked = story.reactions.filter_by(user_id=session.user_id, reaction_type='heart').first() is not none %}
-                            <span class="post-action"><i class="{{ 'fas' if user_liked else 'far' }} fa-heart{% if user_liked %} text-danger{% endif %}"></i> {{ story.reactions.count() }}</span>
-                            <span class="post-action"><i class="far fa-comment"></i> {{ story.comments.count() }}</span>
+                            <button class="post-action border-0 bg-transparent p-0"
+                                    onclick="toggleLike({{ story.id }}, this)">
+                                <i id="like-icon-{{ story.id }}" class="{{ 'fas text-danger' if user_liked else 'far' }} fa-heart"></i>
+                                <span id="like-count-{{ story.id }}">{{ story.reactions.count() }}</span>
+                            </button>
+                            <button class="post-action border-0 bg-transparent p-0"
+                                    onclick="toggleCommentBox({{ story.id }})">
+                                <i class="far fa-comment"></i>
+                                <span id="comment-count-{{ story.id }}">{{ story.comments.count() }}</span>
+                            </button>
                         </div>
                         <a href="{{ url_for('youth.story_detail', story_id=story.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.8rem;">
                             Read More
                         </a>
+                    </div>
+                    <div id="comment-box-{{ story.id }}" class="px-3 pb-2" style="display:none;">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="comment-input-{{ story.id }}"
+                                   placeholder="Write a comment…">
+                            <button class="btn btn-primary" onclick="postComment({{ story.id }})">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -211,7 +228,7 @@
                     <div class="card-body text-center">
                         <img src="{{ url_for('static', filename=buddy.profile_picture|fix_pfp) }}"
                              alt="{{ buddy.full_name }}"
-                             class="rounded-circle mb-2"
+                             class="rounded-circle mb-2 mx-auto"
                              style="width: 64px; height: 64px; object-fit: cover;">
                         <h6 class="mb-0 fw-bold">{{ buddy.full_name }}</h6>
                         <small class="text-muted">Age {{ buddy.age }}</small>
@@ -320,7 +337,7 @@
     /* Profile widget */
     .profile-widget-banner {
         height: 60px;
-        background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #F97316 100%);
+        background: linear-gradient(135deg, #781543 0%, #c54836 50%, #e29454 100%);
         border-radius: 0.75rem 0.75rem 0 0;
     }
 
@@ -355,20 +372,28 @@
         margin-bottom: 0.5rem;
     }
 
-    /* Post action icons */
+    /* Post action buttons */
     .post-action {
         font-size: 0.85rem;
         color: var(--gray-600);
         cursor: pointer;
-        transition: color 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+        transition: color 0.2s, background 0.2s;
+        outline: none;
     }
 
     .post-action:hover {
         color: var(--danger-color);
+        background: rgba(197, 72, 54, 0.08);
     }
 
-    .post-action i {
-        margin-right: 0.25rem;
+    .post-action:focus-visible {
+        outline: 2px solid rgba(197, 72, 54, 0.4);
+        outline-offset: 2px;
     }
 
     /* Responsive: collapse to single column on mobile */
@@ -378,4 +403,60 @@
         }
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function toggleLike(storyId, btn) {
+    try {
+        const res = await fetch(`/youth/api/stories/${storyId}/react`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({reaction_type: 'heart'})
+        });
+        const data = await res.json();
+        if (!res.ok) return;
+
+        const icon = document.getElementById(`like-icon-${storyId}`);
+        const count = document.getElementById(`like-count-${storyId}`);
+        if (data.action === 'removed') {
+            icon.className = 'far fa-heart';
+        } else {
+            icon.className = 'fas fa-heart text-danger';
+        }
+        count.textContent = data.count;
+    } catch (e) {
+        showToast('Could not update like.', 'danger');
+    }
+}
+
+function toggleCommentBox(storyId) {
+    const box = document.getElementById(`comment-box-${storyId}`);
+    const isHidden = box.style.display === 'none';
+    box.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) document.getElementById(`comment-input-${storyId}`).focus();
+}
+
+async function postComment(storyId) {
+    const input = document.getElementById(`comment-input-${storyId}`);
+    const content = input.value.trim();
+    if (!content) return;
+    try {
+        const res = await fetch(`/youth/api/stories/${storyId}/comment`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({content})
+        });
+        if (res.ok) {
+            input.value = '';
+            document.getElementById(`comment-box-${storyId}`).style.display = 'none';
+            const count = document.getElementById(`comment-count-${storyId}`);
+            count.textContent = parseInt(count.textContent) + 1;
+            showToast('Comment posted!', 'success');
+        }
+    } catch (e) {
+        showToast('Could not post comment.', 'danger');
+    }
+}
+</script>
 {% endblock %}

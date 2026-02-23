@@ -21,7 +21,7 @@
     }
 
     .analytics-card h5 {
-        color: #2C3E50;
+        color: #1c032b;
         margin-bottom: 1.25rem;
         font-weight: 600;
     }
@@ -34,7 +34,7 @@
     .big-stat .value {
         font-size: 3rem;
         font-weight: 700;
-        color: #2C3E50;
+        color: #1c032b;
         line-height: 1;
     }
 
@@ -50,7 +50,7 @@
     }
 
     .big-stat .change.positive {
-        color: #27AE60;
+        color: #ac2432;
     }
 
     .big-stat .change.negative {
@@ -75,7 +75,7 @@
 
     .metric-row .value {
         font-weight: 600;
-        color: #2C3E50;
+        color: #1c032b;
     }
 
     .progress-stat {
@@ -95,7 +95,7 @@
 
     .progress-stat .value {
         font-weight: 600;
-        color: #2C3E50;
+        color: #1c032b;
     }
 
     .progress-stat .progress {
@@ -118,7 +118,7 @@
     }
 
     .insight-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
         color: white;
         border-radius: 0.75rem;
         padding: 1.5rem;
@@ -172,7 +172,7 @@
             <div class="analytics-card">
                 <div class="big-stat">
                     <!-- Total registered users (excluding admins) -->
-                    <div class="value" style="color: #3498DB;">{{ total_users }}</div>
+                    <div class="value" style="color: #e29454;">{{ total_users }}</div>
                     <div class="label">Total Users</div>
                     <div class="change positive">
                         <i class="fas fa-arrow-up me-1"></i>+{{ new_users_this_month }} this month
@@ -183,7 +183,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="analytics-card">
                 <div class="big-stat">
-                    <div class="value" style="color: #27AE60;">{{ active_pairs }}</div>
+                    <div class="value" style="color: #ac2432;">{{ active_pairs }}</div>
                     <div class="label">Active Pairs</div>
                     <div class="change positive">
                         <i class="fas fa-check-circle me-1"></i>{{ (active_pairs / total_pairs * 100)|round|int if total_pairs > 0 else 0 }}% active rate
@@ -194,7 +194,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="analytics-card">
                 <div class="big-stat">
-                    <div class="value" style="color: #9B59B6;">{{ total_stories }}</div>
+                    <div class="value" style="color: #c54836;">{{ total_stories }}</div>
                     <div class="label">Stories Shared</div>
                     <div class="change positive">
                         <i class="fas fa-book-open me-1"></i>Life experiences
@@ -205,7 +205,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="analytics-card">
                 <div class="big-stat">
-                    <div class="value" style="color: #E67E22;">{{ total_messages }}</div>
+                    <div class="value" style="color: #e29454;">{{ total_messages }}</div>
                     <div class="label">Messages Sent</div>
                     <div class="change positive">
                         <i class="fas fa-comments me-1"></i>Connections made
@@ -434,23 +434,23 @@
                 {
                     label: 'Seniors',
                     data: {{ growth_seniors|safe }},
-                    borderColor: '#E67E22',
+                    borderColor: '#e29454',
                     backgroundColor: 'rgba(230,126,34,0.15)',
                     fill: true,
                     tension: 0.35,
                     pointRadius: 4,
-                    pointBackgroundColor: '#E67E22',
+                    pointBackgroundColor: '#e29454',
                     borderWidth: 2.5
                 },
                 {
                     label: 'Youth Volunteers',
                     data: {{ growth_youth|safe }},
-                    borderColor: '#3498DB',
+                    borderColor: '#e29454',
                     backgroundColor: 'rgba(52,152,219,0.15)',
                     fill: true,
                     tension: 0.35,
                     pointRadius: 4,
-                    pointBackgroundColor: '#3498DB',
+                    pointBackgroundColor: '#e29454',
                     borderWidth: 2.5
                 }
             ]
@@ -463,7 +463,7 @@
                 legend: { labels: { color: textColor, usePointStyle: true, padding: 16 } },
                 tooltip: {
                     backgroundColor: isDark ? '#333' : '#fff',
-                    titleColor: isDark ? '#fff' : '#2C3E50',
+                    titleColor: isDark ? '#fff' : '#1c032b',
                     bodyColor: isDark ? '#ddd' : '#6C757D',
                     borderColor: isDark ? '#555' : '#dee2e6',
                     borderWidth: 1,
@@ -485,8 +485,8 @@
             labels: {{ activity_labels|safe }},
             datasets: [{
                 data: {{ activity_data|safe }},
-                backgroundColor: ['#3498DB', '#9B59B6', '#27AE60'],
-                hoverBackgroundColor: ['#2980B9', '#8E44AD', '#229954'],
+                backgroundColor: ['#e29454', '#c54836', '#ac2432'],
+                hoverBackgroundColor: ['#c54836', '#781543', '#ac2432'],
                 borderWidth: 2,
                 borderColor: isDark ? '#1a1a2e' : '#fff'
             }]
@@ -502,7 +502,7 @@
                 },
                 tooltip: {
                     backgroundColor: isDark ? '#333' : '#fff',
-                    titleColor: isDark ? '#fff' : '#2C3E50',
+                    titleColor: isDark ? '#fff' : '#1c032b',
                     bodyColor: isDark ? '#ddd' : '#6C757D',
                     borderColor: isDark ? '#555' : '#dee2e6',
                     borderWidth: 1,

@@ -231,12 +231,14 @@ def on_community_message(data):
         })
 
     safe_content = sanitize_for_display(original_content)
+    reply_to_id = data.get('reply_to_id') or None
 
     new_post = CommunityPost(
         community_id=data['community_id'],
         user_id=user_id,
         content=safe_content,
-        photo_url=data.get('photo_url')
+        photo_url=data.get('photo_url'),
+        reply_to_id=reply_to_id
     )
     db.session.add(new_post)
     db.session.commit()
@@ -247,6 +249,16 @@ def on_community_message(data):
     if avatar and not avatar.startswith('images/'):
         avatar = f'images/{avatar}'
 
+    # Build reply preview if this message is a reply
+    reply_preview = None
+    if reply_to_id:
+        parent = CommunityPost.query.get(reply_to_id)
+        if parent:
+            reply_preview = {
+                'author': escape_html(parent.user.full_name),
+                'content': escape_html((parent.content or '')[:80])
+            }
+
     room = f"community_{data['community_id']}"
     emit('new_community_post', {
         'id': new_post.id,
@@ -256,8 +268,44 @@ def on_community_message(data):
         'content': new_post.content,
         'photo_url': new_post.photo_url,
         'created_at': (new_post.created_at + timedelta(hours=8)).strftime('%I:%M %p'),
-        'is_me': False,
-        'is_flagged': is_flagged
+        'is_flagged': is_flagged,
+        'reply_preview': reply_preview
+    }, room=room)
+
+
+@socketio.on('edit_community_message')
+def on_edit_community_message(data):
+    from models import CommunityPost
+    from datetime import datetime
+
+    user_id = session.get('user_id')
+    if not user_id:
+        return
+
+    post_id = data.get('post_id')
+    new_content = (data.get('content') or '').strip()
+
+    if not post_id or not new_content:
+        return
+
+    post = CommunityPost.query.get(post_id)
+    if not post or post.user_id != user_id:
+        return
+
+    if check_unkind_words(new_content, current_app.config.get('UNKIND_WORDS', [])):
+        emit('message_flagged', {
+            'message': 'Your edited message contains inappropriate language and cannot be saved.'
+        })
+        return
+
+    post.content = sanitize_for_display(new_content)
+    post.edited_at = datetime.utcnow()
+    db.session.commit()
+
+    room = f"community_{post.community_id}"
+    emit('community_post_edited', {
+        'post_id': post.id,
+        'content': post.content
     }, room=room)
 
 

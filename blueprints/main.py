@@ -8,6 +8,7 @@ Extracted from app.py so that app.py stays thin and focused on app creation.
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash
 from datetime import datetime, timedelta
 from extensions import db
+from forms import LoginForm, RegistrationForm
 
 main_bp = Blueprint('main', __name__)
 
@@ -132,7 +133,9 @@ def index():
             return redirect(url_for('youth.dashboard'))
         elif role == 'admin':
             return redirect(url_for('admin.dashboard'))
-    return render_template('index.html')
+    return render_template('index.html',
+                           login_form=LoginForm(),
+                           register_form=RegistrationForm())
 
 
 @main_bp.route('/support', methods=['GET', 'POST'])

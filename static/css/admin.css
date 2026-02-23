@@ -14,14 +14,14 @@
 /* ==================== ADMIN COLOR SCHEME ==================== */
 :root {
     /* Professional color palette for admin interface */
-    --admin-primary: #34495E;        /* Dark blue-gray - primary elements */
-    --admin-primary-hover: #2C3E50;  /* Darker blue-gray - hover state */
-    --admin-secondary: #16A085;      /* Teal - success/active indicators */
-    --admin-accent: #E67E22;         /* Orange - warnings/attention */
+    --admin-primary: #4f084c;        /* Dark blue-gray - primary elements */
+    --admin-primary-hover: #1c032b;  /* Darker blue-gray - hover state */
+    --admin-secondary: #e29454;      /* Teal - success/active indicators */
+    --admin-accent: #e29454;         /* Orange - warnings/attention */
     --admin-danger: #E74C3C;         /* Red - critical alerts */
     --admin-bg: #ECF0F1;             /* Light gray background */
     --admin-card-bg: #FFFFFF;        /* White cards */
-    --admin-text: #2C3E50;           /* Dark text */
+    --admin-text: #1c032b;           /* Dark text */
     --admin-border: #BDC3C7;         /* Gray borders */
 }
 
@@ -34,7 +34,7 @@ body[data-role="admin"] {
 
 /* ==================== ADMIN HEADER ==================== */
 body[data-role="admin"] .admin-header {
-    background: linear-gradient(135deg, var(--admin-primary) 0%, #2C3E50 100%);
+    background: linear-gradient(135deg, var(--admin-primary) 0%, #1c032b 100%);
     color: white;
     padding: 2rem;
     margin-bottom: 2rem;
@@ -370,12 +370,12 @@ body[data-role="admin"] .activity-item .activity-icon {
 
 body[data-role="admin"] .activity-item .activity-icon.user {
     background-color: rgba(52, 152, 219, 0.1);
-    color: #3498DB;
+    color: #e29454;
 }
 
 body[data-role="admin"] .activity-item .activity-icon.story {
     background-color: rgba(155, 89, 182, 0.1);
-    color: #9B59B6;
+    color: #c54836;
 }
 
 body[data-role="admin"] .activity-item .activity-icon.event {

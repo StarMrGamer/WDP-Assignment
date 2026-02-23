@@ -285,17 +285,28 @@ function showDailyRewardModal(streakDays) {
  * @param {string} actionText - Text for the action button (optional)
  */
 function showToast(message, type = 'info', actionLink = null, actionText = 'View') {
+    const TOAST_TOP = 80;
+    const TOAST_GAP = 10;
+
+    // Calculate top offset based on existing toasts
+    const existing = document.querySelectorAll('.toast-notification');
+    let topOffset = TOAST_TOP;
+    existing.forEach(t => {
+        topOffset += t.offsetHeight + TOAST_GAP;
+    });
+
     // Create toast element
     const toast = document.createElement('div');
     toast.className = `alert alert-${type} toast-notification fade-in`;
     toast.style.cssText = `
         position: fixed;
-        top: 80px;
+        top: ${topOffset}px;
         right: 20px;
         z-index: 9999;
         min-width: 300px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         cursor: ${actionLink ? 'pointer' : 'default'};
+        transition: top 0.2s ease;
     `;
 
     // Add icon based on type
@@ -328,16 +339,37 @@ function showToast(message, type = 'info', actionLink = null, actionText = 'View
 
     document.body.appendChild(toast);
 
-    // Auto-remove after 5 seconds (slightly longer for interactive toasts)
-    const duration = actionLink ? 6000 : 4000;
-    setTimeout(() => {
+    function reflowToasts() {
+        const TOAST_TOP = 80;
+        const TOAST_GAP = 10;
+        let offset = TOAST_TOP;
+        document.querySelectorAll('.toast-notification').forEach(t => {
+            t.style.top = offset + 'px';
+            offset += t.offsetHeight + TOAST_GAP;
+        });
+    }
+
+    function removeToast() {
         if (document.body.contains(toast)) {
             toast.style.opacity = '0';
-            setTimeout(() => { 
-                if (document.body.contains(toast)) toast.remove(); 
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    toast.remove();
+                    reflowToasts();
+                }
             }, 300);
         }
-    }, duration);
+    }
+
+    // Override close button to also reflow
+    toast.querySelector('.btn-close').onclick = function(e) {
+        e.stopPropagation();
+        removeToast();
+    };
+
+    // Auto-remove after 5 seconds (slightly longer for interactive toasts)
+    const duration = actionLink ? 6000 : 4000;
+    setTimeout(removeToast, duration);
 }
 
 // ==================== FORM VALIDATION ====================

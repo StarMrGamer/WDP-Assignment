@@ -23,10 +23,10 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 20px rgba(0,0,0,0.12);
     }
-    .ticket-card.status-submitted { border-left-color: #F39C12; }
-    .ticket-card.status-open { border-left-color: #3498DB; }
-    .ticket-card.status-in_progress { border-left-color: #9B59B6; }
-    .ticket-card.status-closed { border-left-color: #27AE60; }
+    .ticket-card.status-submitted { border-left-color: #f9da88; }
+    .ticket-card.status-open { border-left-color: #e29454; }
+    .ticket-card.status-in_progress { border-left-color: #c54836; }
+    .ticket-card.status-closed { border-left-color: #ac2432; }
 
     .ticket-header {
         display: flex;
@@ -138,29 +138,29 @@
     <!-- Statistics Summary -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #F39C12;">
-                <div class="stat-icon" style="color: #F39C12;"><i class="fas fa-inbox"></i></div>
+            <div class="stat-card" style="border-left-color: #f9da88;">
+                <div class="stat-icon" style="color: #f9da88;"><i class="fas fa-inbox"></i></div>
                 <div class="stat-value">{{ tickets|selectattr('status', 'equalto', 'submitted')|list|length }}</div>
                 <div class="stat-label">Submitted</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #3498DB;">
-                <div class="stat-icon" style="color: #3498DB;"><i class="fas fa-folder-open"></i></div>
+            <div class="stat-card" style="border-left-color: #e29454;">
+                <div class="stat-icon" style="color: #e29454;"><i class="fas fa-folder-open"></i></div>
                 <div class="stat-value">{{ tickets|selectattr('status', 'equalto', 'open')|list|length }}</div>
                 <div class="stat-label">Open</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #9B59B6;">
-                <div class="stat-icon" style="color: #9B59B6;"><i class="fas fa-spinner"></i></div>
+            <div class="stat-card" style="border-left-color: #c54836;">
+                <div class="stat-icon" style="color: #c54836;"><i class="fas fa-spinner"></i></div>
                 <div class="stat-value">{{ tickets|selectattr('status', 'equalto', 'in_progress')|list|length }}</div>
                 <div class="stat-label">In Progress</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #27AE60;">
-                <div class="stat-icon" style="color: #27AE60;"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-card" style="border-left-color: #ac2432;">
+                <div class="stat-icon" style="color: #ac2432;"><i class="fas fa-check-circle"></i></div>
                 <div class="stat-value">{{ tickets|selectattr('status', 'equalto', 'closed')|list|length }}</div>
                 <div class="stat-label">Closed</div>
             </div>

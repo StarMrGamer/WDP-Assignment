@@ -79,13 +79,25 @@ def stories():
 def create_story():
     """Create a new story (step-by-step wizard)."""
     form = StoryForm()
-    
+
+    # Profanity check runs on every POST, before WTForms validation
+    if request.method == 'POST':
+        unkind_words = current_app.config.get('UNKIND_WORDS', [])
+        raw_title = request.form.get('title', '')
+        raw_content = request.form.get('content', '')
+        if check_unkind_words(raw_title, unkind_words) or check_unkind_words(raw_content, unkind_words):
+            flash('Your story contains inappropriate language and cannot be posted. Please revise your content.', 'danger')
+            return render_template('youth/create_story.html', form=form)
+
     if form.validate_on_submit():
+        title = sanitize_for_display(form.title.data)
+        content = sanitize_for_display(form.content.data)
+
         # Create new story
         new_story = Story(
             user_id=session['user_id'],
-            title=form.title.data,
-            content=form.content.data,
+            title=title,
+            content=content,
             category=form.category.data
         )
 
@@ -367,6 +379,38 @@ def report_community_post(post_id):
         community_post_id=post.id,
         reported_by=session['user_id'],
         reported_user_id=post.user_id,
+        reason=reason,
+        description=description,
+        ai_analysis=ai_analysis,
+        status='pending'
+    )
+    db.session.add(report)
+    db.session.commit()
+
+    return {'success': True}, 200
+
+
+@youth_bp.route('/api/stories/<int:story_id>/report', methods=['POST'])
+@login_required
+def report_story(story_id):
+    """API to report a story."""
+    from ai_utils import analyze_report
+    data = request.get_json()
+    reason = data.get('reason')
+    description = data.get('description')
+
+    story = Story.query.get_or_404(story_id)
+
+    # Don't allow reporting your own story
+    if story.user_id == session['user_id']:
+        return {'success': False, 'message': 'Cannot report your own story'}, 400
+
+    ai_analysis = analyze_report(story.content, reason, description)
+
+    report = ChatReport(
+        story_id=story.id,
+        reported_by=session['user_id'],
+        reported_user_id=story.user_id,
         reason=reason,
         description=description,
         ai_analysis=ai_analysis,

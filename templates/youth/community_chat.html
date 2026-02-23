@@ -14,8 +14,8 @@
             <i class="fas fa-arrow-left"></i> Back
         </a>
         <div class="d-flex align-items-center">
-            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 50px; height: 50px; font-size: 1.5rem;">
-                <i class="{{ community.icon }}"></i>
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3 shadow-sm" style="width:50px;height:50px;font-size:1.5rem;">
+                {{ community.name[0]|upper }}
             </div>
             <div>
                 <h2 class="mb-0 fw-bold">{{ community.name }}</h2>
@@ -30,56 +30,100 @@
             <div class="modern-chat-interface">
                 <div class="message-feed" id="chat-messages">
                     {% for post in posts %}
-                        <div class="message-wrapper {% if post.user_id == user_id %}me{% else %}other{% endif %}">
-                            {% if post.user_id != user_id %}
-                                <a href="{{ url_for('youth.public_profile', user_id=post.user_id) }}">
-                                    <img src="{{ url_for('static', filename=post.user.profile_picture|fix_pfp) }}" class="chat-avatar me-2">
-                                </a>
+                    <div class="message-wrapper {% if post.user_id == user_id %}me{% else %}other{% endif %}"
+                         data-post-id="{{ post.id }}">
+                        {% if post.user_id != user_id %}
+                        <a href="{{ url_for('youth.public_profile', user_id=post.user_id) }}">
+                            <img src="{{ url_for('static', filename=post.user.profile_picture|fix_pfp) }}"
+                                 class="chat-avatar me-2">
+                        </a>
+                        {% endif %}
+
+                        <!-- Action buttons (reply / edit) -->
+                        <div class="message-actions">
+                            <button class="msg-action-btn" title="Reply"
+                                    onclick="startReply({{ post.id }})">
+                                <i class="fas fa-reply"></i>
+                            </button>
+                            {% if post.user_id == user_id %}
+                            <button class="msg-action-btn" title="Edit"
+                                    onclick="startEdit({{ post.id }})">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
                             {% endif %}
-                            
-                            <div class="message-bubble">
+                        </div>
+
+                        <div class="message-bubble">
+                            {% if post.user_id != user_id %}
+                            <span class="message-sender-name">{{ post.user.full_name }}</span>
+                            {% endif %}
+
+                            {% if post.reply_to %}
+                            <div class="reply-quote" onclick="scrollToPost({{ post.reply_to.id }})">
+                                <span class="reply-quote-author">{{ post.reply_to.user.full_name }}</span>
+                                <span class="reply-quote-content">{{ (post.reply_to.content or '')|truncate(80, True, '...') }}</span>
+                            </div>
+                            {% endif %}
+
+                            {% if post.photo_url %}
+                            <img src="{{ url_for('static', filename=post.photo_url) }}"
+                                 class="img-fluid rounded mb-2" style="max-height:200px;">
+                            {% endif %}
+
+                            <div class="content-text">{{ post.content }}</div>
+
+                            <div class="d-flex justify-content-end align-items-center mt-1 gap-1">
+                                <div class="time-stamp">{{ post.created_at|timeago }}</div>
+                                {% if post.edited_at %}
+                                <span class="edited-label">(edited)</span>
+                                {% endif %}
                                 {% if post.user_id != user_id %}
-                                    <span class="message-sender-name">{{ post.user.full_name }}</span>
+                                <button class="btn btn-link btn-sm text-muted p-0 ms-1 report-btn"
+                                        onclick="openReportModal({{ post.id }}, 'community')" title="Report">
+                                    <i class="far fa-flag" style="font-size:0.8rem;"></i>
+                                </button>
                                 {% endif %}
-                                
-                                {% if post.photo_url %}
-                                    <img src="{{ url_for('static', filename=post.photo_url) }}" class="img-fluid rounded mb-2" style="max-height: 200px;">
-                                {% endif %}
-                                
-                                <div class="content-text">{{ post.content }}</div>
-                                <div class="d-flex justify-content-end align-items-center mt-1">
-                                    <div class="time-stamp">{{ post.created_at|timeago }}</div>
-                                    {% if post.user_id != user_id %}
-                                    <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal({{ post.id }}, 'community')" title="Report Post">
-                                        <i class="far fa-flag" style="font-size: 0.8rem;"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
                             </div>
                         </div>
+                    </div>
                     {% endfor %}
                 </div>
-                
+
                 <!-- Input Area -->
                 <div class="input-area-modern position-relative">
+                    <!-- Reply / Edit context bars -->
+                    <div id="reply-bar" class="chat-context-bar">
+                        <i class="fas fa-reply text-muted"></i>
+                        <span class="context-label" id="reply-bar-author"></span>
+                        <span class="context-text" id="reply-bar-preview"></span>
+                        <button class="cancel-btn" onclick="cancelReply()" title="Cancel reply">&times;</button>
+                    </div>
+                    <div id="edit-bar" class="chat-context-bar">
+                        <i class="fas fa-pencil-alt text-muted"></i>
+                        <span class="context-label">Editing message</span>
+                        <button class="cancel-btn" onclick="cancelEdit()" title="Cancel edit">&times;</button>
+                    </div>
+
+                    <!-- @mention dropdown -->
+                    <div id="mention-dropdown" class="mention-dropdown"></div>
+
                     <form id="chat-form">
-                        <div id="upload-preview" class="upload-preview-container" style="display: none;">
+                        <div id="upload-preview" class="upload-preview-container" style="display:none;">
                             <div class="position-relative d-inline-block">
-                                <img src="" id="preview-img" class="rounded" style="height: 80px;">
-                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 start-100 translate-middle rounded-circle" onclick="clearUpload()">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                                <img src="" id="preview-img" class="rounded" style="height:80px;">
+                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 start-100 translate-middle rounded-circle"
+                                        onclick="clearUpload()"><i class="fas fa-times"></i></button>
                             </div>
                         </div>
 
                         <div class="pill-input-wrapper shadow-sm">
-                            <button type="button" class="btn emoji-trigger" onclick="document.getElementById('photo-upload').click()">
+                            <button type="button" class="btn emoji-trigger"
+                                    onclick="document.getElementById('photo-upload').click()">
                                 <i class="fas fa-image text-primary"></i>
                             </button>
-                            <input type="file" id="photo-upload" accept="image/*" style="display: none;">
-                            
-                            <input type="text" id="message-input" class="form-control auto-expand" placeholder="Type a message..." autocomplete="off">
-                            
+                            <input type="file" id="photo-upload" accept="image/*" style="display:none;">
+                            <input type="text" id="message-input" class="form-control auto-expand"
+                                   placeholder="Type a message… use @ to mention someone" autocomplete="off">
                             <button type="submit" class="btn circle-send-btn">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
@@ -95,20 +139,22 @@
                 <div class="card-header bg-white border-0 pt-4 px-4">
                     <h5 class="mb-0 fw-bold">Members</h5>
                 </div>
-                <div class="card-body p-0" style="max-height: 70vh; overflow-y: auto;">
+                <div class="card-body p-0" style="max-height:70vh;overflow-y:auto;">
                     <ul class="list-group list-group-flush">
                         {% for member in members %}
-                            <li class="list-group-item d-flex align-items-center px-4 py-3 border-0">
-                                <a href="{{ url_for('youth.public_profile', user_id=member.user_id) }}" class="d-flex align-items-center text-decoration-none text-dark w-100">
-                                    <img src="{{ url_for('static', filename=member.user.profile_picture|fix_pfp) }}" class="rounded-circle me-3 shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="fw-semibold">{{ member.user.full_name }}</span>
-                                </a>
-                                {% if member.user.role == 'senior' %}
-                                    <span class="badge bg-warning text-dark ms-auto rounded-pill">Senior</span>
-                                {% else %}
-                                    <span class="badge bg-info text-white ms-auto rounded-pill">Youth</span>
-                                {% endif %}
-                            </li>
+                        <li class="list-group-item d-flex align-items-center px-4 py-3 border-0">
+                            <a href="{{ url_for('youth.public_profile', user_id=member.user_id) }}"
+                               class="d-flex align-items-center text-decoration-none text-dark w-100">
+                                <img src="{{ url_for('static', filename=member.user.profile_picture|fix_pfp) }}"
+                                     class="rounded-circle me-3 shadow-sm" style="width:40px;height:40px;object-fit:cover;">
+                                <span class="fw-semibold">{{ member.user.full_name }}</span>
+                            </a>
+                            {% if member.user.role == 'senior' %}
+                            <span class="badge bg-warning text-dark ms-auto rounded-pill">Senior</span>
+                            {% else %}
+                            <span class="badge bg-info text-white ms-auto rounded-pill">Youth</span>
+                            {% endif %}
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -117,179 +163,270 @@
     </div>
 </div>
 
-<!-- Socket.IO Script -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 <script>
-    // SECURITY: HTML escape function to prevent XSS
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+// ── Helpers ──────────────────────────────────────────────────────────────
+function escapeHtml(text) {
+    if (text == null) return '';
+    const d = document.createElement('div');
+    d.textContent = String(text);
+    return d.innerHTML;
+}
 
-    const socket = io();
-    const communityId = {{ community.id }};
-    const userId = {{ user_id }};
-    const chatMessages = document.getElementById('chat-messages');
+const members = [
+    {% for m in members %}
+    {"id": {{ m.user_id }}, "full_name": {{ m.user.full_name|tojson }}, "avatar": {{ (m.user.profile_picture or 'images/default-avatar.png')|tojson }}, "role": {{ m.user.role|tojson }}}{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
 
-    // Scroll to bottom on load
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    // Join room
-    socket.emit('join_community', { community_id: communityId });
-
-    // Handle Photo Upload Preview
-    const photoInput = document.getElementById('photo-upload');
-    const previewContainer = document.getElementById('upload-preview');
-    const previewImg = document.getElementById('preview-img');
-
-    photoInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImg.src = e.target.result;
-                previewContainer.style.display = 'block';
-            }
-            reader.readAsDataURL(this.files[0]);
-        }
+function renderContent(text) {
+    let html = escapeHtml(text);
+    members.forEach(m => {
+        const tag = '@' + escapeHtml(m.full_name);
+        html = html.split(tag).join(`<span class="mention">${tag}</span>`);
     });
+    return html;
+}
 
-    function clearUpload() {
-        photoInput.value = '';
-        previewContainer.style.display = 'none';
+document.querySelectorAll('.content-text').forEach(el => {
+    el.innerHTML = renderContent(el.textContent);
+});
+
+// ── Socket setup ──────────────────────────────────────────────────────────
+const socket = io();
+const communityId = {{ community.id }};
+const userId = {{ user_id }};
+const chatMessages = document.getElementById('chat-messages');
+
+chatMessages.scrollTop = chatMessages.scrollHeight;
+socket.emit('join_community', { community_id: communityId });
+
+// ── Photo upload ──────────────────────────────────────────────────────────
+const photoInput = document.getElementById('photo-upload');
+const previewContainer = document.getElementById('upload-preview');
+const previewImg = document.getElementById('preview-img');
+
+photoInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => { previewImg.src = e.target.result; previewContainer.style.display = 'block'; };
+        reader.readAsDataURL(this.files[0]);
     }
+});
+function clearUpload() { photoInput.value = ''; previewContainer.style.display = 'none'; }
 
-    // Handle Form Submit
-    const chatForm = document.getElementById('chat-form');
-    const sendBtn = chatForm.querySelector('.circle-send-btn');
-    const originalBtnContent = sendBtn.innerHTML;
+// ── Reply state ───────────────────────────────────────────────────────────
+let replyingTo = null;
 
-    chatForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const input = document.getElementById('message-input');
-        const content = input.value.trim();
-        const file = photoInput.files[0];
+function startReply(postId) {
+    cancelEdit();
+    const wrapper = document.querySelector(`.message-wrapper[data-post-id="${postId}"]`);
+    const authorEl = wrapper.querySelector('.message-sender-name');
+    const contentEl = wrapper.querySelector('.content-text');
+    const author = authorEl ? authorEl.textContent.trim() : 'You';
+    const preview = contentEl ? contentEl.textContent.trim().substring(0, 80) : '';
+    replyingTo = { id: postId, author, preview };
+    document.getElementById('reply-bar-author').textContent = author;
+    document.getElementById('reply-bar-preview').textContent = preview;
+    document.getElementById('reply-bar').classList.add('active');
+    document.getElementById('message-input').focus();
+}
+function cancelReply() {
+    replyingTo = null;
+    document.getElementById('reply-bar').classList.remove('active');
+}
 
-        if (!content && !file) return;
+// ── Edit state ────────────────────────────────────────────────────────────
+let editingPostId = null;
 
-        // UI Loading State
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+function startEdit(postId) {
+    cancelReply();
+    const wrapper = document.querySelector(`.message-wrapper[data-post-id="${postId}"]`);
+    const contentEl = wrapper.querySelector('.content-text');
+    const raw = contentEl ? contentEl.textContent.trim() : '';
+    editingPostId = postId;
+    const input = document.getElementById('message-input');
+    input.value = raw;
+    document.getElementById('edit-bar').classList.add('active');
+    input.focus();
+}
+function cancelEdit() {
+    editingPostId = null;
+    document.getElementById('edit-bar').classList.remove('active');
+    document.getElementById('message-input').value = '';
+}
 
-        let photoUrl = null;
+// ── @mention autocomplete ─────────────────────────────────────────────────
+const messageInput = document.getElementById('message-input');
+const mentionDropdown = document.getElementById('mention-dropdown');
+let mentionStart = -1;
+let activeOptionIndex = -1;
 
-        // Upload photo if exists
-        if (file) {
-            const formData = new FormData();
-            formData.append('photo', file);
-            
-            try {
-                const response = await fetch(`/youth/communities/${communityId}/upload_photo`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-                if (data.url) {
-                    photoUrl = data.url;
-                } else {
-                    alert('Photo upload failed. Please try again.');
-                    sendBtn.disabled = false;
-                    sendBtn.innerHTML = originalBtnContent;
-                    return;
-                }
-            } catch (error) {
-                console.error('Upload failed', error);
-                alert('Failed to upload photo');
-                sendBtn.disabled = false;
-                sendBtn.innerHTML = originalBtnContent;
-                return;
-            }
-        }
-
-        // Send socket message
-        socket.emit('community_message', {
-            community_id: communityId,
-            content: content,
-            photo_url: photoUrl
-        });
-
-        // Clear input
-        input.value = '';
-        clearUpload();
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = originalBtnContent;
-        input.focus();
-    });
-
-    // Listen for alerts (Flagged Messages)
-    socket.on('message_flagged', function(data) {
-        if (typeof showToast === 'function') {
-            showToast(data.message, 'warning');
+messageInput.addEventListener('input', function() {
+    const val = this.value;
+    const cursor = this.selectionStart;
+    const before = val.substring(0, cursor);
+    const atMatch = before.match(/@([\w\s]*)$/);
+    if (atMatch) {
+        mentionStart = before.lastIndexOf('@');
+        const query = atMatch[1].toLowerCase();
+        const filtered = members.filter(m => m.full_name.toLowerCase().startsWith(query));
+        if (filtered.length) {
+            activeOptionIndex = -1;
+            mentionDropdown.innerHTML = filtered.map((m, i) =>
+                `<div class="mention-option" data-index="${i}" data-name="${escapeHtml(m.full_name)}"
+                      onmousedown="selectMention('${escapeHtml(m.full_name).replace(/'/g,"\\'")}')">
+                    <img src="/static/${escapeHtml(m.avatar)}" onerror="this.src='/static/images/default-avatar.png'">
+                    ${escapeHtml(m.full_name)}
+                    <span class="text-muted small ms-1">${escapeHtml(m.role)}</span>
+                 </div>`
+            ).join('');
+            mentionDropdown.classList.add('open');
         } else {
-            alert(data.message);
+            closeMentionDropdown();
         }
+    } else {
+        closeMentionDropdown();
+    }
+});
+
+messageInput.addEventListener('keydown', function(e) {
+    if (!mentionDropdown.classList.contains('open')) return;
+    const opts = mentionDropdown.querySelectorAll('.mention-option');
+    if (e.key === 'ArrowDown') { e.preventDefault(); activeOptionIndex = Math.min(activeOptionIndex + 1, opts.length - 1); updateActive(opts); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); activeOptionIndex = Math.max(activeOptionIndex - 1, 0); updateActive(opts); }
+    else if (e.key === 'Enter' || e.key === 'Tab') {
+        if (activeOptionIndex >= 0) { e.preventDefault(); opts[activeOptionIndex].dispatchEvent(new MouseEvent('mousedown')); }
+    } else if (e.key === 'Escape') { closeMentionDropdown(); }
+});
+
+function updateActive(opts) { opts.forEach((o, i) => o.classList.toggle('active', i === activeOptionIndex)); }
+function closeMentionDropdown() { mentionDropdown.classList.remove('open'); mentionDropdown.innerHTML = ''; mentionStart = -1; activeOptionIndex = -1; }
+function selectMention(fullName) {
+    const val = messageInput.value;
+    const before = val.substring(0, mentionStart);
+    const after = val.substring(messageInput.selectionStart);
+    messageInput.value = before + '@' + fullName + ' ' + after;
+    closeMentionDropdown();
+    messageInput.focus();
+}
+
+// ── Scroll to a post ─────────────────────────────────────────────────────
+function scrollToPost(postId) {
+    const el = document.querySelector(`.message-wrapper[data-post-id="${postId}"]`);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.opacity = '0.4'; setTimeout(() => el.style.opacity = '', 600); }
+}
+
+// ── Form submit ───────────────────────────────────────────────────────────
+const chatForm = document.getElementById('chat-form');
+const sendBtn = chatForm.querySelector('.circle-send-btn');
+const originalBtnContent = sendBtn.innerHTML;
+
+chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    closeMentionDropdown();
+    const input = document.getElementById('message-input');
+    const content = input.value.trim();
+    const file = photoInput.files[0];
+
+    if (!content && !file) return;
+
+    if (editingPostId) {
+        if (!content) return;
+        socket.emit('edit_community_message', { post_id: editingPostId, content });
+        cancelEdit();
+        return;
+    }
+
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    let photoUrl = null;
+    if (file) {
+        const formData = new FormData();
+        formData.append('photo', file);
+        try {
+            const resp = await fetch(`/youth/communities/${communityId}/upload_photo`, { method: 'POST', body: formData });
+            const d = await resp.json();
+            if (d.url) { photoUrl = d.url; }
+            else { showToast('Photo upload failed.', 'danger'); sendBtn.disabled = false; sendBtn.innerHTML = originalBtnContent; return; }
+        } catch { showToast('Photo upload failed.', 'danger'); sendBtn.disabled = false; sendBtn.innerHTML = originalBtnContent; return; }
+    }
+
+    socket.emit('community_message', {
+        community_id: communityId,
+        content,
+        photo_url: photoUrl,
+        reply_to_id: replyingTo ? replyingTo.id : null
     });
 
-    // Listen for messages
-    socket.on('new_community_post', function(data) {
-        const isMe = data.user_id == userId;
-        const sideClass = isMe ? 'me' : 'other';
+    input.value = '';
+    clearUpload();
+    cancelReply();
+    sendBtn.disabled = false;
+    sendBtn.innerHTML = originalBtnContent;
+    input.focus();
+});
 
-        // SECURITY: Escape all user-provided content to prevent XSS
-        const safeContent = escapeHtml(data.content);
-        const safeUsername = escapeHtml(data.username);
-        const safeAvatar = escapeHtml(data.avatar);
-        const safePhotoUrl = escapeHtml(data.photo_url);
-        const safeCreatedAt = escapeHtml(data.created_at);
+// ── Socket: new post ──────────────────────────────────────────────────────
+socket.on('message_flagged', data => {
+    if (typeof showToast === 'function') showToast(data.message, 'warning');
+    else alert(data.message);
+});
 
-        let photoHtml = '';
-        if (data.photo_url) {
-            photoHtml = `<img src="/static/${safePhotoUrl}" class="img-fluid rounded mb-2" style="max-height: 200px;">`;
-        }
+socket.on('new_community_post', function(data) {
+    const isMe = data.user_id == userId;
+    const safeUsername = escapeHtml(data.username);
+    const safeAvatar = escapeHtml(data.avatar);
+    const safePhotoUrl = escapeHtml(data.photo_url);
+    const safeCreatedAt = escapeHtml(data.created_at);
 
-        let avatarHtml = '';
-        if (!isMe) {
-            avatarHtml = `<a href="/youth/users/${parseInt(data.user_id)}"><img src="/static/${safeAvatar}" class="chat-avatar me-2"></a>`;
-        }
+    const avatarHtml = !isMe
+        ? `<a href="/youth/users/${parseInt(data.user_id)}"><img src="/static/${safeAvatar}" class="chat-avatar me-2" onerror="this.src='/static/images/default-avatar.png'"></a>`
+        : '';
+    const nameHtml = !isMe ? `<span class="message-sender-name">${safeUsername}</span>` : '';
+    const photoHtml = data.photo_url ? `<img src="/static/${safePhotoUrl}" class="img-fluid rounded mb-2" style="max-height:200px;">` : '';
+    const flaggedHtml = data.is_flagged && !isMe ? `<div class="flagged-warning"><i class="fas fa-exclamation-triangle me-1"></i> Flagged for review</div>` : '';
+    const reportBtn = !isMe ? `<button class="btn btn-link btn-sm text-muted p-0 ms-1 report-btn" onclick="openReportModal(${parseInt(data.id)},'community')" title="Report"><i class="far fa-flag" style="font-size:0.8rem;"></i></button>` : '';
 
-        let nameHtml = '';
-        if (!isMe) {
-            nameHtml = `<span class="message-sender-name">${safeUsername}</span>`;
-        }
+    let replyHtml = '';
+    if (data.reply_preview) {
+        replyHtml = `<div class="reply-quote"><span class="reply-quote-author">${escapeHtml(data.reply_preview.author)}</span><span class="reply-quote-content">${escapeHtml(data.reply_preview.content)}</span></div>`;
+    }
 
-        let flaggedHtml = '';
-        if (data.is_flagged && !isMe) {
-            flaggedHtml = `<div class="flagged-warning"><i class="fas fa-exclamation-triangle me-1"></i> Flagged for review</div>`;
-        }
+    const editBtn = isMe ? `<button class="msg-action-btn" title="Edit" onclick="startEdit(${parseInt(data.id)})"><i class="fas fa-pencil-alt"></i></button>` : '';
+    const actionsHtml = `<div class="message-actions"><button class="msg-action-btn" title="Reply" onclick="startReply(${parseInt(data.id)})"><i class="fas fa-reply"></i></button>${editBtn}</div>`;
 
-        let reportBtn = '';
-        if (!isMe) {
-            reportBtn = `
-                <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal(${parseInt(data.id)}, 'community')" title="Report Post">
-                    <i class="far fa-flag" style="font-size: 0.8rem;"></i>
-                </button>
-            `;
-        }
-
-        const html = `
-            <div class="message-wrapper ${sideClass}">
-                ${avatarHtml}
-                <div class="message-bubble">
-                    ${nameHtml}
-                    ${flaggedHtml}
-                    ${photoHtml}
-                    <div class="content-text">${safeContent}</div>
-                    <div class="d-flex justify-content-end align-items-center mt-1">
-                        <div class="time-stamp">${safeCreatedAt}</div>
-                        ${reportBtn}
-                    </div>
+    const html = `
+        <div class="message-wrapper ${isMe ? 'me' : 'other'}" data-post-id="${parseInt(data.id)}">
+            ${!isMe ? avatarHtml : ''}
+            ${isMe ? actionsHtml : ''}
+            <div class="message-bubble">
+                ${nameHtml}${flaggedHtml}${replyHtml}${photoHtml}
+                <div class="content-text">${renderContent(data.content)}</div>
+                <div class="d-flex justify-content-end align-items-center mt-1 gap-1">
+                    <div class="time-stamp">${safeCreatedAt}</div>
+                    ${reportBtn}
                 </div>
             </div>
-        `;
+            ${!isMe ? actionsHtml : ''}
+            ${isMe ? avatarHtml : ''}
+        </div>`;
 
-        chatMessages.insertAdjacentHTML('beforeend', html);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    });
+    chatMessages.insertAdjacentHTML('beforeend', html);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+// ── Socket: edit ──────────────────────────────────────────────────────────
+socket.on('community_post_edited', function(data) {
+    const wrapper = document.querySelector(`.message-wrapper[data-post-id="${data.post_id}"]`);
+    if (!wrapper) return;
+    const contentEl = wrapper.querySelector('.content-text');
+    if (contentEl) contentEl.innerHTML = renderContent(data.content);
+    if (!wrapper.querySelector('.edited-label')) {
+        const ts = wrapper.querySelector('.time-stamp');
+        if (ts) ts.insertAdjacentHTML('afterend', '<span class="edited-label">(edited)</span>');
+    }
+});
 </script>
 {% endblock %}

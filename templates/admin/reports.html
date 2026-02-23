@@ -50,22 +50,22 @@
     <!-- Statistics Summary -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #F39C12;">
-                <div class="stat-icon" style="color: #F39C12;"><i class="fas fa-clock"></i></div>
+            <div class="stat-card" style="border-left-color: #f9da88;">
+                <div class="stat-icon" style="color: #f9da88;"><i class="fas fa-clock"></i></div>
                 <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'pending')|list|length }}</div>
                 <div class="stat-label">Pending Review</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #3498DB;">
-                <div class="stat-icon" style="color: #3498DB;"><i class="fas fa-search"></i></div>
+            <div class="stat-card" style="border-left-color: #e29454;">
+                <div class="stat-icon" style="color: #e29454;"><i class="fas fa-search"></i></div>
                 <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'under_review')|list|length }}</div>
                 <div class="stat-label">Under Review</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #27AE60;">
-                <div class="stat-icon" style="color: #27AE60;"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-card" style="border-left-color: #ac2432;">
+                <div class="stat-icon" style="color: #ac2432;"><i class="fas fa-check-circle"></i></div>
                 <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'resolved')|list|length }}</div>
                 <div class="stat-label">Resolved</div>
             </div>
@@ -105,10 +105,21 @@
                     </span>
                 </div>
 
-                <!-- Reported Message -->
+                <!-- Reported Content -->
                 <div class="report-message">
-                    <small class="text-muted d-block mb-2">Reported Message:</small>
+                    {% if report.story %}
+                    <small class="text-muted d-block mb-2"><i class="fas fa-book-open me-1"></i>Reported Story:</small>
+                    <p class="mb-0 fw-bold">{{ report.story.title }}</p>
+                    <p class="mb-0 text-muted small">"{{ report.story.content[:120] }}{% if report.story.content|length > 120 %}...{% endif %}"</p>
+                    {% elif report.community_post %}
+                    <small class="text-muted d-block mb-2"><i class="fas fa-comments me-1"></i>Reported Community Post:</small>
+                    <p class="mb-0">"{{ report.community_post.content[:200] }}{% if report.community_post.content|length > 200 %}...{% endif %}"</p>
+                    {% elif report.message %}
+                    <small class="text-muted d-block mb-2"><i class="fas fa-envelope me-1"></i>Reported Message:</small>
                     <p class="mb-0">"{{ report.message.content }}"</p>
+                    {% else %}
+                    <small class="text-muted d-block mb-2">Content unavailable.</small>
+                    {% endif %}
                 </div>
 
                 <!-- Report Details -->
@@ -134,9 +145,11 @@
                         </div>
                     </div>
                     <div class="report-detail">
-                        <div class="label">Message Sent</div>
+                        <div class="label">Content Type</div>
                         <div class="value">
-                            <i class="fas fa-clock me-1"></i>{{ report.message.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                            {% if report.story %}<i class="fas fa-book-open me-1"></i>Story
+                            {% elif report.community_post %}<i class="fas fa-comments me-1"></i>Community Post
+                            {% else %}<i class="fas fa-envelope me-1"></i>Direct Message{% endif %}
                         </div>
                     </div>
                 </div>
@@ -151,8 +164,8 @@
 
                 <!-- AI Analysis -->
                 {% if report.ai_analysis %}
-                <div class="mt-3 p-3 rounded" style="background: #eef2ff; border-left: 4px solid #667eea;">
-                    <small class="d-block mb-1" style="color: #667eea; font-weight: 600;"><i class="fas fa-robot me-1"></i>AI Analysis:</small>
+                <div class="mt-3 p-3 rounded" style="background: #eef2ff; border-left: 4px solid #c54836;">
+                    <small class="d-block mb-1" style="color: #c54836; font-weight: 600;"><i class="fas fa-robot me-1"></i>AI Analysis:</small>
                     <p class="mb-0 small" style="white-space: pre-line;">{{ report.ai_analysis }}</p>
                 </div>
                 {% endif %}

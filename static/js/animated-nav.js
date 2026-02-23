@@ -1,22 +1,36 @@
 // File: animated-nav.js
-// Purpose: Dynamic centering and animation for the prominent slider bar
+// Purpose: Drives the sliding pill indicator in the glassmorphism navbar
 
 document.addEventListener('DOMContentLoaded', function() {
     const navContainer = document.querySelector('.animated-nav-container');
     if (!navContainer) return;
 
     const navItems = navContainer.querySelectorAll('.animated-nav-item');
-    const border = navContainer.querySelector('.border-effect');
-    
-    function updateBorderPosition(targetItem) {
+    const pill = navContainer.querySelector('.border-effect');
+
+    const PADDING = 6; // extra horizontal padding around the pill
+
+    function updatePillPosition(targetItem) {
+        // Pill is hidden on mobile — skip measurement to avoid layout thrash
+        if (window.innerWidth < 992) return;
+
         const itemRect = targetItem.getBoundingClientRect();
         const containerRect = navContainer.getBoundingClientRect();
-        
-        // Calculate center of the item relative to the container
-        const itemCenterX = itemRect.left - containerRect.left + (itemRect.width / 2);
-        const borderWidth = 60; // Matches CSS width
-        
-        border.style.left = (itemCenterX - (borderWidth / 2)) + 'px';
+
+        const left = itemRect.left - containerRect.left - PADDING;
+        const width = itemRect.width + PADDING * 2;
+
+        pill.style.left = left + 'px';
+        pill.style.width = width + 'px';
+    }
+
+    function hidePill() {
+        pill.style.width = '0';
+        pill.style.opacity = '0';
+    }
+
+    function showPill() {
+        pill.style.opacity = '1';
     }
 
     function setActiveFromCurrentPage() {
@@ -24,35 +38,40 @@ document.addEventListener('DOMContentLoaded', function() {
         let activeFound = false;
 
         navItems.forEach((item) => {
+            item.classList.remove('active');
             const link = item.querySelector('a');
             if (link && link.getAttribute('href') === currentPath) {
-                navItems.forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
-                updateBorderPosition(item);
+                showPill();
+                updatePillPosition(item);
                 activeFound = true;
             }
         });
 
-        if (!activeFound && navItems.length > 0) {
-            navItems[0].classList.add('active');
-            updateBorderPosition(navItems[0]);
+        if (!activeFound) {
+            hidePill();
         }
     }
 
     navItems.forEach((item) => {
-        item.addEventListener('mouseenter', () => updateBorderPosition(item));
-        
+        item.addEventListener('mouseenter', () => { showPill(); updatePillPosition(item); });
+
         item.addEventListener('mouseleave', () => {
             const activeItem = navContainer.querySelector('.animated-nav-item.active');
-            if (activeItem) updateBorderPosition(activeItem);
+            if (activeItem) {
+                showPill();
+                updatePillPosition(activeItem);
+            } else {
+                hidePill();
+            }
         });
     });
 
-    // Initialize position
+    // Small delay to let layout settle before measuring positions
     setTimeout(setActiveFromCurrentPage, 100);
 
     window.addEventListener('resize', () => {
         const activeItem = navContainer.querySelector('.animated-nav-item.active');
-        if (activeItem) updateBorderPosition(activeItem);
+        if (activeItem) updatePillPosition(activeItem);
     });
 });

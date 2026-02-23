@@ -6,8 +6,9 @@ Date: December 2025
 Feature: Authentication & User Management
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from models import db, User, Streak, RegistrationCode
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from models import db, User, Streak, RegistrationCode, Notification
+from utils import check_unkind_words, sanitize_for_display
 from forms import LoginForm, RegistrationForm
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -39,6 +40,11 @@ def login():
 
         # Check if user exists and password is correct
         if user and user.check_password(password):
+            # Check if account is pending approval
+            if not user.is_approved:
+                flash('Your account is pending admin approval. You will be notified once approved.', 'warning')
+                return render_template('auth/login.html', form=form)
+
             # === NEW: CHECK IF ACCOUNT IS DISABLED ===
             if not user.is_active:
                 reason = user.disable_reason or "Account disabled by administrator."
@@ -108,6 +114,15 @@ def register():
     form = RegistrationForm()
     role = request.args.get('role', 'senior')
 
+    # Profanity check runs on every POST, before WTForms validation
+    if request.method == 'POST':
+        unkind_words = current_app.config.get('UNKIND_WORDS', [])
+        raw_full_name = request.form.get('full_name', '')
+        raw_username = request.form.get('username', '')
+        if check_unkind_words(raw_full_name, unkind_words) or check_unkind_words(raw_username, unkind_words):
+            flash('Your name or username contains inappropriate language. Please choose different values.', 'danger')
+            return render_template('auth/register.html', role=role, form=form)
+
     if form.validate_on_submit():
         # Get data from form
         role = form.role.data
@@ -168,11 +183,14 @@ def register():
                 'theme': 'light'
             }
 
+        # New accounts require admin approval before they can log in
+        new_user.is_approved = False
+
         try:
             # Mark registration code as used
             # Validation happens in form, so code exists and is unused
             code_record = RegistrationCode.query.filter_by(code=registration_code).first()
-            
+
             # Add user to database
             db.session.add(new_user)
             db.session.commit() # Commit first to get ID
@@ -180,23 +198,27 @@ def register():
             # Create initial streak record
             streak = Streak(user_id=new_user.id)
             db.session.add(streak)
-            
+
             # Update code record
             code_record.is_used = True
             code_record.used_by = new_user
-            
+
+            # Notify all admins of the new registration
+            admins = User.query.filter_by(role='admin').all()
+            for admin in admins:
+                notif = Notification(
+                    user_id=admin.id,
+                    title='New Account Pending Approval',
+                    message=f"{new_user.full_name} (@{new_user.username}) has registered as a {role} and is awaiting approval.",
+                    type='info',
+                    link='/admin/pending-accounts'
+                )
+                db.session.add(notif)
+
             db.session.commit()
 
-            # Auto-login the user
-            session['user_id'] = new_user.id
-            session['username'] = new_user.username
-            session['role'] = new_user.role
-            session['profile_picture'] = new_user.profile_picture
-            session['full_name'] = new_user.full_name
-            session.permanent = True
-
-            flash(f'Account created successfully! Please complete your profile setup.', 'success')
-            return redirect(url_for('auth.setup'))
+            flash(f'Account created! An admin will review and approve your account shortly. You\'ll be able to log in once approved.', 'success')
+            return redirect(url_for('auth.login'))
 
         except Exception as e:
             db.session.rollback()

@@ -1,18 +1,88 @@
-/* 
+/*
     File: animated-nav.css
-    Purpose: Modern animated navigation bar styling
-    Theme: White themed with prominent bottom slider
+    Purpose: Glassmorphism navbar with animated pill indicator
 */
 
+/* ===== ROLE ACCENT COLOURS ===== */
 :root {
-    --accent-color: #9B59B6;
-    --nav-text: #40464e;
+    --accent-color: #e29454;
+    --accent-rgb: 226, 148, 84;
+    --nav-text: #3a2a1a;
+}
+
+[data-role="senior"] {
+    --accent-color: #e29454;
+    --accent-rgb: 226, 148, 84;
 }
 
 [data-role="youth"] {
-    --accent-color: #3498DB;
+    --accent-color: #781543;
+    --accent-rgb: 120, 21, 67;
 }
 
+[data-role="admin"] {
+    --accent-color: #4f084c;
+    --accent-rgb: 79, 8, 76;
+}
+
+/* ===== GLASSMORPHISM NAVBAR ===== */
+.navbar {
+    background: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.07) !important;
+}
+
+.navbar-brand {
+    color: #1a1a2e !important;
+}
+
+/* Hamburger button */
+.navbar-toggler {
+    border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
+    border-radius: 10px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25) !important;
+    outline: none;
+}
+
+/* ===== DESKTOP LAYOUT: true centering via absolute positioning ===== */
+@media (min-width: 992px) {
+    /* Make container-fluid the positioning context */
+    .navbar > .container-fluid {
+        position: relative;
+    }
+
+    /* Pin center nav to the exact middle of the bar */
+    .navbar-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1;
+        pointer-events: none;
+        /* Never wider than the space between brand and right items */
+        max-width: 60%;
+    }
+
+    .navbar-center .animated-nav-container,
+    .navbar-center .animated-nav-list,
+    .navbar-center .animated-nav-item,
+    .navbar-center .nav-link {
+        pointer-events: auto;
+    }
+
+    /* Right section: push to the far right */
+    .navbar-right {
+        margin-left: auto;
+    }
+}
+
+/* ===== ANIMATED PILL INDICATOR (desktop only) ===== */
 .animated-nav-container {
     position: relative;
     height: 50px;
@@ -20,35 +90,53 @@
     align-items: center;
 }
 
+/* The sliding pill — JS controls left + width */
 .border-effect {
     position: absolute;
-    width: 60px;
-    height: 8px; /* Prominent height */
-    background-color: var(--accent-color);
-    border-radius: 0 0 10px 10px; /* Rounded at bottom */
-    filter: drop-shadow(0px 4px 6px var(--accent-color)); /* Glow effect going down */
-    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    top: -12px; /* Positioned at the top of the white navbar */
+    height: 36px;
+    width: 80px;
+    background: rgba(var(--accent-rgb), 0.12);
+    border: 1px solid rgba(var(--accent-rgb), 0.28);
+    border-radius: 20px;
+    transition: left 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                width 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                opacity 0.25s ease;
+    top: 50%;
+    transform: translateY(-50%);
     left: 0;
-    z-index: 10;
+    z-index: 0;
+    pointer-events: none;
 }
 
+/* ===== NAV LIST & ITEMS ===== */
 .animated-nav-list {
     display: flex;
     align-items: center;
     list-style: none;
     margin: 0 !important;
     padding: 0;
+    position: relative;
+    z-index: 1;
 }
 
 .animated-nav-item {
-    padding: 0 15px;
+    padding: 0 2px;
 }
 
 .animated-nav-item .nav-link {
     color: var(--nav-text) !important;
     font-weight: 600;
-    transition: color 0.3s ease;
+    padding: 6px 14px;
+    border-radius: 20px;
+    position: relative;
+    z-index: 1;
+    transition: color 0.25s ease;
+    white-space: nowrap;
+}
+
+.animated-nav-item .nav-link:hover {
+    color: var(--accent-color) !important;
+    background: transparent;
 }
 
 .animated-nav-item.active .nav-link {
@@ -57,4 +145,70 @@
 
 .animated-nav-item i {
     margin-right: 5px;
+}
+
+/* ===== MOBILE LAYOUT ===== */
+@media (max-width: 991px) {
+    /* Glass panel for the dropdown */
+    .navbar-collapse.show,
+    .navbar-collapse.collapsing {
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 16px;
+        margin-top: 8px;
+        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Pill indicator is meaningless in vertical layout */
+    .border-effect {
+        display: none;
+    }
+
+    /* Nav container: auto height, vertical stack */
+    .animated-nav-container {
+        height: auto;
+        display: block;
+    }
+
+    .animated-nav-list {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .animated-nav-item {
+        padding: 0;
+        width: 100%;
+    }
+
+    .animated-nav-item .nav-link {
+        padding: 10px 16px;
+        border-radius: 12px;
+        white-space: normal;
+        display: flex;
+        align-items: center;
+    }
+
+    .animated-nav-item.active .nav-link {
+        background: rgba(var(--accent-rgb), 0.1);
+    }
+
+    /* Right section: horizontal row with a divider above */
+    .navbar-right {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 10px 8px 4px;
+        margin-top: 4px;
+        border-top: 1px solid rgba(0, 0, 0, 0.07);
+        gap: 4px;
+    }
+
+    /* Streak item: keep it inline */
+    .navbar-right .nav-item.d-flex {
+        margin-right: 8px !important;
+    }
 }

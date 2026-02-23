@@ -98,6 +98,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     last_active = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     is_active = db.Column(db.Boolean, default=True)
+    is_approved = db.Column(db.Boolean, default=True)  # False for new registrations pending admin review
 
     # Relationships (defined with back_populates for bidirectional access)
     stories = db.relationship('Story', back_populates='user', lazy='dynamic')
@@ -566,10 +567,13 @@ class CommunityPost(db.Model):
     content = db.Column(db.Text, nullable=True)
     photo_url = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    edited_at = db.Column(db.DateTime, nullable=True)
+    reply_to_id = db.Column(db.Integer, db.ForeignKey('community_posts.id'), nullable=True)
 
     # Relationships
     community = db.relationship('Community', back_populates='posts')
     user = db.relationship('User')
+    reply_to = db.relationship('CommunityPost', foreign_keys=[reply_to_id], remote_side='CommunityPost.id')
 
     def __repr__(self):
         return f'<CommunityPost {self.id} in Community {self.community_id}>'
@@ -669,6 +673,7 @@ class ChatReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message_id = db.Column(db.Integer, db.ForeignKey('messages.id'), nullable=True, index=True)
     community_post_id = db.Column(db.Integer, db.ForeignKey('community_posts.id'), nullable=True, index=True)
+    story_id = db.Column(db.Integer, db.ForeignKey('stories.id'), nullable=True, index=True)
     reported_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     reported_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
 
@@ -682,6 +687,7 @@ class ChatReport(db.Model):
     # Relationships
     message = db.relationship('Message', back_populates='reports')
     community_post = db.relationship('CommunityPost', backref='reports')
+    story = db.relationship('Story', backref='reports')
     reporter = db.relationship('User', foreign_keys=[reported_by])
     reported_user = db.relationship('User', foreign_keys=[reported_user_id])
 

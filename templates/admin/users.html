@@ -42,9 +42,10 @@
             <div class="d-flex align-items-center gap-2">
                 <label for="status" class="fw-bold text-nowrap">Status:</label>
                 <select name="status" id="status" class="form-select" onchange="this.form.submit()">
-                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status   </option>
-                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active   </option>
-                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive   </option>
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending Approval</option>
                 </select>
             </div>
             <div class="ms-auto">
@@ -106,7 +107,11 @@
                     <td style="font-size: 0.85rem;">{{ user.languages|join(', ') if user.languages else '-' }}</td>
                     <td style="font-size: 0.85rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ user.interests|join(', ') if user.interests else '' }}">{{ user.interests|join(', ') if user.interests else '-' }}</td>
                     <td>
-                        {% if user.is_active %}
+                        {% if not user.is_approved %}
+                        <span class="status-badge" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;">
+                            <i class="fas fa-clock me-1"></i>Pending
+                        </span>
+                        {% elif user.is_active %}
                         <span class="status-badge active">Active</span>
                         {% else %}
                         <span class="status-badge inactive">Inactive</span>
@@ -119,12 +124,26 @@
                                title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            {% if not user.is_approved %}
+                            <form action="{{ url_for('admin.approve_user', user_id=user.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-success table-action-btn" title="Approve Account">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                            <form action="{{ url_for('admin.reject_user', user_id=user.id) }}" method="POST" class="d-inline"
+                                  onsubmit="return confirm('Reject and delete this account?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger table-action-btn" title="Reject Account">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                            {% else %}
                             <form action="{{ url_for('admin.toggle_user_status', user_id=user.id) }}" method="POST" class="d-inline">
                                 <button type="submit" class="btn btn-sm btn-outline-warning table-action-btn"
                                         title="{{ 'Deactivate' if user.is_active else 'Activate' }} User">
                                     <i class="fas {{ 'fa-ban' if user.is_active else 'fa-check' }}"></i>
                                 </button>
                             </form>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>

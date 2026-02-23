@@ -36,22 +36,22 @@
     <!-- Statistics Summary -->
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="stat-card" style="border-left-color: #3498DB;">
+            <div class="stat-card" style="border-left-color: #e29454;">
                 <div class="stat-icon"><i class="fas fa-calendar"></i></div>
                 <div class="stat-value">{{ events|length }}</div>
                 <div class="stat-label">Total Events</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="stat-card" style="border-left-color: #27AE60;">
-                <div class="stat-icon" style="color: #27AE60;"><i class="fas fa-video"></i></div>
+            <div class="stat-card" style="border-left-color: #ac2432;">
+                <div class="stat-icon" style="color: #ac2432;"><i class="fas fa-video"></i></div>
                 <div class="stat-value">{{ events|selectattr('event_type', 'equalto', 'online')|list|length }}</div>
                 <div class="stat-label">Online Events</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="stat-card" style="border-left-color: #9B59B6;">
-                <div class="stat-icon" style="color: #9B59B6;"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="stat-card" style="border-left-color: #c54836;">
+                <div class="stat-icon" style="color: #c54836;"><i class="fas fa-map-marker-alt"></i></div>
                 <div class="stat-value">{{ events|selectattr('event_type', 'equalto', 'in-person')|list|length }}</div>
                 <div class="stat-label">In-Person Events</div>
             </div>

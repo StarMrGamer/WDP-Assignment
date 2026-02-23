@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+<!--
+    File: pending_accounts.html
+    Purpose: Admin review queue for new user registrations
+-->
+
+{% block title %}Pending Accounts - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-user-clock me-2"></i>Pending Accounts</h1>
+                <p class="mb-0">Review and approve new user registrations</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% if users %}
+    <div class="row">
+        {% for user in users %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
+                             class="rounded-circle me-3"
+                             style="width:56px;height:56px;object-fit:cover;border:2px solid #e29454;">
+                        <div>
+                            <h5 class="mb-0 fw-bold">{{ user.full_name }}</h5>
+                            <small class="text-muted">@{{ user.username }}</small>
+                        </div>
+                        <span class="badge ms-auto
+                            {% if user.role == 'senior' %}bg-warning text-dark
+                            {% else %}bg-info{% endif %}">
+                            {{ user.role|capitalize }}
+                        </span>
+                    </div>
+
+                    <ul class="list-unstyled small text-muted mb-3">
+                        <li><i class="fas fa-envelope me-2"></i>{{ user.email }}</li>
+                        <li><i class="fas fa-phone me-2"></i>{{ user.phone or 'Not provided' }}</li>
+                        <li><i class="fas fa-birthday-cake me-2"></i>Age {{ user.age }}</li>
+                        <li><i class="fas fa-clock me-2"></i>Registered {{ user.created_at|timeago }}</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent d-flex gap-2">
+                    <form action="{{ url_for('admin.approve_user', user_id=user.id) }}" method="POST" class="flex-fill">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-check me-1"></i>Approve
+                        </button>
+                    </form>
+                    <form action="{{ url_for('admin.reject_user', user_id=user.id) }}" method="POST"
+                          class="flex-fill" onsubmit="return confirm('Reject and delete this account?');">
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-times me-1"></i>Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="data-table-container">
+        <div class="text-center py-5">
+            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+            <h5 class="text-muted">No pending accounts</h5>
+            <p class="text-muted">All registrations have been reviewed.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

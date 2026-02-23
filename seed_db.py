@@ -1,5 +1,5 @@
 from app import app
-from models import db, User, Community, Pair, Event, EventParticipant, Badge, Streak, Game, GameSession
+from models import db, User, Community, Pair, Event, EventParticipant, Badge, Streak, Game, GameSession, RegistrationCode, Story, ChatReport
 from werkzeug.security import generate_password_hash
 
 def seed_data():
@@ -18,9 +18,10 @@ def seed_data():
             full_name='System Admin',
             age=30,
             role='admin',
-            password_hash=generate_password_hash('password123')
+            password_hash=generate_password_hash('password123'),
+            is_approved=True
         )
-        
+
         senior = User(
             username='senior',
             email='senior@gencon.sg',
@@ -28,9 +29,10 @@ def seed_data():
             age=72,
             role='senior',
             password_hash=generate_password_hash('password123'),
-            interests_json='["Cooking", "Stories"]'
+            interests_json='["Cooking", "Stories"]',
+            is_approved=True
         )
-        
+
         youth = User(
             username='youth',
             email='youth@gencon.sg',
@@ -38,7 +40,8 @@ def seed_data():
             age=19,
             role='youth',
             password_hash=generate_password_hash('password123'),
-            interests_json='["Tech", "Games"]'
+            interests_json='["Tech", "Games"]',
+            is_approved=True
         )
         
         db.session.add(admin)
@@ -334,7 +337,8 @@ def seed_data():
                 full_name=name,
                 age=20,
                 role='youth',
-                password_hash=generate_password_hash('password123')
+                password_hash=generate_password_hash('password123'),
+                is_approved=True
             )
             db.session.add(u)
             db.session.flush() # Get ID
@@ -424,6 +428,49 @@ def seed_data():
             db.session.add(gs)
             db.session.commit()
             print("Seeded waiting game session.")
+
+        # Create Registration Codes
+        print("Seeding registration codes...")
+        codes = [
+            RegistrationCode(code='SENIOR2025', role='senior'),
+            RegistrationCode(code='YOUTH2025',  role='youth'),
+            RegistrationCode(code='GENCON01',   role='senior'),
+            RegistrationCode(code='GENCON02',   role='youth'),
+        ]
+        for c in codes:
+            db.session.add(c)
+        db.session.commit()
+        print("Seeded registration codes.")
+
+        # Create sample Stories
+        print("Seeding stories...")
+        story1 = Story(
+            user_id=senior.id,
+            title='Growing Up in Kampong Days',
+            content='When I was young, our whole kampong would gather under the big angsana tree every evening. The children would play gasing while the elders chatted over kopi-o. Those days taught me the true meaning of community — everyone looked out for one another.',
+            category='Childhood'
+        )
+        story2 = Story(
+            user_id=senior.id,
+            title='My First Day at the Factory',
+            content='I started work at the textile factory at age 16. The noise from the machines was deafening but the friendships I made there lasted a lifetime. My supervisor, Auntie Rose, taught me that hard work and integrity are worth more than any salary.',
+            category='Work Life'
+        )
+        db.session.add_all([story1, story2])
+        db.session.commit()
+
+        # Create a sample story report (to test moderation UI)
+        story_report = ChatReport(
+            story_id=story1.id,
+            reported_by=youth.id,
+            reported_user_id=senior.id,
+            reason='Misinformation',
+            description='Sample report for testing the story moderation feature.',
+            status='pending'
+        )
+        db.session.add(story_report)
+        db.session.commit()
+        print("Seeded stories and sample story report.")
 
 if __name__ == '__main__':
     seed_data()

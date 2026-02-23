@@ -79,14 +79,11 @@ def filter_text(text):
 def check_unkind_words(content, unkind_words=None):
     """
     Check if content contains any unkind words.
-
-    Args:
-        content (str): The text to check.
-        unkind_words (list, optional): List of words to check against.
-            Defaults to Config.UNKIND_WORDS.
-
-    Returns:
-        bool: True if content contains unkind words, False otherwise.
+    Uses two passes:
+      1. Word-boundary regex  – catches normally spaced profanity.
+      2. Stripped substring   – catches concatenated bypasses like NIGGANIGGA.
+    Short words that appear inside legitimate English words (hell→hello,
+    kill→skill, dick→Dickens) are kept boundary-only to avoid false positives.
     """
     if not content:
         return False
@@ -94,10 +91,28 @@ def check_unkind_words(content, unkind_words=None):
     if unkind_words is None:
         unkind_words = getattr(Config, 'UNKIND_WORDS', [])
 
+    # Words that must use \b only (they appear inside innocent English words)
+    boundary_only = {'hell', 'kill', 'dick', 'die'}
+
+    content_lower = content.lower()
+    # Strip everything that isn't a letter for the concatenation check
+    content_stripped = re.sub(r'[^a-z]', '', content_lower)
+
     for word in unkind_words:
-        pattern = re.compile(r'\b' + re.escape(word) + r'\b', re.IGNORECASE)
+        word_lower = word.lower()
+
+        # Pass 1: word-boundary match (catches spaced/standalone profanity)
+        pattern = re.compile(r'\b' + re.escape(word_lower) + r'\b', re.IGNORECASE)
         if pattern.search(content):
             return True
+
+        # Pass 2: stripped substring match (catches NIGGANIGGA-style bypasses)
+        # Only for words not in boundary_only, and at least 3 chars long
+        word_stripped = re.sub(r'[^a-z]', '', word_lower)
+        if word_stripped not in boundary_only and len(word_stripped) >= 3:
+            if word_stripped in content_stripped:
+                return True
+
     return False
 
 

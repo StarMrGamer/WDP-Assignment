@@ -36,7 +36,7 @@
             {% if report.ai_analysis %}
             <div class="card shadow-sm mb-4">
                 <div class="card-header" style="background: #eef2ff;">
-                    <h5 class="mb-0" style="color: #667eea;"><i class="fas fa-robot me-2"></i>AI Analysis</h5>
+                    <h5 class="mb-0" style="color: #c54836;"><i class="fas fa-robot me-2"></i>AI Analysis</h5>
                 </div>
                 <div class="card-body">
                     <p class="mb-0" style="white-space: pre-line;">{{ report.ai_analysis }}</p>
@@ -97,9 +97,38 @@
             </div>
         </div>
 
-        <!-- Chat / Post Context -->
+        <!-- Chat / Post / Story Context -->
         <div class="col-md-8">
-            {% if report.community_post %}
+            {% if report.story %}
+            <!-- Story report -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Reported Story</h5>
+                    <span class="badge bg-purple" style="background:#781543;">Story</span>
+                </div>
+                <div class="card-body">
+                    {% if report.story.photo_url %}
+                    <img src="{{ url_for('static', filename='images/uploads/' + report.story.photo_url) }}"
+                         class="img-fluid rounded mb-3 w-100" style="max-height:260px;object-fit:contain;background:#f0f0f0;">
+                    {% endif %}
+                    <h5 class="fw-bold">{{ report.story.title }}</h5>
+                    <span class="badge bg-secondary mb-2">{{ report.story.category }}</span>
+                    <div class="border rounded p-3 bg-warning bg-opacity-10" style="white-space:pre-line;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong class="text-danger">{{ report.reported_user.full_name }} (Reported)</strong>
+                            <small class="text-muted">{{ report.story.created_at|timeago }}</small>
+                        </div>
+                        {{ report.story.content }}
+                    </div>
+                    <form action="{{ url_for('admin.delete_story', story_id=report.story.id) }}" method="POST"
+                          class="mt-3" onsubmit="return confirm('Permanently delete this story?');">
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-trash me-2"></i>Delete Story
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% elif report.community_post %}
             <!-- Community post report -->
             <div class="card shadow-sm">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">

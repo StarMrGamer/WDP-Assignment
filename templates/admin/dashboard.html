@@ -12,7 +12,7 @@
 {% block extra_css %}
 <style>
     .admin-header {
-        background: linear-gradient(135deg, #3498DB 0%, #2C3E50 100%);
+        background: linear-gradient(135deg, #e29454 0%, #1c032b 100%);
         color: white;
         padding: 1.25rem 0;
         margin-bottom: 1rem;
@@ -31,7 +31,7 @@
         padding: 1rem;
         border-radius: 0.5rem;
         box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
-        border-left: 4px solid #3498DB;
+        border-left: 4px solid #e29454;
         transition: box-shadow 0.2s;
     }
 
@@ -40,15 +40,15 @@
     }
 
     .stat-card.seniors {
-        border-left-color: #E67E22;
+        border-left-color: #e29454;
     }
 
     .stat-card.youth {
-        border-left-color: #9B59B6;
+        border-left-color: #c54836;
     }
 
     .stat-card.pairs {
-        border-left-color: #27AE60;
+        border-left-color: #ac2432;
     }
 
     .stat-card.reports {
@@ -64,7 +64,7 @@
     .stat-value {
         font-size: 1.75rem;
         font-weight: 700;
-        color: #2C3E50;
+        color: #1c032b;
         margin-bottom: 0.15rem;
     }
 
@@ -83,7 +83,7 @@
     }
 
     .alert-card.warning {
-        border-left: 4px solid #F39C12;
+        border-left: 4px solid #f9da88;
     }
 
     .alert-card.danger {
@@ -93,7 +93,7 @@
     .section-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #2C3E50;
+        color: #1c032b;
         margin-bottom: 0.75rem;
     }
 
@@ -122,7 +122,7 @@
         align-items: center;
         justify-content: center;
         background: #F8F9FA;
-        color: #3498DB;
+        color: #e29454;
     }
 
     .activity-content {
@@ -131,7 +131,7 @@
 
     .activity-title {
         font-weight: 600;
-        color: #2C3E50;
+        color: #1c032b;
     }
 
     .activity-time {
@@ -153,15 +153,15 @@
         border: 2px solid #E9ECEF;
         border-radius: 0.75rem;
         text-decoration: none;
-        color: #2C3E50;
+        color: #1c032b;
         font-weight: 600;
         transition: all 0.3s ease;
     }
 
     .action-btn:hover {
-        border-color: #3498DB;
+        border-color: #e29454;
         background: #EBF5FB;
-        color: #3498DB;
+        color: #e29454;
         transform: translateY(-2px);
     }
 
@@ -240,6 +240,18 @@
             </div>
         </div>
         {% endif %}
+        {% set pending_users = pending_users_count if pending_users_count is defined else 0 %}
+        {% if pending_users > 0 %}
+        <div class="col-md-6">
+            <div class="alert-card warning">
+                <h5><i class="fas fa-user-clock me-2"></i>Pending Registrations</h5>
+                <p class="mb-2">{{ pending_users }} new accounts are awaiting approval.</p>
+                <a href="{{ url_for('admin.pending_accounts') }}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-user-check me-2"></i>Review Accounts
+                </a>
+            </div>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
 
@@ -274,6 +286,10 @@
         <a href="{{ url_for('admin.reports') }}" class="action-btn">
             <i class="fas fa-flag"></i>
             Reports
+        </a>
+        <a href="{{ url_for('admin.pending_accounts') }}" class="action-btn">
+            <i class="fas fa-user-clock"></i>
+            Pending Accounts
         </a>
         <a href="{{ url_for('admin.analytics') }}" class="action-btn">
             <i class="fas fa-chart-line"></i>

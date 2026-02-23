@@ -67,7 +67,7 @@
 }
 
 .message-wrapper.me .message-bubble {
-    background: linear-gradient(135deg, #9B59B6 0%, #3498DB 100%);
+    background: linear-gradient(135deg, #c54836 0%, #e29454 100%);
     color: white;
     border-bottom-right-radius: 0.3rem;
 }
@@ -135,7 +135,7 @@
 }
 
 .pill-input-wrapper:focus-within {
-    border-color: #9B59B6;
+    border-color: #c54836;
     box-shadow: 0 8px 25px rgba(155, 89, 182, 0.1) !important;
 }
 
@@ -159,10 +159,10 @@
     border: none;
 }
 
-.emoji-trigger:hover { color: #9B59B6; }
+.emoji-trigger:hover { color: #c54836; }
 
 .circle-send-btn {
-    background: linear-gradient(135deg, #9B59B6 0%, #3498DB 100%);
+    background: linear-gradient(135deg, #c54836 0%, #e29454 100%);
     color: white;
     width: 48px !important;
     height: 48px !important;
@@ -182,7 +182,7 @@
 }
 
 .circle-send-btn:hover {
-    background: linear-gradient(135deg, #8E44AD 0%, #2980B9 100%);
+    background: linear-gradient(135deg, #781543 0%, #c54836 100%);
     transform: scale(1.12);
     color: white;
     box-shadow: 0 6px 20px rgba(155, 89, 182, 0.5);
@@ -212,7 +212,7 @@
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
-    color: #9B59B6;
+    color: #c54836;
     margin: 0 auto 1rem;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
@@ -340,3 +340,138 @@ body[data-theme="dark"] .message-wrapper.other .flagged-warning {
 body[data-theme="dark"] .text-dark {
     color: #f2f3f5 !important;
 }
+
+/* ==================== REPLY / EDIT / MENTION ==================== */
+
+/* Reply quote inside a bubble */
+.reply-quote {
+    background: rgba(0,0,0,0.07);
+    border-left: 3px solid rgba(0,0,0,0.25);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.82rem;
+    cursor: pointer;
+    max-width: 100%;
+}
+.reply-quote-author {
+    font-weight: 700;
+    display: block;
+    margin-bottom: 1px;
+}
+.reply-quote-content {
+    opacity: 0.75;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+.message-wrapper.me .reply-quote {
+    background: rgba(255,255,255,0.18);
+    border-left-color: rgba(255,255,255,0.6);
+}
+
+/* (edited) label */
+.edited-label {
+    font-size: 0.68rem;
+    opacity: 0.6;
+    margin-left: 4px;
+}
+
+/* Message action buttons (reply / edit) shown on hover */
+.message-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+}
+.message-wrapper:hover .message-actions { opacity: 1; }
+.message-wrapper.me  .message-actions { order: -1; margin-right: 6px; }
+.message-wrapper.other .message-actions { margin-left: 6px; }
+
+.msg-action-btn {
+    border: none;
+    background: white;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 0.7rem;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    transition: background 0.15s, color 0.15s;
+    padding: 0;
+}
+.msg-action-btn:hover { background: #f0f0f0; color: #222; }
+
+/* Status bars above the input (reply / edit context) */
+.chat-context-bar {
+    display: none;
+    align-items: center;
+    gap: 0.6rem;
+    background: #f4f4f5;
+    border-left: 3px solid #c54836;
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+.chat-context-bar.active { display: flex; }
+.chat-context-bar .context-label { font-weight: 600; flex-shrink: 0; }
+.chat-context-bar .context-text  { flex: 1; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-context-bar .cancel-btn    { border: none; background: none; color: #999; font-size: 1rem; cursor: pointer; flex-shrink: 0; line-height: 1; }
+.chat-context-bar .cancel-btn:hover { color: #333; }
+
+/* @mention autocomplete dropdown */
+.mention-dropdown {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 200;
+    display: none;
+}
+.mention-dropdown.open { display: block; }
+.mention-option {
+    padding: 0.45rem 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+.mention-option:hover, .mention-option.active { background: #f5f5f5; }
+.mention-option img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+
+/* @mention highlight inside message text */
+.mention {
+    color: #c54836;
+    font-weight: 600;
+    background: rgba(197,72,54,0.08);
+    border-radius: 3px;
+    padding: 0 2px;
+}
+.message-wrapper.me .mention {
+    color: #ffe8b0;
+    background: rgba(255,255,255,0.2);
+}
+
+/* Dark mode */
+body[data-theme="dark"] .chat-context-bar { background: #2b2d31; border-left-color: #c54836; color: #f2f3f5; }
+body[data-theme="dark"] .chat-context-bar .context-text { color: #949ba4; }
+body[data-theme="dark"] .mention-dropdown { background: #232428; border-color: #3f4147; }
+body[data-theme="dark"] .mention-option:hover { background: #2b2d31; }
+body[data-theme="dark"] .msg-action-btn { background: #2b2d31; color: #b5bac1; }
+body[data-theme="dark"] .msg-action-btn:hover { background: #3f4147; color: #f2f3f5; }
+body[data-theme="dark"] .reply-quote { background: rgba(255,255,255,0.06); }

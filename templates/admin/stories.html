@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+<!--
+    File: admin/stories.html
+    Purpose: Admin story moderation page
+    Date: December 2025
+    Feature: View, search, filter, and delete all user stories
+-->
+
+{% block title %}Story Moderation - Admin - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-book-open me-2"></i>Story Moderation</h1>
+                <p class="mb-0">Review and manage all user-submitted stories</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="color:#e29454;"><i class="fas fa-book"></i></div>
+                <div class="stat-value">{{ total_stories }}</div>
+                <div class="stat-label">Total Stories</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color:#E74C3C;">
+                <div class="stat-icon" style="color:#E74C3C;"><i class="fas fa-flag"></i></div>
+                <div class="stat-value">{{ flagged_count }}</div>
+                <div class="stat-label">With Pending Reports</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color:#27AE60;">
+                <div class="stat-icon" style="color:#27AE60;"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-value">{{ total_stories - flagged_count }}</div>
+                <div class="stat-label">Clean Stories</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color:#3498DB;">
+                <div class="stat-icon" style="color:#3498DB;"><i class="fas fa-search"></i></div>
+                <div class="stat-value">{{ stories|length }}</div>
+                <div class="stat-label">Showing</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <form method="GET" class="d-flex gap-3 flex-wrap align-items-center w-100">
+            <!-- Search -->
+            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <label class="fw-bold text-nowrap">Search:</label>
+                <input type="text" name="search" class="form-control"
+                       placeholder="Title or author name..." value="{{ search_query }}">
+            </div>
+            <!-- Category -->
+            <div class="d-flex align-items-center gap-2">
+                <label class="fw-bold text-nowrap">Category:</label>
+                <select name="category" class="form-select" onchange="this.form.submit()">
+                    <option value="all"        {% if category_filter == 'all' %}selected{% endif %}>All Categories</option>
+                    <option value="Childhood"  {% if category_filter == 'Childhood' %}selected{% endif %}>Childhood</option>
+                    <option value="Work Life"  {% if category_filter == 'Work Life' %}selected{% endif %}>Work Life</option>
+                    <option value="Family"     {% if category_filter == 'Family' %}selected{% endif %}>Family</option>
+                    <option value="Hobbies"    {% if category_filter == 'Hobbies' %}selected{% endif %}>Hobbies</option>
+                    <option value="Other"      {% if category_filter == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <!-- Flagged -->
+            <div class="d-flex align-items-center gap-2">
+                <label class="fw-bold text-nowrap">Reports:</label>
+                <select name="flagged" class="form-select" onchange="this.form.submit()">
+                    <option value="all"     {% if flagged_filter == 'all' %}selected{% endif %}>All</option>
+                    <option value="flagged" {% if flagged_filter == 'flagged' %}selected{% endif %}>Has Reports</option>
+                    <option value="clean"   {% if flagged_filter == 'clean' %}selected{% endif %}>No Reports</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-1"></i>Search
+            </button>
+            {% if search_query or category_filter != 'all' or flagged_filter != 'all' %}
+            <a href="{{ url_for('admin.stories') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-times me-1"></i>Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Stories Table -->
+    <div class="data-table-container">
+        <div class="table-header">
+            <h3><i class="fas fa-list me-2"></i>All Stories</h3>
+        </div>
+
+        {% if stories %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Reactions</th>
+                        <th>Comments</th>
+                        <th>Reports</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for story in stories %}
+                    <tr {% if story._pending_reports > 0 %}style="background: #fff5f5;"{% endif %}>
+                        <td class="text-muted small">{{ story.id }}</td>
+
+                        <!-- Title -->
+                        <td>
+                            <div class="fw-semibold" style="max-width:240px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;"
+                                 title="{{ story.title }}">
+                                {% if story._pending_reports > 0 %}
+                                <i class="fas fa-flag text-danger me-1" title="Has pending reports"></i>
+                                {% endif %}
+                                {{ story.title | truncate(50, True, '...') }}
+                            </div>
+                            {% if story.photo_url %}
+                            <small class="text-muted"><i class="fas fa-image me-1"></i>Has media</small>
+                            {% endif %}
+                        </td>
+
+                        <!-- Author -->
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="{{ url_for('static', filename=story.user.profile_picture) }}"
+                                     class="rounded-circle" width="28" height="28"
+                                     style="object-fit:cover;"
+                                     onerror="this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                                <div>
+                                    <div class="fw-semibold small">{{ story.user.full_name }}</div>
+                                    <span class="badge {% if story.user.role == 'senior' %}bg-warning text-dark{% else %}bg-danger{% endif %} badge-sm">
+                                        {{ story.user.role|title }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Category -->
+                        <td>
+                            <span class="badge bg-secondary">{{ story.category }}</span>
+                        </td>
+
+                        <!-- Date -->
+                        <td class="small text-muted text-nowrap">
+                            {{ story.created_at.strftime('%d %b %Y') }}<br>
+                            <span class="text-muted" style="font-size:0.75rem;">{{ story.created_at.strftime('%I:%M %p') }}</span>
+                        </td>
+
+                        <!-- Reactions -->
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark border">
+                                <i class="fas fa-heart text-danger me-1"></i>{{ story.reactions.count() }}
+                            </span>
+                        </td>
+
+                        <!-- Comments -->
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark border">
+                                <i class="fas fa-comment text-primary me-1"></i>{{ story.comments.count() }}
+                            </span>
+                        </td>
+
+                        <!-- Reports -->
+                        <td class="text-center">
+                            {% if story._pending_reports > 0 %}
+                            <a href="{{ url_for('admin.reports') }}?status=pending"
+                               class="badge bg-danger text-decoration-none">
+                                {{ story._pending_reports }} pending
+                            </a>
+                            {% else %}
+                            <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td>
+                            <div class="d-flex gap-1 flex-nowrap">
+                                <!-- View story (links to whichever role created it) -->
+                                <a href="{{ url_for(story.user.role + '.story_detail', story_id=story.id) }}"
+                                   class="btn btn-sm btn-outline-primary" target="_blank" title="View story">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <!-- Delete -->
+                                <form method="POST"
+                                      action="{{ url_for('admin.delete_story', story_id=story.id) }}"
+                                      onsubmit="return confirm('Delete this story? This cannot be undone.')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete story">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No stories found</h5>
+            <p class="text-muted">
+                {% if search_query or category_filter != 'all' or flagged_filter != 'all' %}
+                Try adjusting your filters.
+                {% else %}
+                No stories have been submitted yet.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

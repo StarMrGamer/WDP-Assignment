@@ -19,7 +19,7 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         height: 100%;
         transition: all 0.3s ease;
-        border-left: 4px solid #3498DB;
+        border-left: 4px solid #e29454;
     }
 
     .community-card:hover {
@@ -28,15 +28,15 @@
     }
 
     .community-card.story {
-        border-left-color: #9B59B6;
+        border-left-color: #c54836;
     }
 
     .community-card.hobby {
-        border-left-color: #27AE60;
+        border-left-color: #ac2432;
     }
 
     .community-card.learning {
-        border-left-color: #E67E22;
+        border-left-color: #e29454;
     }
 
     .community-icon {
@@ -52,17 +52,17 @@
 
     .community-icon.story {
         background: rgba(155, 89, 182, 0.1);
-        color: #9B59B6;
+        color: #c54836;
     }
 
     .community-icon.hobby {
         background: rgba(39, 174, 96, 0.1);
-        color: #27AE60;
+        color: #ac2432;
     }
 
     .community-icon.learning {
         background: rgba(230, 126, 34, 0.1);
-        color: #E67E22;
+        color: #e29454;
     }
 
     .community-stats {
@@ -80,7 +80,7 @@
     .community-stat .value {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #2C3E50;
+        color: #1c032b;
     }
 
     .community-stat .label {
@@ -113,29 +113,29 @@
     <!-- Statistics Summary -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #3498DB;">
+            <div class="stat-card" style="border-left-color: #e29454;">
                 <div class="stat-icon"><i class="fas fa-users"></i></div>
                 <div class="stat-value">{{ communities|length }}</div>
                 <div class="stat-label">Total Communities</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #9B59B6;">
-                <div class="stat-icon" style="color: #9B59B6;"><i class="fas fa-book"></i></div>
+            <div class="stat-card" style="border-left-color: #c54836;">
+                <div class="stat-icon" style="color: #c54836;"><i class="fas fa-book"></i></div>
                 <div class="stat-value">{{ communities|selectattr('type', 'equalto', 'Story')|list|length }}</div>
                 <div class="stat-label">Story Communities</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #27AE60;">
-                <div class="stat-icon" style="color: #27AE60;"><i class="fas fa-palette"></i></div>
+            <div class="stat-card" style="border-left-color: #ac2432;">
+                <div class="stat-icon" style="color: #ac2432;"><i class="fas fa-palette"></i></div>
                 <div class="stat-value">{{ communities|selectattr('type', 'equalto', 'Hobby')|list|length }}</div>
                 <div class="stat-label">Hobby Communities</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #E67E22;">
-                <div class="stat-icon" style="color: #E67E22;"><i class="fas fa-graduation-cap"></i></div>
+            <div class="stat-card" style="border-left-color: #e29454;">
+                <div class="stat-icon" style="color: #e29454;"><i class="fas fa-graduation-cap"></i></div>
                 <div class="stat-value">{{ communities|selectattr('type', 'equalto', 'Learning')|list|length }}</div>
                 <div class="stat-label">Learning Communities</div>
             </div>
@@ -154,7 +154,7 @@
                         {% if community.photo_url %}
                             <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% else %}
-                            <i class="{{ community.icon }}"></i>
+                            {{ community.name[0] | upper }}
                         {% endif %}
                     </div>
                     <span class="badge {% if community.type == 'Story' %}bg-purple{% elif community.type == 'Hobby' %}bg-success{% else %}bg-warning text-dark{% endif %}">

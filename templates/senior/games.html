@@ -114,7 +114,7 @@
     .stat-item .icon {
         font-size: 2.5rem;
         margin-bottom: 0.75rem;
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -123,7 +123,7 @@
     .stat-item .value {
         font-size: 2rem;
         font-weight: 700;
-        color: #2C3E50;
+        color: #1c032b;
         margin-bottom: 0.25rem;
     }
 
@@ -156,12 +156,12 @@
     .lobby-game-card:hover {
         transform: translateY(-8px);
         box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-        border-color: #9B59B6;
+        border-color: #c54836;
     }
 
     .game-image {
         height: 200px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
         position: relative;
         display: flex;
         align-items: center;
@@ -219,7 +219,7 @@
     .game-header h3 {
         font-size: 1.625rem;
         font-weight: 700;
-        color: #2C3E50;
+        color: #1c032b;
         margin-bottom: 0.5rem;
         white-space: nowrap;
         overflow: hidden;
@@ -272,14 +272,14 @@
         white-space: nowrap;
     }
 
-    .game-meta-item i { color: #9B59B6; font-size: 0.9rem; }
+    .game-meta-item i { color: #c54836; font-size: 0.9rem; }
 
     .game-footer { display: flex; flex-direction: column; gap: 0.75rem; }
 
     .btn-play {
         flex: 2;
         padding: 0.875rem;
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
         color: white;
         border: none;
         border-radius: 0.75rem;
@@ -291,7 +291,7 @@
     }
 
     .btn-play:hover {
-        background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
+        background: linear-gradient(135deg, #781543 0%, #c54836 100%);
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
     }
@@ -300,14 +300,14 @@
         flex: 1;
         padding: 0.875rem;
         background: white;
-        color: #9B59B6;
-        border: 2px solid #9B59B6;
+        color: #c54836;
+        border: 2px solid #c54836;
         border-radius: 0.75rem;
         font-weight: 600;
         transition: all 0.3s ease;
     }
 
-    .btn-learn:hover { background: #9B59B6; color: white; }
+    .btn-learn:hover { background: #c54836; color: white; }
 
     .active-games-section {
         background: white;
@@ -320,7 +320,7 @@
     .active-games-section h2 {
         font-size: 1.75rem;
         font-weight: 700;
-        color: #2C3E50;
+        color: #1c032b;
         margin-bottom: 1.5rem;
     }
 
@@ -332,7 +332,7 @@
         background: #F8F9FA;
         border-radius: 0.75rem;
         margin-bottom: 1rem;
-        border-left: 4px solid #9B59B6;
+        border-left: 4px solid #c54836;
         transition: all 0.3s ease;
     }
 
@@ -347,7 +347,7 @@
         width: 60px;
         height: 60px;
         border-radius: 0.75rem;
-        background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -358,7 +358,7 @@
     .active-game-details h4 {
         font-size: 1.125rem;
         font-weight: 700;
-        color: #2C3E50;
+        color: #1c032b;
         margin-bottom: 0.25rem;
     }
 
@@ -366,7 +366,7 @@
 
     .btn-continue {
         padding: 0.75rem 1.5rem;
-        background: #9B59B6;
+        background: #c54836;
         color: white;
         border: none;
         border-radius: 0.75rem;
@@ -375,7 +375,7 @@
     }
 
     .btn-continue:hover {
-        background: #8E44AD;
+        background: #781543;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
     }
@@ -756,7 +756,7 @@
 
     <!-- Available Games Grid -->
     <div class="section-header mb-4">
-        <h2 style="font-size: 1.75rem; font-weight: 700; color: #2C3E50;">
+        <h2 style="font-size: 1.75rem; font-weight: 700; color: #1c032b;">
             <i class="fas fa-th me-2"></i>Available Games
         </h2>
     </div>
@@ -827,21 +827,21 @@
     <div class="modal fade" id="rulesModal" tabindex="-1" aria-labelledby="rulesModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content" style="border-radius: 1.5rem; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                <div class="modal-header text-white" style="background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%); padding: 1.5rem 2rem; border: none;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #c54836 0%, #781543 100%); padding: 1.5rem 2rem; border: none;">
                     <h5 class="modal-title d-flex align-items-center" id="rulesModalLabel">
                         <i class="fas fa-book-open me-3 fs-4"></i>
                         <span id="modalGameTitle">Game Rules</span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4" style="font-size: 1.125rem; line-height: 1.8; color: #2C3E50;">
+                <div class="modal-body p-4" style="font-size: 1.125rem; line-height: 1.8; color: #1c032b;">
                     <div id="modalGameContent">
                         <!-- Content will be injected by JavaScript -->
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
                     <button type="button" class="btn btn-secondary px-4 py-2" style="border-radius: 0.75rem; font-weight: 600;" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary px-4 py-2" style="border-radius: 0.75rem; font-weight: 600; background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%); border: none;" data-bs-dismiss="modal">Understood!</button>
+                    <button type="button" class="btn btn-primary px-4 py-2" style="border-radius: 0.75rem; font-weight: 600; background: linear-gradient(135deg, #c54836 0%, #781543 100%); border: none;" data-bs-dismiss="modal">Understood!</button>
                 </div>
             </div>
         </div>

@@ -38,6 +38,9 @@ def dashboard():
     # Get pending reports requiring attention
     pending_reports = ChatReport.query.filter_by(status='pending').count()
 
+    # Get pending account registrations
+    pending_users_count = User.query.filter_by(is_approved=False).count()
+
     # Get recent activity for the feed
     recent_stories = Story.query.order_by(Story.created_at.desc()).limit(5).all()
     recent_users = User.query.filter(User.role != 'admin')\
@@ -57,7 +60,8 @@ def dashboard():
                          pending_reports=pending_reports,
                          inactive_pairs=inactive_pairs,
                          recent_stories=recent_stories,
-                         recent_users=recent_users)
+                         recent_users=recent_users,
+                         pending_users_count=pending_users_count)
 
 
 # ==================== USER MANAGEMENT ====================
@@ -76,9 +80,11 @@ def users():
         query = query.filter_by(role=role_filter)
 
     if status_filter == 'active':
-        query = query.filter_by(is_active=True)
+        query = query.filter_by(is_active=True, is_approved=True)
     elif status_filter == 'inactive':
         query = query.filter_by(is_active=False)
+    elif status_filter == 'pending':
+        query = query.filter_by(is_approved=False)
 
     users = query.order_by(User.created_at.desc()).all()
 
@@ -687,6 +693,69 @@ def delete_community_post(post_id):
     return redirect(url_for('admin.manage_community', community_id=community_id))
 
 
+@admin_bp.route('/stories')
+@admin_required
+def stories():
+    """Admin story moderation page."""
+    category_filter = request.args.get('category', 'all')
+    flagged_filter = request.args.get('flagged', 'all')
+    search_query = request.args.get('search', '').strip()
+
+    query = Story.query
+
+    if category_filter != 'all':
+        query = query.filter_by(category=category_filter)
+
+    if search_query:
+        query = query.join(User, Story.user_id == User.id).filter(
+            db.or_(
+                Story.title.ilike(f'%{search_query}%'),
+                User.full_name.ilike(f'%{search_query}%')
+            )
+        )
+
+    all_stories = query.order_by(Story.created_at.desc()).all()
+
+    # Attach pending report count to each story
+    for story in all_stories:
+        story._pending_reports = ChatReport.query.filter_by(
+            story_id=story.id, status='pending'
+        ).count()
+
+    if flagged_filter == 'flagged':
+        all_stories = [s for s in all_stories if s._pending_reports > 0]
+    elif flagged_filter == 'clean':
+        all_stories = [s for s in all_stories if s._pending_reports == 0]
+
+    total_stories = Story.query.count()
+    flagged_count = db.session.query(Story.id).join(
+        ChatReport, ChatReport.story_id == Story.id
+    ).filter(ChatReport.status == 'pending').distinct().count()
+
+    return render_template('admin/stories.html',
+                           stories=all_stories,
+                           category_filter=category_filter,
+                           flagged_filter=flagged_filter,
+                           search_query=search_query,
+                           total_stories=total_stories,
+                           flagged_count=flagged_count)
+
+
+@admin_bp.route('/stories/<int:story_id>/delete', methods=['POST'])
+@admin_required
+def delete_story(story_id):
+    """Admin delete a story."""
+    story = Story.query.get_or_404(story_id)
+    # Clear associated reports' story_id so they remain visible
+    for r in story.reports:
+        r.story_id = None
+    db.session.delete(story)
+    db.session.commit()
+    flash('Story deleted successfully.', 'success')
+    # Redirect back to stories page or referrer
+    return redirect(request.referrer or url_for('admin.stories'))
+
+
 @admin_bp.route('/communities/<int:community_id>/members/<int:user_id>/remove', methods=['POST'])
 @admin_required
 def remove_community_member(community_id, user_id):
@@ -725,6 +794,80 @@ def add_community_member(community_id):
 
 
 # ==================== REPORT MANAGEMENT ====================
+@admin_bp.route('/pending-accounts')
+@admin_required
+def pending_accounts():
+    """Display accounts awaiting approval."""
+    users = User.query.filter_by(is_approved=False).order_by(User.created_at.desc()).all()
+    return render_template('admin/pending_accounts.html', users=users)
+
+
+@admin_bp.route('/users/<int:user_id>/approve', methods=['POST'])
+@admin_required
+def approve_user(user_id):
+    """Approve a pending user account."""
+    user = User.query.get_or_404(user_id)
+    user.is_approved = True
+    notif = Notification(
+        user_id=user.id,
+        title='Account Approved!',
+        message='Your account has been approved by an admin. You can now log in.',
+        type='info'
+    )
+    db.session.add(notif)
+    db.session.commit()
+    flash(f'{user.full_name}\'s account has been approved.', 'success')
+    next_page = request.referrer or url_for('admin.pending_accounts')
+    return redirect(next_page)
+
+
+@admin_bp.route('/users/<int:user_id>/reject', methods=['POST'])
+@admin_required
+def reject_user(user_id):
+    """Reject and delete a pending user account."""
+    user = User.query.get_or_404(user_id)
+    name = user.full_name
+
+    try:
+        # Use the same full cleanup as delete_user to avoid FK constraint errors
+        StoryReaction.query.filter_by(user_id=user.id).delete()
+        StoryComment.query.filter_by(user_id=user.id).delete()
+        for story in user.stories.all():
+            db.session.delete(story)
+
+        messages = Message.query.filter((Message.sender_id == user.id) | (Message.recipient_id == user.id)).all()
+        message_ids = [m.id for m in messages]
+        if message_ids:
+            ChatReport.query.filter(ChatReport.message_id.in_(message_ids)).delete(synchronize_session=False)
+            Message.query.filter(Message.id.in_(message_ids)).delete(synchronize_session=False)
+
+        CommunityMember.query.filter_by(user_id=user.id).delete()
+        EventParticipant.query.filter_by(user_id=user.id).delete()
+
+        if user.streak:
+            db.session.delete(user.streak)
+        Badge.query.filter_by(user_id=user.id).delete()
+        Checkin.query.filter_by(user_id=user.id).delete()
+
+        GameSession.query.filter((GameSession.player1_id == user.id) | (GameSession.player2_id == user.id)).delete()
+        TicTacToeSession.query.filter((TicTacToeSession.player1_id == user.id) | (TicTacToeSession.player2_id == user.id)).delete()
+        GameHistory.query.filter((GameHistory.player1_id == user.id) | (GameHistory.player2_id == user.id)).delete()
+
+        ChatReport.query.filter((ChatReport.reported_by == user.id) | (ChatReport.reported_user_id == user.id)).delete()
+        Notification.query.filter_by(user_id=user.id).delete()
+        RegistrationCode.query.filter_by(used_by_id=user.id).update({'used_by_id': None})
+
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'{name}\'s account has been rejected and removed.', 'warning')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error rejecting account: {str(e)}', 'danger')
+
+    next_page = request.referrer or url_for('admin.pending_accounts')
+    return redirect(next_page)
+
+
 @admin_bp.route('/reports')
 @admin_required
 def reports():
@@ -758,9 +901,25 @@ def report_detail(report_id):
         if action == 'resolve':
             report.status = 'resolved'
             flash('Report marked as resolved', 'success')
+            notif = Notification(
+                user_id=report.reported_by,
+                title='Your Report Has Been Resolved',
+                message=f"Your report regarding '{report.reason}' has been reviewed and resolved by our moderation team."
+                        + (f" Admin notes: {admin_notes}" if admin_notes else ""),
+                type='info'
+            )
+            db.session.add(notif)
         elif action == 'dismiss':
             report.status = 'dismissed'
             flash('Report dismissed', 'info')
+            notif = Notification(
+                user_id=report.reported_by,
+                title='Your Report Has Been Reviewed',
+                message=f"Your report regarding '{report.reason}' has been reviewed. After investigation, no action was taken at this time."
+                        + (f" Admin notes: {admin_notes}" if admin_notes else ""),
+                type='info'
+            )
+            db.session.add(notif)
         elif action == 'under_review':
             report.status = 'under_review'
             flash('Report marked as under review', 'info')

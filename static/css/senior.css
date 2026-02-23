@@ -14,17 +14,17 @@
 /* ==================== SENIOR COLOR SCHEME - WHIMSICAL & WARM ==================== */
 :root {
     /* Warm, friendly colors that are still accessible */
-    --senior-primary: #F97316;       /* Tangerine orange - warm & inviting */
+    --senior-primary: #e29454;       /* Tangerine orange - warm & inviting */
     --senior-primary-hover: #EA580C; /* Deeper orange - hover state */
     --senior-secondary: #22C55E;     /* Fresh green - nature-inspired */
-    --senior-accent: #FACC15;        /* Sunflower yellow - cheerful */
+    --senior-accent: #f9da88;        /* Sunflower yellow - cheerful */
     --senior-bg: #FFFBEB;            /* Warm cream background */
     --senior-text: #422006;          /* Warm brown text - cozy & readable */
     --senior-border: #FED7AA;        /* Peach border - soft & friendly */
     --senior-card-bg: #FFFFFF;       /* White cards */
 
     /* Fun gradient for headers */
-    --senior-header-gradient: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FCD34D 100%);
+    --senior-header-gradient: linear-gradient(135deg, #ecfae1 0%, #f1fab7 50%, #FCD34D 100%);
     --senior-card-shadow: 0 4px 20px rgba(249, 115, 22, 0.15);
 }
 
@@ -273,7 +273,7 @@ body[data-role="senior"] .btn-success {
 
 /* Dashboard Header - Warm Sunshine */
 body[data-role="senior"] .dashboard-header {
-    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FBBF24 100%);
+    background: linear-gradient(135deg, #ecfae1 0%, #f1fab7 50%, #f9da88 100%);
     color: var(--senior-text);
     padding: 2.5rem 2rem;
     border-radius: 1.5rem;

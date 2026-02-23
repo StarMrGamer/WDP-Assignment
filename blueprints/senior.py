@@ -92,13 +92,25 @@ def stories():
 def create_story():
     """Create a new story (step-by-step wizard)."""
     form = StoryForm()
-    
+
+    # Profanity check runs on every POST, before WTForms validation
+    if request.method == 'POST':
+        unkind_words = current_app.config.get('UNKIND_WORDS', [])
+        raw_title = request.form.get('title', '')
+        raw_content = request.form.get('content', '')
+        if check_unkind_words(raw_title, unkind_words) or check_unkind_words(raw_content, unkind_words):
+            flash('Your story contains inappropriate language and cannot be posted. Please revise your content.', 'danger')
+            return render_template('senior/create_story.html', form=form)
+
     if form.validate_on_submit():
+        title = sanitize_for_display(form.title.data)
+        content = sanitize_for_display(form.content.data)
+
         # Create new story
         new_story = Story(
             user_id=session['user_id'],
-            title=form.title.data,
-            content=form.content.data,
+            title=title,
+            content=content,
             category=form.category.data
         )
 
@@ -112,11 +124,11 @@ def create_story():
                 if ext in current_app.config['ALLOWED_EXTENSIONS']:
                     # Ensure upload directory exists
                     os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
-                    
+
                     # Save file with unique name
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S_')
                     unique_filename = timestamp + filename
-                    
+
                     file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
                     new_story.photo_url = unique_filename
 
@@ -386,6 +398,38 @@ def report_community_post(post_id):
     return {'success': True}, 200
 
 
+@senior_bp.route('/api/stories/<int:story_id>/report', methods=['POST'])
+@login_required
+def report_story(story_id):
+    """API to report a story."""
+    from ai_utils import analyze_report
+    data = request.get_json()
+    reason = data.get('reason')
+    description = data.get('description')
+
+    story = Story.query.get_or_404(story_id)
+
+    # Don't allow reporting your own story
+    if story.user_id == session['user_id']:
+        return {'success': False, 'message': 'Cannot report your own story'}, 400
+
+    ai_analysis = analyze_report(story.content, reason, description)
+
+    report = ChatReport(
+        story_id=story.id,
+        reported_by=session['user_id'],
+        reported_user_id=story.user_id,
+        reason=reason,
+        description=description,
+        ai_analysis=ai_analysis,
+        status='pending'
+    )
+    db.session.add(report)
+    db.session.commit()
+
+    return {'success': True}, 200
+
+
 # ==================== AI CHATBOT ====================
 @senior_bp.route('/chatbot')
 @login_required
@@ -405,10 +449,29 @@ def chatbot_api():
     if not conversation:
         return {'error': 'No conversation provided'}, 400
 
-    # Limit conversation history to last 20 messages to control token usage
-    conversation = conversation[-20:]
+    # --- Prompt injection defence ---
+    # 1. Only allow user/assistant roles — strip any client-supplied system messages
+    # 2. Enforce a max length per message so nobody buries instructions in giant text
+    # 3. Wrap each user turn so it cannot be mistaken for a system directive
+    sanitized = []
+    for msg in conversation:
+        role = msg.get('role', '')
+        if role not in ('user', 'assistant'):
+            continue  # drop injected system / tool messages
+        content = str(msg.get('content', ''))[:1000]  # hard cap per message
+        if role == 'user':
+            # Wrap in a delimiter so injected instructions cannot bleed into the
+            # system context (the model sees the brackets as user-supplied text)
+            content = f'[USER MESSAGE]: {content}'
+        sanitized.append({'role': role, 'content': content})
 
-    reply = chatbot_reply(conversation)
+    if not sanitized:
+        return {'error': 'No valid messages provided'}, 400
+
+    # Limit conversation history to last 20 messages to control token usage
+    sanitized = sanitized[-20:]
+
+    reply = chatbot_reply(sanitized)
 
     if reply is None:
         return {'error': 'AI service unavailable. Please try again later.'}, 503

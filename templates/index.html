@@ -1,307 +1,557 @@
 {% extends "base.html" %}
-<!--
-    File: index.html
-    Purpose: Simple landing page for GenCon SG
-    Author: to be assigned
-    Date: December 2025
-    Description: Clean landing page with Login/Signup options
--->
 
 {% block title %}Welcome to GenCon SG - Bridging Generations{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Custom styles for landing page */
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Blue-Purple Gradient like login */
+        background: linear-gradient(135deg, #e29454 0%, #c54836 40%, #781543 70%, #4f084c 100%);
         background-attachment: fixed;
         min-height: 100vh;
     }
 
-    .main-content {
+    /* ── Split layout ── */
+    .landing-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: calc(100vh - 64px);
+        align-items: center;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        gap: 4rem;
+    }
+
+    /* ── Left: brand icon ── */
+    .landing-brand {
         display: flex;
-        align-items: center; /* Center content horizontally */
-        justify-content: flex-start; /* Align to top vertically */
-        min-height: calc(100vh - 80px); /* Account for navbar height */
-        padding: 4rem 0; /* Add top padding */
-        flex-direction: column; /* Ensure vertical stacking */
+        align-items: center;
+        justify-content: center;
     }
 
-    .landing-container {
-        text-align: center; /* Center text */
+    .landing-brand-icon {
+        font-size: 14rem;
         color: white;
-        padding: 2rem;
-        max-width: 1200px; /* Allow more width */
-        margin: 0 auto; /* Center container */
-        width: 100%;
-    }
-
-    .logo-icon {
-        font-size: 8rem; /* Increased size */
-        margin-bottom: 2rem;
-        opacity: 0.9;
-        animation: pulse 2s infinite;
-        color: white; 
-        text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
-        display: inline-block; /* Keep icon with text if needed, or block */
+        opacity: 0.92;
+        filter: drop-shadow(0 8px 32px rgba(0,0,0,0.25));
+        animation: pulse 3s ease-in-out infinite;
     }
 
     @keyframes pulse {
         0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+        50%       { transform: scale(1.04); }
     }
 
-    .landing-container h1 {
-        color: white;
-        font-weight: 800;
-        margin-bottom: 1rem;
-        text-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        animation: slideDown 0.8s ease-out;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .tagline {
-        font-size: 2rem; /* Slightly larger tagline */
-        font-weight: 300;
-        margin-bottom: 2rem; /* Increased spacing */
-        opacity: 0.95;
-        animation: slideDown 0.8s ease-out 0.2s both;
-        max-width: 800px;
-        margin-left: auto; /* Center tagline */
-        margin-right: auto;
-        letter-spacing: 2px; /* Spread text */
-    }
-
-    .description {
-        font-size: 1.25rem;
-        max-width: 700px;
-        margin: 0 auto 4rem auto; /* Increased spacing */
-        opacity: 0.9;
-        line-height: 1.8;
-        animation: slideDown 0.8s ease-out 0.4s both;
-        letter-spacing: 1px; /* Spread text */
-    }
-
-    .action-buttons {
+    /* ── Right: panel container ── */
+    .landing-right {
         display: flex;
-        gap: 4rem; /* Increased button spacing */
-        justify-content: center; /* Center buttons */
-        flex-wrap: wrap;
-        animation: slideDown 0.8s ease-out 0.6s both;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        /* tall enough for the register form without scroll */
+        min-height: 560px;
     }
 
-    .landing-btn {
-        padding: 1.25rem 3rem;
-        font-size: 1.375rem;
-        font-weight: 600;
-        border-radius: 3rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: all 0.3s ease;
+    /* ── Panels ── */
+    .panel {
+        width: 100%;
+    }
+
+    .panel.hidden {
+        display: none;
+    }
+
+    @keyframes morphIn {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes morphOut {
+        from { opacity: 1; transform: translateY(0); }
+        to   { opacity: 0; transform: translateY(-14px); }
+    }
+
+    .panel.entering { animation: morphIn  0.35s ease forwards; }
+    .panel.leaving  { animation: morphOut 0.22s ease forwards; }
+
+    /* ── CTA panel ── */
+    #panelCta { color: white; }
+
+    #panelCta h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        color: white;
+        margin-bottom: 2.5rem;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    #panelCta h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    #panelCta p {
+        font-size: 1.05rem;
+        opacity: 0.85;
+        margin-bottom: 2rem;
+        max-width: 400px;
+        line-height: 1.6;
+    }
+
+    .cta-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+        max-width: 340px;
+    }
+
+    .btn-cta-primary {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 2rem;
         border: none;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        min-width: 200px;
-    }
-
-    .btn-login {
         background: white;
-        color: #764ba2;
+        color: #781543;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        text-align: center;
+        cursor: pointer;
+        width: 100%;
     }
 
-    .btn-login:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        background: #f8f9fa;
-        color: #667eea;
+    .btn-cta-primary:hover {
+        background: #f1fab7;
+        color: #4f084c;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     }
 
-    .btn-signup {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border: 2px solid white;
+    .cta-divider {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: rgba(255,255,255,0.55);
+        font-size: 0.9rem;
+        max-width: 340px;
+    }
+
+    .cta-divider::before,
+    .cta-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,0.3);
+    }
+
+    .btn-cta-outline {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 2rem;
+        border: 1.5px solid rgba(255,255,255,0.6);
+        background: transparent;
+        color: white;
+        transition: all 0.25s ease;
+        text-align: center;
+        cursor: pointer;
+        max-width: 340px;
+        width: 100%;
+    }
+
+    .btn-cta-outline:hover {
+        background: rgba(255,255,255,0.15);
+        border-color: white;
+        transform: translateY(-2px);
+    }
+
+    /* ── Form panels (glass card) ── */
+    .form-panel-card {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(20px) saturate(160%);
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 1.5rem;
+        padding: 2rem 2rem 1.5rem;
+        color: white;
+        max-width: 420px;
+    }
+
+    .form-panel-card h2 {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-panel-card .form-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.75;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-panel-card .form-label {
+        color: rgba(255,255,255,0.85);
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .form-panel-card .form-control {
+        background: rgba(255,255,255,0.15);
+        border: 1.5px solid rgba(255,255,255,0.3);
+        border-radius: 0.75rem;
+        color: white;
+        padding: 0.7rem 1rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .form-panel-card .form-control::placeholder {
+        color: rgba(255,255,255,0.45);
+    }
+
+    .form-panel-card .form-control:focus {
+        background: rgba(255,255,255,0.22);
+        border-color: rgba(255,255,255,0.7);
+        box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
+        outline: none;
         color: white;
     }
 
-    .btn-signup:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        background: white;
-        color: #764ba2;
+    .form-panel-card small.text-muted {
+        color: rgba(255,255,255,0.55) !important;
     }
 
+    /* Role badge inside form */
+    #landingRoleBadge {
+        display: none;
+        font-size: 0.75rem;
+        padding: 0.2em 0.6em;
+        border-radius: 20px;
+        margin-left: 0.4rem;
+        vertical-align: middle;
+        font-weight: 600;
+    }
+
+    #landingRoleBadge.senior { background: rgba(249,218,136,0.3); color: #f9da88; border: 1px solid rgba(249,218,136,0.5); }
+    #landingRoleBadge.youth  { background: rgba(120,21,67,0.4);   color: #f1fab7; border: 1px solid rgba(241,250,183,0.4); }
+
+    #landingRoleHint { font-size: 0.8rem; min-height: 1rem; margin-top: 0.3rem; }
+
+    .btn-form-submit {
+        width: 100%;
+        padding: 0.8rem;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 2rem;
+        border: none;
+        background: white;
+        color: #781543;
+        transition: all 0.25s ease;
+        margin-top: 0.5rem;
+        cursor: pointer;
+    }
+
+    .btn-form-submit:hover {
+        background: #f1fab7;
+        color: #4f084c;
+        transform: translateY(-2px);
+    }
+
+    .form-footer-link {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.875rem;
+        color: rgba(255,255,255,0.7);
+    }
+
+    .form-footer-link button {
+        background: none;
+        border: none;
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: underline;
+        padding: 0;
+        font-size: inherit;
+    }
+
+    .back-btn {
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.7);
+        cursor: pointer;
+        font-size: 0.875rem;
+        padding: 0;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: color 0.2s;
+    }
+
+    .back-btn:hover { color: white; }
+
+    /* ── Mobile ── */
     @media (max-width: 768px) {
-        .landing-container h1 {
-            font-size: 2.5rem;
+        .landing-split {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 2rem 1rem;
         }
 
-        .tagline {
-            font-size: 1.25rem;
-        }
+        .landing-brand-icon { font-size: 6rem; }
 
-        .description {
-            font-size: 1.125rem;
-        }
+        #panelCta h1 { font-size: 2.25rem; }
+        #panelCta h2 { font-size: 1.35rem; }
 
-        .landing-btn {
-            padding: 1rem 2rem;
-            font-size: 1.125rem;
-            width: 100%;
-        }
+        .cta-buttons,
+        .btn-cta-outline,
+        .cta-divider { max-width: 100%; }
 
-        .action-buttons {
-            flex-direction: column;
-        }
+        .form-panel-card { max-width: 100%; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="landing-container">
-    <!-- Logo Icon -->
-    <div class="logo-icon">
-        <i class="fas fa-hands-helping"></i>
+<div class="landing-split">
+    <!-- Left: Brand Icon -->
+    <div class="landing-brand">
+        <i class="fas fa-hands-helping landing-brand-icon"></i>
     </div>
 
-    <!-- Main Heading -->
-    <h1 class="tech-header">GenCon SG</h1>
+    <!-- Right: Panels -->
+    <div class="landing-right">
 
-    <!-- Tagline -->
-    <p class="tagline">Bridging Generations Through Meaningful Connections</p>
+        <!-- ── Panel 1: CTA ── -->
+        <div class="panel" id="panelCta">
+            <h1>Bridging<br>Generations.</h1>
+            <h2>Join GenCon SG today.</h2>
+            <p>Singapore's platform connecting seniors and youth volunteers for meaningful relationships and cultural exchange.</p>
 
-    <!-- Description -->
-    <p class="description">
-        Singapore's premier intergenerational connection platform bringing together
-        seniors and youth volunteers for meaningful interactions and cultural exchange.
-    </p>
-
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-        <a href="{{ url_for('auth.login') }}" class="btn landing-btn btn-login">
-            <i class="fas fa-sign-in-alt me-2"></i>Login
-        </a>
-        <a href="{{ url_for('auth.register') }}" class="btn landing-btn btn-signup">
-            <i class="fas fa-user-plus me-2"></i>Sign Up
-        </a>
-    </div>
-</div>
-
-    <div class="landing-split-layout">
-        <!-- New Features Section (Glass Cards) -->
-        <div class="glass-cards-container">
-            <!-- Story Sharing -->
-            <div class="box">
-                <span></span>
-                <div class="content">
-                    <h2>Story Sharing</h2>
-                    <p>Share your unique life stories and experiences with the younger generation.</p>
-                    <a href="{{ url_for('main.about') }}">Read More</a>
-                </div>
+            <div class="cta-buttons">
+                <button class="btn-cta-primary" onclick="showPanel('panelLogin')">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign in
+                </button>
             </div>
-            <!-- Translation Support -->
-            <div class="box">
-                <span></span>
-                <div class="content">
-                    <h2>Translation</h2>
-                    <p>Communicate without barriers using our real-time translation support.</p>
-                    <a href="{{ url_for('main.about') }}">Read More</a>
-                </div>
-            </div>
-            <!-- Safe & Secure -->
-            <div class="box">
-                <span></span>
-                <div class="content">
-                    <h2>Safe & Secure</h2>
-                    <p>Your privacy and safety are our top priority with verified profiles.</p>
-                    <a href="{{ url_for('main.about') }}">Read More</a>
-                </div>
-            </div>
-            <!-- Cultural Games -->
-            <div class="box">
-                <span></span>
-                <div class="content">
-                    <h2>Cultural Games</h2>
-                    <p>Engage in fun cultural exchange activities and traditional games.</p>
-                    <a href="{{ url_for('main.about') }}">Read More</a>
+
+            <div class="cta-divider my-3">Don't have an account?</div>
+
+            <button class="btn-cta-outline" onclick="showPanel('panelRegister')">
+                <i class="fas fa-user-plus me-2"></i>Create account
+            </button>
+        </div>
+
+        <!-- ── Panel 2: Login ── -->
+        <div class="panel hidden" id="panelLogin">
+            <button class="back-btn" onclick="showPanel('panelCta')">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <div class="form-panel-card">
+                <h2>Sign in</h2>
+                <p class="form-subtitle">Welcome back to GenCon SG</p>
+
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    {{ login_form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username"
+                               placeholder="Enter your username" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <div class="position-relative">
+                            <input type="password" class="form-control" name="password"
+                                   id="loginPwd" placeholder="Enter your password" required>
+                            <i class="fas fa-eye position-absolute"
+                               style="right:1rem;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6"
+                               onclick="togglePwd('loginPwd',this)"></i>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 d-flex align-items-center gap-2">
+                        <input type="checkbox" id="remember" name="remember" value="1"
+                               style="width:16px;height:16px;cursor:pointer;accent-color:white">
+                        <label for="remember" class="form-label mb-0" style="cursor:pointer">Remember me</label>
+                    </div>
+
+                    <button type="submit" class="btn-form-submit">
+                        <i class="fas fa-sign-in-alt me-2"></i>Sign in
+                    </button>
+                </form>
+
+                <div class="form-footer-link">
+                    Don't have an account?
+                    <button onclick="showPanel('panelRegister')">Create one</button>
                 </div>
             </div>
         </div>
 
-        <!-- Reviews Section -->
-        <div class="reviews-container">
-            <ul class="reviews-list">
-                <li style="--i: 1;">
-                    <img src="https://i.postimg.cc/ZRCLqjNq/user-img1.jpg" alt="user image">
-                    <div class="content">
-                        <h3>Denny Davis</h3>
-                        <div class="stars text-warning">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+        <!-- ── Panel 3: Register ── -->
+        <div class="panel hidden" id="panelRegister">
+            <button class="back-btn" onclick="showPanel('panelCta')">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <div class="form-panel-card">
+                <h2>Create account</h2>
+                <p class="form-subtitle">Join GenCon SG — your role is set by your age</p>
+
+                <form method="POST" action="{{ url_for('auth.register') }}" id="landingRegisterForm">
+                    {{ register_form.hidden_tag() }}
+                    <input type="hidden" name="role" id="landingRoleInput" value="">
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name"
+                                   placeholder="Full name" required>
                         </div>
-                        <p>"Amazing platform! Connected with great mentors."</p>
-                    </div>
-                </li>
-                <li style="--i: 2;">
-                    <img src="https://i.postimg.cc/C1XsnDCs/user-img2.jpg" alt="user image">
-                    <div class="content">
-                        <h3>Elira Eloise</h3>
-                        <div class="stars text-warning">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
+                        <div class="col-6">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username"
+                                   placeholder="Username" required>
                         </div>
-                        <p>"Love sharing my stories with the youth."</p>
                     </div>
-                </li>
-                <li style="--i: 3;">
-                    <img src="https://i.postimg.cc/qqKXsRjV/user-img3.jpg" alt="user image">
-                    <div class="content">
-                        <h3>Fabio Franklin</h3>
-                        <div class="stars text-warning">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+
+                    <div class="mb-2">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email"
+                               placeholder="you@example.com" required>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" name="phone"
+                                   placeholder="+65 XXXX XXXX" required>
                         </div>
-                        <p>"The cultural exchange games are so fun!"</p>
-                    </div>
-                </li>
-                <li style="--i: 4;">
-                    <img src="https://i.postimg.cc/QNKbG4s4/user-img4.jpg" alt="user image">
-                    <div class="content">
-                        <h3>Gillian Gardner</h3>
-                        <div class="stars text-warning">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
+                        <div class="col-6">
+                            <label class="form-label">
+                                Age <span id="landingRoleBadge"></span>
+                            </label>
+                            <input type="number" class="form-control" name="age"
+                                   id="landingAge" placeholder="Your age" min="13" required>
+                            <div id="landingRoleHint"></div>
                         </div>
-                        <p>"Safe, secure, and very easy to use."</p>
                     </div>
-                </li>
-            </ul>
+
+                    <div class="mb-2">
+                        <label class="form-label">Registration Code</label>
+                        <input type="text" class="form-control" name="registration_code"
+                               placeholder="Code from admin" required>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password"
+                                   id="regPwd" placeholder="Min. 6 chars" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Confirm</label>
+                            <input type="password" class="form-control" name="confirm_password"
+                                   placeholder="Repeat password" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-form-submit" id="landingSubmitBtn">
+                        <i class="fas fa-user-check me-2"></i>Create account
+                    </button>
+                </form>
+
+                <div class="form-footer-link">
+                    Already have an account?
+                    <button onclick="showPanel('panelLogin')">Sign in</button>
+                </div>
+            </div>
         </div>
-    </div>
+
+    </div><!-- /landing-right -->
+</div><!-- /landing-split -->
 {% endblock %}
 
 {% block extra_js %}
-<script type="text/javascript">
-    console.log('GenCon SG Landing Page loaded');
+<script>
+    // ── Panel morphing ──
+    function showPanel(targetId) {
+        const current = document.querySelector('.panel:not(.hidden)');
+        const next    = document.getElementById(targetId);
+        if (current === next) return;
+
+        current.classList.add('leaving');
+        setTimeout(() => {
+            current.classList.add('hidden');
+            current.classList.remove('leaving');
+            next.classList.remove('hidden');
+            next.classList.add('entering');
+            setTimeout(() => next.classList.remove('entering'), 380);
+        }, 220);
+    }
+
+    // ── Password toggle ──
+    function togglePwd(inputId, icon) {
+        const input = document.getElementById(inputId);
+        const show  = input.type === 'password';
+        input.type  = show ? 'text' : 'password';
+        icon.classList.toggle('fa-eye',       !show);
+        icon.classList.toggle('fa-eye-slash',  show);
+    }
+
+    // ── Age → role detection (register panel) ──
+    const landingAge        = document.getElementById('landingAge');
+    const landingRoleInput  = document.getElementById('landingRoleInput');
+    const landingRoleBadge  = document.getElementById('landingRoleBadge');
+    const landingRoleHint   = document.getElementById('landingRoleHint');
+    const landingSubmitBtn  = document.getElementById('landingSubmitBtn');
+
+    function updateLandingRole() {
+        const age = parseInt(landingAge.value);
+
+        if (!landingAge.value || isNaN(age)) {
+            landingRoleBadge.style.display = 'none';
+            landingRoleHint.textContent = '';
+            landingRoleInput.value = '';
+            landingSubmitBtn.innerHTML = '<i class="fas fa-user-check me-2"></i>Create account';
+            return;
+        }
+
+        if (age >= 60) {
+            landingRoleInput.value = 'senior';
+            landingRoleBadge.textContent = 'Senior';
+            landingRoleBadge.className = 'senior';
+            landingRoleBadge.style.display = 'inline';
+            landingRoleHint.innerHTML = '<span style="color:#f9da88;font-size:0.78rem">Senior member</span>';
+            landingSubmitBtn.innerHTML = '<i class="fas fa-user-friends me-2"></i>Register as Senior';
+        } else if (age >= 13) {
+            landingRoleInput.value = 'youth';
+            landingRoleBadge.textContent = 'Youth';
+            landingRoleBadge.className = 'youth';
+            landingRoleBadge.style.display = 'inline';
+            landingRoleHint.innerHTML = '<span style="color:#f1fab7;font-size:0.78rem">Youth volunteer</span>';
+            landingSubmitBtn.innerHTML = '<i class="fas fa-heart me-2"></i>Register as Youth';
+        } else {
+            landingRoleInput.value = '';
+            landingRoleBadge.style.display = 'none';
+            landingRoleHint.innerHTML = '<span style="color:#f9da88;font-size:0.78rem">Must be at least 13</span>';
+            landingSubmitBtn.innerHTML = '<i class="fas fa-user-check me-2"></i>Create account';
+        }
+    }
+
+    landingAge.addEventListener('input', updateLandingRole);
+
+    document.getElementById('landingRegisterForm').addEventListener('submit', function(e) {
+        if (!landingRoleInput.value) {
+            e.preventDefault();
+            landingAge.focus();
+            landingRoleHint.innerHTML = '<span style="color:#f9da88;font-size:0.78rem">Please enter your age first</span>';
+        }
+    });
 </script>
 {% endblock %}
