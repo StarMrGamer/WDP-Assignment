@@ -2635,7 +2635,7 @@ body[data-high-contrast="true"] .badge {
     border: none;
     background: transparent;
     color: #6c757d;
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     padding: 0.35rem 0.5rem;
     border-radius: 50%;
     transition: all 0.2s ease;

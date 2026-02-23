@@ -32,7 +32,7 @@
 body[data-role="senior"] {
     background-color: var(--senior-bg);
     color: var(--senior-text);
-    font-size: 18px;                 /* Larger base font size for readability */
+    font-size: 16px;
     line-height: 1.8;                /* Increased line height for easier reading */
 }
 
@@ -227,16 +227,23 @@ body[data-role="senior"][data-high-contrast="true"] .bg-white {
 /* ==================== TOUCH-OPTIMIZED ELEMENTS ==================== */
 /* Large click targets for touch devices (minimum 44x44px as per accessibility guidelines) */
 body[data-role="senior"] .btn {
-    min-height: 48px;                /* Large touch target */
-    min-width: 120px;
-    padding: 1rem 1.5rem;
-    font-size: 1.125rem;
-    font-weight: 600;
+    display: inline-block;
+    font-weight: var(--font-weight-medium);
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.625rem;
+    font-size: var(--font-size-base);
+    line-height: 1.5;
+    border-radius: var(--border-radius-md);
+    transition: all var(--transition-base);
+    cursor: pointer;
 }
 
 body[data-role="senior"] .nav-link {
-    padding: 1rem 1.25rem;           /* Larger clickable area */
-    font-size: 1.125rem;
+    font-size: 1rem;
 }
 
 body[data-role="senior"] .form-control {
@@ -329,13 +336,13 @@ body[data-role="senior"] .stat-card:hover {
 }
 
 body[data-role="senior"] .stat-card .icon {
-    font-size: 3rem;
+    font-size: 2.5rem;
     color: var(--senior-primary);
     margin-bottom: 1rem;
 }
 
 body[data-role="senior"] .stat-card .value {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--senior-text);
     background: linear-gradient(135deg, var(--senior-primary), var(--senior-accent));
@@ -345,7 +352,7 @@ body[data-role="senior"] .stat-card .value {
 }
 
 body[data-role="senior"] .stat-card .label {
-    font-size: 1.125rem;
+    font-size: 0.875rem;
     color: var(--gray-600);
     margin-top: 0.5rem;
 }
@@ -422,8 +429,9 @@ body[data-role="senior"] .accessibility-toolbar .btn {
 body[data-role="senior"] .fa,
 body[data-role="senior"] .fas,
 body[data-role="senior"] .far {
-    font-size: 1.5rem;               /* Larger icons for visibility */
-    margin-right: 0.5rem;
+    font-size: 1.5rem;
+    margin-right: 0.2rem;
+    vertical-align: middle;
 }
 
 /* ==================== BUDDY INFO CARD ==================== */

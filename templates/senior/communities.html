@@ -27,21 +27,21 @@
                 <div class="card-body text-center p-4 d-flex flex-column">
                     <div class="position-relative d-inline-block">
                         {% if community.photo_url %}
-                        <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" class="rounded-circle mb-3 mx-auto" style="width: 90px; height: 90px; object-fit: cover;">
+                        <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" class="rounded-circle mb-3 mx-auto" style="width: 80px; height: 80px; object-fit: cover;">
                         {% else %}
-                        <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px; font-size: 2.5rem;">
+                        <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
                             {{ community.name[0] | upper }}
                         </div>
                         {% endif %}
                         {% if community.unread_count > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 1rem; padding: 0.5em 0.8em;">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             {{ community.unread_count }}
                             <span class="visually-hidden">unread messages</span>
                         </span>
                         {% endif %}
                     </div>
                     <h3 class="card-title mb-2">{{ community.name }}</h3>
-                    <p class="card-text mb-0" style="font-size: 1.1rem;">{{ community.description }}</p>
+                    <p class="card-text mb-0" >{{ community.description }}</p>
 
                     <div class="d-grid gap-2 mt-auto pt-4">
                         <a href="{{ url_for('senior.view_community', community_id=community.id) }}" class="btn btn-primary btn-lg">
@@ -67,15 +67,15 @@
                 <div class="card-body text-center p-4 d-flex flex-column">
                     <div class="position-relative d-inline-block">
                         {% if community.photo_url %}
-                        <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" class="rounded-circle mb-3 mx-auto" style="width: 90px; height: 90px; object-fit: cover;">
+                        <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" class="rounded-circle mb-3 mx-auto" style="width: 80px; height: 80px; object-fit: cover;">
                         {% else %}
-                        <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px; font-size: 2.5rem;">
+                        <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
                             {{ community.name[0] | upper }}
                         </div>
                         {% endif %}
                     </div>
                     <h3 class="card-title mb-2">{{ community.name }}</h3>
-                    <p class="card-text mb-0" style="font-size: 1.1rem;">{{ community.description }}</p>
+                    <p class="card-text mb-0" >{{ community.description }}</p>
 
                     <div class="d-grid gap-2 mt-auto pt-4">
                         <button onclick="toggleJoin({{ community.id }})" class="btn btn-outline-primary btn-lg">

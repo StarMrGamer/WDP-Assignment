@@ -794,19 +794,19 @@
                     </div>
                     {% elif game.name == 'Chinese Chess (Xiangqi)' %}
                     <div class="d-flex gap-2 w-100 mb-2">
-                        <a href="{{ url_for('senior.xiangqi_game') }}" class="btn btn-play mb-0 flex-grow-1" style="font-size: 1.125rem;">
+                        <a href="{{ url_for('senior.xiangqi_game') }}" class="btn btn-play mb-0 flex-grow-1" style="font-size: 1rem;">
                             <i class="fas fa-robot me-1"></i>Vs Bot
                         </a>
-                        <button class="btn btn-play btn-challenge mb-0 flex-grow-1" data-game-id="{{ game.id }}" style="font-size: 1.125rem;">
+                        <button class="btn btn-play btn-challenge mb-0 flex-grow-1" data-game-id="{{ game.id }}" style="font-size: 1rem;">
                             <i class="fas fa-user-friends me-1"></i>Vs Buddy
                         </button>
                     </div>
                     {% elif 'Tic Tac Toe' in game.name or 'Tic-Tac-Toe' in game.name %}
                     <div class="d-flex gap-2 w-100 mb-2">
-                        <a href="{{ url_for('senior.tictactoe_game') }}" class="btn btn-play mb-0 flex-grow-1" style="font-size: 1.125rem;">
+                        <a href="{{ url_for('senior.tictactoe_game') }}" class="btn btn-play mb-0 flex-grow-1" style="font-size: 1rem;">
                             <i class="fas fa-user me-1"></i>Single
                         </a>
-                        <button class="btn btn-play btn-challenge mb-0 flex-grow-1" data-game-id="{{ game.id }}" style="font-size: 1.125rem;">
+                        <button class="btn btn-play btn-challenge mb-0 flex-grow-1" data-game-id="{{ game.id }}" style="font-size: 1rem;">
                             <i class="fas fa-user-friends me-1"></i>Vs Buddy
                         </button>
                     </div>
@@ -834,7 +834,7 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4" style="font-size: 1.125rem; line-height: 1.8; color: #1c032b;">
+                <div class="modal-body p-4" style="font-size: 1rem; line-height: 1.8; color: #1c032b;">
                     <div id="modalGameContent">
                         <!-- Content will be injected by JavaScript -->
                     </div>

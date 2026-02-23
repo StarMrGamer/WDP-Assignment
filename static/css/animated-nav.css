@@ -120,13 +120,13 @@
 }
 
 .animated-nav-item {
-    padding: 0 2px;
+    padding: 0 6px;
 }
 
 .animated-nav-item .nav-link {
     color: var(--nav-text) !important;
     font-weight: 600;
-    padding: 6px 14px;
+    padding: 8px 18px;
     border-radius: 20px;
     position: relative;
     z-index: 1;
@@ -144,7 +144,7 @@
 }
 
 .animated-nav-item i {
-    margin-right: 5px;
+    margin-right: 6px;
 }
 
 /* ===== MOBILE LAYOUT ===== */
