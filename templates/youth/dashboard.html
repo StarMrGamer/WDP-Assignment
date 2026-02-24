@@ -14,11 +14,11 @@
 {% block body_class %}youth-dashboard{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4 py-2">
-    <div class="row g-3">
+<div class="container-fluid px-4 py-2 dashboard-container">
+    <div class="row g-3 dashboard-row">
 
         <!-- LEFT SIDEBAR - Profile Widget + Quick Actions -->
-        <div class="col-lg-2">
+        <div class="col-lg-2 sidebar-col">
             <div class="sticky-sidebar">
                 <!-- Profile Card -->
                 <div class="card profile-widget mb-2">
@@ -81,7 +81,7 @@
         </div>
 
         <!-- CENTER FEED - Stories -->
-        <div class="col-lg-7">
+        <div class="col-lg-7 feed-col">
             <!-- Create Post Box + Filters -->
             <div class="card mb-2">
                 <div class="card-body d-flex align-items-center gap-3">
@@ -230,7 +230,7 @@
         </div>
 
         <!-- RIGHT SIDEBAR - Buddy + Achievements + Impact -->
-        <div class="col-lg-3">
+        <div class="col-lg-3 sidebar-col">
             <div class="sticky-sidebar">
                 <!-- Buddy Card -->
                 {% if buddy %}
@@ -347,10 +347,71 @@
 
 {% block extra_css %}
 <style>
-    /* Sticky sidebars */
+    /* Fixed layout: sidebars static, only center feed scrolls */
+    .dashboard-container {
+        height: calc(100vh - 70px);
+        overflow: hidden;
+    }
+
+    .dashboard-row {
+        height: 100%;
+        flex-wrap: nowrap;
+    }
+
+    .sidebar-col {
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: none;
+    }
+
+    .sidebar-col::-webkit-scrollbar {
+        display: none;
+    }
+
+    .feed-col {
+        height: 100%;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+        padding-bottom: 2rem;
+    }
+
+    .feed-col::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .feed-col::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .feed-col::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 3px;
+    }
+
+    /* Sticky sidebars (fallback, no longer primary mechanism) */
     .sticky-sidebar {
         position: sticky;
-        top: 75px;
+        top: 0;
+    }
+
+    /* Responsive: on mobile revert to normal scroll */
+    @media (max-width: 991px) {
+        .dashboard-container {
+            height: auto;
+            overflow: visible;
+        }
+
+        .dashboard-row {
+            flex-wrap: wrap;
+        }
+
+        .sidebar-col,
+        .feed-col {
+            height: auto;
+            overflow: visible;
+        }
     }
 
     /* Profile widget */
