@@ -30,6 +30,11 @@
                         <h4 class="mb-0 fw-bold text-dark">{{ buddy.full_name }}</h4>
                         <span class="badge bg-light text-primary border">Buddy Conversation</span>
                     </div>
+                    <div class="chat-call-buttons">
+                        <button class="chat-call-btn" id="btnStartCall" title="Call">
+                            <i class="fas fa-phone-alt"></i>
+                        </button>
+                    </div>
                     <div class="dropdown">
                         <button class="btn btn-white border rounded-pill shadow-sm dropdown-toggle" data-bs-toggle="dropdown">
                             <i class="fas fa-language me-2 text-primary"></i><span class="lang-label">Translate</span>
@@ -159,6 +164,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/videocall.css') }}">
 {% endblock %}
 
 {% block extra_js %}
@@ -238,4 +244,62 @@
     // Voice input
     initVoiceInput(document.getElementById('voiceBtn'), document.getElementById('messageInput'), document.getElementById('voiceLangSelect'));
 </script>
+
+{% if buddy %}
+<!-- Video Call Overlay -->
+<div class="videocall-overlay" id="videocallOverlay">
+    <div class="videocall-videos">
+        <!-- Default: buddy profile pic -->
+        <div class="videocall-profile" id="videocallProfile">
+            {% set pic = buddy.profile_picture if buddy.profile_picture else 'default-avatar.png' %}
+            <img class="profile-avatar" src="{{ url_for('static', filename=pic|fix_pfp) }}" alt="{{ buddy.full_name }}">
+            <div class="profile-name">{{ buddy.full_name }}</div>
+            <div class="profile-status" id="callStatus">Calling...</div>
+        </div>
+        <!-- Shown when local user is sharing screen -->
+        <div class="screenshare-banner" id="screenshareBanner">
+            <div class="banner-icon"><i class="fas fa-desktop"></i></div>
+            <div class="banner-text">You are sharing your screen</div>
+            <div class="banner-subtext">Your buddy can see your screen now</div>
+        </div>
+        <!-- Remote screen share fills this -->
+        <video id="remoteVideo" autoplay playsinline></video>
+        <video id="localVideo" autoplay muted playsinline></video>
+    </div>
+    <div class="videocall-controls">
+        <button class="vc-ctrl-btn" id="btnToggleMic" title="Toggle Microphone">
+            <i class="fas fa-microphone"></i>
+        </button>
+        <button class="vc-ctrl-btn" id="btnToggleScreen" title="Share Screen">
+            <i class="fas fa-desktop"></i>
+        </button>
+        <button class="vc-ctrl-btn end-call" id="btnEndCall" title="End Call">
+            <i class="fas fa-phone-slash"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Incoming Call Modal -->
+<div class="incoming-call-modal" id="incomingCallModal">
+    <div class="incoming-call-card">
+        <div class="call-icon"><i class="fas fa-phone-alt"></i></div>
+        <h5 id="incomingCallerName">Your buddy</h5>
+        <p>is calling you...</p>
+        <div class="incoming-call-actions">
+            <button class="btn-reject-call" id="btnRejectCall" title="Decline">
+                <i class="fas fa-phone-slash"></i>
+            </button>
+            <button class="btn-accept-call" id="btnAcceptCall" title="Answer">
+                <i class="fas fa-phone-alt"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    window._videocallBuddyId = {{ buddy.id }};
+    window._videocallUserName = {{ session.get('full_name', '')|tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/videocall.js') }}"></script>
+{% endif %}
 {% endblock %}

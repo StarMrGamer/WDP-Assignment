@@ -309,6 +309,104 @@ def on_edit_community_message(data):
     }, room=room)
 
 
+# ==================== VIDEO CALL / WEBRTC SIGNALING ====================
+
+@socketio.on('call_user')
+def on_call_user(data):
+    """Caller initiates a call to their buddy."""
+    caller_id = session.get('user_id')
+    target_id = data.get('target_id')
+    if not caller_id or not target_id:
+        return
+    target_room = f"user_{target_id}"
+    emit('incoming_call', {
+        'caller_id': caller_id,
+        'caller_name': session.get('full_name', 'Your buddy'),
+        'video': data.get('video', True)
+    }, room=target_room)
+
+
+@socketio.on('call_accepted')
+def on_call_accepted(data):
+    """Callee accepts the call — notify caller to start WebRTC offer."""
+    callee_id = session.get('user_id')
+    target_id = data.get('target_id')
+    if not callee_id or not target_id:
+        return
+    target_room = f"user_{target_id}"
+    emit('call_accepted', {'callee_id': callee_id}, room=target_room)
+
+
+@socketio.on('call_rejected')
+def on_call_rejected(data):
+    """Callee rejects the call."""
+    target_id = data.get('target_id')
+    if not target_id:
+        return
+    target_room = f"user_{target_id}"
+    emit('call_rejected', {}, room=target_room)
+
+
+@socketio.on('webrtc_offer')
+def on_webrtc_offer(data):
+    """Relay WebRTC offer from caller to callee."""
+    caller_id = session.get('user_id')
+    target_id = data.get('target_id')
+    if not target_id:
+        return
+    target_room = f"user_{target_id}"
+    emit('webrtc_offer', {
+        'offer': data.get('offer'),
+        'caller_id': caller_id
+    }, room=target_room)
+
+
+@socketio.on('webrtc_answer')
+def on_webrtc_answer(data):
+    """Relay WebRTC answer from callee to caller."""
+    target_id = data.get('target_id')
+    if not target_id:
+        return
+    target_room = f"user_{target_id}"
+    emit('webrtc_answer', {
+        'answer': data.get('answer')
+    }, room=target_room)
+
+
+@socketio.on('webrtc_candidate')
+def on_webrtc_candidate(data):
+    """Relay ICE candidate between peers."""
+    target_id = data.get('target_id')
+    if not target_id:
+        return
+    target_room = f"user_{target_id}"
+    emit('webrtc_candidate', {
+        'candidate': data.get('candidate')
+    }, room=target_room)
+
+
+@socketio.on('end_call')
+def on_end_call(data):
+    """Notify the other party that the call has ended."""
+    target_id = data.get('target_id')
+    if not target_id:
+        return
+    target_room = f"user_{target_id}"
+    emit('call_ended', {}, room=target_room)
+
+
+@socketio.on('screen_share_toggle')
+def on_screen_share_toggle(data):
+    """Notify the other party that screen sharing started/stopped."""
+    target_id = data.get('target_id')
+    if not target_id:
+        return
+    target_room = f"user_{target_id}"
+    emit('screen_share_toggled', {
+        'sharing': data.get('sharing', False)
+    }, room=target_room)
+
+
 # ==================== CONNECTION EVENTS ====================
 
 @socketio.on('connect')

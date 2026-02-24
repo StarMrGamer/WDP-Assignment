@@ -1,0 +1,427 @@
+/* ==================== VIDEO CALL OVERLAY ==================== */
+
+.videocall-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: #1a1a2e;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.videocall-overlay.active {
+    display: flex;
+}
+
+/* Video container */
+.videocall-videos {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Remote video — rendered off-screen by default so browser keeps decoding.
+   Only made visible via .remote-screenshare class */
+#remoteVideo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+    object-fit: contain;
+    background: #000;
+    border-radius: 0;
+}
+
+/* Local video — always hidden (no small box) */
+#localVideo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ==================== DEFAULT CALL VIEW (no screen share) ==================== */
+
+/* Profile picture + status centered */
+.videocall-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    z-index: 5;
+}
+
+.videocall-profile .profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.videocall-profile .profile-name {
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.videocall-profile .profile-status {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+}
+
+/* ==================== SHARING BANNER (local user sees this) ==================== */
+
+.screenshare-banner {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    z-index: 5;
+}
+
+.screenshare-banner .banner-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #2ecc71;
+}
+
+.screenshare-banner .banner-text {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.screenshare-banner .banner-subtext {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+/* ==================== STATE: NORMAL CALL ==================== */
+/* Profile visible, screenshare banner hidden, remote video hidden */
+.videocall-overlay.active .videocall-profile {
+    display: flex;
+}
+
+.videocall-overlay.active .screenshare-banner {
+    display: none;
+}
+
+/* ==================== STATE: LOCAL SCREEN SHARE ==================== */
+/* Sharer sees "You are sharing your screen" banner */
+.videocall-overlay.local-screenshare .videocall-profile {
+    display: none;
+}
+
+.videocall-overlay.local-screenshare .screenshare-banner {
+    display: flex;
+}
+
+.videocall-overlay.local-screenshare {
+    background: #111;
+}
+
+/* ==================== STATE: REMOTE SCREEN SHARE ==================== */
+/* Viewer sees remote screen fullscreen */
+.videocall-overlay.remote-screenshare {
+    background: #000;
+}
+
+.videocall-overlay.remote-screenshare .videocall-profile {
+    display: none;
+}
+
+.videocall-overlay.remote-screenshare .screenshare-banner {
+    display: none;
+}
+
+.videocall-overlay.remote-screenshare #remoteVideo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    pointer-events: auto;
+    object-fit: contain;
+    background: #000;
+    border-radius: 0;
+    z-index: 5;
+}
+
+/* ==================== CALL STATUS TEXT ==================== */
+
+#callStatus {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+}
+
+/* ==================== CONTROL BAR ==================== */
+
+.videocall-controls {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 12px;
+    padding: 12px 24px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 2rem;
+    backdrop-filter: blur(12px);
+}
+
+.vc-ctrl-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.vc-ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.08);
+}
+
+.vc-ctrl-btn.muted,
+.vc-ctrl-btn.active {
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a1a2e;
+}
+
+.vc-ctrl-btn.end-call {
+    background: #e74c3c;
+    width: 58px;
+    height: 58px;
+    font-size: 1.4rem;
+}
+
+.vc-ctrl-btn.end-call:hover {
+    background: #c0392b;
+}
+
+/* ==================== HEADER CALL BUTTONS ==================== */
+
+.chat-call-buttons {
+    display: flex;
+    gap: 6px;
+    margin-right: 8px;
+}
+
+.chat-call-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #555;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.chat-call-btn:hover {
+    background: #E25838;
+    color: white;
+    border-color: #E25838;
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(226, 88, 56, 0.3);
+}
+
+/* ==================== INCOMING CALL MODAL ==================== */
+
+.incoming-call-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    background: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.incoming-call-modal.active {
+    display: flex;
+}
+
+.incoming-call-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
+    max-width: 360px;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.incoming-call-card .call-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #E25838, #FDE594);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.2rem;
+    font-size: 1.8rem;
+    color: white;
+    animation: pulse-ring 1.5s infinite;
+}
+
+@keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(226, 88, 56, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(226, 88, 56, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(226, 88, 56, 0); }
+}
+
+.incoming-call-card h5 {
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    color: #1a1a2e;
+}
+
+.incoming-call-card p {
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.incoming-call-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.incoming-call-actions button {
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+}
+
+.btn-accept-call {
+    background: #2ecc71;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+}
+
+.btn-accept-call:hover {
+    background: #27ae60;
+    transform: scale(1.1);
+}
+
+.btn-reject-call {
+    background: #e74c3c;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+}
+
+.btn-reject-call:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 576px) {
+    .videocall-controls {
+        gap: 8px;
+        padding: 10px 16px;
+    }
+
+    .vc-ctrl-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1rem;
+    }
+
+    .vc-ctrl-btn.end-call {
+        width: 50px;
+        height: 50px;
+    }
+
+    .chat-call-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+
+    .videocall-profile .profile-avatar {
+        width: 90px;
+        height: 90px;
+    }
+
+    .videocall-profile .profile-name {
+        font-size: 1.1rem;
+    }
+}
+
+/* ==================== DARK MODE ==================== */
+
+body[data-theme="dark"] .chat-call-btn {
+    background: #2b2d31;
+    border-color: #3f4147;
+    color: #b5bac1;
+}
+
+body[data-theme="dark"] .chat-call-btn:hover {
+    background: #E25838;
+    color: white;
+    border-color: #E25838;
+}
+
+body[data-theme="dark"] .incoming-call-card {
+    background: #2b2d31;
+}
+
+body[data-theme="dark"] .incoming-call-card h5 {
+    color: #f2f3f5;
+}
+
+body[data-theme="dark"] .incoming-call-card p {
+    color: #949ba4;
+}
