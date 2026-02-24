@@ -273,16 +273,8 @@
                 <span>or</span>
             </div>
 
-            <div id="google-btn-wrapper">
-                <div id="g_id_onload"
-                     data-client_id="{{ config.GOOGLE_CLIENT_ID }}"
-                     data-callback="handleGoogleCredential"
-                     data-auto_prompt="false">
-                </div>
-                <button type="button" class="btn-google" id="googleSignUpBtn">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                    Sign up with Google
-                </button>
+            <div id="google-btn-wrapper" style="display:flex;justify-content:center;min-height:44px;">
+                <div id="g_id_signup"></div>
             </div>
 
             <form id="google-login-form" method="POST" action="{{ url_for('auth.google_login') }}" style="display:none;">
@@ -311,13 +303,23 @@
         document.getElementById('google-login-form').submit();
     }
 
+    function waitForGoogle(cb, retries) {
+        if (typeof google !== 'undefined' && google.accounts) { cb(); return; }
+        if (retries > 0) setTimeout(function() { waitForGoogle(cb, retries - 1); }, 200);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        var btn = document.getElementById('googleSignUpBtn');
-        if (btn) {
-            btn.addEventListener('click', function() {
-                google.accounts.id.prompt();
+        waitForGoogle(function() {
+            google.accounts.id.initialize({
+                client_id: '{{ config.GOOGLE_CLIENT_ID }}',
+                callback: handleGoogleCredential,
+                itp_support: true
             });
-        }
+            google.accounts.id.renderButton(
+                document.getElementById('g_id_signup'),
+                { theme: 'outline', size: 'large', text: 'signup_with', shape: 'rectangular', logo_alignment: 'left', width: 400 }
+            );
+        }, 15);
     });
 </script>
 {% endif %}
