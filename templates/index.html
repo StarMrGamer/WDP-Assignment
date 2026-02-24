@@ -393,10 +393,14 @@
                         </div>
                     </div>
 
-                    <div class="mb-3 d-flex align-items-center gap-2">
-                        <input type="checkbox" id="remember" name="remember" value="1"
-                               style="width:16px;height:16px;cursor:pointer;accent-color:white">
-                        <label for="remember" class="form-label mb-0" style="cursor:pointer">Remember me</label>
+                    <div class="mb-3 d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" id="remember" name="remember" value="1"
+                                   style="width:16px;height:16px;cursor:pointer;accent-color:white">
+                            <label for="remember" class="form-label mb-0" style="cursor:pointer">Remember me</label>
+                        </div>
+                        <a href="{{ url_for('auth.forgot_password') }}"
+                           style="color:rgba(255,255,255,0.7);font-size:0.85rem;text-decoration:none;font-weight:600">Forgot password?</a>
                     </div>
 
                     <button type="submit" class="btn-form-submit">

@@ -52,6 +52,9 @@ def create_app(config_name=None):
     socketio.init_app(app, cors_allowed_origins=ALLOWED_ORIGINS, async_mode='eventlet')
     db.init_app(app)
 
+    from extensions import mail
+    mail.init_app(app)
+
     # ── Socket.IO handlers & notification listener ────────────
     import socket_handlers  # noqa: F401 — registers @socketio.on decorators (once)
 

@@ -9,9 +9,10 @@ Feature: Authentication & User Management
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app, jsonify
 from models import db, User, Streak, RegistrationCode, Notification
 from utils import check_unkind_words, sanitize_for_display
-from forms import LoginForm, RegistrationForm, GoogleCompleteForm
+from forms import LoginForm, RegistrationForm, GoogleCompleteForm, ForgotPasswordForm, ResetPasswordForm
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import os
 
 # Create authentication blueprint
@@ -250,6 +251,70 @@ def register():
 
     # GET request - display registration form
     return render_template('auth/register.html', role=role, form=form)
+
+
+# ==================== FORGOT / RESET PASSWORD ====================
+
+def _get_serializer():
+    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
+
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        email = form.email.data.strip()
+        user = User.query.filter_by(email=email).first()
+        if user:
+            s = _get_serializer()
+            token = s.dumps(email, salt='password-reset')
+            reset_url = url_for('auth.reset_password', token=token, _external=True)
+
+            from extensions import mail
+            from flask_mail import Message
+            msg = Message(
+                subject='GenCon SG — Reset Your Password',
+                recipients=[email],
+                html=render_template('auth/reset_email.html',
+                                     user=user, reset_url=reset_url)
+            )
+            try:
+                mail.send(msg)
+            except Exception as e:
+                print(f"Email send error: {e}")
+
+        # Always show same message to prevent email enumeration
+        flash('If an account with that email exists, a password reset link has been sent.', 'info')
+        return redirect(url_for('auth.forgot_password'))
+
+    return render_template('auth/forgot_password.html', form=form)
+
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    s = _get_serializer()
+    try:
+        email = s.loads(token, salt='password-reset', max_age=3600)  # 1 hour
+    except SignatureExpired:
+        flash('This reset link has expired. Please request a new one.', 'warning')
+        return redirect(url_for('auth.forgot_password'))
+    except BadSignature:
+        flash('Invalid reset link.', 'danger')
+        return redirect(url_for('auth.forgot_password'))
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash('Account not found.', 'danger')
+        return redirect(url_for('auth.forgot_password'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset. You can now sign in.', 'success')
+        return redirect(url_for('main.index'))
+
+    return render_template('auth/reset_password.html', form=form, token=token)
 
 
 # ==================== GOOGLE SIGN-IN ROUTES ====================

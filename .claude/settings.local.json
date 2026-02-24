@@ -4,7 +4,8 @@
       "Bash(pip show:*)",
       "Bash(python:*)",
       "Bash(grep:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(venv/Scripts/pip install:*)"
     ]
   }
 }

@@ -1,0 +1,19 @@
+<div style="max-width:480px;margin:0 auto;font-family:Arial,sans-serif;color:#2C3E50">
+    <div style="background:linear-gradient(135deg,#c54836 0%,#781543 100%);padding:2rem;border-radius:1rem 1rem 0 0;text-align:center">
+        <h1 style="color:white;margin:0;font-size:1.5rem">GenCon SG</h1>
+        <p style="color:rgba(255,255,255,0.8);margin:0.5rem 0 0">Password Reset</p>
+    </div>
+    <div style="background:#f8f9fa;padding:2rem;border-radius:0 0 1rem 1rem;border:1px solid #e9ecef">
+        <p>Hi <strong>{{ user.full_name }}</strong>,</p>
+        <p>We received a request to reset your password. Click the button below to set a new one:</p>
+        <div style="text-align:center;margin:1.5rem 0">
+            <a href="{{ reset_url }}"
+               style="display:inline-block;padding:0.875rem 2rem;background:linear-gradient(135deg,#c54836,#781543);color:white;text-decoration:none;border-radius:2rem;font-weight:700;font-size:1rem">
+                Reset Password
+            </a>
+        </div>
+        <p style="font-size:0.875rem;color:#6C757D">This link expires in <strong>1 hour</strong>. If you didn't request this, you can safely ignore this email.</p>
+        <hr style="border:none;border-top:1px solid #e9ecef;margin:1.5rem 0">
+        <p style="font-size:0.8rem;color:#adb5bd;text-align:center">GenCon SG — Bridging Generations</p>
+    </div>
+</div>
