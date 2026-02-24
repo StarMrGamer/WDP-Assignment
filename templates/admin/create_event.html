@@ -21,7 +21,7 @@
         background: white;
         border-radius: 0.75rem;
         padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         margin-bottom: 1.5rem;
     }
 
@@ -128,21 +128,21 @@
         </div>
 
         <form method="POST" action="{{ url_for('admin.create_event') }}" id="createEventForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <!-- Basic Information -->
             <div class="form-card">
                 <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
 
                 <div class="mb-3">
                     <label for="title" class="form-label fw-bold">Event Title *</label>
-                    <input type="text" class="form-control" id="title" name="title"
-                           placeholder="Enter event title" required
-                           oninput="updatePreview()">
+                    <input type="text" class="form-control" id="title" name="title" placeholder="Enter event title"
+                        required oninput="updatePreview()">
                 </div>
 
                 <div class="mb-3">
                     <label for="description" class="form-label fw-bold">Description</label>
-                    <textarea class="form-control" id="description" name="description"
-                              rows="4" placeholder="Describe the event..."></textarea>
+                    <textarea class="form-control" id="description" name="description" rows="4"
+                        placeholder="Describe the event..."></textarea>
                 </div>
             </div>
 
@@ -153,14 +153,14 @@
                 <div class="event-type-selector">
                     <label class="event-type-option online" for="type_online">
                         <input type="radio" name="event_type" id="type_online" value="online" required
-                               onchange="updatePreview()">
+                            onchange="updatePreview()">
                         <i class="fas fa-video"></i>
                         <div class="fw-bold">Online</div>
                         <small class="text-muted">Virtual event via video call</small>
                     </label>
                     <label class="event-type-option in-person" for="type_inperson">
                         <input type="radio" name="event_type" id="type_inperson" value="in-person"
-                               onchange="updatePreview()">
+                            onchange="updatePreview()">
                         <i class="fas fa-map-marker-alt"></i>
                         <div class="fw-bold">In-Person</div>
                         <small class="text-muted">Physical location meetup</small>
@@ -174,8 +174,8 @@
 
                 <div class="mb-3">
                     <label for="date" class="form-label fw-bold">Event Date & Time</label>
-                    <input type="datetime-local" class="form-control" id="date" name="date"
-                           required oninput="updatePreview()">
+                    <input type="datetime-local" class="form-control" id="date" name="date" required
+                        oninput="updatePreview()">
                 </div>
             </div>
 
@@ -188,8 +188,7 @@
                         <span id="locationLabel">Location / Meeting Link</span>
                     </label>
                     <input type="text" class="form-control" id="location" name="location"
-                           placeholder="Enter location or meeting link"
-                           oninput="updatePreview()">
+                        placeholder="Enter location or meeting link" oninput="updatePreview()">
                     <small class="text-muted" id="locationHint">
                         For online events, enter the video call link. For in-person, enter the address.
                     </small>
@@ -203,7 +202,7 @@
                 <div class="mb-3">
                     <label for="capacity" class="form-label fw-bold">Maximum Participants</label>
                     <input type="number" class="form-control" id="capacity" name="capacity"
-                           placeholder="Leave blank for unlimited" min="1">
+                        placeholder="Leave blank for unlimited" min="1">
                     <small class="text-muted">Leave blank for unlimited capacity</small>
                 </div>
             </div>
@@ -226,7 +225,7 @@
 <script>
     // Handle event type selection visual state
     document.querySelectorAll('.event-type-option input').forEach(input => {
-        input.addEventListener('change', function() {
+        input.addEventListener('change', function () {
             document.querySelectorAll('.event-type-option').forEach(opt => {
                 opt.classList.remove('selected');
             });

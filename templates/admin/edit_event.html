@@ -20,7 +20,7 @@
         background: white;
         border-radius: 0.75rem;
         padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         margin-bottom: 1.5rem;
     }
 
@@ -94,20 +94,20 @@
 
     <div class="event-form-container">
         <form method="POST" action="{{ url_for('admin.edit_event', event_id=event.id) }}" id="editEventForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <!-- Basic Information -->
             <div class="form-card">
                 <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
 
                 <div class="mb-3">
                     <label for="title" class="form-label fw-bold">Event Title *</label>
-                    <input type="text" class="form-control" id="title" name="title"
-                           value="{{ event.title }}" required>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ event.title }}" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="description" class="form-label fw-bold">Description</label>
                     <textarea class="form-control" id="description" name="description"
-                              rows="4">{{ event.description }}</textarea>
+                        rows="4">{{ event.description }}</textarea>
                 </div>
             </div>
 
@@ -116,18 +116,21 @@
                 <h5><i class="fas fa-tags me-2"></i>Event Type *</h5>
 
                 <div class="event-type-selector">
-                    <label class="event-type-option online {% if event.event_type == 'online' %}selected{% endif %}" for="type_online">
-                        <input type="radio" name="event_type" id="type_online" value="online" required
-                               {% if event.event_type == 'online' %}checked{% endif %}
-                               onclick="document.querySelectorAll('.event-type-option').forEach(el => el.classList.remove('selected')); this.closest('label').classList.add('selected');">
+                    <label class="event-type-option online {% if event.event_type == 'online' %}selected{% endif %}"
+                        for="type_online">
+                        <input type="radio" name="event_type" id="type_online" value="online" required {% if
+                            event.event_type=='online' %}checked{% endif %}
+                            onclick="document.querySelectorAll('.event-type-option').forEach(el => el.classList.remove('selected')); this.closest('label').classList.add('selected');">
                         <i class="fas fa-video"></i>
                         <div class="fw-bold">Online</div>
                         <small class="text-muted">Virtual event via video call</small>
                     </label>
-                    <label class="event-type-option in-person {% if event.event_type == 'in-person' %}selected{% endif %}" for="type_inperson">
-                        <input type="radio" name="event_type" id="type_inperson" value="in-person"
-                               {% if event.event_type == 'in-person' %}checked{% endif %}
-                               onclick="document.querySelectorAll('.event-type-option').forEach(el => el.classList.remove('selected')); this.closest('label').classList.add('selected');">
+                    <label
+                        class="event-type-option in-person {% if event.event_type == 'in-person' %}selected{% endif %}"
+                        for="type_inperson">
+                        <input type="radio" name="event_type" id="type_inperson" value="in-person" {% if
+                            event.event_type=='in-person' %}checked{% endif %}
+                            onclick="document.querySelectorAll('.event-type-option').forEach(el => el.classList.remove('selected')); this.closest('label').classList.add('selected');">
                         <i class="fas fa-map-marker-alt"></i>
                         <div class="fw-bold">In-Person</div>
                         <small class="text-muted">Physical location meetup</small>
@@ -142,7 +145,7 @@
                 <div class="mb-3">
                     <label for="date" class="form-label fw-bold">Event Date & Time</label>
                     <input type="datetime-local" class="form-control" id="date" name="date"
-                           value="{{ current_date_str }}" required>
+                        value="{{ current_date_str }}" required>
                 </div>
             </div>
 
@@ -153,13 +156,13 @@
                 <div class="mb-3">
                     <label for="location" class="form-label fw-bold">Location / Meeting Link</label>
                     <input type="text" class="form-control" id="location" name="location"
-                           value="{{ event.location or '' }}">
+                        value="{{ event.location or '' }}">
                 </div>
 
                 <div class="mb-3">
                     <label for="capacity" class="form-label fw-bold">Maximum Participants</label>
                     <input type="number" class="form-control" id="capacity" name="capacity"
-                           value="{{ event.capacity if event.capacity else '' }}" min="1">
+                        value="{{ event.capacity if event.capacity else '' }}" min="1">
                     <small class="text-muted">Leave blank for unlimited capacity</small>
                 </div>
             </div>
@@ -170,7 +173,8 @@
                 <h5><i class="fas fa-comment-alt me-2"></i>Justification</h5>
                 <div class="mb-3">
                     <label for="justification" class="form-label fw-bold">Reason for Suggestion</label>
-                    <textarea class="form-control" id="justification" name="justification" rows="3">{{ event.justification or '' }}</textarea>
+                    <textarea class="form-control" id="justification" name="justification"
+                        rows="3">{{ event.justification or '' }}</textarea>
                 </div>
             </div>
             {% endif %}

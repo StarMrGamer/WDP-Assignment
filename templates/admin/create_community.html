@@ -17,14 +17,16 @@
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('admin.create_community') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="mb-3">
                             <label for="name" class="form-label">Community Name</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                            <textarea class="form-control" id="description" name="description" rows="3"
+                                required></textarea>
                         </div>
 
                         <div class="row">
@@ -56,13 +58,15 @@
 
                         <div class="mb-3">
                             <label for="icon" class="form-label">Icon Class (FontAwesome)</label>
-                            <input type="text" class="form-control" id="icon" name="icon" placeholder="fas fa-users" value="fas fa-users" required>
+                            <input type="text" class="form-control" id="icon" name="icon" placeholder="fas fa-users"
+                                value="fas fa-users" required>
                             <div class="form-text">e.g., fas fa-book, fas fa-palette, fas fa-gamepad</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="tags" class="form-label">Tags (Comma separated)</label>
-                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Art, Creative, Fun">
+                            <input type="text" class="form-control" id="tags" name="tags"
+                                placeholder="Art, Creative, Fun">
                         </div>
 
                         <div class="mb-3">

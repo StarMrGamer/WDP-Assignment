@@ -34,18 +34,19 @@
             <div class="d-flex align-items-center gap-2">
                 <label for="role" class="fw-bold text-nowrap">Role:</label>
                 <select name="role" id="role" class="form-select" onchange="this.form.submit()">
-                    <option value="all" {% if role_filter == 'all' %}selected{% endif %}>All Roles   </option>
-                    <option value="senior" {% if role_filter == 'senior' %}selected{% endif %}>Seniors   </option>
-                    <option value="youth" {% if role_filter == 'youth' %}selected{% endif %}>Youth   </option>
+                    <option value="all" {% if role_filter=='all' %}selected{% endif %}>All Roles </option>
+                    <option value="senior" {% if role_filter=='senior' %}selected{% endif %}>Seniors </option>
+                    <option value="youth" {% if role_filter=='youth' %}selected{% endif %}>Youth </option>
                 </select>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <label for="status" class="fw-bold text-nowrap">Status:</label>
                 <select name="status" id="status" class="form-select" onchange="this.form.submit()">
-                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
-                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
-                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
-                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending Approval</option>
+                    <option value="all" {% if status_filter=='all' %}selected{% endif %}>All Status</option>
+                    <option value="active" {% if status_filter=='active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status_filter=='inactive' %}selected{% endif %}>Inactive</option>
+                    <option value="pending" {% if status_filter=='pending' %}selected{% endif %}>Pending Approval
+                    </option>
                 </select>
             </div>
             <div class="ms-auto">
@@ -62,94 +63,106 @@
 
         {% if users %}
         <div class="table-responsive">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Age</th>
-                    <th>School</th>
-                    <th>Bio</th>
-                    <th>Language</th>
-                    <th>Interests</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                                    <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
-                                         alt="{{ user.username }}"
-                                         class="rounded-circle me-2"
-                                         width="32" height="32"
-                                         style="object-fit: cover;">
-                            <div>
-                                <div class="fw-bold">{{ user.full_name }}</div>
-                                <small class="text-muted">@{{ user.username }}</small>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Age</th>
+                        <th>School</th>
+                        <th>Bio</th>
+                        <th>Language</th>
+                        <th>Interests</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}"
+                                    alt="{{ user.username }}" class="rounded-circle me-2" width="32" height="32"
+                                    style="object-fit: cover;">
+                                <div>
+                                    <div class="fw-bold">{{ user.full_name }}</div>
+                                    <small class="text-muted">@{{ user.username }}</small>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="badge {% if user.role == 'senior' %}bg-warning text-dark{% else %}bg-info{% endif %}">
-                            {{ user.role|capitalize }}
-                        </span>
-                    </td>
-                    <td style="font-size: 0.85rem;">{{ user.email or '-' }}</td>
-                    <td style="font-size: 0.85rem;">{{ user.phone or '-' }}</td>
-                    <td>{{ user.age or '-' }}</td>
-                    <td style="font-size: 0.85rem; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ user.school or '-' }}</td>
-                    <td style="font-size: 0.85rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ user.bio or '' }}">{{ user.bio[:50] + '...' if user.bio and user.bio|length > 50 else (user.bio or '-') }}</td>
-                    <td style="font-size: 0.85rem;">{{ user.languages|join(', ') if user.languages else '-' }}</td>
-                    <td style="font-size: 0.85rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ user.interests|join(', ') if user.interests else '' }}">{{ user.interests|join(', ') if user.interests else '-' }}</td>
-                    <td>
-                        {% if not user.is_approved %}
-                        <span class="status-badge" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;">
-                            <i class="fas fa-clock me-1"></i>Pending
-                        </span>
-                        {% elif user.is_active %}
-                        <span class="status-badge active">Active</span>
-                        {% else %}
-                        <span class="status-badge inactive">Inactive</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <div class="d-flex gap-1">
-                            <a href="{{ url_for('admin.user_detail', user_id=user.id) }}"
-                               class="btn btn-sm btn-outline-primary table-action-btn"
-                               title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </a>
+                        </td>
+                        <td>
+                            <span
+                                class="badge {% if user.role == 'senior' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                {{ user.role|capitalize }}
+                            </span>
+                        </td>
+                        <td style="font-size: 0.85rem;">{{ user.email or '-' }}</td>
+                        <td style="font-size: 0.85rem;">{{ user.phone or '-' }}</td>
+                        <td>{{ user.age or '-' }}</td>
+                        <td
+                            style="font-size: 0.85rem; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ user.school or '-' }}</td>
+                        <td style="font-size: 0.85rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            title="{{ user.bio or '' }}">{{ user.bio[:50] + '...' if user.bio and user.bio|length > 50
+                            else (user.bio or '-') }}</td>
+                        <td style="font-size: 0.85rem;">{{ user.languages|join(', ') if user.languages else '-' }}</td>
+                        <td style="font-size: 0.85rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            title="{{ user.interests|join(', ') if user.interests else '' }}">{{ user.interests|join(',
+                            ') if user.interests else '-' }}</td>
+                        <td>
                             {% if not user.is_approved %}
-                            <form action="{{ url_for('admin.approve_user', user_id=user.id) }}" method="POST" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-outline-success table-action-btn" title="Approve Account">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            </form>
-                            <form action="{{ url_for('admin.reject_user', user_id=user.id) }}" method="POST" class="d-inline"
-                                  onsubmit="return confirm('Reject and delete this account?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger table-action-btn" title="Reject Account">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </form>
+                            <span class="status-badge"
+                                style="background:#fff3cd;color:#856404;border:1px solid #ffc107;">
+                                <i class="fas fa-clock me-1"></i>Pending
+                            </span>
+                            {% elif user.is_active %}
+                            <span class="status-badge active">Active</span>
                             {% else %}
-                            <form action="{{ url_for('admin.toggle_user_status', user_id=user.id) }}" method="POST" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-outline-warning table-action-btn"
-                                        title="{{ 'Deactivate' if user.is_active else 'Activate' }} User">
-                                    <i class="fas {{ 'fa-ban' if user.is_active else 'fa-check' }}"></i>
-                                </button>
-                            </form>
+                            <span class="status-badge inactive">Inactive</span>
                             {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{{ url_for('admin.user_detail', user_id=user.id) }}"
+                                    class="btn btn-sm btn-outline-primary table-action-btn" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if not user.is_approved %}
+                                <form action="{{ url_for('admin.approve_user', user_id=user.id) }}" method="POST"
+                                    class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success table-action-btn"
+                                        title="Approve Account">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('admin.reject_user', user_id=user.id) }}" method="POST"
+                                    class="d-inline" onsubmit="return confirm('Reject and delete this account?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger table-action-btn"
+                                        title="Reject Account">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form action="{{ url_for('admin.toggle_user_status', user_id=user.id) }}" method="POST"
+                                    class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning table-action-btn"
+                                        title="{{ 'Deactivate' if user.is_active else 'Activate' }} User">
+                                        <i class="fas {{ 'fa-ban' if user.is_active else 'fa-check' }}"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         {% else %}
         <div class="text-center py-5">

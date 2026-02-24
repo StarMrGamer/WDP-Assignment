@@ -70,7 +70,8 @@
     <div class="row">
         {% for item in pairs_data %}
         <div class="col-lg-6 mb-4">
-            <div class="pair-card {% if item.health == 'warning' %}warning{% elif item.health == 'critical' %}critical{% endif %}">
+            <div
+                class="pair-card {% if item.health == 'warning' %}warning{% elif item.health == 'critical' %}critical{% endif %}">
                 <!-- Pair Header -->
                 <div class="pair-header">
                     <div>
@@ -87,8 +88,8 @@
                     <!-- Senior -->
                     <div class="pair-user">
                         <img src="{{ url_for('static', filename='images/' + (item.pair.senior.profile_picture or 'default-avatar.png')) }}"
-                             alt="Senior Avatar"
-                             onerror="this.src='https://ui-avatars.com/api/?name={{ item.pair.senior.full_name }}&background=E67E22&color=fff'">
+                            alt="Senior Avatar"
+                            onerror="this.src='https://ui-avatars.com/api/?name={{ item.pair.senior.full_name }}&background=E67E22&color=fff'">
                         <div class="user-info">
                             <div class="name">{{ item.pair.senior.full_name }}</div>
                             <div class="role">Senior, {{ item.pair.senior.age }} years old</div>
@@ -97,14 +98,15 @@
 
                     <!-- Connection Icon -->
                     <div class="text-center">
-                        <i class="fas fa-link fa-2x" style="color: {% if item.health == 'good' %}#27AE60{% elif item.health == 'warning' %}#F39C12{% else %}#E74C3C{% endif %};"></i>
+                        <i class="fas fa-link fa-2x"
+                            style="color: {% if item.health == 'good' %}#27AE60{% elif item.health == 'warning' %}#F39C12{% else %}#E74C3C{% endif %};"></i>
                     </div>
 
                     <!-- Youth -->
                     <div class="pair-user">
                         <img src="{{ url_for('static', filename='images/' + (item.pair.youth.profile_picture or 'default-avatar.png')) }}"
-                             alt="Youth Avatar"
-                             onerror="this.src='https://ui-avatars.com/api/?name={{ item.pair.youth.full_name }}&background=9B59B6&color=fff'">
+                            alt="Youth Avatar"
+                            onerror="this.src='https://ui-avatars.com/api/?name={{ item.pair.youth.full_name }}&background=9B59B6&color=fff'">
                         <div class="user-info">
                             <div class="name">{{ item.pair.youth.full_name }}</div>
                             <div class="role">Youth Volunteer, {{ item.pair.youth.age }} years old</div>
@@ -116,7 +118,9 @@
                 <div class="connection-strength">
                     <div class="label">Connection Health</div>
                     <div class="strength-bar">
-                        <div class="fill {{ item.health }}" style="width: {% if item.health == 'good' %}100{% elif item.health == 'warning' %}50{% else %}20{% endif %}%;"></div>
+                        <div class="fill {{ item.health }}"
+                            style="width: {% if item.health == 'good' %}100{% elif item.health == 'warning' %}50{% else %}20{% endif %}%;">
+                        </div>
                     </div>
                 </div>
 
@@ -131,29 +135,36 @@
                         <div class="label">Paired Since</div>
                     </div>
                     <div class="pair-stat">
-                        <div class="value">{{ item.pair.last_interaction.strftime('%b %d') if item.pair.last_interaction else 'Never' }}</div>
+                        <div class="value">{{ item.pair.last_interaction.strftime('%b %d') if item.pair.last_interaction
+                            else 'Never' }}</div>
                         <div class="label">Last Active</div>
                     </div>
                 </div>
 
                 <!-- Actions -->
                 <div class="d-flex gap-2 mt-3">
-                    <a href="{{ url_for('admin.user_detail', user_id=item.pair.senior_id) }}" class="btn btn-sm btn-outline-primary flex-grow-1">
+                    <a href="{{ url_for('admin.user_detail', user_id=item.pair.senior_id) }}"
+                        class="btn btn-sm btn-outline-primary flex-grow-1">
                         <i class="fas fa-eye me-1"></i>Senior Profile
                     </a>
-                    <a href="{{ url_for('admin.user_detail', user_id=item.pair.youth_id) }}" class="btn btn-sm btn-outline-info flex-grow-1">
+                    <a href="{{ url_for('admin.user_detail', user_id=item.pair.youth_id) }}"
+                        class="btn btn-sm btn-outline-info flex-grow-1">
                         <i class="fas fa-eye me-1"></i>Youth Profile
                     </a>
-                    
+
                     {% if item.health != 'good' %}
-                    <form action="{{ url_for('admin.send_pair_reminder', pair_id=item.pair.id) }}" method="POST" class="d-inline">
+                    <form action="{{ url_for('admin.send_pair_reminder', pair_id=item.pair.id) }}" method="POST"
+                        class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-sm btn-warning">
                             <i class="fas fa-bell me-1"></i>Remind
                         </button>
                     </form>
                     {% endif %}
 
-                    <form action="{{ url_for('admin.delete_pair', pair_id=item.pair.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Permanently remove this pair?');">
+                    <form action="{{ url_for('admin.delete_pair', pair_id=item.pair.id) }}" method="POST"
+                        class="d-inline" onsubmit="return confirm('Permanently remove this pair?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-sm btn-outline-danger">
                             <i class="fas fa-trash"></i>
                         </button>

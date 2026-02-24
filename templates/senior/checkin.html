@@ -35,7 +35,7 @@
         background: white;
         padding: 2rem;
         border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         margin-bottom: 2rem;
         text-align: center;
     }
@@ -66,7 +66,7 @@
         background: white;
         padding: 1.5rem;
         border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         margin-bottom: 2rem;
     }
 
@@ -123,7 +123,7 @@
         opacity: 0;
     }
 
-    .mood-option input[type="radio"]:checked + label {
+    .mood-option input[type="radio"]:checked+label {
         border-color: var(--senior-primary);
         background: var(--senior-primary);
         color: white;
@@ -181,7 +181,7 @@
         background: white;
         border: 3px solid var(--senior-primary);
         cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .slider::-moz-range-thumb {
@@ -191,7 +191,7 @@
         background: white;
         border: 3px solid var(--senior-primary);
         cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .slider-value {
@@ -289,7 +289,7 @@
         background: white;
         padding: 2rem;
         border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         margin-bottom: 2rem;
     }
 
@@ -385,6 +385,7 @@
             <!-- Check-In Form -->
             <div class="checkin-form-card">
                 <form id="checkinForm" method="POST" action="{{ url_for('senior.checkin') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <!-- Question 1: Overall Mood -->
                     <div class="question-section">
                         <h3 class="question-title">
@@ -429,7 +430,8 @@
                                 <span>Low Energy</span>
                                 <span>High Energy</span>
                             </div>
-                            <input type="range" min="1" max="10" value="5" class="slider" id="energySlider" name="energy">
+                            <input type="range" min="1" max="10" value="5" class="slider" id="energySlider"
+                                name="energy">
                             <div class="slider-value">
                                 <span id="energyValue">5</span> / 10
                             </div>
@@ -483,7 +485,8 @@
                                 <span>Isolated</span>
                                 <span>Very Connected</span>
                             </div>
-                            <input type="range" min="1" max="10" value="5" class="slider" id="connectionSlider" name="connection">
+                            <input type="range" min="1" max="10" value="5" class="slider" id="connectionSlider"
+                                name="connection">
                             <div class="slider-value">
                                 <span id="connectionValue">5</span> / 10
                             </div>
@@ -571,7 +574,7 @@
 <script>
     // Mood selection
     document.querySelectorAll('.mood-option').forEach(option => {
-        option.addEventListener('click', function() {
+        option.addEventListener('click', function () {
             // Remove selection from all options
             document.querySelectorAll('.mood-option').forEach(opt => {
                 opt.classList.remove('selected');
@@ -590,7 +593,7 @@
     const energySlider = document.getElementById('energySlider');
     const energyValue = document.getElementById('energyValue');
 
-    energySlider.addEventListener('input', function() {
+    energySlider.addEventListener('input', function () {
         energyValue.textContent = this.value;
     });
 
@@ -598,12 +601,12 @@
     const connectionSlider = document.getElementById('connectionSlider');
     const connectionValue = document.getElementById('connectionValue');
 
-    connectionSlider.addEventListener('input', function() {
+    connectionSlider.addEventListener('input', function () {
         connectionValue.textContent = this.value;
     });
 
     // Form validation
-    document.getElementById('checkinForm').addEventListener('submit', function(e) {
+    document.getElementById('checkinForm').addEventListener('submit', function (e) {
         const mood = document.getElementById('moodInput').value;
 
         if (!mood) {

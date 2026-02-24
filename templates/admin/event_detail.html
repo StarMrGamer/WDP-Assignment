@@ -26,7 +26,7 @@
                     <h5 class="mb-0">Event Information</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Type:</strong> 
+                    <p><strong>Type:</strong>
                         {% if event.event_type == 'online' %}
                         <span class="badge bg-success"><i class="fas fa-video me-1"></i>Online</span>
                         {% else %}
@@ -36,7 +36,7 @@
                     <p><strong>Date:</strong> {{ event.date|format_date('%b %d, %Y at %I:%M %p') }}</p>
                     <p><strong>Location:</strong> {{ event.location or 'TBA' }}</p>
                     <p><strong>Capacity:</strong> {{ event.capacity or 'Unlimited' }}</p>
-                    <p><strong>Status:</strong> 
+                    <p><strong>Status:</strong>
                         {% if event.date > now %}
                         <span class="badge bg-primary">Upcoming</span>
                         {% else %}
@@ -46,7 +46,7 @@
                     <hr>
                     <h6>Description</h6>
                     <p class="text-muted">{{ event.description or 'No description provided.' }}</p>
-                    
+
                     {% if event.justification %}
                     <div class="alert alert-info mt-3">
                         <h6 class="alert-heading"><i class="fas fa-comment-alt me-2"></i>Justification</h6>
@@ -54,15 +54,20 @@
                     </div>
                     {% endif %}
                 </div>
-                
+
                 {% if event.status == 'pending' %}
                 <div class="card-footer bg-white">
                     <div class="d-grid gap-2">
                         <form action="{{ url_for('admin.approve_event', event_id=event.id) }}" method="POST">
-                            <button type="submit" class="btn btn-success w-100"><i class="fas fa-check me-2"></i>Approve Event</button>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-success w-100"><i class="fas fa-check me-2"></i>Approve
+                                Event</button>
                         </form>
-                        <form action="{{ url_for('admin.reject_event', event_id=event.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to reject this suggestion?');">
-                            <button type="submit" class="btn btn-outline-danger w-100"><i class="fas fa-times me-2"></i>Reject Event</button>
+                        <form action="{{ url_for('admin.reject_event', event_id=event.id) }}" method="POST"
+                            onsubmit="return confirm('Are you sure you want to reject this suggestion?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-danger w-100"><i
+                                    class="fas fa-times me-2"></i>Reject Event</button>
                         </form>
                     </div>
                 </div>
@@ -96,8 +101,9 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="{{ url_for('static', filename=participant.profile_picture|fix_pfp) }}" 
-                                                 class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
+                                            <img src="{{ url_for('static', filename=participant.profile_picture|fix_pfp) }}"
+                                                class="rounded-circle me-2" width="32" height="32"
+                                                style="object-fit: cover;">
                                             <div>
                                                 <div class="fw-bold">{{ participant.full_name }}</div>
                                                 <small class="text-muted">@{{ participant.username }}</small>
@@ -105,15 +111,16 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge {% if participant.role == 'senior' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                        <span
+                                            class="badge {% if participant.role == 'senior' %}bg-warning text-dark{% else %}bg-info{% endif %}">
                                             {{ participant.role|capitalize }}
                                         </span>
                                     </td>
                                     <td>{{ participant.email }}</td>
                                     <td>{{ participant.age }}</td>
                                     <td>
-                                        <a href="{{ url_for('admin.user_detail', user_id=participant.id) }}" 
-                                           class="btn btn-sm btn-outline-secondary" title="View Profile">
+                                        <a href="{{ url_for('admin.user_detail', user_id=participant.id) }}"
+                                            class="btn btn-sm btn-outline-secondary" title="View Profile">
                                             <i class="fas fa-user"></i>
                                         </a>
                                     </td>

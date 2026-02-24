@@ -10,7 +10,8 @@
             <h2>Report Details #{{ report.id }}</h2>
         </div>
         <div>
-            <span class="badge bg-{{ 'warning' if report.status == 'pending' else 'success' if report.status == 'resolved' else 'secondary' }} fs-5">
+            <span
+                class="badge bg-{{ 'warning' if report.status == 'pending' else 'success' if report.status == 'resolved' else 'secondary' }} fs-5">
                 {{ report.status|capitalize }}
             </span>
         </div>
@@ -27,7 +28,8 @@
                     <p><strong>Reason:</strong> <span class="text-danger">{{ report.reason }}</span></p>
                     <p><strong>Description:</strong> {{ report.description or 'No description provided.' }}</p>
                     <p><strong>Reported By:</strong> {{ report.reporter.full_name }} ({{ report.reporter.role }})</p>
-                    <p><strong>Reported User:</strong> {{ report.reported_user.full_name }} ({{ report.reported_user.role }})</p>
+                    <p><strong>Reported User:</strong> {{ report.reported_user.full_name }} ({{
+                        report.reported_user.role }})</p>
                     <p><strong>Date:</strong> {{ report.created_at|timeago }}</p>
                 </div>
             </div>
@@ -51,24 +53,26 @@
                 </div>
                 <div class="card-body">
                     <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="mb-3">
                             <label class="form-label">Admin Notes</label>
-                            <textarea name="admin_notes" class="form-control" rows="3">{{ report.admin_notes or '' }}</textarea>
+                            <textarea name="admin_notes" class="form-control"
+                                rows="3">{{ report.admin_notes or '' }}</textarea>
                         </div>
-                        
+
                         <div class="d-grid gap-2">
                             {% if report.status != 'resolved' %}
                             <button type="submit" name="action" value="resolve" class="btn btn-success">
                                 <i class="fas fa-check me-2"></i>Mark as Resolved
                             </button>
                             {% endif %}
-                            
+
                             {% if report.status != 'dismissed' %}
                             <button type="submit" name="action" value="dismiss" class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Dismiss Report
                             </button>
                             {% endif %}
-                            
+
                             {% if report.status != 'under_review' %}
                             <button type="submit" name="action" value="under_review" class="btn btn-warning">
                                 <i class="fas fa-search me-2"></i>Mark Under Review
@@ -76,13 +80,17 @@
                             {% endif %}
                         </div>
                     </form>
-                    
+
                     <hr>
-                    
+
                     <!-- User Moderation -->
                     <h6 class="text-danger mb-3">User Moderation</h6>
-                    <form action="{{ url_for('admin.toggle_user_status', user_id=report.reported_user.id) }}" method="POST" onsubmit="return confirm('Are you sure? This will prevent the user from logging in.');">
-                        <input type="hidden" name="reason" value="Account disabled due to report #{{ report.id }}: {{ report.reason }}">
+                    <form action="{{ url_for('admin.toggle_user_status', user_id=report.reported_user.id) }}"
+                        method="POST"
+                        onsubmit="return confirm('Are you sure? This will prevent the user from logging in.');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="reason"
+                            value="Account disabled due to report #{{ report.id }}: {{ report.reason }}">
                         {% if report.reported_user.is_active %}
                         <button type="submit" class="btn btn-outline-danger w-100">
                             <i class="fas fa-ban me-2"></i>Disable User Account
@@ -109,7 +117,8 @@
                 <div class="card-body">
                     {% if report.story.photo_url %}
                     <img src="{{ url_for('static', filename='images/uploads/' + report.story.photo_url) }}"
-                         class="img-fluid rounded mb-3 w-100" style="max-height:260px;object-fit:contain;background:#f0f0f0;">
+                        class="img-fluid rounded mb-3 w-100"
+                        style="max-height:260px;object-fit:contain;background:#f0f0f0;">
                     {% endif %}
                     <h5 class="fw-bold">{{ report.story.title }}</h5>
                     <span class="badge bg-secondary mb-2">{{ report.story.category }}</span>
@@ -121,7 +130,8 @@
                         {{ report.story.content }}
                     </div>
                     <form action="{{ url_for('admin.delete_story', story_id=report.story.id) }}" method="POST"
-                          class="mt-3" onsubmit="return confirm('Permanently delete this story?');">
+                        class="mt-3" onsubmit="return confirm('Permanently delete this story?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-outline-danger w-100">
                             <i class="fas fa-trash me-2"></i>Delete Story
                         </button>
@@ -145,7 +155,8 @@
                     </div>
                     {% if report.community_post.community %}
                     <p class="mt-2 mb-0 text-muted small">
-                        <i class="fas fa-users me-1"></i>Community: <strong>{{ report.community_post.community.name }}</strong>
+                        <i class="fas fa-users me-1"></i>Community: <strong>{{ report.community_post.community.name
+                            }}</strong>
                     </p>
                     {% endif %}
                 </div>
@@ -160,14 +171,15 @@
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush" style="max-height: 600px; overflow-y: auto;">
                         {% for msg in history %}
-                        <div class="list-group-item {{ 'bg-warning bg-opacity-10' if msg.id == report.message_id else '' }}">
+                        <div
+                            class="list-group-item {{ 'bg-warning bg-opacity-10' if msg.id == report.message_id else '' }}">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <strong>
                                         {% if msg.sender_id == report.reported_user_id %}
-                                            <span class="text-danger">{{ msg.sender.full_name }} (Reported)</span>
+                                        <span class="text-danger">{{ msg.sender.full_name }} (Reported)</span>
                                         {% else %}
-                                            <span class="text-primary">{{ msg.sender.full_name }}</span>
+                                        <span class="text-primary">{{ msg.sender.full_name }}</span>
                                         {% endif %}
                                     </strong>
                                     <small class="text-muted ms-2">{{ msg.created_at|timeago }}</small>
@@ -178,7 +190,8 @@
                             </div>
                             <p class="mb-1 mt-1">{{ msg.content }}</p>
                             {% if msg.is_flagged %}
-                            <div class="text-warning small"><i class="fas fa-exclamation-triangle"></i> Flagged by system</div>
+                            <div class="text-warning small"><i class="fas fa-exclamation-triangle"></i> Flagged by
+                                system</div>
                             {% endif %}
                         </div>
                         {% endfor %}

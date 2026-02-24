@@ -69,9 +69,11 @@
                 </div>
                 <div class="card-body">
                     <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Admin Notes / Response</label>
-                            <textarea name="admin_notes" class="form-control" rows="4" placeholder="Add notes or a response...">{{ ticket.admin_notes or '' }}</textarea>
+                            <textarea name="admin_notes" class="form-control" rows="4"
+                                placeholder="Add notes or a response...">{{ ticket.admin_notes or '' }}</textarea>
                         </div>
 
                         <div class="d-grid gap-2">
