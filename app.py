@@ -9,7 +9,7 @@ Description: Exposes create_app() and a module-level app instance for
 
 from flask import Flask, Blueprint
 from config import get_config
-from extensions import db, socketio
+from extensions import db, socketio, csrf
 from sqlalchemy import text
 import os
 
@@ -46,6 +46,8 @@ def create_app(config_name=None):
         config_class.init_app(app)
 
     # ── Extensions ────────────────────────────────────────────
+    csrf.init_app(app)
+
     ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*')
     if ALLOWED_ORIGINS != '*':
         ALLOWED_ORIGINS = ALLOWED_ORIGINS.split(',')

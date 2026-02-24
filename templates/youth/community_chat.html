@@ -22,6 +22,20 @@
                 <small class="text-muted">{{ community.member_count }} members</small>
             </div>
         </div>
+        <div class="dropdown ms-auto">
+            <button class="btn btn-white border rounded-pill shadow-sm dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-language me-2 text-primary"></i><span class="comm-lang-label">Translate</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                <li><h6 class="dropdown-header">Auto-Translate to:</h6></li>
+                <li><a class="dropdown-item comm-lang-option" href="javascript:void(0)" data-lang="none" onclick="setCommLanguage('none')">No Translation</a></li>
+                <li><hr class="dropdown-divider my-1"></li>
+                <li><a class="dropdown-item comm-lang-option" href="javascript:void(0)" data-lang="en" onclick="setCommLanguage('en')">English</a></li>
+                <li><a class="dropdown-item comm-lang-option" href="javascript:void(0)" data-lang="zh" onclick="setCommLanguage('zh')">Chinese (中文)</a></li>
+                <li><a class="dropdown-item comm-lang-option" href="javascript:void(0)" data-lang="ms" onclick="setCommLanguage('ms')">Malay (Melayu)</a></li>
+                <li><a class="dropdown-item comm-lang-option" href="javascript:void(0)" data-lang="ta" onclick="setCommLanguage('ta')">Tamil (தமிழ்)</a></li>
+            </ul>
+        </div>
     </div>
 
     <div class="row">
@@ -160,6 +174,15 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Translation loading overlay -->
+<div id="translation-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:2rem 2.5rem; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.25); min-width:220px;">
+        <i class="fas fa-circle-notch fa-spin text-primary" style="font-size:2.2rem;"></i>
+        <p class="mt-3 mb-1 fw-semibold">Translating...</p>
+        <small class="text-muted">Please wait</small>
     </div>
 </div>
 
@@ -428,5 +451,59 @@ socket.on('community_post_edited', function(data) {
         if (ts) ts.insertAdjacentHTML('afterend', '<span class="edited-label">(edited)</span>');
     }
 });
+
+// ── Translation ────────────────────────────────────────────────────────────
+const commLangNames = { none: 'Translate', en: 'English', zh: 'Chinese (中文)', ms: 'Malay (Melayu)', ta: 'Tamil (தமிழ்)' };
+
+async function setCommLanguage(lang) {
+    localStorage.setItem('commTranslationLanguage', lang);
+    const btn = document.querySelector('.comm-lang-label');
+    if (btn) btn.textContent = commLangNames[lang] || 'Translate';
+    document.querySelectorAll('.comm-lang-option').forEach(el => {
+        el.classList.toggle('active', el.dataset.lang === lang);
+    });
+    if (lang === 'none') {
+        document.querySelectorAll('[data-post-id] .translation-text').forEach(el => el.remove());
+        return;
+    }
+
+    const overlay = document.getElementById('translation-overlay');
+    if (overlay) overlay.style.display = 'flex';
+    try {
+        const res = await fetch(`/youth/api/communities/${communityId}/posts?lang=${lang}`);
+        const data = await res.json();
+        for (const p of data.posts) {
+            const wrapper = document.querySelector(`.message-wrapper[data-post-id="${p.id}"]`);
+            if (!wrapper) continue;
+            const contentEl = wrapper.querySelector('.content-text');
+            if (!contentEl) continue;
+            // Remove existing translation div
+            const next = contentEl.nextElementSibling;
+            if (next && next.classList.contains('translation-text')) {
+                next.remove();
+            }
+            if (p.translated_content) {
+                const transDiv = document.createElement('div');
+                transDiv.className = 'translation-text';
+                transDiv.innerHTML = '<i class="fas fa-language"></i> ' + escapeHtml(p.translated_content);
+                contentEl.insertAdjacentElement('afterend', transDiv);
+            }
+        }
+    } catch (e) {
+        console.error('Community translation failed:', e);
+    } finally {
+        if (overlay) overlay.style.display = 'none';
+    }
+}
+
+(function() {
+    const saved = localStorage.getItem('commTranslationLanguage') || 'none';
+    const btn = document.querySelector('.comm-lang-label');
+    if (btn && saved !== 'none') btn.textContent = commLangNames[saved] || saved;
+    document.querySelectorAll('.comm-lang-option').forEach(el => {
+        el.classList.toggle('active', el.dataset.lang === saved);
+    });
+    if (saved !== 'none') setCommLanguage(saved);
+})();
 </script>
 {% endblock %}

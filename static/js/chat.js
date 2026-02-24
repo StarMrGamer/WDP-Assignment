@@ -22,14 +22,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const postEndpoint = `/${role}/messages`;
     
     let lastMessageCount = 0;
-    let lastLang = localStorage.getItem('translationLanguage') || 'en';
+    let lastLang = localStorage.getItem('translationLanguage') || 'none';
     let forceRender = false;
 
     /**
      * Fetch messages from the server and update the UI
      */
     function fetchMessages() {
-        const lang = localStorage.getItem('translationLanguage') || 'en';
+        const lang = localStorage.getItem('translationLanguage') || 'none';
         const url = apiEndpoint + '?lang=' + encodeURIComponent(lang);
 
         // Detect language change
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
             lastLang = lang;
         }
 
-        fetch(url)
+        return fetch(url)
             .then(response => response.json())
             .then(data => {
                 const messages = data.messages;
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Expose fetchMessages so the language switcher can trigger a refresh
     window.chatFetchMessages = function() {
         lastMessageCount = 0; // Force re-render
-        fetchMessages();
+        return fetchMessages();
     };
 
     // Initial fetch

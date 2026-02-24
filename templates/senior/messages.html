@@ -36,6 +36,8 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
                             <li><h6 class="dropdown-header">Auto-Translate to:</h6></li>
+                            <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="none" onclick="setLanguage('none')">No Translation</a></li>
+                            <li><hr class="dropdown-divider my-1"></li>
                             <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="en" onclick="setLanguage('en')">English</a></li>
                             <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="zh" onclick="setLanguage('zh')">Chinese (中文)</a></li>
                             <li><a class="dropdown-item lang-option" href="javascript:void(0)" data-lang="ms" onclick="setLanguage('ms')">Malay (Melayu)</a></li>
@@ -59,11 +61,6 @@
 
                                 <div class="content-text">{{ message.content }}</div>
 
-                                {% if message.translated_content and message.original_language != 'en' %}
-                                <div class="translation-text">
-                                    <i class="fas fa-language"></i> {{ message.translated_content }}
-                                </div>
-                                {% endif %}
                                 <div class="d-flex justify-content-end align-items-center mt-1">
                                     <div class="time-stamp mb-0">{{ message.created_at|format_date('%I:%M %p') }}</div>
                                     {% if message.sender_id != session.user_id %}
@@ -160,6 +157,14 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Translation loading overlay -->
+<div id="translation-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:2rem 2.5rem; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.25); min-width:220px;">
+        <i class="fas fa-circle-notch fa-spin text-primary" style="font-size:2.2rem;"></i>
+        <p class="mt-3 mb-1 fw-semibold">Translating...</p>
+        <small class="text-muted">Please wait</small>
+    </div>
+</div>
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 <script src="{{ url_for('static', filename='js/voice-input.js') }}"></script>
 <script>
@@ -188,7 +193,7 @@
         textarea.style.height = (textarea.scrollHeight) + 'px';
     }
 
-    const langNames = { en: 'English', zh: 'Chinese (中文)', ms: 'Malay (Melayu)', ta: 'Tamil (தமிழ்)' };
+    const langNames = { none: 'Translate', en: 'English', zh: 'Chinese (中文)', ms: 'Malay (Melayu)', ta: 'Tamil (தமிழ்)' };
 
     function setLanguage(lang) {
         localStorage.setItem('translationLanguage', lang);
@@ -199,15 +204,20 @@
         document.querySelectorAll('.lang-option').forEach(el => {
             el.classList.toggle('active', el.dataset.lang === lang);
         });
-        // Trigger immediate refresh of messages
-        if (typeof window.chatFetchMessages === 'function') window.chatFetchMessages();
+        // Show overlay then trigger refresh
+        if (typeof window.chatFetchMessages === 'function') {
+            const overlay = document.getElementById('translation-overlay');
+            if (overlay) overlay.style.display = 'flex';
+            const p = window.chatFetchMessages();
+            if (p && p.finally) p.finally(() => { if (overlay) overlay.style.display = 'none'; });
+        }
     }
 
     // On load, highlight the currently selected language
     (function() {
-        const current = localStorage.getItem('translationLanguage') || 'en';
+        const current = localStorage.getItem('translationLanguage') || 'none';
         const btn = document.querySelector('.dropdown-toggle .lang-label');
-        if (btn && current !== 'en') btn.textContent = langNames[current] || 'Translate';
+        if (btn && current !== 'none') btn.textContent = langNames[current] || 'Translate';
         document.querySelectorAll('.lang-option').forEach(el => {
             el.classList.toggle('active', el.dataset.lang === current);
         });

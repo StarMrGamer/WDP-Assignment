@@ -4,6 +4,7 @@ import html
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from config import Config
+from deep_translator import GoogleTranslator
 
 
 # Map app language codes to deep-translator language codes.
@@ -114,6 +115,36 @@ def check_unkind_words(content, unkind_words=None):
                 return True
 
     return False
+
+
+def translate_text(text, target_lang):
+    """
+    Translate text to the target language using GoogleTranslator.
+
+    For 'en': translates non-English text to English. Returns None if the
+    source is already English (Google returns the same string).
+    For other languages: always translates.
+
+    Args:
+        text (str): The text to translate.
+        target_lang (str): Target language code ('en', 'zh', 'ms', 'ta').
+
+    Returns:
+        str: Translated text, or None if no translation is needed / fails.
+    """
+    if not text or target_lang == 'none':
+        return None
+    dt_lang = LANG_MAP.get(target_lang, target_lang)
+    try:
+        translated = GoogleTranslator(source='auto', target=dt_lang).translate(text)
+        # If translating to English and Google returns the same text, the source
+        # was already English — no translation box needed.
+        if target_lang == 'en' and translated and translated.strip() == text.strip():
+            return None
+        return translated
+    except Exception as e:
+        print(f"[TRANSLATE] ERROR: {type(e).__name__}: {e}")
+        return None
 
 
 def save_uploaded_file(file, upload_folder, prefix='', allowed_extensions=None):

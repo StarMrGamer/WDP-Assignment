@@ -13,8 +13,9 @@ from models import db, User, Story, Message, Event, Community, Pair, EventPartic
 from forms import StoryForm, MessageForm
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
-from utils import filter_text, check_unkind_words, save_uploaded_file, sanitize_for_display, LANG_MAP
+from utils import filter_text, check_unkind_words, save_uploaded_file, sanitize_for_display, LANG_MAP, translate_text
 from blueprints.decorators import senior_required as login_required
+from extensions import csrf
 import os
 from deep_translator import GoogleTranslator
 
@@ -298,33 +299,42 @@ def get_messages_json():
     messages.reverse()  # Restore chronological order
 
     # Check if user requested translation to a specific language
-    target_lang = request.args.get('lang', 'en')
-    supported = current_app.config.get('SUPPORTED_LANGUAGES', {})
-    if target_lang not in supported:
-        target_lang = 'en'
+    target_lang = request.args.get('lang', 'none')
+    if target_lang != 'none':
+        supported = current_app.config.get('SUPPORTED_LANGUAGES', {})
+        if target_lang not in supported:
+            target_lang = 'none'
 
     # Convert message objects to a list of dictionaries (JSON-serializable)
     messages_data = []
     for msg in messages:
         translated = None
-        if target_lang != 'en' and msg.content:
-            # Use cached translation if available for this language
-            if msg.translated_content and msg.original_language == target_lang:
-                translated = msg.translated_content
-                print(f"[TRANSLATE] Using cached translation for msg {msg.id}: '{msg.content[:30]}' -> '{translated[:30]}'")
+        if msg.content and target_lang != 'none':
+            if target_lang != 'en':
+                # Translate to the chosen non-English language
+                if msg.translated_content and msg.original_language == target_lang:
+                    translated = msg.translated_content
+                    print(f"[TRANSLATE] Using cached translation for msg {msg.id}: '{msg.content[:30]}' -> '{translated[:30]}'")
+                else:
+                    try:
+                        dt_lang = LANG_MAP.get(target_lang, target_lang)
+                        print(f"[TRANSLATE] Translating msg {msg.id}: '{msg.content[:50]}' to '{dt_lang}'...")
+                        translated = GoogleTranslator(source='auto', target=dt_lang).translate(msg.content)
+                        print(f"[TRANSLATE] Success: '{translated[:50]}'")
+                        msg.translated_content = translated
+                        msg.original_language = target_lang
+                        db.session.commit()
+                    except Exception as e:
+                        print(f"[TRANSLATE] ERROR translating msg {msg.id}: {type(e).__name__}: {e}")
+                        translated = None
             else:
+                # target_lang == 'en': only show translation for non-English messages
                 try:
-                    dt_lang = LANG_MAP.get(target_lang, target_lang)
-                    print(f"[TRANSLATE] Translating msg {msg.id}: '{msg.content[:50]}' to '{dt_lang}'...")
-                    translated = GoogleTranslator(source='auto', target=dt_lang).translate(msg.content)
-                    print(f"[TRANSLATE] Success: '{translated[:50]}'")
-                    # Cache the translation
-                    msg.translated_content = translated
-                    msg.original_language = target_lang
-                    db.session.commit()
-                    print(f"[TRANSLATE] Cached translation for msg {msg.id}")
+                    result = GoogleTranslator(source='auto', target='en').translate(msg.content)
+                    if result and result.strip() != msg.content.strip():
+                        translated = result
                 except Exception as e:
-                    print(f"[TRANSLATE] ERROR translating msg {msg.id}: {type(e).__name__}: {e}")
+                    print(f"[TRANSLATE] ERROR translating msg {msg.id} to en: {type(e).__name__}: {e}")
                     translated = None
 
         messages_data.append({
@@ -340,7 +350,56 @@ def get_messages_json():
     return {'messages': messages_data}
 
 
+@senior_bp.route('/api/stories/feed')
+@login_required
+def get_stories_feed_json():
+    """API endpoint to fetch story feed with optional translation for the dashboard."""
+    target_lang = request.args.get('lang', 'none')
+    if target_lang != 'none' and target_lang not in LANG_MAP:
+        target_lang = 'none'
+
+    category_filter = request.args.get('category', 'all')
+    role_filter = request.args.get('role', 'all')
+
+    stories_q = Story.query.order_by(Story.created_at.desc())
+    if category_filter != 'all':
+        stories_q = stories_q.filter_by(category=category_filter)
+    if role_filter != 'all':
+        stories_q = stories_q.join(Story.user).filter(User.role == role_filter)
+
+    result = []
+    for story in stories_q.all():
+        result.append({
+            'id': story.id,
+            'translated_title': translate_text(story.title, target_lang),
+            'translated_content': translate_text(story.content[:200], target_lang),
+        })
+
+    return {'stories': result}
+
+
+@senior_bp.route('/api/communities/<int:community_id>/posts')
+@login_required
+def get_community_posts_json(community_id):
+    """API endpoint to fetch community posts with optional translation."""
+    target_lang = request.args.get('lang', 'none')
+    if target_lang != 'none' and target_lang not in LANG_MAP:
+        target_lang = 'none'
+
+    posts = CommunityPost.query.filter_by(community_id=community_id).order_by(CommunityPost.created_at.asc()).all()
+
+    result = []
+    for post in posts:
+        result.append({
+            'id': post.id,
+            'translated_content': translate_text(post.content, target_lang) if post.content else None,
+        })
+
+    return {'posts': result}
+
+
 @senior_bp.route('/api/messages/<int:message_id>/report', methods=['POST'])
+@csrf.exempt
 @login_required
 def report_message(message_id):
     """API to report a message."""
@@ -399,6 +458,7 @@ def report_community_post(post_id):
 
 
 @senior_bp.route('/api/stories/<int:story_id>/report', methods=['POST'])
+@csrf.exempt
 @login_required
 def report_story(story_id):
     """API to report a story."""
@@ -1157,6 +1217,7 @@ def save_accessibility_settings():
 
 # ==================== STORY INTERACTIONS API ====================
 @senior_bp.route('/api/stories/<int:story_id>/react', methods=['POST'])
+@csrf.exempt
 @login_required
 def api_react_story(story_id):
     """API endpoint to handle story reactions for seniors."""
@@ -1199,6 +1260,7 @@ def api_react_story(story_id):
 
 
 @senior_bp.route('/api/stories/<int:story_id>/comment', methods=['POST'])
+@csrf.exempt
 @login_required
 def api_comment_story(story_id):
     """API endpoint to add a comment to a story for seniors."""

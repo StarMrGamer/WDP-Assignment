@@ -42,7 +42,7 @@ class Config:
     MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'gencon@ctrlcurryrice.online')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'nwbr wpuf jclm qwkr')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'GenCon SG <gencon@ctrlcurryrice.online>')
 
     @staticmethod

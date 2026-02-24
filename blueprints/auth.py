@@ -153,7 +153,6 @@ def register():
         if form.profile_picture.data:
             file = form.profile_picture.data
             if file:
-                from flask import current_app
                 filename = secure_filename(file.filename)
                 ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
                 

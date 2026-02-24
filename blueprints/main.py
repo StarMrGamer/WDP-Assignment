@@ -7,7 +7,7 @@ Extracted from app.py so that app.py stays thin and focused on app creation.
 
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash
 from datetime import datetime, timedelta
-from extensions import db
+from extensions import db, csrf
 from forms import LoginForm, RegistrationForm
 
 main_bp = Blueprint('main', __name__)
@@ -222,6 +222,7 @@ def get_notifications():
 
 
 @main_bp.route('/api/notifications/<int:notification_id>/dismiss', methods=['POST'])
+@csrf.exempt
 def dismiss_notification(notification_id):
     if 'user_id' not in session:
         return {'success': False}, 403
@@ -238,6 +239,7 @@ def dismiss_notification(notification_id):
 
 
 @main_bp.route('/api/notifications/mark-read', methods=['POST'])
+@csrf.exempt
 def mark_all_notifications_read():
     if 'user_id' not in session:
         return {'success': False}, 403
