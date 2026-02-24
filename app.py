@@ -35,7 +35,7 @@ def create_app(config_name=None):
                      Defaults to FLASK_ENV env var, then 'development'.
     """
     if config_name is None:
-        config_name = os.environ.get('FLASK_ENV', 'production')
+        config_name = os.environ.get('FLASK_ENV', 'development')
 
     app = Flask(__name__)
 
@@ -169,7 +169,7 @@ app = create_app()
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-    config_name = os.environ.get('FLASK_ENV', 'production')
+    config_name = os.environ.get('FLASK_ENV', 'development')
     port = int(os.environ.get('PORT', 5001))
     print("=" * 60)
     print("Starting GenCon SG Application")
