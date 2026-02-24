@@ -29,7 +29,7 @@
                     </div>
 
                     <!-- Title -->
-                    <h2 class="h3 fw-bold mb-3">{{ story.title }}</h2>
+                    <h2 class="h3 fw-bold mb-3" id="storyTitle">{{ story.title }}</h2>
 
                     <!-- Image/Video -->
                     {% if story.photo_url %}
@@ -43,7 +43,7 @@
                     {% endif %}
 
                     <!-- Content -->
-                    <div class="card-text mb-4" style="white-space: pre-line;">{{ story.content }}</div>
+                    <div class="card-text mb-4" id="storyContent" style="white-space: pre-line;">{{ story.content }}</div>
 
                     <!-- Interactions -->
                     <div class="d-flex gap-2 mb-4">
@@ -53,6 +53,11 @@
                         </button>
                         <button class="btn btn-outline-primary flex-grow-1" onclick="document.getElementById('commentInput').focus()">
                             <i class="far fa-comment me-2"></i>Comment
+                        </button>
+                        <button class="btn btn-outline-secondary px-3 tts-btn" 
+                                onclick="toggleSpeak(this, document.getElementById('storyTitle').innerText + '. ' + document.getElementById('storyContent').innerText)"
+                                title="Read story aloud">
+                            <i class="fas fa-volume-up"></i>
                         </button>
                         {% if story.user_id != session.user_id %}
                         <button class="btn btn-outline-danger" onclick="document.getElementById('reportModal').style.display='flex'" title="Report Story">
@@ -126,17 +131,12 @@
     </div>
 </div>
 
+<script src="{{ url_for('static', filename='js/tts.js') }}"></script>
 <script>
 async function reactToStory(storyId, type) {
     try {
-        const response = await fetch(`/youth/api/stories/${storyId}/react`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({reaction_type: type})
-        });
-        if (response.ok) {
-            location.reload();
-        }
+        await postData(`/youth/api/stories/${storyId}/react`, {reaction_type: type});
+        location.reload();
     } catch (error) {
         console.error('Error:', error);
     }
@@ -146,14 +146,8 @@ async function postComment(event, storyId) {
     event.preventDefault();
     const input = document.getElementById('commentInput');
     try {
-        const response = await fetch(`/youth/api/stories/${storyId}/comment`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({content: input.value})
-        });
-        if (response.ok) {
-            location.reload();
-        }
+        await postData(`/youth/api/stories/${storyId}/comment`, {content: input.value});
+        location.reload();
     } catch (error) {
         console.error('Error:', error);
     }
@@ -164,18 +158,9 @@ async function submitStoryReport(storyId) {
     const description = document.getElementById('reportDescription').value;
     if (!reason) { alert('Please select a reason.'); return; }
     try {
-        const res = await fetch(`/youth/api/stories/${storyId}/report`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({reason, description})
-        });
-        const data = await res.json();
+        await postData(`/youth/api/stories/${storyId}/report`, {reason, description});
         document.getElementById('reportModal').style.display = 'none';
-        if (res.ok) {
-            showToast('Report submitted. Thank you.', 'success');
-        } else {
-            showToast(data.message || 'Failed to submit report.', 'danger');
-        }
+        showToast('Report submitted. Thank you.', 'success');
     } catch (e) {
         showToast('Error submitting report.', 'danger');
     }

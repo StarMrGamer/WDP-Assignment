@@ -1,10 +1,16 @@
 import re
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, BooleanField, IntegerField, TextAreaField, SelectField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, IntegerField, TextAreaField, SelectField, SubmitField, DateField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, NumberRange, Optional
 from models import User, RegistrationCode
+from datetime import datetime
 
+def calculate_age(dob):
+    if not dob:
+        return 0
+    today = datetime.utcnow().date()
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
 def validate_password_strength(form, field):
     """
@@ -32,7 +38,7 @@ class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     phone = StringField('Phone', validators=[DataRequired()])
-    age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=13, max=120)])
+    dob = DateField('Date of Birth', validators=[DataRequired()], format='%Y-%m-%d')
     role = SelectField('Role', choices=[('senior', 'Senior'), ('youth', 'Youth')], validators=[DataRequired()])
     registration_code = StringField('Registration Code', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired(), validate_password_strength])
@@ -55,12 +61,13 @@ class RegistrationForm(FlaskForm):
         if not code:
             raise ValidationError('Invalid or already used registration code.')
 
-    def validate_age(self, age):
-        if self.role.data == 'senior' and age.data < 60:
-            raise ValidationError('Seniors must be 60 years or older.')
-        if self.role.data == 'youth' and age.data < 13:
+    def validate_dob(self, dob):
+        age = calculate_age(dob.data)
+        if self.role.data == 'senior' and age < 60:
+            raise ValidationError('Seniors must be 60 years or older (based on Date of Birth).')
+        if self.role.data == 'youth' and age < 13:
             raise ValidationError('Youth volunteers must be 13 years or older.')
-        if self.role.data == 'youth' and age.data >= 60:
+        if self.role.data == 'youth' and age >= 60:
             raise ValidationError('If you are 60 or older, please register as a Senior.')
 
     def validate_phone(self, phone):
@@ -73,7 +80,7 @@ class GoogleCompleteForm(FlaskForm):
     """Form for completing registration after Google Sign-In."""
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     phone = StringField('Phone', validators=[DataRequired()])
-    age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=13, max=120)])
+    dob = DateField('Date of Birth', validators=[DataRequired()], format='%Y-%m-%d')
     registration_code = StringField('Registration Code', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired(), validate_password_strength])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
@@ -111,7 +118,7 @@ class ProfileForm(FlaskForm):
     phone = StringField('Phone', validators=[DataRequired()])
     school = StringField('School')
     bio = TextAreaField('Bio')
-    age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=13, max=120)])
+    dob = DateField('Date of Birth', validators=[DataRequired()], format='%Y-%m-%d')
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')])
     submit = SubmitField('Update Profile')
 

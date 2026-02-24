@@ -196,9 +196,16 @@
                                 <span id="comment-count-{{ story.id }}">{{ story.comments.count() }}</span>
                             </button>
                         </div>
-                        <a href="{{ url_for('youth.story_detail', story_id=story.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.8rem;">
-                            Read More
-                        </a>
+                        <div class="d-flex gap-2 align-items-center">
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 tts-btn" 
+                                    onclick="toggleSpeak(this, document.getElementById('story-title-{{ story.id }}').innerText + '. ' + document.getElementById('story-content-{{ story.id }}').innerText)"
+                                    title="Read story aloud">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                            <a href="{{ url_for('youth.story_detail', story_id=story.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.8rem;">
+                                Read More
+                            </a>
+                        </div>
                     </div>
                     <div id="comment-box-{{ story.id }}" class="px-3 pb-2" style="display:none;">
                         <div class="input-group input-group-sm">
@@ -234,7 +241,7 @@
                     <div class="card-body text-center">
                         {{ avatar(buddy, 64, 'mb-2 mx-auto') }}
                         <h6 class="mb-0 fw-bold">{{ buddy.full_name }}</h6>
-                        <small class="text-muted">Age {{ buddy.age }}</small>
+                        <small class="text-muted">Age {{ buddy.age if buddy.age is not none else 'N/A' }}</small>
                         {% if buddy.interests %}
                         <div class="mt-2">
                             {% for interest in buddy.interests[:3] %}
@@ -418,6 +425,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/tts.js') }}"></script>
 <script>
 const storyLangNames = { en: 'Translate', zh: 'Chinese (中文)', ms: 'Malay (Melayu)', ta: 'Tamil (தமிழ்)' };
 const storyCategory = {{ current_category | tojson }};
@@ -480,13 +488,8 @@ async function toggleLike(storyId, btn) {
     if (btn.disabled) return;
     btn.disabled = true;
     try {
-        const res = await fetch(`/youth/api/stories/${storyId}/react`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({reaction_type: 'heart'})
-        });
-        if (!res.ok) return;
-        const data = await res.json();
+        const data = await postData(`/youth/api/stories/${storyId}/react`, {reaction_type: 'heart'});
+        if (typeof data === 'string') return;
 
         const icon = document.getElementById(`like-icon-${storyId}`);
         const count = document.getElementById(`like-count-${storyId}`);
@@ -515,12 +518,8 @@ async function postComment(storyId) {
     const content = input.value.trim();
     if (!content) return;
     try {
-        const res = await fetch(`/youth/api/stories/${storyId}/comment`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({content})
-        });
-        if (res.ok) {
+        const data = await postData(`/youth/api/stories/${storyId}/comment`, {content});
+        if (data && (data.success || typeof data === 'string')) {
             input.value = '';
             document.getElementById(`comment-box-${storyId}`).style.display = 'none';
             const count = document.getElementById(`comment-count-${storyId}`);

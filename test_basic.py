@@ -2,6 +2,10 @@ import unittest
 from app import app, db
 from models import User, RegistrationCode
 from flask import session
+from datetime import date, datetime
+
+def dob_from_age(age):
+    return date(datetime.utcnow().year - age, 1, 1)
 
 class GenConTestCase(unittest.TestCase):
     def setUp(self):
@@ -12,17 +16,17 @@ class GenConTestCase(unittest.TestCase):
         with app.app_context():
             db.create_all()
             # Create a test admin
-            admin = User(username='admin', email='admin@test.com', full_name='Admin', age=30, role='admin')
+            admin = User(username='admin', email='admin@test.com', full_name='Admin', dob=dob_from_age(30), role='admin')
             admin.set_password('password')
             db.session.add(admin)
             
             # Create a test senior
-            senior = User(username='senior', email='senior@test.com', full_name='Senior', age=70, role='senior')
+            senior = User(username='senior', email='senior@test.com', full_name='Senior', dob=dob_from_age(70), role='senior')
             senior.set_password('password')
             db.session.add(senior)
             
             # Create a test youth
-            youth = User(username='youth', email='youth@test.com', full_name='Youth', age=20, role='youth')
+            youth = User(username='youth', email='youth@test.com', full_name='Youth', dob=dob_from_age(20), role='youth')
             youth.set_password('password')
             db.session.add(youth)
             

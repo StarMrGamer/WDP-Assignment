@@ -13,6 +13,10 @@ import pytest
 from app import create_app
 from extensions import db as _db
 from models import User, Streak
+from datetime import date, datetime
+
+def dob_from_age(age):
+    return date(datetime.utcnow().year - age, 1, 1)
 
 
 def _make_user(username, email, full_name, age, role, password="TestPass1"):
@@ -21,7 +25,7 @@ def _make_user(username, email, full_name, age, role, password="TestPass1"):
         username=username,
         email=email,
         full_name=full_name,
-        age=age,
+        dob=dob_from_age(age),
         role=role,
     )
     user.set_password(password)

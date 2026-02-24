@@ -130,7 +130,16 @@ function loadAccessibilityPreferences() {
 async function loadNotifications() {
     try {
         // Fetch notifications from backend
-        const response = await fetch('/api/notifications');
+        const response = await fetch('/api/notifications', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        
+        const contentType = response.headers.get("content-type");
+        if (!contentType || contentType.indexOf("application/json") === -1) {
+            console.warn('Notifications API did not return JSON');
+            return;
+        }
+
         const data = await response.json();
 
         // Update badge count
@@ -200,7 +209,16 @@ async function dismissNotification(notificationId) {
  */
 async function loadStreak() {
     try {
-        const response = await fetch('/api/streak');
+        const response = await fetch('/api/streak', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || contentType.indexOf("application/json") === -1) {
+            console.warn('Streak API did not return JSON');
+            return;
+        }
+
         const data = await response.json();
 
         const streakElement = document.getElementById('streakCount');
@@ -444,12 +462,30 @@ function updatePasswordStrength(password, indicatorId) {
 }
 
 /**
- * Validate age based on user role
- * @param {number} age - Age to validate
+ * Calculate age from date of birth string (YYYY-MM-DD)
+ * @param {string} dobString - Date of birth
+ * @returns {number} - Calculated age
+ */
+function calculateAge(dobString) {
+    if (!dobString) return 0;
+    const today = new Date();
+    const birthDate = new Date(dobString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
+/**
+ * Validate DOB based on user role
+ * @param {string} dob - DOB to validate (YYYY-MM-DD)
  * @param {string} role - 'senior' or 'youth'
  * @returns {object} - {valid: boolean, message: string}
  */
-function validateAge(age, role) {
+function validateDob(dob, role) {
+    const age = calculateAge(dob);
     if (role === 'senior' && age < 60) {
         return { valid: false, message: 'Seniors must be 60 years or older' };
     }
@@ -511,19 +547,31 @@ function showConfirmModal(title, message, onConfirm) {
  */
 async function postData(url, data) {
     try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const headers = {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        };
+        if (csrfToken) {
+            headers['X-CSRFToken'] = csrfToken;
+        }
+
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: headers,
             body: JSON.stringify(data)
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            return await response.json();
+        } else {
+            const text = await response.text();
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return text;
         }
-
-        return await response.json();
     } catch (error) {
         console.error('POST request failed:', error);
         throw error;
@@ -537,13 +585,22 @@ async function postData(url, data) {
  */
 async function getData(url) {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            return await response.json();
+        } else {
+            const text = await response.text();
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return text;
         }
-
-        return await response.json();
     } catch (error) {
         console.error('GET request failed:', error);
         throw error;
@@ -792,7 +849,8 @@ window.showToast = showToast;
 window.showConfirmModal = showConfirmModal;
 window.validateEmail = validateEmail;
 window.validatePassword = validatePassword;
-window.validateAge = validateAge;
+window.validateDob = validateDob;
+window.calculateAge = calculateAge;
 window.updatePasswordStrength = updatePasswordStrength;
 window.previewImage = previewImage;
 window.formatTimeAgo = formatTimeAgo;
@@ -856,3 +914,4 @@ window.submitReport = async function() {
         alert('An error occurred while submitting the report');
     }
 };
+`n/**`n * Toggle password visibility`n * @param {string} inputId - ID of the password input field`n * @param {string} iconId - ID of the eye icon element`n */`nfunction togglePassword(inputId, iconId) {`n    const passwordField = document.getElementById(inputId);`n    const toggleIcon = document.getElementById(iconId);`n`n    if (passwordField.type === 'password') {`n        passwordField.type = 'text';`n        toggleIcon.classList.remove('fa-eye');`n        toggleIcon.classList.add('fa-eye-slash');`n    } else {`n        passwordField.type = 'password';`n        toggleIcon.classList.remove('fa-eye-slash');`n        toggleIcon.classList.add('fa-eye');`n    }`n}`nwindow.togglePassword = togglePassword;

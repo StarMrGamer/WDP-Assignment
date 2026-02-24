@@ -58,7 +58,7 @@
                 <div class="card-body p-4">
                     <div class="mb-4">
                         <label class="text-muted d-block mb-1">Age</label>
-                        <p class="fs-4 fw-bold">{{ profile_user.age }} years old</p>
+                        <p class="fs-4 fw-bold">{{ profile_user.age if profile_user.age is not none else 'N/A' }} years old</p>
                     </div>
                     
                     <div class="mb-4">
@@ -97,10 +97,17 @@
                 <div class="list-group list-group-flush">
                     {% for story in recent_stories %}
                     <div class="list-group-item p-4">
-                        <h4 class="mb-2 fw-bold">{{ story.title }}</h4>
-                        <p class="mb-2 text-muted">{{ story.content[:150] }}...</p>
+                        <h4 class="mb-2 fw-bold" id="story-title-{{ story.id }}">{{ story.title }}</h4>
+                        <p class="mb-2 text-muted" id="story-content-{{ story.id }}">{{ story.content[:150] }}...</p>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-primary bg-opacity-10 text-primary">{{ story.category }}</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary bg-opacity-10 text-primary">{{ story.category }}</span>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 tts-btn" 
+                                        onclick="toggleSpeak(this, document.getElementById('story-title-{{ story.id }}').innerText + '. ' + document.getElementById('story-content-{{ story.id }}').innerText)"
+                                        title="Read excerpt">
+                                    <i class="fas fa-volume-up" style="font-size: 0.8rem;"></i>
+                                </button>
+                            </div>
                             <small class="text-muted">{{ story.created_at|timeago }}</small>
                         </div>
                     </div>
@@ -111,4 +118,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %}`n{% block extra_js %}`n<script src=\"{{ url_for('static', filename='js/tts.js') }}\"></script>`n{% endblock %}

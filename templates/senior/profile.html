@@ -188,6 +188,25 @@
         outline: none;
     }
 
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6C757D;
+        transition: color 0.3s ease;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        color: var(--senior-primary);
+    }
+
     .btn-save {
         padding: 0.875rem 2.5rem;
         background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
@@ -453,8 +472,8 @@
                             <span>{{ user.sent_messages.count() }} messages</span>
                         </div>
                         <div class="profile-stat-item">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Member since {{ user.created_at.strftime('%b %Y') }}</span>
+                            <i class="fas fa-birthday-cake"></i>
+                            <span>{{ user.age }} years old</span>
                         </div>
                     </div>
                 </div>
@@ -528,10 +547,10 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            {{ form.age.label(class="form-label") }}
-                            {{ form.age(class="form-control", min="60") }}
-                            {% if form.age.errors %}
-                                <div class="text-danger small mt-1">{{ form.age.errors[0] }}</div>
+                            {{ form.dob.label(class="form-label") }}
+                            {{ form.dob(class="form-control", type="date") }}
+                            {% if form.dob.errors %}
+                                <div class="text-danger small mt-1">{{ form.dob.errors[0] }}</div>
                             {% endif %}
                         </div>
                     </div>
@@ -605,19 +624,28 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Current Password</label>
-                            <input type="password" class="form-control" id="currentPassword" required>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-control" id="currentPassword" required>
+                                <i class="fas fa-eye password-toggle" id="toggleCurrent" onclick="togglePassword('currentPassword', 'toggleCurrent')"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">New Password</label>
-                            <input type="password" class="form-control" id="newPassword" required>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-control" id="newPassword" required>
+                                <i class="fas fa-eye password-toggle" id="toggleNew" onclick="togglePassword('newPassword', 'toggleNew')"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="confirmPassword" required>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-control" id="confirmPassword" required>
+                                <i class="fas fa-eye password-toggle" id="toggleConfirm" onclick="togglePassword('confirmPassword', 'toggleConfirm')"></i>
+                            </div>
                         </div>
                     </div>
                 </div>

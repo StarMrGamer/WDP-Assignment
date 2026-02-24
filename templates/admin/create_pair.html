@@ -177,7 +177,7 @@
                             onerror="this.src='https://ui-avatars.com/api/?name={{ senior.full_name }}&background=E67E22&color=fff'">
                         <div class="user-info">
                             <div class="user-name">{{ senior.full_name }}</div>
-                            <div class="user-meta">{{ senior.age }} years old | {{ senior.email }}</div>
+                            <div class="user-meta">{{ senior.age if senior.age is not none else 'N/A' }} years old | {{ senior.email }}</div>
                         </div>
                         <i class="fas fa-check-circle text-primary d-none check-icon"></i>
                     </label>
@@ -208,7 +208,7 @@
                             onerror="this.src='https://ui-avatars.com/api/?name={{ youth.full_name }}&background=9B59B6&color=fff'">
                         <div class="user-info">
                             <div class="user-name">{{ youth.full_name }}</div>
-                            <div class="user-meta">{{ youth.age }} years old | {{ youth.email }}</div>
+                            <div class="user-meta">{{ youth.age if youth.age is not none else 'N/A' }} years old | {{ youth.email }}</div>
                         </div>
                         <i class="fas fa-check-circle text-primary d-none check-icon"></i>
                     </label>

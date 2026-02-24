@@ -152,8 +152,12 @@
                     <span class="info-value">{{ user.phone or 'Not provided' }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Age</span>
-                    <span class="info-value">{{ user.age or 'Not provided' }}</span>
+                    <span class="info-label">Date of Birth</span>
+                    <span class="info-value">{{ user.dob|format_date('%b %d, %Y') if user.dob else 'Not provided' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Current Age</span>
+                    <span class="info-value">{{ user.age or 'N/A' }} years old</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">School</span>

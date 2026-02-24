@@ -11,7 +11,7 @@ from models import db, User, Streak, RegistrationCode, Notification
 from extensions import mail
 from flask_mail import Message
 from utils import check_unkind_words, sanitize_for_display
-from forms import LoginForm, RegistrationForm, GoogleCompleteForm, ForgotPasswordForm, ResetPasswordForm
+from forms import LoginForm, RegistrationForm, GoogleCompleteForm, ForgotPasswordForm, ResetPasswordForm, calculate_age
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
@@ -135,7 +135,7 @@ def register():
         full_name = form.full_name.data
         email = form.email.data
         phone = form.phone.data
-        age = form.age.data
+        dob = form.dob.data
         username = form.username.data
         password = form.password.data
         registration_code = form.registration_code.data
@@ -146,7 +146,7 @@ def register():
             email=email,
             full_name=full_name,
             phone=phone,
-            age=age,
+            dob=dob,
             role=role,
             profile_picture='images/default-avatar.png' # Default value
         )
@@ -415,7 +415,8 @@ def google_complete():
             return render_template('auth/google_complete.html', form=form, google_info=google_info)
 
     if form.validate_on_submit():
-        age = form.age.data
+        dob = form.dob.data
+        age = calculate_age(dob)
         role = 'senior' if age >= 60 else 'youth'
 
         new_user = User(
@@ -423,7 +424,7 @@ def google_complete():
             email=google_info['email'],
             full_name=google_info['full_name'],
             phone=form.phone.data,
-            age=age,
+            dob=dob,
             role=role,
             google_id=google_info['google_id'],
             profile_picture='images/default-avatar.png',

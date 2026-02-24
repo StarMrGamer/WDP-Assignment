@@ -83,6 +83,25 @@
         outline: none;
     }
 
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6C757D;
+        transition: color 0.3s ease;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        color: #c54836;
+    }
+
     .google-info {
         background: #f8f9fa;
         border-radius: 0.75rem;
@@ -193,12 +212,11 @@
 
                 <div class="mb-3">
                     <label class="form-label">
-                        Age
+                        Date of Birth
                         <span id="roleBadge"></span>
                     </label>
-                    <input type="number" class="form-control" name="age" id="ageInput"
-                           placeholder="Your age" min="13" required
-                           value="{{ form.age.data or '' }}">
+                    <input type="date" class="form-control" name="dob" id="dobInput" required
+                           value="{{ form.dob.data or '' }}">
                     <div id="roleHint" class="text-muted mt-1" style="font-size: 0.85rem;"></div>
                 </div>
 
@@ -212,14 +230,20 @@
                 <div class="row">
                     <div class="col-sm-6 mb-3">
                         <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="password"
-                               placeholder="Min. 8 characters" required>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-control" name="password" id="passwordInput"
+                                   placeholder="Min. 8 characters" required>
+                            <i class="fas fa-eye password-toggle" id="togglePass" onclick="togglePassword('passwordInput', 'togglePass')"></i>
+                        </div>
                         <div class="form-text">So you can also log in without Google</div>
                     </div>
                     <div class="col-sm-6 mb-3">
                         <label class="form-label">Confirm Password</label>
-                        <input type="password" class="form-control" name="confirm_password"
-                               placeholder="Repeat password" required>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-control" name="confirm_password" id="confirmInput"
+                                   placeholder="Repeat password" required>
+                            <i class="fas fa-eye password-toggle" id="toggleConfirm" onclick="togglePassword('confirmInput', 'toggleConfirm')"></i>
+                        </div>
                     </div>
                 </div>
 
@@ -234,15 +258,28 @@
 
 {% block extra_js %}
 <script>
-    const ageInput  = document.getElementById('ageInput');
+    const dobInput  = document.getElementById('dobInput');
     const roleBadge = document.getElementById('roleBadge');
     const roleHint  = document.getElementById('roleHint');
     const submitBtn = document.getElementById('submitBtn');
 
-    function updateRole() {
-        const age = parseInt(ageInput.value);
+    function calculateAge(dobString) {
+        if (!dobString) return 0;
+        const today = new Date();
+        const birthDate = new Date(dobString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    }
 
-        if (!ageInput.value || isNaN(age)) {
+    function updateRole() {
+        const dobValue = dobInput.value;
+        const age = calculateAge(dobValue);
+
+        if (!dobValue) {
             roleBadge.style.display = 'none';
             roleHint.textContent = '';
             submitBtn.className = 'btn btn-register';
@@ -257,7 +294,7 @@
             badge.textContent = 'Too young';
             roleBadge.appendChild(badge);
             roleBadge.style.display = 'inline';
-            roleHint.textContent = 'You must be at least 13 years old to register.';
+            roleHint.textContent = 'You must be at least 13 years old to register. (Current: ' + age + ')';
             roleHint.style.color = '#dc3545';
             submitBtn.disabled = true;
             return;
@@ -270,7 +307,7 @@
 
         if (age >= 60) {
             badge.style.background = '#e29454';
-            badge.textContent = 'Senior';
+            badge.textContent = 'Senior (' + age + ')';
             roleBadge.appendChild(badge);
             roleBadge.style.display = 'inline';
             roleHint.textContent = 'You will be registered as a Senior.';
@@ -279,7 +316,7 @@
             submitBtn.textContent = 'Join as Senior';
         } else {
             badge.style.background = '#781543';
-            badge.textContent = 'Youth';
+            badge.textContent = 'Youth (' + age + ')';
             roleBadge.appendChild(badge);
             roleBadge.style.display = 'inline';
             roleHint.textContent = 'You will be registered as a Youth volunteer.';
@@ -289,7 +326,7 @@
         }
     }
 
-    ageInput.addEventListener('input', updateRole);
+    dobInput.addEventListener('input', updateRole);
     updateRole();
 </script>
 {% endblock %}

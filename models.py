@@ -35,7 +35,7 @@ class User(db.Model):
         email (str): User email address
         full_name (str): User's full name
         phone (str): Contact phone number
-        age (int): User's age (60+ for seniors, 13+ for youth)
+        dob (date): User's date of birth
         role (str): User role - 'senior', 'youth', or 'admin'
         profile_picture (str): Path to profile picture file
         interests_json (str): JSON string of user interests
@@ -73,9 +73,28 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     full_name = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(20))
-    age = db.Column(db.Integer, nullable=False)
+    dob = db.Column(db.Date, nullable=True) # Date of Birth
     bio = db.Column(db.Text)  # User biography
     school = db.Column(db.String(255))  # School or organization for youth
+
+    @property
+    def age(self):
+        """Calculate age from date of birth."""
+        if not self.dob:
+            return None
+        today = datetime.utcnow().date()
+        return today.year - self.dob.year - ((today.month, today.day) < (self.dob.month, self.dob.day))
+
+    @age.setter
+    def age(self, value):
+        """
+        Legacy setter for age to maintain compatibility with existing code
+        that might try to set user.age directly.
+        Calculates a rough dob based on current year.
+        """
+        if value is not None:
+            today = datetime.utcnow().date()
+            self.dob = today.replace(year=today.year - int(value))
 
     # Role-based access control
     role = db.Column(db.String(20), nullable=False)  # 'senior', 'youth', or 'admin'

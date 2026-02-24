@@ -1,6 +1,10 @@
 from app import app
 from models import db, User, Community, Pair, Event, EventParticipant, Badge, Streak, Game, GameSession, RegistrationCode, Story, ChatReport
 from werkzeug.security import generate_password_hash
+from datetime import date, datetime
+
+def dob_from_age(age):
+    return date(datetime.utcnow().year - age, 1, 1)
 
 def seed_data():
     with app.app_context():
@@ -16,7 +20,7 @@ def seed_data():
             username='admin',
             email='admin@gencon.sg',
             full_name='System Admin',
-            age=30,
+            dob=dob_from_age(30),
             role='admin',
             password_hash=generate_password_hash('password123'),
             is_approved=True
@@ -26,7 +30,7 @@ def seed_data():
             username='senior',
             email='senior@gencon.sg',
             full_name='Madam Tan',
-            age=72,
+            dob=dob_from_age(72),
             role='senior',
             password_hash=generate_password_hash('password123'),
             interests_json='["Cooking", "Stories"]',
@@ -37,7 +41,7 @@ def seed_data():
             username='youth',
             email='youth@gencon.sg',
             full_name='Ryan Lee',
-            age=19,
+            dob=dob_from_age(19),
             role='youth',
             password_hash=generate_password_hash('password123'),
             interests_json='["Tech", "Games"]',
@@ -335,7 +339,7 @@ def seed_data():
                 username=username,
                 email=f"{username}@gencon.sg",
                 full_name=name,
-                age=20,
+                dob=dob_from_age(20),
                 role='youth',
                 password_hash=generate_password_hash('password123'),
                 is_approved=True

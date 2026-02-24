@@ -1071,7 +1071,7 @@ def profile():
         session['full_name'] = user.full_name
         user.email = form.email.data
         user.phone = form.phone.data
-        user.age = form.age.data
+        user.dob = form.dob.data
 
         # 2. Handle Interests (Manual from request.form)
         interests_text = request.form.get('interests')

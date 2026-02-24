@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 <!--
     File: register.html
-    Purpose: Unified registration page — role auto-detected from age
+    Purpose: Unified registration page — role auto-detected from Date of Birth
 -->
 
 {% block title %}Sign Up - GenCon SG{% endblock %}
@@ -73,7 +73,26 @@
         outline: none;
     }
 
-    /* Role badge shown next to the Age label */
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6C757D;
+        transition: color 0.3s ease;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        color: #c54836;
+    }
+
+    /* Role badge shown next to the label */
     #roleBadge {
         display: none;
         font-size: 0.8rem;
@@ -88,7 +107,7 @@
     #roleBadge.senior { background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; }
     #roleBadge.youth  { background: #F3E8FF; color: #781543; border: 1px solid #C4B5FD; }
 
-    /* Role hint below age field */
+    /* Role hint below dob field */
     #roleHint {
         font-size: 0.875rem;
         margin-top: 0.4rem;
@@ -235,11 +254,10 @@
                     </div>
                     <div class="col-sm-6 mb-3">
                         <label class="form-label">
-                            Age
+                            Date of Birth
                             <span id="roleBadge"></span>
                         </label>
-                        <input type="number" class="form-control" name="age" id="ageInput"
-                               placeholder="Your age" min="13" required>
+                        <input type="date" class="form-control" name="dob" id="dobInput" required>
                         <div id="roleHint" class="text-muted"></div>
                     </div>
                 </div>
@@ -253,13 +271,19 @@
                 <div class="row">
                     <div class="col-sm-6 mb-3">
                         <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="password" id="passwordInput"
-                               placeholder="Min. 6 characters" required>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-control" name="password" id="passwordInput"
+                                   placeholder="Min. 6 characters" required>
+                            <i class="fas fa-eye password-toggle" id="togglePass" onclick="togglePassword('passwordInput', 'togglePass')"></i>
+                        </div>
                     </div>
                     <div class="col-sm-6 mb-3">
                         <label class="form-label">Confirm Password</label>
-                        <input type="password" class="form-control" name="confirm_password"
-                               placeholder="Repeat password" required>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-control" name="confirm_password" id="confirmInput"
+                                   placeholder="Repeat password" required>
+                            <i class="fas fa-eye password-toggle" id="toggleConfirm" onclick="togglePassword('confirmInput', 'toggleConfirm')"></i>
+                        </div>
                     </div>
                 </div>
 
@@ -324,16 +348,29 @@
 </script>
 {% endif %}
 <script>
-    const ageInput   = document.getElementById('ageInput');
+    const dobInput   = document.getElementById('dobInput');
     const roleInput  = document.getElementById('roleInput');
     const roleBadge  = document.getElementById('roleBadge');
     const roleHint   = document.getElementById('roleHint');
     const submitBtn  = document.getElementById('submitBtn');
 
-    function updateRole() {
-        const age = parseInt(ageInput.value);
+    function calculateAge(dobString) {
+        if (!dobString) return 0;
+        const today = new Date();
+        const birthDate = new Date(dobString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    }
 
-        if (!ageInput.value || isNaN(age)) {
+    function updateRole() {
+        const dobValue = dobInput.value;
+        const age = calculateAge(dobValue);
+
+        if (!dobValue) {
             roleBadge.style.display = 'none';
             roleHint.textContent = '';
             roleInput.value = '';
@@ -347,7 +384,7 @@
             roleBadge.textContent = 'Senior';
             roleBadge.className = 'senior';
             roleBadge.style.display = 'inline';
-            roleHint.innerHTML = '<span class="text-warning">You\'ll join as a <strong>Senior</strong> — share stories and connect with youth.</span>';
+            roleHint.innerHTML = '<span class="text-warning">You\'ll join as a <strong>Senior</strong> (' + age + ' years old) — share stories and connect with youth.</span>';
             submitBtn.className = 'btn btn-register senior-mode';
             submitBtn.innerHTML = '<i class="fas fa-user-friends me-2"></i>Register as Senior';
         } else if (age >= 13) {
@@ -355,31 +392,31 @@
             roleBadge.textContent = 'Youth';
             roleBadge.className = 'youth';
             roleBadge.style.display = 'inline';
-            roleHint.innerHTML = '<span class="text-purple" style="color:#781543">You\'ll join as a <strong>Youth Volunteer</strong> — make a difference with seniors.</span>';
+            roleHint.innerHTML = '<span class="text-purple" style="color:#781543">You\'ll join as a <strong>Youth Volunteer</strong> (' + age + ' years old) — make a difference with seniors.</span>';
             submitBtn.className = 'btn btn-register youth-mode';
             submitBtn.innerHTML = '<i class="fas fa-heart me-2"></i>Register as Youth';
         } else {
             roleInput.value = '';
             roleBadge.style.display = 'none';
-            roleHint.innerHTML = '<span class="text-danger">Must be at least 13 years old to register.</span>';
+            roleHint.innerHTML = '<span class="text-danger">Must be at least 13 years old to register. (Current: ' + age + ')</span>';
             submitBtn.className = 'btn btn-register';
             submitBtn.innerHTML = '<i class="fas fa-user-check me-2"></i>Create Account';
         }
     }
 
-    ageInput.addEventListener('input', updateRole);
+    dobInput.addEventListener('input', updateRole);
 
     document.getElementById('registerForm').addEventListener('submit', function(e) {
-        const age = parseInt(ageInput.value);
+        const age = calculateAge(dobInput.value);
         const password = document.getElementById('passwordInput').value;
 
         if (!roleInput.value) {
             e.preventDefault();
-            ageInput.focus();
-            if (isNaN(age) || age < 13) {
+            dobInput.focus();
+            if (!dobInput.value || age < 13) {
                 roleHint.innerHTML = '<span class="text-danger">Must be at least 13 years old to register.</span>';
             } else {
-                roleHint.innerHTML = '<span class="text-danger">Please enter your age so we can set your role.</span>';
+                roleHint.innerHTML = '<span class="text-danger">Please enter your date of birth so we can set your role.</span>';
             }
             return false;
         }

@@ -47,10 +47,10 @@
                     <span class="category-badge mb-2">{{ story.category }}</span>
 
                     <!-- Story Title -->
-                    <h5 class="card-title mt-2">{{ story.title }}</h5>
+                    <h5 class="card-title mt-2" id="story-title-{{ story.id }}">{{ story.title }}</h5>
 
                     <!-- Story Excerpt -->
-                    <p class="card-text text-muted">
+                    <p class="card-text text-muted" id="story-content-{{ story.id }}">
                         {{ story.content[:150] }}{% if story.content|length > 150 %}...{% endif %}
                     </p>
 
@@ -86,6 +86,11 @@
                 <!-- Card Footer with Actions -->
                 <div class="card-footer bg-transparent">
                     <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary px-2 tts-btn"
+                                onclick="toggleSpeak(this, document.getElementById('story-title-{{ story.id }}').innerText + '. ' + document.getElementById('story-content-{{ story.id }}').innerText)"
+                                title="Read excerpt">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
                         <a href="{{ url_for('youth.story_detail', story_id=story.id) }}" class="btn btn-sm btn-outline-primary flex-fill">
                             <i class="fas fa-eye me-1"></i>View
                         </a>
@@ -122,6 +127,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/tts.js') }}"></script>
 <script>
     // Confirm before deleting story
     function confirmDelete(storyId) {
@@ -131,18 +137,26 @@
             function() {
                 // Make POST request
                 fetch(`/youth/stories/${storyId}/delete`, {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                    }
                 })
-                .then(response => {
+                .then(async response => {
+                    const contentType = response.headers.get("content-type");
+                    let data = null;
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        data = await response.json();
+                    }
+
                     if (response.ok) {
                         showToast('Story deleted successfully', 'success');
                         setTimeout(() => {
                             location.reload();
                         }, 1500);
                     } else {
-                        return response.json().then(data => {
-                            showToast(data.message || 'Failed to delete story', 'danger');
-                        });
+                        showToast((data && data.message) || 'Failed to delete story', 'danger');
                     }
                 })
                 .catch(error => {

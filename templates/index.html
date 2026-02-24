@@ -255,6 +255,25 @@
         color: rgba(255, 255, 255, 0.55) !important;
     }
 
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.6);
+        transition: color 0.3s ease;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        color: white;
+    }
+
     /* Role badge inside form */
     #landingRoleBadge {
         display: none;
@@ -433,12 +452,10 @@
 
                     <div class="mb-3">
                         <label class="form-label">Password</label>
-                        <div class="position-relative">
+                        <div class="password-wrapper">
                             <input type="password" class="form-control" name="password" id="loginPwd"
                                 placeholder="Enter your password" required>
-                            <i class="fas fa-eye position-absolute"
-                                style="right:1rem;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6"
-                                onclick="togglePwd('loginPwd',this)"></i>
+                            <i class="fas fa-eye password-toggle" id="toggleLogin" onclick="togglePassword('loginPwd', 'toggleLogin')"></i>
                         </div>
                     </div>
 
@@ -472,7 +489,7 @@
             </button>
             <div class="form-panel-card">
                 <h2>Create account</h2>
-                <p class="form-subtitle">Join GenCon SG — your role is set by your age</p>
+                <p class="form-subtitle">Join GenCon SG — your role is set by your birth date</p>
 
                 <form method="POST" action="{{ url_for('auth.register') }}" id="landingRegisterForm">
                     {{ register_form.hidden_tag() }}
@@ -507,10 +524,9 @@
                         </div>
                         <div class="col-6">
                             <label class="form-label">
-                                Age <span id="landingRoleBadge"></span>
+                                DOB <span id="landingRoleBadge"></span>
                             </label>
-                            <input type="number" class="form-control" name="age" id="landingAge" placeholder="Your age"
-                                min="13" required>
+                            <input type="date" class="form-control" name="dob" id="landingDob" required>
                             <div id="landingRoleHint"></div>
                         </div>
                     </div>
@@ -524,13 +540,19 @@
                     <div class="row g-2 mb-2">
                         <div class="col-6">
                             <label class="form-label">Password</label>
-                            <input type="password" class="form-control" name="password" id="regPwd"
-                                placeholder="Min. 6 chars" required>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-control" name="password" id="regPwd"
+                                    placeholder="Min. 6 chars" required>
+                                <i class="fas fa-eye password-toggle" id="toggleReg" onclick="togglePassword('regPwd', 'toggleReg')"></i>
+                            </div>
                         </div>
                         <div class="col-6">
                             <label class="form-label">Confirm</label>
-                            <input type="password" class="form-control" name="confirm_password"
-                                placeholder="Repeat password" required>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-control" name="confirm_password" id="regConfirm"
+                                    placeholder="Repeat" required>
+                                <i class="fas fa-eye password-toggle" id="toggleConfirmReg" onclick="togglePassword('regConfirm', 'toggleConfirmReg')"></i>
+                            </div>
                         </div>
                     </div>
 
@@ -596,26 +618,29 @@
         }, 220);
     }
 
-    // ── Password toggle ──
-    function togglePwd(inputId, icon) {
-        const input = document.getElementById(inputId);
-        const show = input.type === 'password';
-        input.type = show ? 'text' : 'password';
-        icon.classList.toggle('fa-eye', !show);
-        icon.classList.toggle('fa-eye-slash', show);
-    }
-
-    // ── Age → role detection (register panel) ──
-    const landingAge = document.getElementById('landingAge');
+    // ── DOB → role detection (register panel) ──
+    const landingDob = document.getElementById('landingDob');
     const landingRoleInput = document.getElementById('landingRoleInput');
     const landingRoleBadge = document.getElementById('landingRoleBadge');
     const landingRoleHint = document.getElementById('landingRoleHint');
     const landingSubmitBtn = document.getElementById('landingSubmitBtn');
 
-    function updateLandingRole() {
-        const age = parseInt(landingAge.value);
+    function calculateAge(dobString) {
+        if (!dobString) return 0;
+        const today = new Date();
+        const birthDate = new Date(dobString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    }
 
-        if (!landingAge.value || isNaN(age)) {
+    function updateLandingRole() {
+        const age = calculateAge(landingDob.value);
+
+        if (!landingDob.value) {
             landingRoleBadge.style.display = 'none';
             landingRoleHint.textContent = '';
             landingRoleInput.value = '';
@@ -625,27 +650,31 @@
 
         if (age >= 60) {
             landingRoleInput.value = 'senior';
-            landingRoleBadge.textContent = 'Senior';
+            landingRoleBadge.textContent = 'Senior (' + age + ')';
             landingRoleBadge.className = 'senior';
             landingRoleBadge.style.display = 'inline';
             landingRoleHint.innerHTML = '<span style="color:#f9da88;font-size:0.78rem">Senior member</span>';
             landingSubmitBtn.innerHTML = '<i class="fas fa-user-friends me-2"></i>Register as Senior';
         } else if (age >= 13) {
             landingRoleInput.value = 'youth';
-            landingRoleBadge.textContent = 'Youth';
+            landingRoleBadge.textContent = 'Youth (' + age + ')';
             landingRoleBadge.className = 'youth';
             landingRoleBadge.style.display = 'inline';
             landingRoleHint.innerHTML = '<span style="color:#f1fab7;font-size:0.78rem">Youth volunteer</span>';
             landingSubmitBtn.innerHTML = '<i class="fas fa-heart me-2"></i>Register as Youth';
         } else {
             landingRoleInput.value = '';
-            landingRoleBadge.style.display = 'none';
-            landingRoleHint.innerHTML = '<span style="color:#f9da88;font-size:0.78rem">Must be at least 13</span>';
+            landingRoleBadge.textContent = 'Too young';
+            landingRoleBadge.className = 'badge bg-danger';
+            landingRoleBadge.style.display = 'inline';
+            landingRoleHint.innerHTML = '<span style="color:#f9da88;font-size:0.78rem">Must be at least 13 (Current: ' + age + ')</span>';
             landingSubmitBtn.innerHTML = '<i class="fas fa-user-check me-2"></i>Create account';
         }
     }
 
-    landingAge.addEventListener('input', updateLandingRole);
+    if (landingDob) {
+        landingDob.addEventListener('input', updateLandingRole);
+    }
 
     // Auto-open register panel if redirected from Google sign-in
     {% if google_pending %}
@@ -655,8 +684,8 @@
     document.getElementById('landingRegisterForm').addEventListener('submit', function (e) {
         if (!landingRoleInput.value) {
             e.preventDefault();
-            landingAge.focus();
-            landingRoleHint.innerHTML = '<span style="color:#f9da88;font-size:0.78rem">Please enter your age first</span>';
+            landingDob.focus();
+            alert('Please enter your date of birth to set your role (min. 13 years old)');
         }
     });
 </script>

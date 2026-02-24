@@ -92,7 +92,7 @@
                             onerror="this.src='https://ui-avatars.com/api/?name={{ item.pair.senior.full_name }}&background=E67E22&color=fff'">
                         <div class="user-info">
                             <div class="name">{{ item.pair.senior.full_name }}</div>
-                            <div class="role">Senior, {{ item.pair.senior.age }} years old</div>
+                            <div class="role">Senior, {{ item.pair.senior.age if item.pair.senior.age is not none else 'N/A' }} years old</div>
                         </div>
                     </div>
 
@@ -109,7 +109,7 @@
                             onerror="this.src='https://ui-avatars.com/api/?name={{ item.pair.youth.full_name }}&background=9B59B6&color=fff'">
                         <div class="user-info">
                             <div class="name">{{ item.pair.youth.full_name }}</div>
-                            <div class="role">Youth Volunteer, {{ item.pair.youth.age }} years old</div>
+                            <div class="role">Youth Volunteer, {{ item.pair.youth.age if item.pair.youth.age is not none else 'N/A' }} years old</div>
                         </div>
                     </div>
                 </div>

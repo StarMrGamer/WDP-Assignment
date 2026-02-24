@@ -12,9 +12,11 @@ from models import (
     CommunityPost, Checkin, Badge, Streak, SupportTicket,
     Notification, ChatReport, GameHistory, Game
 )
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import random
 
+def dob_from_age(age):
+    return date(datetime.utcnow().year - age, 1, 1)
 
 def seed_usage():
     with app.app_context():
@@ -83,7 +85,7 @@ def seed_usage():
             if not u:
                 u = User(
                     username=uname, email=f'{uname}@gencon.sg',
-                    full_name=name, age=age, role='senior',
+                    full_name=name, dob=dob_from_age(age), role='senior',
                     interests_json=interests, languages_json=langs, bio=bio,
                     is_approved=True,
                     created_at=datetime.utcnow() - timedelta(days=random.randint(30, 90)),
@@ -108,7 +110,7 @@ def seed_usage():
             if not u:
                 u = User(
                     username=uname, email=f'{uname}@gencon.sg',
-                    full_name=name, age=age, role='youth',
+                    full_name=name, dob=dob_from_age(age), role='youth',
                     interests_json=interests, languages_json=langs, bio=bio,
                     is_approved=True,
                     created_at=datetime.utcnow() - timedelta(days=random.randint(20, 60)),

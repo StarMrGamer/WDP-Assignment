@@ -49,7 +49,7 @@
                     <ul class="list-unstyled small text-muted mb-3">
                         <li><i class="fas fa-envelope me-2"></i>{{ user.email }}</li>
                         <li><i class="fas fa-phone me-2"></i>{{ user.phone or 'Not provided' }}</li>
-                        <li><i class="fas fa-birthday-cake me-2"></i>Age {{ user.age }}</li>
+                        <li><i class="fas fa-birthday-cake me-2"></i>Age {{ user.age if user.age is not none else 'N/A' }}</li>
                         <li><i class="fas fa-clock me-2"></i>Registered {{ user.created_at|timeago }}</li>
                     </ul>
                 </div>

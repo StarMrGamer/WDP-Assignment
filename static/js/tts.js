@@ -16,6 +16,41 @@ var TTS_LANG_MAP = {
     'ta': 'ta-IN'
 };
 
+// Ensure TTS buttons and icons are always visible and styled correctly
+(function injectTTSStyles() {
+    if (document.getElementById('tts-injected-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'tts-injected-styles';
+    style.innerHTML = `
+        .tts-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 32px !important;
+            min-height: 32px !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            cursor: pointer !important;
+            z-index: 10 !important;
+        }
+        .tts-btn i {
+            font-size: 1rem !important;
+            margin: 0 !important;
+            display: inline-block !important;
+        }
+        .tts-playing {
+            color: #E25838 !important;
+            animation: tts-pulse 1.5s infinite;
+        }
+        @keyframes tts-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
 var _ttsCurrentBtn = null;
 
 function speakText(text, lang) {
@@ -44,6 +79,15 @@ function toggleSpeak(btn, text, lang) {
         if (typeof showToast === 'function') showToast('Text-to-speech not supported in this browser.', 'warning');
         return;
     }
+
+    // Auto-detect language if not provided or set to 'en'
+    if (!lang || lang === 'en') {
+        lang = localStorage.getItem('translationLanguage') || 
+               localStorage.getItem('storyTranslationLanguage') || 
+               localStorage.getItem('commTranslationLanguage') || 
+               'en';
+    }
+
     // If this button is already playing, stop
     if (_ttsCurrentBtn === btn && window.speechSynthesis.speaking) {
         stopSpeaking();

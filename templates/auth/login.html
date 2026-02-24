@@ -320,7 +320,7 @@
                                name="password"
                                placeholder="Enter your password"
                                required>
-                        <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePassword()"></i>
+                        <i class="fas fa-eye password-toggle" id="togglePasswordIcon" onclick="togglePassword('password', 'togglePasswordIcon')"></i>
                     </div>
                 </div>
 
@@ -411,26 +411,9 @@
 </script>
 {% endif %}
 <script>
-    // Auto-focus username field on page load
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('username').focus();
     });
-
-    // Toggle password visibility
-    function togglePassword() {
-        const passwordField = document.getElementById('password');
-        const toggleIcon = document.getElementById('togglePassword');
-
-        if (passwordField.type === 'password') {
-            passwordField.type = 'text';
-            toggleIcon.classList.remove('fa-eye');
-            toggleIcon.classList.add('fa-eye-slash');
-        } else {
-            passwordField.type = 'password';
-            toggleIcon.classList.remove('fa-eye-slash');
-            toggleIcon.classList.add('fa-eye');
-        }
-    }
 
     // Form validation
     document.getElementById('loginForm').addEventListener('submit', function(e) {

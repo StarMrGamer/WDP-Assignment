@@ -1117,7 +1117,7 @@ def profile():
         user.phone = form.phone.data
         user.school = form.school.data
         user.bio = form.bio.data
-        user.age = form.age.data
+        user.dob = form.dob.data
 
         # 2. Handle Profile Picture Upload
         if form.profile_picture.data and hasattr(form.profile_picture.data, 'filename'):

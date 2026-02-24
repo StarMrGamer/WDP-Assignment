@@ -96,6 +96,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
             ` : '';
 
+            const ttsBtn = `
+                <button class="btn btn-link btn-sm text-muted p-0 me-2 tts-btn" 
+                        onclick="toggleSpeak(this, this.closest('.message-bubble').querySelector('.translation-text')?.innerText || this.closest('.message-bubble').querySelector('.content-text').innerText, localStorage.getItem('translationLanguage') || 'en')"
+                        title="Read aloud">
+                    <i class="fas fa-volume-up" style="font-size: 0.8rem;"></i>
+                </button>
+            `;
+
             return `
                 <div class="message-wrapper ${sideClass}">
                     <div class="message-bubble">
@@ -103,6 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="content-text">${msg.content}</div>
                         ${translationBox}
                         <div class="d-flex justify-content-end align-items-center mt-1">
+                            ${ttsBtn}
                             <div class="time-stamp mb-0">${msg.created_at}</div>
                             ${reportBtn}
                         </div>
