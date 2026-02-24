@@ -14,15 +14,24 @@
 /* ==================== ADMIN COLOR SCHEME ==================== */
 :root {
     /* Professional color palette for admin interface */
-    --admin-primary: #4f084c;        /* Dark blue-gray - primary elements */
-    --admin-primary-hover: #1c032b;  /* Darker blue-gray - hover state */
-    --admin-secondary: #e29454;      /* Teal - success/active indicators */
-    --admin-accent: #e29454;         /* Orange - warnings/attention */
-    --admin-danger: #E74C3C;         /* Red - critical alerts */
-    --admin-bg: #ECF0F1;             /* Light gray background */
-    --admin-card-bg: #FFFFFF;        /* White cards */
-    --admin-text: #1c032b;           /* Dark text */
-    --admin-border: #BDC3C7;         /* Gray borders */
+    --admin-primary: #160424;
+    /* Midnight Purple - primary elements */
+    --admin-primary-hover: #0d0216;
+    /* Deeper purple - hover state */
+    --admin-secondary: #7A164B;
+    /* Deep Plum - success/active indicators */
+    --admin-accent: #FDE594;
+    /* Warm Sun - warnings/attention */
+    --admin-danger: #E25838;
+    /* Sunset Red-Orange - critical alerts */
+    --admin-bg: #F5F9D6;
+    /* Pale Ivory background */
+    --admin-card-bg: #FFFFFF;
+    /* White cards */
+    --admin-text: #160424;
+    /* Midnight Purple text */
+    --admin-border: #e8e4c8;
+    /* Warm gray borders */
 }
 
 /* ==================== BASE STYLING ==================== */
@@ -34,7 +43,7 @@ body[data-role="admin"] {
 
 /* ==================== ADMIN HEADER ==================== */
 body[data-role="admin"] .admin-header {
-    background: linear-gradient(135deg, var(--admin-primary) 0%, #1c032b 100%);
+    background: linear-gradient(135deg, var(--admin-primary) 0%, #0d0216 100%);
     color: white;
     padding: 2rem;
     margin-bottom: 2rem;
@@ -370,12 +379,12 @@ body[data-role="admin"] .activity-item .activity-icon {
 
 body[data-role="admin"] .activity-item .activity-icon.user {
     background-color: rgba(52, 152, 219, 0.1);
-    color: #e29454;
+    color: #E25838;
 }
 
 body[data-role="admin"] .activity-item .activity-icon.story {
     background-color: rgba(155, 89, 182, 0.1);
-    color: #c54836;
+    color: #7A164B;
 }
 
 body[data-role="admin"] .activity-item .activity-icon.event {
@@ -742,6 +751,7 @@ body[data-role="admin"] .chart-container h3 {
 
 /* ==================== PRINT STYLES ==================== */
 @media print {
+
     body[data-role="admin"] .navbar,
     body[data-role="admin"] .filter-bar,
     body[data-role="admin"] .btn {

@@ -75,7 +75,7 @@
 }
 
 .message-wrapper.me .message-bubble {
-    background: linear-gradient(135deg, #c54836 0%, #e29454 100%);
+    background: linear-gradient(135deg, #E25838 0%, #FDE594 100%);
     color: white;
     border-bottom-right-radius: 1.5rem;
 }
@@ -144,7 +144,7 @@
 }
 
 .pill-input-wrapper:focus-within {
-    border-color: #c54836;
+    border-color: #E25838;
     box-shadow: 0 8px 25px rgba(155, 89, 182, 0.1) !important;
 }
 
@@ -169,11 +169,11 @@
 }
 
 .emoji-trigger:hover {
-    color: #c54836;
+    color: #E25838;
 }
 
 .circle-send-btn {
-    background: linear-gradient(135deg, #c54836 0%, #e29454 100%);
+    background: linear-gradient(135deg, #E25838 0%, #FDE594 100%);
     color: white;
     width: 48px !important;
     height: 48px !important;
@@ -193,7 +193,7 @@
 }
 
 .circle-send-btn:hover {
-    background: linear-gradient(135deg, #781543 0%, #c54836 100%);
+    background: linear-gradient(135deg, #7A164B 0%, #E25838 100%);
     transform: scale(1.12);
     color: white;
     box-shadow: 0 6px 20px rgba(155, 89, 182, 0.5);
@@ -223,7 +223,7 @@
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
-    color: #c54836;
+    color: #E25838;
     margin: 0 auto 1rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
@@ -463,7 +463,7 @@ body[data-theme="dark"] .text-dark {
     align-items: center;
     gap: 0.6rem;
     background: #f4f4f5;
-    border-left: 3px solid #c54836;
+    border-left: 3px solid #E25838;
     border-radius: 6px;
     padding: 0.4rem 0.75rem;
     margin-bottom: 0.5rem;
@@ -545,7 +545,7 @@ body[data-theme="dark"] .text-dark {
 
 /* @mention highlight inside message text */
 .mention {
-    color: #c54836;
+    color: #E25838;
     font-weight: 600;
     background: rgba(197, 72, 54, 0.08);
     border-radius: 3px;
@@ -560,7 +560,7 @@ body[data-theme="dark"] .text-dark {
 /* Dark mode */
 body[data-theme="dark"] .chat-context-bar {
     background: #2b2d31;
-    border-left-color: #c54836;
+    border-left-color: #E25838;
     color: #f2f3f5;
 }
 

@@ -14,18 +14,26 @@
 /* ==================== SENIOR COLOR SCHEME - WHIMSICAL & WARM ==================== */
 :root {
     /* Warm, friendly colors that are still accessible */
-    --senior-primary: #e29454;       /* Tangerine orange - warm & inviting */
-    --senior-primary-hover: #EA580C; /* Deeper orange - hover state */
-    --senior-secondary: #22C55E;     /* Fresh green - nature-inspired */
-    --senior-accent: #f9da88;        /* Sunflower yellow - cheerful */
-    --senior-bg: #FFFBEB;            /* Warm cream background */
-    --senior-text: #422006;          /* Warm brown text - cozy & readable */
-    --senior-border: #FED7AA;        /* Peach border - soft & friendly */
-    --senior-card-bg: #FFFFFF;       /* White cards */
+    --senior-primary: #E25838;
+    /* Sunset Red-Orange - warm & inviting */
+    --senior-primary-hover: #c94a2e;
+    /* Deeper red-orange - hover state */
+    --senior-secondary: #7A164B;
+    /* Deep Plum - secondary accent */
+    --senior-accent: #FDE594;
+    /* Warm Sun - cheerful */
+    --senior-bg: #F5F9D6;
+    /* Pale Ivory background */
+    --senior-text: #160424;
+    /* Midnight Purple text - rich & readable */
+    --senior-border: #FDE594;
+    /* Warm Sun border - soft & friendly */
+    --senior-card-bg: #FFFFFF;
+    /* White cards */
 
     /* Fun gradient for headers */
-    --senior-header-gradient: linear-gradient(135deg, #ecfae1 0%, #f1fab7 50%, #FCD34D 100%);
-    --senior-card-shadow: 0 4px 20px rgba(249, 115, 22, 0.15);
+    --senior-header-gradient: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
+    --senior-card-shadow: 0 4px 20px rgba(226, 88, 56, 0.15);
 }
 
 /* ==================== BASE OVERRIDES FOR SENIORS ==================== */
@@ -33,7 +41,8 @@ body[data-role="senior"] {
     background-color: var(--senior-bg);
     color: var(--senior-text);
     font-size: 16px;
-    line-height: 1.8;                /* Increased line height for easier reading */
+    line-height: 1.8;
+    /* Increased line height for easier reading */
 }
 
 /* ==================== FONT SIZE ADJUSTMENTS ==================== */
@@ -42,36 +51,73 @@ body[data-role="senior"][data-font-size="normal"] {
     font-size: 18px;
 }
 
-body[data-role="senior"][data-font-size="normal"] h1 { font-size: 2.5rem; }
-body[data-role="senior"][data-font-size="normal"] h2 { font-size: 2rem; }
-body[data-role="senior"][data-font-size="normal"] h3 { font-size: 1.7rem; }
-body[data-role="senior"][data-font-size="normal"] .btn { font-size: 1rem; }
+body[data-role="senior"][data-font-size="normal"] h1 {
+    font-size: 2.5rem;
+}
+
+body[data-role="senior"][data-font-size="normal"] h2 {
+    font-size: 2rem;
+}
+
+body[data-role="senior"][data-font-size="normal"] h3 {
+    font-size: 1.7rem;
+}
+
+body[data-role="senior"][data-font-size="normal"] .btn {
+    font-size: 1rem;
+}
 
 /* Large font size */
 body[data-role="senior"][data-font-size="large"] {
     font-size: 20px;
 }
 
-body[data-role="senior"][data-font-size="large"] h1 { font-size: 3rem; }
-body[data-role="senior"][data-font-size="large"] h2 { font-size: 2.5rem; }
-body[data-role="senior"][data-font-size="large"] h3 { font-size: 2rem; }
-body[data-role="senior"][data-font-size="large"] .btn { font-size: 1.125rem; }
+body[data-role="senior"][data-font-size="large"] h1 {
+    font-size: 3rem;
+}
+
+body[data-role="senior"][data-font-size="large"] h2 {
+    font-size: 2.5rem;
+}
+
+body[data-role="senior"][data-font-size="large"] h3 {
+    font-size: 2rem;
+}
+
+body[data-role="senior"][data-font-size="large"] .btn {
+    font-size: 1.125rem;
+}
 
 /* Extra-large font size */
 body[data-role="senior"][data-font-size="xlarge"] {
     font-size: 24px;
 }
 
-body[data-role="senior"][data-font-size="xlarge"] h1 { font-size: 3.5rem; }
-body[data-role="senior"][data-font-size="xlarge"] h2 { font-size: 3rem; }
-body[data-role="senior"][data-font-size="xlarge"] h3 { font-size: 2.5rem; }
-body[data-role="senior"][data-font-size="xlarge"] .btn { font-size: 1.25rem; }
-body[data-role="senior"][data-font-size="xlarge"] .nav-link { font-size: 1.25rem; }
+body[data-role="senior"][data-font-size="xlarge"] h1 {
+    font-size: 3.5rem;
+}
+
+body[data-role="senior"][data-font-size="xlarge"] h2 {
+    font-size: 3rem;
+}
+
+body[data-role="senior"][data-font-size="xlarge"] h3 {
+    font-size: 2.5rem;
+}
+
+body[data-role="senior"][data-font-size="xlarge"] .btn {
+    font-size: 1.25rem;
+}
+
+body[data-role="senior"][data-font-size="xlarge"] .nav-link {
+    font-size: 1.25rem;
+}
 
 /* ==================== SENIOR HIGH CONTRAST (Enhanced contrast, same color palette) ==================== */
 body[data-role="senior"][data-high-contrast="true"] {
     background-color: #FFF8F0 !important;
-    color: #1A0800 !important;             /* Deeper warm brown for stronger contrast */
+    color: #1A0800 !important;
+    /* Deeper warm brown for stronger contrast */
 }
 
 /* Enhanced contrast for cards - keep warm palette, strengthen borders */
@@ -247,7 +293,8 @@ body[data-role="senior"] .nav-link {
 }
 
 body[data-role="senior"] .form-control {
-    padding: 1rem;                   /* Larger input fields */
+    padding: 1rem;
+    /* Larger input fields */
     font-size: 1.125rem;
     min-height: 52px;
 }
@@ -261,7 +308,8 @@ body[data-role="senior"] .card {
 body[data-role="senior"] .btn-primary {
     background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
     border: none;
-    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3); /* Purple shadow instead of orange glow */
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+    /* Purple shadow instead of orange glow */
     transition: all 0.3s ease;
 }
 
@@ -280,7 +328,7 @@ body[data-role="senior"] .btn-success {
 
 /* Dashboard Header - Warm Sunshine */
 body[data-role="senior"] .dashboard-header {
-    background: linear-gradient(135deg, #ecfae1 0%, #f1fab7 50%, #f9da88 100%);
+    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
     color: var(--senior-text);
     padding: 2.5rem 2rem;
     border-radius: 1.5rem;
@@ -302,7 +350,7 @@ body[data-role="senior"] .dashboard-header::before {
 }
 
 body[data-role="senior"] .dashboard-card {
-    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 100%);
     border-left: 5px solid var(--senior-primary);
     box-shadow: 0 4px 16px rgba(249, 115, 22, 0.15);
     border-radius: 1.25rem;
@@ -378,9 +426,11 @@ body[data-role="senior"] .story-card .category-badge {
 
 /* ==================== MESSAGING INTERFACE ==================== */
 body[data-role="senior"] .message-sent {
-    background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%); /* Purple gradient */
+    background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
+    /* Purple gradient */
     color: white;
-    border-left: none; /* Removed border to match youth style */
+    border-left: none;
+    /* Removed border to match youth style */
     padding: 1.25rem;
     border-radius: 1rem;
     margin: 1rem 0;
@@ -389,7 +439,8 @@ body[data-role="senior"] .message-sent {
 }
 
 body[data-role="senior"] .message-received {
-    background-color: white; /* Clean white */
+    background-color: white;
+    /* Clean white */
     border-left: none;
     border: 1px solid #E0E0E0;
     padding: 1.25rem;
@@ -436,7 +487,9 @@ body[data-role="senior"] .far {
 
 /* ==================== BUDDY INFO CARD ==================== */
 body[data-role="senior"] .buddy-card {
-    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%); /* Purple gradient */
+    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 100%);
+    /* Warm Sun gradient */
+    /* Purple gradient */
     border: 2px solid var(--senior-primary);
     padding: 2rem;
     border-radius: 1rem;
@@ -485,12 +538,14 @@ body[data-role="senior"] .event-card {
     margin-bottom: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
-    border-left: 4px solid var(--senior-secondary); /* Match youth style */
+    border-left: 4px solid var(--senior-secondary);
+    /* Match youth style */
 }
 
 body[data-role="senior"] .event-card:hover {
     border-color: var(--senior-primary);
-    box-shadow: 0 4px 16px rgba(155, 89, 182, 0.2); /* Purple shadow */
+    box-shadow: 0 4px 16px rgba(155, 89, 182, 0.2);
+    /* Purple shadow */
     transform: translateY(-4px);
 }
 
@@ -538,7 +593,8 @@ body[data-role="senior"] .game-card {
 
 body[data-role="senior"] .game-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(155, 89, 182, 0.3); /* Purple shadow */
+    box-shadow: 0 8px 20px rgba(155, 89, 182, 0.3);
+    /* Purple shadow */
 }
 
 body[data-role="senior"] .game-card .game-icon {
@@ -573,14 +629,18 @@ body[data-role="senior"] .mood-option {
 
 body[data-role="senior"] .mood-option:hover {
     border-color: var(--senior-primary);
-    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.2); /* Purple shadow */
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.2);
+    /* Purple shadow */
     transform: translateY(-4px);
 }
 
 body[data-role="senior"] .mood-option.selected {
     border-color: var(--senior-primary);
-    background-color: #F3E5F5; /* Light purple bg */
-    box-shadow: 0 4px 16px rgba(155, 89, 182, 0.3); /* Purple shadow */
+    background-color: #F5F9D6;
+    /* Pale Ivory bg */
+    /* Light purple bg */
+    box-shadow: 0 4px 16px rgba(155, 89, 182, 0.3);
+    /* Purple shadow */
 }
 
 body[data-role="senior"] .mood-option .emoji {
@@ -596,16 +656,19 @@ body[data-role="senior"] .mood-option .label {
 /* ==================== RESPONSIVE ADJUSTMENTS ==================== */
 @media (max-width: 768px) {
     body[data-role="senior"] {
-        font-size: 16px;             /* Slightly smaller on mobile but still readable */
+        font-size: 16px;
+        /* Slightly smaller on mobile but still readable */
     }
 
     body[data-role="senior"] .btn {
-        width: 100%;                 /* Full-width buttons on mobile */
+        width: 100%;
+        /* Full-width buttons on mobile */
         margin-bottom: 1rem;
     }
 
     body[data-role="senior"] .mood-selector {
-        grid-template-columns: 1fr; /* Stack mood options on mobile */
+        grid-template-columns: 1fr;
+        /* Stack mood options on mobile */
     }
 }
 

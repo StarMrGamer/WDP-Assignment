@@ -14,27 +14,34 @@
 /* ==================== YOUTH COLOR SCHEMES - WHIMSICAL & FUN ==================== */
 :root {
     /* Default Light Theme - Candy Pop */
-    --youth-primary: #781543;        /* Electric violet - modern & cool */
-    --youth-primary-hover: #4f084c;  /* Deeper violet */
-    --youth-secondary: #e29454;      /* Cyan splash - refreshing */
-    --youth-accent: #c54836;         /* Hot pink - exciting */
-    --youth-bg: #ecfae1;             /* Lightest palette tone */
-    --youth-text: #1c032b;           /* Deep palette near-black */
-    --youth-card-bg: #FFFFFF;        /* White cards */
+    --youth-primary: #7A164B;
+    /* Deep Plum - modern & cool */
+    --youth-primary-hover: #160424;
+    /* Midnight Purple */
+    --youth-secondary: #E25838;
+    /* Sunset Red-Orange - exciting */
+    --youth-accent: #E25838;
+    /* Sunset Red-Orange */
+    --youth-bg: #F5F9D6;
+    /* Pale Ivory */
+    --youth-text: #160424;
+    /* Midnight Purple text */
+    --youth-card-bg: #FFFFFF;
+    /* White cards */
 
     /* Gradient for headers */
-    --youth-header-gradient: linear-gradient(135deg, #f9da88 0%, #e29454 50%, #781543 100%);
-    --youth-card-shadow: 0 4px 20px rgba(120, 21, 67, 0.2);
+    --youth-header-gradient: linear-gradient(135deg, #FDE594 0%, #E25838 50%, #7A164B 100%);
+    --youth-card-shadow: 0 4px 20px rgba(122, 22, 75, 0.2);
 }
 
 /* ==================== THEME VARIATIONS ==================== */
 /* Light Theme (default) - Candy Pop */
 body[data-role="youth"][data-theme="light"] {
-    --youth-primary: #781543;
-    --youth-secondary: #e29454;
-    --youth-accent: #c54836;
-    --youth-bg: #ecfae1;
-    --youth-text: #1c032b;
+    --youth-primary: #7A164B;
+    --youth-secondary: #E25838;
+    --youth-accent: #E25838;
+    --youth-bg: #F5F9D6;
+    --youth-text: #160424;
     --youth-card-bg: #FFFFFF;
     background-color: var(--youth-bg);
     color: var(--youth-text);
@@ -51,11 +58,15 @@ body[data-role="youth"][data-theme="dark"] {
 
 /* Blue Ocean Theme - Mermaid Lagoon */
 body[data-role="youth"][data-theme="blue"] {
-    --youth-primary: #0EA5E9;        /* Sky blue - refreshing */
-    --youth-secondary: #e29454;      /* Cyan splash */
-    --youth-accent: #2DD4BF;         /* Teal sparkle */
+    --youth-primary: #0EA5E9;
+    /* Sky blue - refreshing */
+    --youth-secondary: #E25838;
+    /* Sunset Red-Orange */
+    --youth-accent: #2DD4BF;
+    /* Teal sparkle */
     --youth-bg: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 50%, #7DD3FC 100%);
-    --youth-text: #0C4A6E;           /* Deep ocean text */
+    --youth-text: #0C4A6E;
+    /* Deep ocean text */
     --youth-card-bg: rgba(255, 255, 255, 0.95);
     background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 50%, #7DD3FC 100%);
     background-attachment: fixed;
@@ -71,22 +82,26 @@ body[data-role="youth"][data-theme="blue"] .navbar {
 
 /* Purple Dream Theme - Fairy Garden */
 body[data-role="youth"][data-theme="purple"] {
-    --youth-primary: #781543;        /* Deep maroon */
-    --youth-secondary: #c54836;      /* Warm red */
-    --youth-accent: #e29454;         /* Warm orange */
-    --youth-bg: linear-gradient(135deg, #ecfae1 0%, #f1fab7 50%, #f9da88 100%);
-    --youth-text: #1c032b;           /* Deep palette near-black */
+    --youth-primary: #7A164B;
+    /* Deep Plum */
+    --youth-secondary: #E25838;
+    /* Sunset Red-Orange */
+    --youth-accent: #FDE594;
+    /* Warm Sun */
+    --youth-bg: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
+    --youth-text: #160424;
+    /* Midnight Purple */
     --youth-card-bg: rgba(255, 255, 255, 0.95);
-    background: linear-gradient(135deg, #ecfae1 0%, #f1fab7 50%, #f9da88 100%);
+    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
     background-attachment: fixed;
     color: var(--youth-text);
 }
 
 body[data-role="youth"][data-theme="purple"] .navbar {
-    background: rgba(248, 234, 220, 0.65) !important;
+    background: rgba(245, 249, 214, 0.65) !important;
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-bottom: 1px solid rgba(226, 148, 84, 0.35) !important;
+    border-bottom: 1px solid rgba(253, 229, 148, 0.35) !important;
 }
 
 /* ==================== BASE STYLING ==================== */
@@ -122,7 +137,7 @@ body[data-role="youth"] .btn-outline-primary:hover {
 /* ==================== DASHBOARD ==================== */
 /* Dashboard Header - Magic Gradient */
 body[data-role="youth"] .dashboard-header {
-    background: linear-gradient(135deg, #781543 0%, #c54836 50%, #e29454 100%);
+    background: linear-gradient(135deg, #7A164B 0%, #E25838 50%, #FDE594 100%);
     color: white;
     padding: 2.5rem 2rem;
     border-radius: 1.5rem;
@@ -157,8 +172,15 @@ body[data-role="youth"] .dashboard-header::after {
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
 }
 
 /* Stat Cards - Playful & Colorful */
@@ -337,7 +359,7 @@ body[data-role="youth"] .reaction-btn.heart.active {
 
 /* Smile reaction */
 body[data-role="youth"] .reaction-btn.smile.active {
-    color: #f9da88;
+    color: #FDE594;
 }
 
 /* Clap reaction */
@@ -347,7 +369,7 @@ body[data-role="youth"] .reaction-btn.clap.active {
 
 /* Hug reaction */
 body[data-role="youth"] .reaction-btn.hug.active {
-    color: #c54836;
+    color: #E25838;
 }
 
 /* ==================== COMMENT SECTION ==================== */
@@ -461,8 +483,17 @@ body[data-role="youth"] .streak-card .streak-label {
 }
 
 @keyframes flicker {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.8; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
 }
 
 /* ==================== MESSAGING INTERFACE ==================== */
@@ -583,7 +614,7 @@ body[data-role="youth"] .theme-option.blue {
 }
 
 body[data-role="youth"] .theme-option.purple {
-    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 100%);
 }
 
 /* ==================== EVENT CARDS ==================== */
@@ -636,6 +667,7 @@ body[data-role="youth"] .impact-stat .stat-label {
         transform: translateY(30px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;

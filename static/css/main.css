@@ -13,48 +13,48 @@
 
 /* ==================== CSS CUSTOM PROPERTIES (VARIABLES) ==================== */
 :root {
-    --primary-color: #c54836;
-    --primary-hover: #ac2432;
-    --secondary-color: #781543;
+    --primary-color: #E25838;
+    --primary-hover: #c94a2e;
+    --secondary-color: #7A164B;
     --success-color: #22c55e;
-    --warning-color: #f9da88;
-    --danger-color: #c54836;
-    --info-color: #e29454;
-    --senior-primary: #e29454;
-    --senior-secondary: #c54836;
-    --senior-accent: #f9da88;
-    --senior-gradient: linear-gradient(135deg, #ecfae1 0%, #f1fab7 50%, #f9da88 100%);
-    --senior-card-glow: rgba(226, 148, 84, 0.15);
-    --youth-primary: #781543;
-    --youth-secondary: #4f084c;
-    --youth-accent: #c54836;
-    --youth-gradient: linear-gradient(135deg, #f1fab7 0%, #e29454 50%, #781543 100%);
-    --youth-card-glow: rgba(120, 21, 67, 0.15);
-    --admin-primary: #4f084c;
-    --admin-secondary: #781543;
-    --admin-accent: #e29454;
-    --gradient-rainbow: linear-gradient(90deg, #f9da88, #e29454, #c54836, #781543, #4f084c);
-    --gradient-sunset: linear-gradient(135deg, #f9da88 0%, #e29454 40%, #c54836 100%);
-    --gradient-ocean: linear-gradient(135deg, #e29454 0%, #c54836 50%, #781543 100%);
-    --gradient-candy: linear-gradient(135deg, #c54836 0%, #4f084c 100%);
-    --gradient-nature: linear-gradient(135deg, #ecfae1 0%, #f1fab7 50%, #f9da88 100%);
-    --gradient-deep: linear-gradient(135deg, #781543 0%, #4f084c 50%, #1c032b 100%);
+    --warning-color: #FDE594;
+    --danger-color: #E25838;
+    --info-color: #FDE594;
+    --senior-primary: #E25838;
+    --senior-secondary: #7A164B;
+    --senior-accent: #FDE594;
+    --senior-gradient: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
+    --senior-card-glow: rgba(226, 88, 56, 0.15);
+    --youth-primary: #7A164B;
+    --youth-secondary: #160424;
+    --youth-accent: #E25838;
+    --youth-gradient: linear-gradient(135deg, #FDE594 0%, #E25838 50%, #7A164B 100%);
+    --youth-card-glow: rgba(122, 22, 75, 0.15);
+    --admin-primary: #160424;
+    --admin-secondary: #7A164B;
+    --admin-accent: #FDE594;
+    --gradient-rainbow: linear-gradient(90deg, #F5F9D6, #FDE594, #E25838, #7A164B, #160424);
+    --gradient-sunset: linear-gradient(135deg, #FDE594 0%, #E25838 40%, #7A164B 100%);
+    --gradient-ocean: linear-gradient(135deg, #FDE594 0%, #E25838 50%, #7A164B 100%);
+    --gradient-candy: linear-gradient(135deg, #E25838 0%, #7A164B 100%);
+    --gradient-nature: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
+    --gradient-deep: linear-gradient(135deg, #7A164B 0%, #160424 50%, #0d0216 100%);
     --white: #FFFFFF;
-    --black: #1c032b;
-    --gray-100: #ecfae1;
-    --gray-200: #f1fab7;
-    --gray-300: #e8f0d8;
-    --gray-400: #c8d4b8;
-    --gray-500: #8a9a7a;
-    --gray-600: #5a6a4a;
-    --gray-700: #3a4a2a;
-    --gray-800: #2a2a1a;
-    --gray-900: #1c032b;
-    --peach: #f9da88;
-    --lavender: #4f084c;
-    --mint: #ecfae1;
-    --coral: #c54836;
-    --sky: #e29454;
+    --black: #160424;
+    --gray-100: #F5F9D6;
+    --gray-200: #FDE594;
+    --gray-300: #e8e4c8;
+    --gray-400: #c8bfa0;
+    --gray-500: #8a8070;
+    --gray-600: #5a504a;
+    --gray-700: #3a302a;
+    --gray-800: #2a201a;
+    --gray-900: #160424;
+    --peach: #FDE594;
+    --lavender: #7A164B;
+    --mint: #F5F9D6;
+    --coral: #E25838;
+    --sky: #FDE594;
     --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-size-base: 16px;
     --font-size-sm: 14px;
@@ -82,9 +82,9 @@
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
     --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.16);
-    --shadow-glow-pink: 0 4px 20px rgba(197, 72, 54, 0.3);
-    --shadow-glow-purple: 0 4px 20px rgba(79, 8, 76, 0.3);
-    --shadow-glow-blue: 0 4px 20px rgba(226, 148, 84, 0.3);
+    --shadow-glow-pink: 0 4px 20px rgba(226, 88, 56, 0.3);
+    --shadow-glow-purple: 0 4px 20px rgba(122, 22, 75, 0.3);
+    --shadow-glow-blue: 0 4px 20px rgba(253, 229, 148, 0.3);
     --transition-fast: 150ms ease-in-out;
     --transition-base: 300ms ease-in-out;
     --transition-slow: 500ms ease-in-out;
@@ -479,6 +479,46 @@ p {
     background-color: #D1ECF1;
     border-color: #BEE5EB;
     color: #0C5460;
+}
+
+/* Alert dismiss button — styled to match landing page CTA button */
+.alert-dismissible .btn-close {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    z-index: 2;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    border-radius: 2rem;
+    border: none;
+    background: white;
+    color: #7A164B;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    opacity: 1;
+    /* Override Bootstrap defaults */
+    background-image: none;
+    width: auto;
+    height: auto;
+}
+
+.alert-dismissible .btn-close::after {
+    content: '✕ Dismiss';
+}
+
+.alert-dismissible .btn-close:hover {
+    background: #FDE594;
+    color: #160424;
+    transform: translateY(-50%) translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.alert-dismissible .btn-close:focus {
+    box-shadow: 0 0 0 0.2rem rgba(122, 22, 75, 0.25);
+    outline: 0;
 }
 
 /* ==================== MODALS ==================== */
