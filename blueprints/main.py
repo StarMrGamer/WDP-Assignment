@@ -91,11 +91,12 @@ def add_security_headers(response):
 
     csp = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
-        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://accounts.google.com; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://accounts.google.com; "
         "font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; "
         "img-src 'self' data: blob: https:; "
-        "connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+        "connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://accounts.google.com; "
+        "frame-src https://accounts.google.com; "
         "worker-src 'self' blob:;"
     )
     response.headers['Content-Security-Policy'] = csp
@@ -133,9 +134,11 @@ def index():
             return redirect(url_for('youth.dashboard'))
         elif role == 'admin':
             return redirect(url_for('admin.dashboard'))
+    google_pending = session.get('google_pending')
     return render_template('index.html',
                            login_form=LoginForm(),
-                           register_form=RegistrationForm())
+                           register_form=RegistrationForm(),
+                           google_pending=google_pending)
 
 
 @main_bp.route('/support', methods=['GET', 'POST'])

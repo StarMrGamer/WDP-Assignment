@@ -35,7 +35,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
     # ==================== GOOGLE OAUTH ====================
-    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '1004420148130-m21itsgudhbi88dv7c8544smconu2nkf.apps.googleusercontent.com')
 
     @staticmethod
     def init_app(app):

@@ -35,8 +35,11 @@ def login():
         password = form.password.data
         remember = form.remember.data
 
-        # Query database for user
-        user = User.query.filter_by(username=username).first()
+        # Query database for user by username or email
+        if '@' in username:
+            user = User.query.filter_by(email=username).first()
+        else:
+            user = User.query.filter_by(username=username).first()
 
         # Check if user exists and password is correct
         if user and user.check_password(password):
@@ -89,7 +92,7 @@ def setup():
     Handle quick setup after registration.
     """
     if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('main.index'))
 
     if request.method == 'POST':
         interests = request.form.getlist('interests')
@@ -183,8 +186,15 @@ def register():
                 'theme': 'light'
             }
 
-        # New accounts require admin approval before they can log in
-        new_user.is_approved = False
+        # If registering via Google, link google_id and auto-approve
+        google_pending = session.get('google_pending')
+        google_id_from_form = request.form.get('google_id', '')
+        if google_pending and google_id_from_form == google_pending.get('google_id'):
+            new_user.google_id = google_id_from_form
+            new_user.is_approved = True
+        else:
+            # New accounts require admin approval before they can log in
+            new_user.is_approved = False
 
         try:
             # Mark registration code as used
@@ -217,8 +227,14 @@ def register():
 
             db.session.commit()
 
+            # If Google registration, clear pending and auto-login
+            if new_user.google_id and new_user.is_approved:
+                session.pop('google_pending', None)
+                flash(f'Welcome, {new_user.full_name}! Your account has been created.', 'success')
+                return _login_user(new_user)
+
             flash(f'Account created! An admin will review and approve your account shortly. You\'ll be able to log in once approved.', 'success')
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('main.index'))
 
         except Exception as e:
             db.session.rollback()
@@ -250,12 +266,12 @@ def google_login():
     credential = request.form.get('credential')
     if not credential:
         flash('Google sign-in failed. No credential received.', 'danger')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('main.index'))
 
     client_id = current_app.config.get('GOOGLE_CLIENT_ID')
     if not client_id:
         flash('Google sign-in is not configured.', 'danger')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('main.index'))
 
     try:
         idinfo = id_token.verify_oauth2_token(
@@ -263,7 +279,7 @@ def google_login():
         )
     except Exception:
         flash('Google sign-in failed. Invalid token.', 'danger')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('main.index'))
 
     google_id = idinfo.get('sub')
     email = idinfo.get('email')
@@ -271,7 +287,7 @@ def google_login():
 
     if not email:
         flash('Google sign-in failed. No email provided.', 'danger')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('main.index'))
 
     # Case 1: User with this google_id already exists → login
     user = User.query.filter_by(google_id=google_id).first()
@@ -285,13 +301,14 @@ def google_login():
         db.session.commit()
         return _login_user(user)
 
-    # Case 3: New user → store Google info in session, redirect to complete registration
+    # Case 3: New user → store Google info in session, redirect to register with pre-filled email
     session['google_pending'] = {
         'google_id': google_id,
         'email': email,
         'full_name': full_name
     }
-    return redirect(url_for('auth.google_complete'))
+    flash('No account found. Please create one — your email and name have been filled in.', 'info')
+    return redirect(url_for('main.index', panel='register'))
 
 
 @auth_bp.route('/google-complete', methods=['GET', 'POST'])
@@ -303,7 +320,7 @@ def google_complete():
     google_info = session.get('google_pending')
     if not google_info:
         flash('Please sign in with Google first.', 'warning')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('main.index'))
 
     form = GoogleCompleteForm()
 
@@ -383,12 +400,12 @@ def _login_user(user):
     """Helper to log in a user and redirect to their dashboard."""
     if not user.is_approved:
         flash('Your account is pending admin approval.', 'warning')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('main.index'))
 
     if not user.is_active:
         reason = user.disable_reason or "Account disabled by administrator."
         flash(f'Your account has been disabled. Reason: {reason}', 'danger')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('main.index'))
 
     # Clear google_pending if present
     google_pending = session.get('google_pending')
