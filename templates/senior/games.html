@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from 'includes/_macros.html' import avatar, avatar_cover %}
 <!--
     File: games.html
     Purpose: Game lobby with traditional Singapore games for senior users
@@ -593,7 +594,7 @@
             <!-- Mini Gamer Profile Card -->
             <div class="gamer-card mini">
               <div class="gamer-card__inner">
-                <img class="gamer-card__cover" src="{{ url_for('static', filename=user.profile_picture|fix_pfp) }}" alt="{{ user.full_name }}">
+                {{ avatar_cover(user) }}
 
                 <div class="gamer-card__body">
                   <h2 class="gamer-card__header">
@@ -717,7 +718,7 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <img src="{{ url_for('static', filename=opponent.profile_picture|fix_pfp) }}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                {{ avatar(opponent, 30) }}
                                 <span>{{ opponent.full_name }}</span>
                             </div>
                         </td>

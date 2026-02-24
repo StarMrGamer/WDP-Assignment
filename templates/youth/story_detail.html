@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from 'includes/_macros.html' import avatar %}
 
 {% block body_class %}youth-dashboard{% endblock %}
 
@@ -17,7 +18,7 @@
                     <!-- User Info -->
                     <div class="d-flex align-items-center mb-4">
                         <a href="{{ url_for('youth.public_profile', user_id=story.user.id) }}">
-                            <img src="{{ url_for('static', filename=story.user.profile_picture|fix_pfp) }}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                            {{ avatar(story.user, 50, 'me-3') }}
                         </a>
                         <div>
                             <a href="{{ url_for('youth.public_profile', user_id=story.user.id) }}" class="text-decoration-none text-dark">
@@ -98,7 +99,7 @@
                         <div class="comments-list mb-3">
                             {% for comment in story.comments %}
                             <div class="d-flex mb-3">
-                                <img src="{{ url_for('static', filename=comment.user.profile_picture|fix_pfp) }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                {{ avatar(comment.user, 32, 'me-2') }}
                                 <div class="bg-white p-2 rounded w-100">
                                     <div class="d-flex justify-content-between">
                                         <strong class="small">{{ comment.user.full_name }}</strong>

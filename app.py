@@ -182,4 +182,4 @@ if __name__ == '__main__':
     print("Press CTRL+C to quit")
     print("=" * 60)
 
-    socketio.run(app, host='0.0.0.0', port=port, debug=False)
+    socketio.run(app, host='0.0.0.0', port=port, debug=True)

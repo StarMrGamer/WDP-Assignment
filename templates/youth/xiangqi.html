@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from 'includes/_macros.html' import avatar %}
 
 {% block title %}Xiangqi - GenCon SG{% endblock %}
 
@@ -240,7 +241,7 @@
                 <!-- Opponent info -->
                 {% set opponent = player2 if active_session.player1_id == session.user_id else player1 %}
                 <div class="player-card p-2 bg-white rounded shadow-sm d-flex align-items-center gap-3">
-                    <img src="{{ url_for('static', filename=opponent.profile_picture|fix_pfp) }}" alt="{{ opponent.full_name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                    {{ avatar(opponent, 40) }}
                     <div>
                         <div class="fw-bold small">{{ opponent.full_name }}</div>
                         <div class="text-muted" style="font-size: 0.75rem;">Elo: {{ opponent.elo }}</div>
@@ -259,7 +260,7 @@
                 <!-- My info -->
                 {% set me = player1 if active_session.player1_id == session.user_id else player2 %}
                 <div class="player-card p-2 bg-white rounded shadow-sm d-flex align-items-center gap-3 border border-primary">
-                    <img src="{{ url_for('static', filename=me.profile_picture|fix_pfp) }}" alt="{{ me.full_name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                    {{ avatar(me, 40) }}
                     <div>
                         <div class="fw-bold small">{{ me.full_name }} (You)</div>
                         <div class="text-muted" style="font-size: 0.75rem;">Elo: {{ me.elo }}</div>

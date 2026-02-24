@@ -432,10 +432,10 @@ def seed_data():
         # Create Registration Codes
         print("Seeding registration codes...")
         codes = [
-            RegistrationCode(code='SENIOR2025', role='senior'),
-            RegistrationCode(code='YOUTH2025',  role='youth'),
-            RegistrationCode(code='GENCON01',   role='senior'),
-            RegistrationCode(code='GENCON02',   role='youth'),
+            RegistrationCode(code='SENIOR2025'),
+            RegistrationCode(code='YOUTH2025'),
+            RegistrationCode(code='GENCON01'),
+            RegistrationCode(code='GENCON02'),
         ]
         for c in codes:
             db.session.add(c)
