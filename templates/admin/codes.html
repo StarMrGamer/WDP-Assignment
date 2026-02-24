@@ -7,6 +7,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Registration Codes</h1>
         <form method="POST" action="{{ url_for('admin.codes') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>Generate New Code
             </button>
@@ -38,7 +39,8 @@
                             </td>
                             <td>
                                 {% if code.used_by %}
-                                <a href="{{ url_for('admin.user_detail', user_id=code.used_by.id) }}" class="text-decoration-none">
+                                <a href="{{ url_for('admin.user_detail', user_id=code.used_by.id) }}"
+                                    class="text-decoration-none">
                                     {{ code.used_by.full_name }}
                                 </a>
                                 <small class="text-muted d-block">@{{ code.used_by.username }}</small>
