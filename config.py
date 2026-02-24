@@ -203,7 +203,7 @@ class DevelopmentConfig(Config):
     Development environment configuration.
     Inherits from base Config class and overrides specific settings.
     """
-    DEBUG = False
+    DEBUG = True
     TESTING = False
     SQLALCHEMY_ECHO = False
 

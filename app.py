@@ -35,7 +35,7 @@ def create_app(config_name=None):
                      Defaults to FLASK_ENV env var, then 'development'.
     """
     if config_name is None:
-        config_name = os.environ.get('FLASK_ENV', 'development')
+        config_name = os.environ.get('FLASK_ENV', 'production')
 
     app = Flask(__name__)
 
@@ -169,7 +169,8 @@ app = create_app()
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-    config_name = os.environ.get('FLASK_ENV', 'development')
+    config_name = os.environ.get('FLASK_ENV', 'production')
+    port = int(os.environ.get('PORT', 5001))
     print("=" * 60)
     print("Starting GenCon SG Application")
     print("=" * 60)
@@ -177,8 +178,8 @@ if __name__ == '__main__':
     print(f"Debug Mode: {app.config['DEBUG']}")
     print(f"Database: {app.config['SQLALCHEMY_DATABASE_URI']}")
     print("=" * 60)
-    print("Server running at http://localhost:5001")
+    print(f"Server running at http://0.0.0.0:{port}")
     print("Press CTRL+C to quit")
     print("=" * 60)
 
-    socketio.run(app, host='0.0.0.0', port=5001, debug=app.config['DEBUG'])
+    socketio.run(app, host='0.0.0.0', port=port, debug=False)

@@ -4,3 +4,5 @@ database.db
 *.pyc
 .env
 Project_Guidebook.pdf
+/.claude/screenshot
+/database.db
