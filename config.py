@@ -13,6 +13,18 @@ Description: Contains all configuration settings including:
 import os
 from datetime import timedelta
 
+# Load .env file from the project root — called as a function so it
+# works correctly even when Flask's debug reloader re-imports this module.
+def _load_env():
+    try:
+        from dotenv import load_dotenv
+        _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+        load_dotenv(_env_path, override=True)
+    except ImportError:
+        pass
+
+_load_env()  # Run immediately on import
+
 # Base directory of the application
 # __file__ is the path to this config.py file
 # os.path.abspath gets the absolute path
@@ -38,12 +50,16 @@ class Config:
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '1004420148130-m21itsgudhbi88dv7c8544smconu2nkf.apps.googleusercontent.com')
 
     # ==================== EMAIL / SMTP ====================
-    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'gencon@ctrlcurryrice.online')
+    # Re-load .env right before reading mail settings so Flask's debug
+    # reloader child process always gets the correct values.
+    _load_env()
+    MAIL_SERVER   = os.environ.get('MAIL_SERVER',   'smtp-relay.brevo.com')
+    MAIL_PORT     = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS  = os.environ.get('MAIL_USE_TLS',  'True').lower() == 'true'
+    MAIL_USE_SSL  = os.environ.get('MAIL_USE_SSL',  'False').lower() == 'true'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'a3439c001@smtp-brevo.com')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'GenCon SG <gencon@ctrlcurryrice.online>')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'GenCon SG <genconsg.noreply@gmail.com>')
 
     @staticmethod
     def init_app(app):

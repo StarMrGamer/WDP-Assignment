@@ -7,6 +7,23 @@ Description: Exposes create_app() and a module-level app instance for
              gunicorn / python app.py invocations.
 """
 
+import os
+
+# Disable eventlet's green DNS to fix timeouts/ignore_errors on Windows
+os.environ['EVENTLET_NO_GREENDNS'] = 'yes'
+
+try:
+    from dotenv import load_dotenv
+    _here = os.path.dirname(os.path.abspath(__file__))
+    load_dotenv(os.path.join(_here, '.env'), override=True)
+    print(f"[Startup] MAIL_PASSWORD set: {bool(os.environ.get('MAIL_PASSWORD'))}")
+except ImportError:
+    pass
+
+
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, Blueprint
 from config import get_config
 from extensions import db, socketio, csrf
@@ -56,6 +73,8 @@ def create_app(config_name=None):
 
     from extensions import mail
     mail.init_app(app)
+    print(f"[Mail] SMTP server: {app.config.get('MAIL_SERVER')}:{app.config.get('MAIL_PORT')} | user: {app.config.get('MAIL_USERNAME')} | password set: {bool(app.config.get('MAIL_PASSWORD'))}")
+
 
     # ── Socket.IO handlers & notification listener ────────────
     import socket_handlers  # noqa: F401 — registers @socketio.on decorators (once)

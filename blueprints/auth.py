@@ -8,6 +8,8 @@ Feature: Authentication & User Management
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app, jsonify
 from models import db, User, Streak, RegistrationCode, Notification
+from extensions import mail
+from flask_mail import Message
 from utils import check_unkind_words, sanitize_for_display
 from forms import LoginForm, RegistrationForm, GoogleCompleteForm, ForgotPasswordForm, ResetPasswordForm
 from werkzeug.utils import secure_filename
@@ -269,18 +271,34 @@ def forgot_password():
             token = s.dumps(email, salt='password-reset')
             reset_url = url_for('auth.reset_password', token=token, _external=True)
 
-            from extensions import mail
-            from flask_mail import Message
-            msg = Message(
-                subject='GenCon SG — Reset Your Password',
-                recipients=[email],
-                html=render_template('auth/reset_email.html',
-                                     user=user, reset_url=reset_url)
-            )
             try:
-                mail.send(msg)
+                import smtplib
+                from email.mime.multipart import MIMEMultipart
+                from email.mime.text import MIMEText
+                _srv  = current_app.config['MAIL_SERVER']
+                _port = int(current_app.config['MAIL_PORT'])
+                _user = current_app.config['MAIL_USERNAME']
+                _pass = current_app.config['MAIL_PASSWORD']
+                _from = current_app.config.get('MAIL_DEFAULT_SENDER', _user)
+                print(f"[Email] srv={_srv}:{_port} user={_user} pass_len={len(_pass)}")
+                _body = render_template('auth/reset_email.html', user=user, reset_url=reset_url)
+                _mime = MIMEMultipart('alternative')
+                _mime['Subject'] = 'GenCon SG - Reset Your Password'
+                _mime['From']    = _from
+                _mime['To']      = email
+                _mime.attach(MIMEText(_body, 'html', 'utf-8'))
+                with smtplib.SMTP(_srv, _port) as _smtp:
+                    _smtp.ehlo()
+                    _smtp.starttls()
+                    _smtp.ehlo()
+                    _smtp.login(_user, _pass)
+                    _smtp.send_message(_mime)
+                print(f"[Email] Sent to {email} successfully!")
             except Exception as e:
+                import traceback
                 print(f"Email send error: {e}")
+                traceback.print_exc()
+
 
         # Always show same message to prevent email enumeration
         flash('If an account with that email exists, a password reset link has been sent.', 'info')
