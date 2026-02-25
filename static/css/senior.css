@@ -11,7 +11,7 @@
                  - Modern, clean color scheme (aligned with Youth theme)
 */
 
-/* ==================== SENIOR COLOR SCHEME - WHIMSICAL & WARM ==================== */
+/* ==================== SENIOR COLOR SCHEMES - WARM & INVITING ==================== */
 :root {
     /* Warm, friendly colors that are still accessible */
     --senior-primary: #E25838;
@@ -36,16 +36,342 @@
     --senior-card-shadow: 0 4px 20px rgba(226, 88, 56, 0.15);
 }
 
-/* ==================== BASE OVERRIDES FOR SENIORS ==================== */
+/* ==================== THEME VARIATIONS ==================== */
+/* Light Theme (default) */
+body[data-role="senior"][data-theme="light"] {
+    --senior-primary: #E25838;
+    --senior-secondary: #7A164B;
+    --senior-accent: #FDE594;
+    --senior-bg: #F5F9D6;
+    --senior-text: #160424;
+    --senior-card-bg: #FFFFFF;
+    background-color: var(--senior-bg);
+    color: var(--senior-text);
+}
+
+/* Dark Mode - Discord-style colors */
+body[data-role="senior"][data-theme="dark"] {
+    --senior-bg: #313338;
+    --senior-text: #f2f3f5;
+    --senior-card-bg: #232428;
+}
+
+/* ==================== BASE STYLING ==================== */
 body[data-role="senior"] {
     background-color: var(--senior-bg);
     color: var(--senior-text);
     font-size: 16px;
     line-height: 1.8;
-    /* Increased line height for easier reading */
 }
 
-/* ==================== FONT SIZE ADJUSTMENTS ==================== */
+/* ==================== BUTTONS ==================== */
+body[data-role="senior"] .btn-primary {
+    background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(226, 88, 56, 0.3);
+    transition: all 0.3s ease;
+}
+
+body[data-role="senior"] .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(226, 88, 56, 0.4);
+}
+
+body[data-role="senior"] .btn-outline-primary {
+    border: 2px solid var(--senior-primary);
+    color: var(--senior-primary);
+    font-weight: 600;
+}
+
+body[data-role="senior"] .btn-outline-primary:hover {
+    background: var(--senior-primary);
+    color: white;
+}
+
+body[data-role="senior"] .btn-success {
+    background-color: #28a745;
+    font-weight: 600;
+}
+
+/* ==================== DASHBOARD ==================== */
+/* Dashboard Header - Warm Sunshine */
+body[data-role="senior"] .dashboard-header {
+    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
+    color: var(--senior-text);
+    padding: 2.5rem 2rem;
+    border-radius: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(226, 88, 56, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+body[data-role="senior"] .dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -5%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+body[data-role="senior"] .dashboard-header::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: 10%;
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+body[data-role="senior"] .dashboard-card {
+    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 100%);
+    border-left: 5px solid var(--senior-primary);
+    box-shadow: 0 4px 16px rgba(226, 88, 56, 0.15);
+    border-radius: 1.25rem;
+}
+
+/* Stat Cards */
+body[data-role="senior"] .stat-card {
+    background: var(--senior-card-bg);
+    padding: 2rem;
+    border-radius: 1.25rem;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(226, 88, 56, 0.12);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 4px solid var(--senior-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+body[data-role="senior"] .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--senior-primary), var(--senior-accent), var(--senior-secondary));
+}
+
+body[data-role="senior"] .stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(226, 88, 56, 0.25);
+}
+
+body[data-role="senior"] .stat-card .icon {
+    font-size: 2.5rem;
+    color: var(--senior-primary);
+    margin-bottom: 1rem;
+}
+
+body[data-role="senior"] .stat-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--senior-primary), var(--senior-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body[data-role="senior"] .stat-card .label {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+/* ==================== STORY FEED ==================== */
+body[data-role="senior"] .story-card {
+    background: var(--senior-card-bg);
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--senior-accent);
+    animation: slideInUp 0.5s ease;
+}
+
+body[data-role="senior"] .story-card:hover {
+    box-shadow: 0 8px 24px rgba(226, 88, 56, 0.2);
+    transform: translateY(-4px);
+}
+
+body[data-role="senior"] .story-card .category-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-secondary) 100%);
+    color: white;
+    padding: 0.375rem 0.875rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ==================== MESSAGING INTERFACE ==================== */
+body[data-role="senior"] .message-sent {
+    background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
+    color: white;
+    padding: 1.25rem;
+    border-radius: 1.5rem 1.5rem 0.25rem 1.5rem;
+    margin: 0.75rem 0;
+    max-width: 70%;
+    margin-left: auto;
+    font-size: 1.125rem;
+    box-shadow: 0 2px 8px rgba(226, 88, 56, 0.3);
+}
+
+body[data-role="senior"] .message-received {
+    background: var(--senior-card-bg);
+    color: var(--senior-text);
+    padding: 1.25rem;
+    border-radius: 1.5rem 1.5rem 1.5rem 0.25rem;
+    margin: 0.75rem 0;
+    max-width: 70%;
+    border: 1px solid var(--gray-200);
+    font-size: 1.125rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+body[data-role="senior"] .message-input-area {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--senior-card-bg);
+    border-top: 2px solid var(--gray-200);
+    position: sticky;
+    bottom: 0;
+}
+
+body[data-role="senior"] .message-input-area input,
+body[data-role="senior"] .message-input {
+    flex: 1;
+    padding: 1.25rem;
+    border-radius: 2rem;
+    border: 2px solid var(--senior-primary);
+    font-size: 1.125rem;
+    min-height: 52px;
+}
+
+body[data-role="senior"] .message-input-area .btn {
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+/* ==================== EVENT CARDS ==================== */
+body[data-role="senior"] .event-card {
+    background: var(--senior-card-bg);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid var(--senior-secondary);
+    transition: all 0.3s ease;
+}
+
+body[data-role="senior"] .event-card:hover {
+    transform: translateX(8px);
+    box-shadow: 0 8px 24px rgba(226, 88, 56, 0.2);
+}
+
+body[data-role="senior"] .event-card .event-date {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--senior-primary);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+body[data-role="senior"] .event-card .event-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* ==================== PROFILE STATS ==================== */
+body[data-role="senior"] .buddy-card {
+    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 100%);
+    border: 2px solid var(--senior-primary);
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body[data-role="senior"] .buddy-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid var(--senior-primary);
+    margin-bottom: 1rem;
+}
+
+body[data-role="senior"] .buddy-card .buddy-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--senior-text);
+    margin-bottom: 0.5rem;
+}
+
+body[data-role="senior"] .buddy-card .buddy-interests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+body[data-role="senior"] .buddy-card .interest-tag {
+    background-color: var(--senior-primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes slideInUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ==================== SENIOR-SPECIFIC: FONT SIZE ADJUSTMENTS ==================== */
 /* Normal font size (default) */
 body[data-role="senior"][data-font-size="normal"] {
     font-size: 18px;
@@ -113,14 +439,13 @@ body[data-role="senior"][data-font-size="xlarge"] .nav-link {
     font-size: 1.25rem;
 }
 
-/* ==================== SENIOR HIGH CONTRAST (Enhanced contrast, same color palette) ==================== */
+/* ==================== SENIOR-SPECIFIC: HIGH CONTRAST ==================== */
 body[data-role="senior"][data-high-contrast="true"] {
     background-color: #FFF8F0 !important;
     color: #1A0800 !important;
-    /* Deeper warm brown for stronger contrast */
 }
 
-/* Enhanced contrast for cards - keep warm palette, strengthen borders */
+/* Enhanced contrast for cards */
 body[data-role="senior"][data-high-contrast="true"] .card,
 body[data-role="senior"][data-high-contrast="true"] .community-card,
 body[data-role="senior"][data-high-contrast="true"] .dashboard-card,
@@ -132,10 +457,10 @@ body[data-role="senior"][data-high-contrast="true"] .game-card {
     background-color: #FFFFFF !important;
     color: #1A0800 !important;
     border: 3px solid var(--senior-primary) !important;
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25) !important;
+    box-shadow: 0 2px 8px rgba(226, 88, 56, 0.25) !important;
 }
 
-/* Stronger text colors - deepened warm brown, not black */
+/* Stronger text colors */
 body[data-role="senior"][data-high-contrast="true"] h1,
 body[data-role="senior"][data-high-contrast="true"] h2,
 body[data-role="senior"][data-high-contrast="true"] h3,
@@ -161,13 +486,13 @@ body[data-role="senior"][data-high-contrast="true"] .small {
     font-weight: 600 !important;
 }
 
-/* Links use deeper orange */
+/* Links */
 body[data-role="senior"][data-high-contrast="true"] a {
     color: #C2410C !important;
     text-decoration: underline !important;
 }
 
-/* Navbar - warm with strong border */
+/* Navbar */
 body[data-role="senior"][data-high-contrast="true"] .navbar {
     background-color: #FFFFFF !important;
     border-bottom: 3px solid var(--senior-primary) !important;
@@ -183,7 +508,7 @@ body[data-role="senior"][data-high-contrast="true"] .nav-link.active {
     color: var(--senior-primary) !important;
 }
 
-/* Form controls - stronger borders */
+/* Form controls */
 body[data-role="senior"][data-high-contrast="true"] .form-control,
 body[data-role="senior"][data-high-contrast="true"] .form-select {
     background-color: #FFFFFF !important;
@@ -191,7 +516,7 @@ body[data-role="senior"][data-high-contrast="true"] .form-select {
     border: 2px solid var(--senior-primary) !important;
 }
 
-/* Buttons get thicker borders */
+/* Buttons */
 body[data-role="senior"][data-high-contrast="true"] .btn {
     border-width: 3px !important;
     font-weight: 700 !important;
@@ -251,7 +576,6 @@ body[data-role="senior"][data-high-contrast="true"] .badge {
     font-weight: 700 !important;
 }
 
-/* Fix bg-light badges - keep light background with dark text */
 body[data-role="senior"][data-high-contrast="true"] .badge.bg-light {
     background-color: #FFFFFF !important;
     color: #1A0800 !important;
@@ -270,8 +594,8 @@ body[data-role="senior"][data-high-contrast="true"] .bg-white {
     background-color: #FFFFFF !important;
 }
 
-/* ==================== TOUCH-OPTIMIZED ELEMENTS ==================== */
-/* Large click targets for touch devices (minimum 44x44px as per accessibility guidelines) */
+/* ==================== SENIOR-SPECIFIC: TOUCH-OPTIMIZED ELEMENTS ==================== */
+/* Minimum 44x44px click targets per accessibility guidelines */
 body[data-role="senior"] .btn {
     display: inline-block;
     font-weight: var(--font-weight-medium);
@@ -294,7 +618,6 @@ body[data-role="senior"] .nav-link {
 
 body[data-role="senior"] .form-control {
     padding: 1rem;
-    /* Larger input fields */
     font-size: 1.125rem;
     min-height: 52px;
 }
@@ -304,160 +627,7 @@ body[data-role="senior"] .card {
     background: var(--senior-card-bg);
 }
 
-/* ==================== PRIMARY BUTTON STYLING ==================== */
-body[data-role="senior"] .btn-primary {
-    background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
-    border: none;
-    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
-    /* Purple shadow instead of orange glow */
-    transition: all 0.3s ease;
-}
-
-body[data-role="senior"] .btn-primary:hover {
-    background: linear-gradient(135deg, var(--senior-primary-hover) 0%, var(--senior-primary) 100%);
-    box-shadow: 0 6px 16px rgba(155, 89, 182, 0.4);
-    transform: translateY(-2px);
-}
-
-body[data-role="senior"] .btn-success {
-    background-color: #28a745;
-    font-weight: 600;
-}
-
-/* ==================== DASHBOARD CUSTOMIZATIONS - WHIMSICAL ==================== */
-
-/* Dashboard Header - Warm Sunshine */
-body[data-role="senior"] .dashboard-header {
-    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
-    color: var(--senior-text);
-    padding: 2.5rem 2rem;
-    border-radius: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 8px 24px rgba(249, 115, 22, 0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-body[data-role="senior"] .dashboard-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 200px;
-    height: 200px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-}
-
-body[data-role="senior"] .dashboard-card {
-    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 100%);
-    border-left: 5px solid var(--senior-primary);
-    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.15);
-    border-radius: 1.25rem;
-}
-
-body[data-role="senior"] .stat-card {
-    text-align: center;
-    padding: 2rem;
-    background: white;
-    border-radius: 1.25rem;
-    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.12);
-    transition: all 0.3s ease;
-    border-bottom: 4px solid var(--senior-primary);
-    position: relative;
-    overflow: hidden;
-}
-
-body[data-role="senior"] .stat-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--senior-primary), var(--senior-accent));
-}
-
-body[data-role="senior"] .stat-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 12px 32px rgba(249, 115, 22, 0.25);
-}
-
-body[data-role="senior"] .stat-card .icon {
-    font-size: 2.5rem;
-    color: var(--senior-primary);
-    margin-bottom: 1rem;
-}
-
-body[data-role="senior"] .stat-card .value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--senior-text);
-    background: linear-gradient(135deg, var(--senior-primary), var(--senior-accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-body[data-role="senior"] .stat-card .label {
-    font-size: 0.875rem;
-    color: var(--gray-600);
-    margin-top: 0.5rem;
-}
-
-/* ==================== STORY CARDS ==================== */
-body[data-role="senior"] .story-card {
-    border-left: 4px solid var(--senior-accent);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    background: white;
-    border-radius: 0.75rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-body[data-role="senior"] .story-card .category-badge {
-    background-color: var(--senior-accent);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    font-weight: 600;
-    font-size: 0.875rem;
-}
-
-/* ==================== MESSAGING INTERFACE ==================== */
-body[data-role="senior"] .message-sent {
-    background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
-    /* Purple gradient */
-    color: white;
-    border-left: none;
-    /* Removed border to match youth style */
-    padding: 1.25rem;
-    border-radius: 1rem;
-    margin: 1rem 0;
-    font-size: 1.125rem;
-    box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
-}
-
-body[data-role="senior"] .message-received {
-    background-color: white;
-    /* Clean white */
-    border-left: none;
-    border: 1px solid #E0E0E0;
-    padding: 1.25rem;
-    border-radius: 1rem;
-    margin: 1rem 0;
-    font-size: 1.125rem;
-    color: var(--senior-text);
-}
-
-body[data-role="senior"] .message-input {
-    padding: 1.25rem;
-    font-size: 1.25rem;
-    min-height: 80px;
-    border: 2px solid var(--senior-primary);
-}
-
-/* ==================== ACCESSIBILITY TOOLBAR ==================== */
+/* ==================== SENIOR-SPECIFIC: ACCESSIBILITY TOOLBAR ==================== */
 body[data-role="senior"] .accessibility-toolbar {
     position: sticky;
     top: 70px;
@@ -476,7 +646,7 @@ body[data-role="senior"] .accessibility-toolbar .btn {
     padding: 0.75rem 1.25rem;
 }
 
-/* ==================== ICON SIZES ==================== */
+/* ==================== SENIOR-SPECIFIC: ICON SIZES ==================== */
 body[data-role="senior"] .fa,
 body[data-role="senior"] .fas,
 body[data-role="senior"] .far {
@@ -485,86 +655,7 @@ body[data-role="senior"] .far {
     vertical-align: middle;
 }
 
-/* ==================== BUDDY INFO CARD ==================== */
-body[data-role="senior"] .buddy-card {
-    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 100%);
-    /* Warm Sun gradient */
-    /* Purple gradient */
-    border: 2px solid var(--senior-primary);
-    padding: 2rem;
-    border-radius: 1rem;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-body[data-role="senior"] .buddy-card img {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 4px solid var(--senior-primary);
-    margin-bottom: 1rem;
-}
-
-body[data-role="senior"] .buddy-card .buddy-name {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--senior-text);
-    margin-bottom: 0.5rem;
-}
-
-body[data-role="senior"] .buddy-card .buddy-interests {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-body[data-role="senior"] .buddy-card .interest-tag {
-    background-color: var(--senior-primary);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-}
-
-/* ==================== EVENT CARDS ==================== */
-body[data-role="senior"] .event-card {
-    background: white;
-    border: 2px solid var(--senior-border);
-    padding: 1.5rem;
-    border-radius: 1rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    border-left: 4px solid var(--senior-secondary);
-    /* Match youth style */
-}
-
-body[data-role="senior"] .event-card:hover {
-    border-color: var(--senior-primary);
-    box-shadow: 0 4px 16px rgba(155, 89, 182, 0.2);
-    /* Purple shadow */
-    transform: translateY(-4px);
-}
-
-body[data-role="senior"] .event-card .event-date {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--senior-primary);
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-}
-
-body[data-role="senior"] .event-card .event-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-/* ==================== COLOR-BLIND FRIENDLY INDICATORS ==================== */
+/* ==================== SENIOR-SPECIFIC: COLOR-BLIND INDICATORS ==================== */
 /* Use both color AND icons/patterns for status indicators */
 body[data-role="senior"] .status-active::before {
     content: "✓ ";
@@ -580,9 +671,9 @@ body[data-role="senior"] .status-pending::before {
     content: "⏳ ";
 }
 
-/* ==================== GAME INTERFACE ==================== */
+/* ==================== SENIOR-SPECIFIC: GAME INTERFACE ==================== */
 body[data-role="senior"] .game-card {
-    background: white;
+    background: var(--senior-card-bg);
     padding: 2rem;
     border-radius: 1rem;
     text-align: center;
@@ -593,8 +684,7 @@ body[data-role="senior"] .game-card {
 
 body[data-role="senior"] .game-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(155, 89, 182, 0.3);
-    /* Purple shadow */
+    box-shadow: 0 8px 20px rgba(226, 88, 56, 0.3);
 }
 
 body[data-role="senior"] .game-card .game-icon {
@@ -603,13 +693,13 @@ body[data-role="senior"] .game-card .game-icon {
 }
 
 body[data-role="senior"] .game-board {
-    background: white;
+    background: var(--senior-card-bg);
     padding: 2rem;
     border-radius: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* ==================== WEEKLY CHECK-IN INTERFACE ==================== */
+/* ==================== SENIOR-SPECIFIC: WEEKLY CHECK-IN ==================== */
 body[data-role="senior"] .mood-selector {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -619,7 +709,7 @@ body[data-role="senior"] .mood-selector {
 
 body[data-role="senior"] .mood-option {
     padding: 2rem;
-    background: white;
+    background: var(--senior-card-bg);
     border: 3px solid var(--gray-300);
     border-radius: 1rem;
     text-align: center;
@@ -629,18 +719,14 @@ body[data-role="senior"] .mood-option {
 
 body[data-role="senior"] .mood-option:hover {
     border-color: var(--senior-primary);
-    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.2);
-    /* Purple shadow */
+    box-shadow: 0 4px 12px rgba(226, 88, 56, 0.2);
     transform: translateY(-4px);
 }
 
 body[data-role="senior"] .mood-option.selected {
     border-color: var(--senior-primary);
     background-color: #F5F9D6;
-    /* Pale Ivory bg */
-    /* Light purple bg */
-    box-shadow: 0 4px 16px rgba(155, 89, 182, 0.3);
-    /* Purple shadow */
+    box-shadow: 0 4px 16px rgba(226, 88, 56, 0.3);
 }
 
 body[data-role="senior"] .mood-option .emoji {
@@ -653,22 +739,19 @@ body[data-role="senior"] .mood-option .label {
     font-weight: 600;
 }
 
-/* ==================== RESPONSIVE ADJUSTMENTS ==================== */
+/* ==================== RESPONSIVE DESIGN ==================== */
 @media (max-width: 768px) {
     body[data-role="senior"] {
         font-size: 16px;
-        /* Slightly smaller on mobile but still readable */
     }
 
     body[data-role="senior"] .btn {
         width: 100%;
-        /* Full-width buttons on mobile */
         margin-bottom: 1rem;
     }
 
     body[data-role="senior"] .mood-selector {
         grid-template-columns: 1fr;
-        /* Stack mood options on mobile */
     }
 }
 
@@ -680,7 +763,6 @@ body[data-role="senior"] *:focus-visible {
 }
 
 /* ==================== PRINT STYLES ==================== */
-/* Ensure content is readable when printed */
 @media print {
     body[data-role="senior"] {
         background: white;

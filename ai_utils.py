@@ -24,16 +24,17 @@ def chat_completion(messages, max_tokens=500):
     Returns:
         str: The AI response text
     """
-    if not DEEPSEEK_API_KEY:
-        print("[AI] WARNING: DEEPSEEK_API_KEY not set")
+    api_key = os.environ.get('DEEPSEEK_API_KEY')
+    if not api_key:
+        print("[AI] ERROR: DEEPSEEK_API_KEY environment variable is not set.")
         return None
 
     try:
-        print(f"[AI] Calling DeepSeek API...")
+        print(f"[AI] Calling DeepSeek API ({DEEPSEEK_URL})...")
         resp = requests.post(
             DEEPSEEK_URL,
             headers={
-                'Authorization': f'Bearer {DEEPSEEK_API_KEY}',
+                'Authorization': f'Bearer {api_key}',
                 'Content-Type': 'application/json'
             },
             json={
@@ -44,12 +45,23 @@ def chat_completion(messages, max_tokens=500):
             },
             timeout=30
         )
-        resp.raise_for_status()
+        
+        if resp.status_code != 200:
+            print(f"[AI] API Error: Received status code {resp.status_code}")
+            print(f"[AI] Response body: {resp.text}")
+            return None
+
         result = resp.json()['choices'][0]['message']['content']
-        print(f"[AI] Response received ({len(result)} chars)")
+        print(f"[AI] Response received successfully ({len(result)} chars)")
         return result
+    except requests.exceptions.Timeout:
+        print("[AI] ERROR: Connection to DeepSeek API timed out after 30 seconds.")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"[AI] ERROR: Request failed: {type(e).__name__}: {e}")
+        return None
     except Exception as e:
-        print(f"[AI] ERROR: {type(e).__name__}: {e}")
+        print(f"[AI] ERROR: Unexpected error: {type(e).__name__}: {e}")
         return None
 
 

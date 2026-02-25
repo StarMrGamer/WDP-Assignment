@@ -179,13 +179,7 @@
         typingIndicator.style.display = 'inline';
 
         try {
-            const response = await fetch('/senior/api/chatbot', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ conversation: conversation })
-            });
-
-            const data = await response.json();
+            const data = await postData('/senior/api/chatbot', { conversation: conversation });
 
             if (data.reply) {
                 addMessage(data.reply, false);
