@@ -268,6 +268,41 @@
                 </div>
                 {% endif %}
 
+                <!-- My Upcoming Events -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-alt me-1"></i> My Upcoming Events
+                    </div>
+                    <div class="card-body">
+                        {% if upcoming_events %}
+                            {% for event in upcoming_events %}
+                            <div class="event-list-item">
+                                <div class="event-date-box">
+                                    <div class="event-date-day">{{ event.date|format_date('%d') }}</div>
+                                    <div class="event-date-month">{{ event.date|format_date('%b') }}</div>
+                                </div>
+                                <div class="event-main">
+                                    <div class="event-title">{{ event.title }}</div>
+                                    <div class="event-sub">
+                                        <i class="far fa-clock me-1"></i>{{ event.date|format_date('%I:%M %p') }}
+                                        <span class="mx-1">|</span>
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ event.location if event.location else 'Online' }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <a href="{{ url_for('youth.events') }}" class="btn btn-sm btn-outline-primary w-100 mt-2" style="font-size: 0.8rem;">
+                                Open Full Calendar
+                            </a>
+                        {% else %}
+                            <div class="text-center py-2">
+                                <i class="fas fa-calendar-times text-muted mb-1"></i>
+                                <p class="text-muted small mb-0">No signed-up events yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
                 <!-- Recent Achievements -->
                 <div class="card mb-2">
                     <div class="card-header">
@@ -474,6 +509,64 @@
     .post-action:focus-visible {
         outline: 2px solid rgba(197, 72, 54, 0.4);
         outline-offset: 2px;
+    }
+
+    .event-list-item {
+        display: flex;
+        align-items: stretch;
+        gap: 0.6rem;
+        border: 1px solid #eceff3;
+        border-radius: 0.6rem;
+        padding: 0.45rem;
+        margin-bottom: 0.5rem;
+        background: #fff;
+    }
+
+    .event-date-box {
+        min-width: 52px;
+        border-radius: 0.5rem;
+        background: #f7f8fa;
+        border: 1px solid #e4e8ee;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.1;
+        padding: 0.2rem;
+    }
+
+    .event-date-day {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #7A164B;
+    }
+
+    .event-date-month {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #6c757d;
+        text-transform: uppercase;
+    }
+
+    .event-main {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .event-title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #212529;
+        line-height: 1.2;
+        margin-bottom: 0.15rem;
+    }
+
+    .event-sub {
+        font-size: 0.7rem;
+        color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* Responsive: collapse to single column on mobile */

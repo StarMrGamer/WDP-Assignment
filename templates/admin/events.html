@@ -26,7 +26,7 @@
                 <a href="{{ url_for('admin.create_event') }}" class="btn btn-success">
                     <i class="fas fa-plus me-2"></i>Create New Event
                 </a>
-                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light text-black">
                     <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                 </a>
             </div>
@@ -96,8 +96,7 @@
                                 </div>
                             </td>
                             <td>
-                                <div><i class="far fa-calendar me-1 text-muted"></i> {{ event.date.strftime('%d %b %Y,
-                                    %I:%M %p') }}</div>
+                                <div><i class="far fa-calendar me-1 text-muted"></i> {{ event.date|format_date('%d %b %Y, %I:%M %p') }}</div>
                                 <div class="small text-muted"><i class="fas fa-map-marker-alt me-1"></i> {{
                                     event.location }}</div>
                             </td>

@@ -54,10 +54,20 @@ def dashboard():
     # Get user badges
     badges = Badge.query.filter_by(user_id=user.id).count()
 
+    # Get upcoming events this youth has registered for
+    upcoming_events = Event.query.join(
+        EventParticipant, EventParticipant.event_id == Event.id
+    ).filter(
+        EventParticipant.user_id == user.id,
+        Event.status == 'approved',
+        Event.date >= datetime.utcnow()
+    ).order_by(Event.date).limit(4).all()
+
     return render_template('youth/dashboard.html',
                          user=user,
                          buddy=buddy,
                          recent_stories=recent_stories,
+                         upcoming_events=upcoming_events,
                          badges_count=badges,
                          current_category=category_filter,
                          current_role=role_filter)
@@ -513,6 +523,7 @@ def events():
             'event_type': event.event_type,
             'location': event.location,
             'date': event.date,
+            'date_iso': (event.date + timedelta(hours=8)).strftime('%Y-%m-%dT%H:%M:%S'),
             'capacity': event.capacity,
             'participants_count': participants_count,
             'is_registered': is_registered,

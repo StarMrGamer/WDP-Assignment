@@ -52,9 +52,14 @@ def dashboard():
         query = query.filter(User.role == role_filter)
     recent_stories = query.order_by(Story.created_at.desc()).all()
 
-    # Get upcoming events
-    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow())\
-        .order_by(Event.date).limit(3).all()
+    # Get upcoming events this senior has registered for
+    upcoming_events = Event.query.join(
+        EventParticipant, EventParticipant.event_id == Event.id
+    ).filter(
+        EventParticipant.user_id == user.id,
+        Event.status == 'approved',
+        Event.date >= datetime.utcnow()
+    ).order_by(Event.date).limit(4).all()
 
     return render_template('senior/dashboard.html',
                          user=user,
@@ -557,6 +562,7 @@ def events():
     
     # Process events for display
     events_data = []
+    my_events = []
     for event in upcoming_events:
         is_registered = event.id in registered_event_ids
         # Cache count to avoid duplicate queries
@@ -569,14 +575,17 @@ def events():
             'event_type': event.event_type,
             'location': event.location,
             'date': event.date,
+            'date_iso': (event.date + timedelta(hours=8)).strftime('%Y-%m-%dT%H:%M:%S'),
             'capacity': event.capacity,
             'participants_count': participants_count,
             'is_registered': is_registered,
             'is_full': event.capacity is not None and participants_count >= event.capacity
         }
         events_data.append(event_dict)
+        if is_registered:
+            my_events.append(event_dict)
 
-    return render_template('senior/events.html', events=events_data)
+    return render_template('senior/events.html', events=events_data, my_events=my_events)
 
 
 @senior_bp.route('/events/<int:event_id>/register', methods=['POST'])
