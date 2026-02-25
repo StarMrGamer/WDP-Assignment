@@ -7,7 +7,9 @@
       "Bash(pip install:*)",
       "Bash(venv/Scripts/pip install:*)",
       "Bash(head:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(find C:/Users/teeti/Documents/WDP-Assignment/templates -name \"*.html\" ! -path \"*/youth/games.html\" ! -path \"*/senior/games.html\" -exec sed -i 's/#781543/#7A164B/gI; s/#1c032b/#160424/gI; s/#c54836/#E25838/gI; s/#e29454/#E25838/gI' {} +)",
+      "Bash(find:*)"
     ]
   }
 }

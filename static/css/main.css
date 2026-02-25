@@ -1010,7 +1010,7 @@ html[data-theme="dark"] body {
     --dc-text-muted: #949ba4;
     --dc-border: #3f4147;
     --dc-input-bg: #1e1f22;
-    --dc-accent: #5865f2;
+    --dc-accent: #E25838;
 
     background-color: var(--dc-bg-primary) !important;
     color: var(--dc-text-primary) !important;
@@ -1278,9 +1278,9 @@ body[data-theme="dark"] .alert-warning {
 }
 
 body[data-theme="dark"] .alert-info {
-    background-color: rgba(88, 101, 242, 0.2) !important;
-    border-color: rgba(88, 101, 242, 0.3) !important;
-    color: #5865f2 !important;
+    background-color: rgba(226, 88, 56, 0.2) !important;
+    border-color: rgba(226, 88, 56, 0.3) !important;
+    color: #E25838 !important;
 }
 
 /* Notification dropdown */
@@ -1553,9 +1553,9 @@ body[data-theme="dark"] .border {
 
 /* Senior dashboard header - vibrant gradient in dark mode */
 body[data-theme="dark"] .dashboard-header {
-    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #4c1d95 100%) !important;
+    background: linear-gradient(135deg, #E25838 0%, #7A164B 50%, #160424 100%) !important;
     color: #ffffff !important;
-    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4) !important;
+    box-shadow: 0 8px 24px rgba(226, 88, 56, 0.4) !important;
 }
 
 body[data-theme="dark"] .dashboard-header h1,
@@ -1574,19 +1574,19 @@ body[data-theme="dark"] .dashboard-header .rounded-pill {
 body[data-theme="dark"] .stat-card {
     background-color: #232428 !important;
     border-color: #3f4147 !important;
-    border-bottom: 4px solid #7c3aed !important;
+    border-bottom: 4px solid #E25838 !important;
 }
 
 body[data-theme="dark"] .stat-card::after {
-    background: linear-gradient(90deg, #7c3aed, #f59e0b) !important;
+    background: linear-gradient(90deg, #E25838, #FDE594) !important;
 }
 
 body[data-theme="dark"] .stat-card .icon {
-    color: #a78bfa !important;
+    color: #E25838 !important;
 }
 
 body[data-theme="dark"] .stat-card .value {
-    background: linear-gradient(135deg, #c084fc, #f59e0b) !important;
+    background: linear-gradient(135deg, #E25838, #FDE594) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
@@ -1599,19 +1599,19 @@ body[data-theme="dark"] .stat-card .label {
 }
 
 body[data-theme="dark"] .stat-card:hover {
-    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.35) !important;
-    border-color: #7c3aed !important;
+    box-shadow: 0 12px 32px rgba(226, 88, 56, 0.35) !important;
+    border-color: #E25838 !important;
 }
 
 /* Senior buddy card - vibrant dark version */
 body[data-theme="dark"] .buddy-card {
-    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
-    border-color: #7c3aed !important;
+    background: linear-gradient(135deg, #160424 0%, #7A164B 100%) !important;
+    border-color: #E25838 !important;
 }
 
 body[data-theme="dark"] .buddy-card .card-header {
-    background: rgba(124, 58, 237, 0.2) !important;
-    border-color: rgba(124, 58, 237, 0.3) !important;
+    background: rgba(226, 88, 56, 0.2) !important;
+    border-color: rgba(226, 88, 56, 0.3) !important;
 }
 
 body[data-theme="dark"] .buddy-card h4,
@@ -1620,17 +1620,17 @@ body[data-theme="dark"] .buddy-card h5 {
 }
 
 body[data-theme="dark"] .buddy-card .text-muted {
-    color: #c4b5fd !important;
+    color: #FDE594 !important;
 }
 
 body[data-theme="dark"] .buddy-card img {
-    border-color: #a78bfa !important;
+    border-color: #E25838 !important;
 }
 
 /* Senior story cards in dark - bright left border */
 body[data-theme="dark"] .story-card {
     background-color: #2b2d31 !important;
-    border-left: 4px solid #f59e0b !important;
+    border-left: 4px solid #FDE594 !important;
 }
 
 body[data-theme="dark"] .story-card h6 {
@@ -1639,7 +1639,7 @@ body[data-theme="dark"] .story-card h6 {
 }
 
 body[data-theme="dark"] .story-card .category-badge {
-    background-color: #f59e0b !important;
+    background-color: #FDE594 !important;
     color: #1e1f22 !important;
     font-weight: 700 !important;
 }
@@ -1674,17 +1674,17 @@ body[data-theme="dark"] .card-header h5 {
 /* Quick actions list items - bolder hover */
 body[data-theme="dark"] .list-group-item:hover {
     background-color: #313338 !important;
-    border-left: 3px solid #5865f2 !important;
+    border-left: 3px solid #E25838 !important;
 }
 
 /* Weekly check-in card dark mode */
 body[data-theme="dark"] .card.border-warning {
-    border-color: #f59e0b !important;
+    border-color: #FDE594 !important;
     background-color: rgba(245, 158, 11, 0.1) !important;
 }
 
 body[data-theme="dark"] .card.border-warning h6 {
-    color: #fbbf24 !important;
+    color: #FDE594 !important;
 }
 
 body[data-theme="dark"] .card.border-warning p {
@@ -1692,8 +1692,8 @@ body[data-theme="dark"] .card.border-warning p {
 }
 
 body[data-theme="dark"] .btn-warning {
-    background-color: #f59e0b !important;
-    border-color: #f59e0b !important;
+    background-color: #FDE594 !important;
+    border-color: #FDE594 !important;
     color: #1e1f22 !important;
     font-weight: 700 !important;
 }
@@ -1706,18 +1706,18 @@ body[data-theme="dark"] hr {
 
 /* Badges (Bootstrap) brighter in dark mode */
 body[data-theme="dark"] .badge.bg-primary {
-    background-color: #5865f2 !important;
+    background-color: #E25838 !important;
     color: #ffffff !important;
 }
 
 /* btn-outline-primary in dark mode */
 body[data-theme="dark"] .btn-outline-primary {
-    color: #818cf8 !important;
-    border-color: #818cf8 !important;
+    color: #E25838 !important;
+    border-color: #E25838 !important;
 }
 
 body[data-theme="dark"] .btn-outline-primary:hover {
-    background-color: #818cf8 !important;
+    background-color: #E25838 !important;
     color: #ffffff !important;
 }
 
@@ -2287,9 +2287,9 @@ body[data-theme="dark"] .game-msg-other {
 }
 
 body[data-theme="dark"] .game-msg-flagged {
-    background: rgba(255, 193, 7, 0.15) !important;
-    color: #ffd54f !important;
-    border-color: rgba(255, 193, 7, 0.3) !important;
+    background: rgba(253, 229, 148, 0.15) !important;
+    color: #FDE594 !important;
+    border-color: rgba(253, 229, 148, 0.3) !important;
 }
 
 body[data-theme="dark"] .chat-header .badge.bg-light {
@@ -2330,7 +2330,7 @@ body[data-theme="dark"] .lobby-game-card {
 }
 
 body[data-theme="dark"] .lobby-game-card:hover {
-    border-color: #5865f2 !important;
+    border-color: #E25838 !important;
 }
 
 body[data-theme="dark"] .game-header h3 {
@@ -2350,31 +2350,31 @@ body[data-theme="dark"] .game-meta-item {
 }
 
 body[data-theme="dark"] .game-badge.traditional {
-    background: rgba(88, 101, 242, 0.2) !important;
-    color: #8b9fff !important;
+    background: rgba(122, 22, 75, 0.2) !important;
+    color: #d4a0bb !important;
     font-weight: 700 !important;
 }
 
 body[data-theme="dark"] .game-badge.modern {
-    background: rgba(242, 63, 67, 0.2) !important;
-    color: #ff8a8e !important;
+    background: rgba(226, 88, 56, 0.2) !important;
+    color: #f0a08a !important;
     font-weight: 700 !important;
 }
 
 body[data-theme="dark"] .game-badge {
-    background: rgba(255, 193, 7, 0.2) !important;
-    color: #ffd54f !important;
+    background: rgba(253, 229, 148, 0.2) !important;
+    color: #FDE594 !important;
     font-weight: 700 !important;
 }
 
 body[data-theme="dark"] .btn-learn {
     background: #2b2d31 !important;
-    color: #8b9fff !important;
-    border-color: #5865f2 !important;
+    color: #E25838 !important;
+    border-color: #E25838 !important;
 }
 
 body[data-theme="dark"] .btn-learn:hover {
-    background: #5865f2 !important;
+    background: #E25838 !important;
     color: white !important;
 }
 

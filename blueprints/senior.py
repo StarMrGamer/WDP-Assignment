@@ -1203,12 +1203,12 @@ def public_profile(user_id):
     if user.role == 'youth':
         earned_badges = Badge.query.filter_by(user_id=user.id).all()
         BADGE_ICONS = {
-            'First Steps': '🌟', 'Story Keeper': '📖', 'Tech Wizard': '💻',
-            'Game Master': '🎮', 'Community Builder': '🏘️', 'Event Organizer': '📅',
-            'Heritage Champion': '🏛️', 'Conversation Partner': '💬',
-            'Week Warrior': '🔥', 'Month Master': '🏆', 'Century Champion': '💯', 'Year Legend': '👑'
+            'First Steps': 'fas fa-star', 'Story Keeper': 'fas fa-book-open', 'Tech Wizard': 'fas fa-laptop-code',
+            'Game Master': 'fas fa-gamepad', 'Community Builder': 'fas fa-people-roof', 'Event Organizer': 'fas fa-calendar-check',
+            'Heritage Champion': 'fas fa-landmark', 'Conversation Partner': 'fas fa-comments',
+            'Week Warrior': 'fas fa-fire', 'Month Master': 'fas fa-trophy', 'Century Champion': 'fas fa-medal', 'Year Legend': 'fas fa-crown'
         }
-        badges = [{'title': b.badge_type, 'icon': BADGE_ICONS.get(b.badge_type, '🏅')} for b in earned_badges]
+        badges = [{'title': b.badge_type, 'icon': BADGE_ICONS.get(b.badge_type, 'fas fa-award')} for b in earned_badges]
     
     # Get recent stories
     recent_stories = Story.query.filter_by(user_id=user.id).order_by(Story.created_at.desc()).limit(5).all()

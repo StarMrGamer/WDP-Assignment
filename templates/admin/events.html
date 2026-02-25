@@ -36,7 +36,7 @@
     <!-- Statistics Summary -->
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="stat-card" style="border-left-color: #e29454;">
+            <div class="stat-card" style="border-left-color: #E25838;">
                 <div class="stat-icon"><i class="fas fa-calendar"></i></div>
                 <div class="stat-value">{{ events|length }}</div>
                 <div class="stat-label">Total Events</div>
@@ -50,8 +50,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="stat-card" style="border-left-color: #c54836;">
-                <div class="stat-icon" style="color: #c54836;"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="stat-card" style="border-left-color: #E25838;">
+                <div class="stat-icon" style="color: #E25838;"><i class="fas fa-map-marker-alt"></i></div>
                 <div class="stat-value">{{ events|selectattr('event_type', 'equalto', 'in-person')|list|length }}</div>
                 <div class="stat-label">In-Person Events</div>
             </div>

@@ -5,7 +5,7 @@
 {% block extra_css %}
 <style>
     body {
-        background: linear-gradient(135deg, #e29454 0%, #c54836 40%, #781543 70%, #4f084c 100%);
+        background: linear-gradient(135deg, #E25838 0%, #E25838 40%, #7A164B 70%, #4f084c 100%);
         background-attachment: fixed;
     }
 
@@ -37,7 +37,7 @@
     }
 
     .register-header {
-        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
+        background: linear-gradient(135deg, #E25838 0%, #7A164B 100%);
         color: white;
         padding: 2rem;
         text-align: center;
@@ -78,7 +78,7 @@
     }
 
     .form-control:focus {
-        border-color: #c54836;
+        border-color: #E25838;
         box-shadow: 0 0 0 0.2rem rgba(197, 72, 54, 0.25);
         outline: none;
     }
@@ -99,7 +99,7 @@
     }
 
     .password-toggle:hover {
-        color: #c54836;
+        color: #E25838;
     }
 
     .google-info {
@@ -140,29 +140,29 @@
         border: none;
         color: white;
         transition: all 0.3s ease;
-        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
+        background: linear-gradient(135deg, #E25838 0%, #7A164B 100%);
     }
 
     .btn-register:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(197, 72, 54, 0.4);
-        background: linear-gradient(135deg, #781543 0%, #c54836 100%);
+        background: linear-gradient(135deg, #7A164B 0%, #E25838 100%);
     }
 
     .btn-register.senior-mode {
-        background: linear-gradient(135deg, #e29454 0%, #c54836 100%);
+        background: linear-gradient(135deg, #E25838 0%, #E25838 100%);
     }
 
     .btn-register.senior-mode:hover {
-        background: linear-gradient(135deg, #c54836 0%, #e29454 100%);
+        background: linear-gradient(135deg, #E25838 0%, #E25838 100%);
     }
 
     .btn-register.youth-mode {
-        background: linear-gradient(135deg, #781543 0%, #4f084c 100%);
+        background: linear-gradient(135deg, #7A164B 0%, #4f084c 100%);
     }
 
     .btn-register.youth-mode:hover {
-        background: linear-gradient(135deg, #4f084c 0%, #781543 100%);
+        background: linear-gradient(135deg, #4f084c 0%, #7A164B 100%);
     }
 
     @media (max-width: 576px) {
@@ -306,21 +306,21 @@
         badge.className = 'badge ms-2';
 
         if (age >= 60) {
-            badge.style.background = '#e29454';
+            badge.style.background = '#E25838';
             badge.textContent = 'Senior (' + age + ')';
             roleBadge.appendChild(badge);
             roleBadge.style.display = 'inline';
             roleHint.textContent = 'You will be registered as a Senior.';
-            roleHint.style.color = '#e29454';
+            roleHint.style.color = '#E25838';
             submitBtn.className = 'btn btn-register senior-mode';
             submitBtn.textContent = 'Join as Senior';
         } else {
-            badge.style.background = '#781543';
+            badge.style.background = '#7A164B';
             badge.textContent = 'Youth (' + age + ')';
             roleBadge.appendChild(badge);
             roleBadge.style.display = 'inline';
             roleHint.textContent = 'You will be registered as a Youth volunteer.';
-            roleHint.style.color = '#781543';
+            roleHint.style.color = '#7A164B';
             submitBtn.className = 'btn btn-register youth-mode';
             submitBtn.textContent = 'Join as Youth';
         }

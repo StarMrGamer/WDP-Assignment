@@ -28,24 +28,23 @@
     <div class="row g-4 mb-5">
         {% for community in my_communities %}
         <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-primary">
-                <div class="card-body text-center p-4 d-flex flex-column">
-                    <div class="position-relative d-inline-block">
-                        {% if community.photo_url %}
-                        <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" class="rounded-circle mb-3 mx-auto" style="width: 80px; height: 80px; object-fit: cover;">
-                        {% else %}
-                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
-                            {{ community.name[0] | upper }}
-                        </div>
-                        {% endif %}
-                        {% if community.unread_count > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ community.unread_count }}
-                            <span class="visually-hidden">unread messages</span>
-                        </span>
-                        {% endif %}
+            <div class="card h-100 shadow-sm border-primary overflow-hidden">
+                <div class="position-relative">
+                    {% if community.photo_url %}
+                    <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" style="width: 100%; height: 160px; object-fit: cover;">
+                    {% else %}
+                    <div class="d-flex align-items-center justify-content-center" style="width: 100%; height: 160px; background: linear-gradient(135deg, var(--youth-primary), var(--youth-accent)); font-size: 3.5rem; color: white; font-weight: 700;">
+                        {{ community.name[0] | upper }}
                     </div>
-                    
+                    {% endif %}
+                    {% if community.unread_count > 0 %}
+                    <span class="position-absolute top-0 end-0 m-2 badge rounded-pill bg-danger">
+                        {{ community.unread_count }}
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="card-body text-center p-4 d-flex flex-column">
                     <h5 class="card-title fw-bold">{{ community.name }}</h5>
                     <p class="card-text text-muted small mb-0">{{ community.description }}</p>
 
@@ -69,18 +68,17 @@
     <div class="row g-4">
         {% for community in other_communities %}
         <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center p-4 d-flex flex-column">
-                    <div class="position-relative d-inline-block">
-                        {% if community.photo_url %}
-                        <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" class="rounded-circle mb-3 mx-auto" style="width: 80px; height: 80px; object-fit: cover;">
-                        {% else %}
-                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
-                            {{ community.name[0] | upper }}
-                        </div>
-                        {% endif %}
+            <div class="card h-100 shadow-sm overflow-hidden">
+                <div class="position-relative">
+                    {% if community.photo_url %}
+                    <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" style="width: 100%; height: 160px; object-fit: cover;">
+                    {% else %}
+                    <div class="d-flex align-items-center justify-content-center" style="width: 100%; height: 160px; background: linear-gradient(135deg, var(--youth-accent), var(--youth-primary)); font-size: 3.5rem; color: white; font-weight: 700;">
+                        {{ community.name[0] | upper }}
                     </div>
-
+                    {% endif %}
+                </div>
+                <div class="card-body text-center p-4 d-flex flex-column">
                     <h5 class="card-title fw-bold">{{ community.name }}</h5>
                     <p class="card-text text-muted small mb-0">{{ community.description }}</p>
 

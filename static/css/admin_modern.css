@@ -1,0 +1,156 @@
+/*
+    File: admin_modern.css
+    Purpose: Modern SaaS aesthetic for Admin Dashboard
+    Description: Adapts the provided modern styles into standard CSS for the Admin homepage.
+*/
+
+:root {
+    --modern-background: #F5F9D6;
+    --modern-foreground: #160424;
+
+    --modern-card: #FFFFFF;
+    --modern-card-foreground: #160424;
+
+    --modern-primary: #160424;
+    --modern-primary-foreground: #FFFFFF;
+
+    --modern-secondary: #e8e4c8;
+    --modern-secondary-foreground: #160424;
+
+    --modern-muted: #F5F9D6;
+    --modern-muted-foreground: #5a504a;
+
+    --modern-accent: #FDE594;
+    --modern-accent-foreground: #160424;
+
+    --modern-destructive: #E25838;
+    --modern-destructive-foreground: #FFFFFF;
+
+    --modern-border: #e8e4c8;
+    --modern-radius: 0.75rem;
+
+    /* Gradients */
+    --modern-gradient-primary: linear-gradient(135deg, #7A164B, #E25838);
+    --modern-gradient-warm: linear-gradient(135deg, #E25838, #7A164B);
+    --modern-gradient-cta: linear-gradient(135deg, #160424, #7A164B);
+
+    /* Shadows */
+    --modern-shadow-card: 0 1px 3px rgba(22, 4, 36, 0.04), 0 4px 12px rgba(22, 4, 36, 0.06);
+    --modern-shadow-card-hover: 0 4px 16px rgba(22, 4, 36, 0.08), 0 8px 24px rgba(22, 4, 36, 0.1);
+}
+
+/* Global overrides for modern feel */
+body[data-role="admin"] {
+    background-color: var(--modern-background);
+}
+
+/* Custom Scrollbar */
+body[data-role="admin"]::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+body[data-role="admin"]::-webkit-scrollbar-track {
+    background: var(--modern-muted);
+}
+body[data-role="admin"]::-webkit-scrollbar-thumb {
+    background: rgba(90, 80, 74, 0.3);
+    border-radius: 3px;
+}
+body[data-role="admin"]::-webkit-scrollbar-thumb:hover {
+    background: rgba(90, 80, 74, 0.5);
+}
+
+/* Modern Header Overrides */
+body[data-role="admin"] .admin-modern-header {
+    background: var(--modern-gradient-warm);
+    border-radius: var(--modern-radius);
+    padding: 2.5rem;
+    color: white;
+    text-align: center;
+    box-shadow: var(--modern-shadow-card);
+    margin-bottom: 2rem;
+}
+
+/* Modern Stat Card Overrides */
+body[data-role="admin"] .stat-card-modern {
+    background: var(--modern-card);
+    border: none !important;
+    border-radius: var(--modern-radius) !important;
+    box-shadow: var(--modern-shadow-card);
+    padding: 1.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+body[data-role="admin"] .stat-card-modern:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--modern-shadow-card-hover);
+}
+
+body[data-role="admin"] .stat-card-modern .stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: var(--modern-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Modern Alert Overrides */
+body[data-role="admin"] .alert-card-modern {
+    background: var(--modern-card);
+    border: 1px solid var(--modern-border);
+    border-radius: var(--modern-radius);
+    box-shadow: var(--modern-shadow-card);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s;
+}
+
+body[data-role="admin"] .alert-card-modern.warning {
+    border-left: 4px solid #FDE594;
+    background: rgba(253, 229, 148, 0.1);
+}
+
+body[data-role="admin"] .alert-card-modern.danger {
+    border-left: 4px solid var(--modern-destructive);
+    background: rgba(226, 88, 56, 0.05);
+}
+
+/* Modern Action Button Overrides */
+body[data-role="admin"] .action-btn-modern {
+    background: var(--modern-card);
+    border: 1px solid var(--modern-border);
+    border-radius: var(--modern-radius);
+    padding: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--modern-foreground);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--modern-shadow-card);
+}
+
+body[data-role="admin"] .action-btn-modern:hover {
+    border-color: var(--modern-primary);
+    transform: translateY(-4px);
+    box-shadow: var(--modern-shadow-card-hover);
+    color: var(--modern-primary);
+}
+
+body[data-role="admin"] .action-btn-modern i {
+    display: block;
+    font-size: 2.25rem;
+    margin-bottom: 0.75rem;
+    background: var(--modern-gradient-cta);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Modern Activity List */
+body[data-role="admin"] .activity-card-modern {
+    background: var(--modern-card);
+    border-radius: var(--modern-radius);
+    box-shadow: var(--modern-shadow-card);
+    padding: 1.5rem;
+}

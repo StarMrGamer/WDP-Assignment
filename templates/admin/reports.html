@@ -57,8 +57,8 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #e29454;">
-                <div class="stat-icon" style="color: #e29454;"><i class="fas fa-search"></i></div>
+            <div class="stat-card" style="border-left-color: #E25838;">
+                <div class="stat-icon" style="color: #E25838;"><i class="fas fa-search"></i></div>
                 <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'under_review')|list|length }}</div>
                 <div class="stat-label">Under Review</div>
             </div>
@@ -164,8 +164,8 @@
 
                 <!-- AI Analysis -->
                 {% if report.ai_analysis %}
-                <div class="mt-3 p-3 rounded" style="background: #eef2ff; border-left: 4px solid #c54836;">
-                    <small class="d-block mb-1" style="color: #c54836; font-weight: 600;"><i class="fas fa-robot me-1"></i>AI Analysis:</small>
+                <div class="mt-3 p-3 rounded" style="background: #eef2ff; border-left: 4px solid #E25838;">
+                    <small class="d-block mb-1" style="color: #E25838; font-weight: 600;"><i class="fas fa-robot me-1"></i>AI Analysis:</small>
                     <p class="mb-0 small" style="white-space: pre-line;">{{ report.ai_analysis }}</p>
                 </div>
                 {% endif %}

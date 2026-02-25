@@ -32,7 +32,7 @@
                     {% endif %}
                 </div>
 
-                {{ avatar(profile_user, 150, 'mb-3 mx-auto d-block', 'border: 4px solid var(--youth-primary, #c54836);') }}
+                {{ avatar(profile_user, 150, 'mb-3 mx-auto d-block', 'border: 4px solid var(--youth-primary, #E25838);') }}
                 
                 <h3 class="fw-bold">{{ profile_user.full_name }}</h3>
                 <div class="mb-3">
@@ -55,7 +55,10 @@
                     <div class="d-flex flex-wrap justify-content-center gap-2">
                         {% for badge in badges %}
                         <div class="badge-item text-center p-2" title="{{ badge.title }}">
-                            <div class="fs-2">{{ badge.icon }}</div>
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 50px; height: 50px; background: var(--youth-primary); color: white; font-size: 1.25rem;">
+                                <i class="{{ badge.icon }}"></i>
+                            </div>
+                            <small class="d-block mt-1 text-muted">{{ badge.title }}</small>
                         </div>
                         {% endfor %}
                     </div>

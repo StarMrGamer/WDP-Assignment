@@ -831,14 +831,14 @@ def badges():
 
     # Define all possible badges
     MASTER_BADGES = [
-        {'title': 'First Steps', 'desc': 'Complete your first volunteer session', 'icon': '🌟', 'target': 1, 'current': 1 if 'First Steps' in earned_types else 0},
-        {'title': 'Story Keeper', 'desc': 'Document 5 senior life stories', 'icon': '📖', 'target': 5, 'current': 5 if 'Story Keeper' in earned_types else 2},
-        {'title': 'Tech Wizard', 'desc': 'Help 10 seniors with technology', 'icon': '💻', 'target': 10, 'current': 10 if 'Tech Wizard' in earned_types else 4},
-        {'title': 'Game Master', 'desc': 'Facilitate 15 game sessions', 'icon': '🎮', 'target': 15, 'current': 9 if 'Game Master' not in earned_types else 15},
-        {'title': 'Community Builder', 'desc': 'Join 5 volunteer communities', 'icon': '🏘️', 'target': 5, 'current': 3 if 'Community Builder' not in earned_types else 5},
-        {'title': 'Event Organizer', 'desc': 'Organize 3 volunteer events', 'icon': '📅', 'target': 3, 'current': 0 if 'Event Organizer' not in earned_types else 3},
-        {'title': 'Heritage Champion', 'desc': 'Participate in 5 heritage activities', 'icon': '🏛️', 'target': 5, 'current': 5 if 'Heritage Champion' in earned_types else 1},
-        {'title': 'Conversation Partner', 'desc': 'Have 20 meaningful conversations', 'icon': '💬', 'target': 20, 'current': 15 if 'Conversation Partner' not in earned_types else 20}
+        {'title': 'First Steps', 'desc': 'Complete your first volunteer session', 'icon': 'fas fa-star', 'color': '#FDE594', 'target': 1, 'current': 1 if 'First Steps' in earned_types else 0},
+        {'title': 'Story Keeper', 'desc': 'Document 5 senior life stories', 'icon': 'fas fa-book-open', 'color': '#7A164B', 'target': 5, 'current': 5 if 'Story Keeper' in earned_types else 2},
+        {'title': 'Tech Wizard', 'desc': 'Help 10 seniors with technology', 'icon': 'fas fa-laptop-code', 'color': '#E25838', 'target': 10, 'current': 10 if 'Tech Wizard' in earned_types else 4},
+        {'title': 'Game Master', 'desc': 'Facilitate 15 game sessions', 'icon': 'fas fa-gamepad', 'color': '#160424', 'target': 15, 'current': 9 if 'Game Master' not in earned_types else 15},
+        {'title': 'Community Builder', 'desc': 'Join 5 volunteer communities', 'icon': 'fas fa-people-roof', 'color': '#7A164B', 'target': 5, 'current': 3 if 'Community Builder' not in earned_types else 5},
+        {'title': 'Event Organizer', 'desc': 'Organize 3 volunteer events', 'icon': 'fas fa-calendar-check', 'color': '#E25838', 'target': 3, 'current': 0 if 'Event Organizer' not in earned_types else 3},
+        {'title': 'Heritage Champion', 'desc': 'Participate in 5 heritage activities', 'icon': 'fas fa-landmark', 'color': '#160424', 'target': 5, 'current': 5 if 'Heritage Champion' in earned_types else 1},
+        {'title': 'Conversation Partner', 'desc': 'Have 20 meaningful conversations', 'icon': 'fas fa-comments', 'color': '#FDE594', 'target': 20, 'current': 15 if 'Conversation Partner' not in earned_types else 20}
     ]
 
     # Process badges for template
@@ -1270,12 +1270,12 @@ def public_profile(user_id):
     # Get badges
     earned_badges = Badge.query.filter_by(user_id=user.id).all()
     BADGE_ICONS = {
-        'First Steps': '🌟', 'Story Keeper': '📖', 'Tech Wizard': '💻',
-        'Game Master': '🎮', 'Community Builder': '🏘️', 'Event Organizer': '📅',
-        'Heritage Champion': '🏛️', 'Conversation Partner': '💬',
-        'Week Warrior': '🔥', 'Month Master': '🏆', 'Century Champion': '💯', 'Year Legend': '👑'
+        'First Steps': 'fas fa-star', 'Story Keeper': 'fas fa-book-open', 'Tech Wizard': 'fas fa-laptop-code',
+        'Game Master': 'fas fa-gamepad', 'Community Builder': 'fas fa-people-roof', 'Event Organizer': 'fas fa-calendar-check',
+        'Heritage Champion': 'fas fa-landmark', 'Conversation Partner': 'fas fa-comments',
+        'Week Warrior': 'fas fa-fire', 'Month Master': 'fas fa-trophy', 'Century Champion': 'fas fa-medal', 'Year Legend': 'fas fa-crown'
     }
-    badges = [{'title': b.badge_type, 'icon': BADGE_ICONS.get(b.badge_type, '🏅')} for b in earned_badges]
+    badges = [{'title': b.badge_type, 'icon': BADGE_ICONS.get(b.badge_type, 'fas fa-award')} for b in earned_badges]
     
     # Get recent stories
     recent_stories = Story.query.filter_by(user_id=user.id).order_by(Story.created_at.desc()).limit(5).all()

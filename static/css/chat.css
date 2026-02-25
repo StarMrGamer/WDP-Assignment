@@ -308,7 +308,7 @@ body[data-theme="dark"] .pill-input-wrapper {
 }
 
 body[data-theme="dark"] .pill-input-wrapper:focus-within {
-    border-color: #5865f2 !important;
+    border-color: #E25838 !important;
 }
 
 body[data-theme="dark"] .auto-expand {

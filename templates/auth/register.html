@@ -9,7 +9,7 @@
 {% block extra_css %}
 <style>
     body {
-        background: linear-gradient(135deg, #e29454 0%, #c54836 40%, #781543 70%, #4f084c 100%);
+        background: linear-gradient(135deg, #E25838 0%, #E25838 40%, #7A164B 70%, #4f084c 100%);
         background-attachment: fixed;
     }
 
@@ -43,7 +43,7 @@
     .register-header {
         text-align: center;
         padding: 2.5rem 2rem 1.5rem;
-        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
+        background: linear-gradient(135deg, #E25838 0%, #7A164B 100%);
         color: white;
     }
 
@@ -68,7 +68,7 @@
     }
 
     .form-control:focus {
-        border-color: #c54836;
+        border-color: #E25838;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         outline: none;
     }
@@ -89,7 +89,7 @@
     }
 
     .password-toggle:hover {
-        color: #c54836;
+        color: #E25838;
     }
 
     /* Role badge shown next to the label */
@@ -105,7 +105,7 @@
     }
 
     #roleBadge.senior { background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; }
-    #roleBadge.youth  { background: #F3E8FF; color: #781543; border: 1px solid #C4B5FD; }
+    #roleBadge.youth  { background: #F3E8FF; color: #7A164B; border: 1px solid #C4B5FD; }
 
     /* Role hint below dob field */
     #roleHint {
@@ -124,30 +124,30 @@
         margin-top: 1rem;
         border: none;
         color: white;
-        background: linear-gradient(135deg, #c54836 0%, #781543 100%);
+        background: linear-gradient(135deg, #E25838 0%, #7A164B 100%);
         transition: all 0.3s ease;
     }
 
     .btn-register:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        background: linear-gradient(135deg, #781543 0%, #c54836 100%);
+        background: linear-gradient(135deg, #7A164B 0%, #E25838 100%);
     }
 
     .btn-register.senior-mode {
-        background: linear-gradient(135deg, #e29454 0%, #c54836 100%);
+        background: linear-gradient(135deg, #E25838 0%, #E25838 100%);
     }
     .btn-register.senior-mode:hover {
         box-shadow: 0 8px 20px rgba(230, 126, 34, 0.4);
-        background: linear-gradient(135deg, #c54836 0%, #e29454 100%);
+        background: linear-gradient(135deg, #E25838 0%, #E25838 100%);
     }
 
     .btn-register.youth-mode {
-        background: linear-gradient(135deg, #781543 0%, #4f084c 100%);
+        background: linear-gradient(135deg, #7A164B 0%, #4f084c 100%);
     }
     .btn-register.youth-mode:hover {
         box-shadow: 0 8px 20px rgba(155, 89, 182, 0.4);
-        background: linear-gradient(135deg, #4f084c 0%, #781543 100%);
+        background: linear-gradient(135deg, #4f084c 0%, #7A164B 100%);
     }
 
     .login-link {
@@ -176,7 +176,7 @@
     }
 
     .btn-google:hover {
-        border-color: #c54836;
+        border-color: #E25838;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         transform: translateY(-1px);
     }
@@ -392,7 +392,7 @@
             roleBadge.textContent = 'Youth';
             roleBadge.className = 'youth';
             roleBadge.style.display = 'inline';
-            roleHint.innerHTML = '<span class="text-purple" style="color:#781543">You\'ll join as a <strong>Youth Volunteer</strong> (' + age + ' years old) — make a difference with seniors.</span>';
+            roleHint.innerHTML = '<span class="text-purple" style="color:#7A164B">You\'ll join as a <strong>Youth Volunteer</strong> (' + age + ' years old) — make a difference with seniors.</span>';
             submitBtn.className = 'btn btn-register youth-mode';
             submitBtn.innerHTML = '<i class="fas fa-heart me-2"></i>Register as Youth';
         } else {

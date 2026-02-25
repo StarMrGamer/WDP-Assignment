@@ -104,7 +104,7 @@
     .stat-icon {
         font-size: 3.5rem;
         margin-bottom: 1rem;
-        background: linear-gradient(135deg, #f9da88 0%, #e29454 100%);
+        background: linear-gradient(135deg, #f9da88 0%, #E25838 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -113,7 +113,7 @@
     .stat-value {
         font-size: 2.75rem;
         font-weight: 700;
-        color: #1c032b;
+        color: #160424;
         margin-bottom: 0.5rem;
     }
 
@@ -130,7 +130,7 @@
     .section-title {
         font-size: 2rem;
         font-weight: 700;
-        color: #1c032b;
+        color: #160424;
         margin-bottom: 0.75rem;
     }
 
@@ -178,8 +178,16 @@
     }
 
     .badge-icon {
-        font-size: 5rem;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
         margin-bottom: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .badge-checkmark {
@@ -201,7 +209,7 @@
     .badge-title {
         font-size: 1.125rem;
         font-weight: 700;
-        color: #1c032b;
+        color: #160424;
         margin-bottom: 0.5rem;
     }
 
@@ -226,7 +234,7 @@
 
     .progress-bar-fill {
         height: 100%;
-        background: linear-gradient(135deg, #f9da88 0%, #e29454 100%);
+        background: linear-gradient(135deg, #f9da88 0%, #E25838 100%);
         border-radius: 4px;
         transition: width 0.3s ease;
     }
@@ -258,7 +266,7 @@
         top: 0;
         bottom: 0;
         width: 4px;
-        background: linear-gradient(to bottom, #f9da88 0%, #e29454 100%);
+        background: linear-gradient(to bottom, #f9da88 0%, #E25838 100%);
         border-radius: 2px;
     }
 
@@ -301,7 +309,7 @@
     .milestone-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #1c032b;
+        color: #160424;
         margin-bottom: 0.5rem;
     }
 
@@ -387,7 +395,7 @@
     .leaderboard-name {
         font-size: 1.125rem;
         font-weight: 700;
-        color: #1c032b;
+        color: #160424;
         margin-bottom: 0.25rem;
     }
 
@@ -624,7 +632,9 @@
         {% for badge in badges %}
         <div class="badge-card {{ 'earned' if badge.is_earned else ('locked' if badge.progress_pct == 0 else '') }}">
             <div class="badge-icon-container">
-                <div class="badge-icon">{{ badge.icon }}</div>
+                <div class="badge-icon" style="background: {{ badge.color }};">
+                    <i class="{{ badge.icon }}"></i>
+                </div>
                 {% if badge.is_earned %}
                 <div class="badge-checkmark">
                     <i class="fas fa-check"></i>

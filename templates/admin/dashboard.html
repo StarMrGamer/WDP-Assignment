@@ -12,11 +12,19 @@
 {% block extra_css %}
 <style>
     .admin-header {
-        background: linear-gradient(135deg, #e29454 0%, #1c032b 100%);
+        background: linear-gradient(135deg, #E25838 0%, #160424 100%);
         color: white;
         padding: 1.25rem 0;
         margin-bottom: 1rem;
         border-radius: 0.5rem;
+    }
+
+    .admin-header h1,
+    .admin-header p,
+    .admin-header span,
+    .admin-header a,
+    .admin-header i {
+        color: white;
     }
 
     .stats-grid {
@@ -31,7 +39,7 @@
         padding: 1rem;
         border-radius: 0.5rem;
         box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
-        border-left: 4px solid #e29454;
+        border-left: 4px solid #E25838;
         transition: box-shadow 0.2s;
     }
 
@@ -40,11 +48,11 @@
     }
 
     .stat-card.seniors {
-        border-left-color: #e29454;
+        border-left-color: #E25838;
     }
 
     .stat-card.youth {
-        border-left-color: #c54836;
+        border-left-color: #E25838;
     }
 
     .stat-card.pairs {
@@ -64,7 +72,7 @@
     .stat-value {
         font-size: 1.75rem;
         font-weight: 700;
-        color: #1c032b;
+        color: #160424;
         margin-bottom: 0.15rem;
     }
 
@@ -93,7 +101,7 @@
     .section-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #1c032b;
+        color: #160424;
         margin-bottom: 0.75rem;
     }
 
@@ -122,7 +130,7 @@
         align-items: center;
         justify-content: center;
         background: #F8F9FA;
-        color: #e29454;
+        color: #E25838;
     }
 
     .activity-content {
@@ -131,7 +139,7 @@
 
     .activity-title {
         font-weight: 600;
-        color: #1c032b;
+        color: #160424;
     }
 
     .activity-time {
@@ -153,15 +161,15 @@
         border: 2px solid #E9ECEF;
         border-radius: 0.75rem;
         text-decoration: none;
-        color: #1c032b;
+        color: #160424;
         font-weight: 600;
         transition: all 0.3s ease;
     }
 
     .action-btn:hover {
-        border-color: #e29454;
+        border-color: #E25838;
         background: #EBF5FB;
-        color: #e29454;
+        color: #E25838;
         transform: translateY(-2px);
     }
 

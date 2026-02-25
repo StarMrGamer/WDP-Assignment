@@ -19,7 +19,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         height: 100%;
         transition: all 0.3s ease;
-        border-left: 4px solid #e29454;
+        border-left: 4px solid #E25838;
     }
 
     .community-card:hover {
@@ -28,7 +28,7 @@
     }
 
     .community-card.story {
-        border-left-color: #c54836;
+        border-left-color: #E25838;
     }
 
     .community-card.hobby {
@@ -36,7 +36,7 @@
     }
 
     .community-card.learning {
-        border-left-color: #e29454;
+        border-left-color: #E25838;
     }
 
     .community-icon {
@@ -52,7 +52,7 @@
 
     .community-icon.story {
         background: rgba(155, 89, 182, 0.1);
-        color: #c54836;
+        color: #E25838;
     }
 
     .community-icon.hobby {
@@ -62,7 +62,7 @@
 
     .community-icon.learning {
         background: rgba(230, 126, 34, 0.1);
-        color: #e29454;
+        color: #E25838;
     }
 
     .community-stats {
@@ -80,7 +80,7 @@
     .community-stat .value {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #1c032b;
+        color: #160424;
     }
 
     .community-stat .label {
@@ -113,15 +113,15 @@
     <!-- Statistics Summary -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #e29454;">
+            <div class="stat-card" style="border-left-color: #E25838;">
                 <div class="stat-icon"><i class="fas fa-users"></i></div>
                 <div class="stat-value">{{ communities|length }}</div>
                 <div class="stat-label">Total Communities</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #c54836;">
-                <div class="stat-icon" style="color: #c54836;"><i class="fas fa-book"></i></div>
+            <div class="stat-card" style="border-left-color: #E25838;">
+                <div class="stat-icon" style="color: #E25838;"><i class="fas fa-book"></i></div>
                 <div class="stat-value">{{ communities|selectattr('type', 'equalto', 'Story')|list|length }}</div>
                 <div class="stat-label">Story Communities</div>
             </div>
@@ -134,8 +134,8 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #e29454;">
-                <div class="stat-icon" style="color: #e29454;"><i class="fas fa-graduation-cap"></i></div>
+            <div class="stat-card" style="border-left-color: #E25838;">
+                <div class="stat-icon" style="color: #E25838;"><i class="fas fa-graduation-cap"></i></div>
                 <div class="stat-value">{{ communities|selectattr('type', 'equalto', 'Learning')|list|length }}</div>
                 <div class="stat-label">Learning Communities</div>
             </div>
