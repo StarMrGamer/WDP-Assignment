@@ -191,7 +191,7 @@
             <div class="d-flex flex-column gap-3 align-items-center">
                 {% if active_session %}
                 {% set opponent = player2 if active_session.player1_id == session.user_id else player1 %}
-                <div class="player-card p-2 bg-white rounded shadow-sm d-flex align-items-center gap-3">
+                <div class="player-card p-3 bg-white rounded shadow-sm d-flex align-items-center gap-3">
                     {{ avatar(opponent, 40) }}
                     <div>
                         <div class="fw-bold small">{{ opponent.full_name }}</div>
@@ -209,7 +209,7 @@
 
                 {% if active_session %}
                 {% set me = player1 if active_session.player1_id == session.user_id else player2 %}
-                <div class="player-card p-2 bg-white rounded shadow-sm d-flex align-items-center gap-3 border border-primary">
+                <div class="player-card p-3 bg-white rounded shadow-sm d-flex align-items-center gap-3 border border-primary">
                     {{ avatar(me, 40) }}
                     <div>
                         <div class="fw-bold small">{{ me.full_name }} (You)</div>

@@ -143,6 +143,17 @@
                             <input type="file" id="photo-upload" accept="image/*" style="display:none;">
                             <input type="text" id="message-input" class="form-control auto-expand"
                                    placeholder="Type a message… use @ to mention someone" autocomplete="off">
+                            <div class="d-flex align-items-center gap-1">
+                                <select id="voiceLangSelect" class="form-select form-select-sm voice-lang-select" title="Dictation language" style="width:auto; font-size:0.75rem; padding:0.2rem 0.4rem;">
+                                    <option value="en">EN</option>
+                                    <option value="zh">中文</option>
+                                    <option value="ms">MS</option>
+                                    <option value="ta">தமிழ்</option>
+                                </select>
+                                <button class="btn voice-input-btn" type="button" id="voiceBtn" title="Voice input">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
                             <button type="submit" class="btn circle-send-btn">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
@@ -193,6 +204,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 <script src="{{ url_for('static', filename='js/tts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/voice-input.js') }}"></script>
 <script>
 // ── Helpers ──────────────────────────────────────────────────────────────
 function escapeHtml(text) {
@@ -513,5 +525,8 @@ async function setCommLanguage(lang) {
     });
     if (saved !== 'none') setCommLanguage(saved);
 })();
+
+// Voice input
+initVoiceInput(document.getElementById('voiceBtn'), document.getElementById('message-input'), document.getElementById('voiceLangSelect'));
 </script>
 {% endblock %}

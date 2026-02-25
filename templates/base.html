@@ -32,11 +32,9 @@
     <!-- Animated Navigation CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/animated-nav.css') }}">
 
-    <!-- Role-specific CSS - loaded based on user role (senior, youth, admin) -->
-    {% if session.role == 'senior' %}
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/senior.css') }}">
-    {% elif session.role == 'youth' %}
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/youth.css') }}">
+    <!-- Role-specific CSS -->
+    {% if session.role in ('senior', 'youth') %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/users.css') }}">
     {% elif session.role == 'admin' %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     {% endif %}
@@ -413,17 +411,29 @@
             var role = document.body.getAttribute('data-role');
             var gameUrl = '';
             var gameEndpoint = 'chess_game';
-            
+
             if (data.game_title && data.game_title.includes('Xiangqi')) {
                 gameEndpoint = 'xiangqi_game';
+            } else if (data.game_title && (data.game_title.includes('Tic Tac Toe') || data.game_title.includes('Tic-Tac-Toe'))) {
+                gameEndpoint = 'tictactoe_game';
             }
-            
+
             if (role === 'senior') {
-                // We construct the URL manually because url_for is server-side
-                // Using a base path assumption or if possible injecting both URLs
-                gameUrl = (gameEndpoint === 'xiangqi_game') ? "{{ url_for('senior.xiangqi_game') }}" : "{{ url_for('senior.chess_game') }}";
+                if (gameEndpoint === 'xiangqi_game') {
+                    gameUrl = "{{ url_for('senior.xiangqi_game') }}";
+                } else if (gameEndpoint === 'tictactoe_game') {
+                    gameUrl = "{{ url_for('senior.tictactoe_game') }}";
+                } else {
+                    gameUrl = "{{ url_for('senior.chess_game') }}";
+                }
             } else if (role === 'youth') {
-                gameUrl = (gameEndpoint === 'xiangqi_game') ? "{{ url_for('youth.xiangqi_game') }}" : "{{ url_for('youth.chess_game') }}";
+                if (gameEndpoint === 'xiangqi_game') {
+                    gameUrl = "{{ url_for('youth.xiangqi_game') }}";
+                } else if (gameEndpoint === 'tictactoe_game') {
+                    gameUrl = "{{ url_for('youth.tictactoe_game') }}";
+                } else {
+                    gameUrl = "{{ url_for('youth.chess_game') }}";
+                }
             }
             
             gameUrl += "?session_id=" + data.session_id;

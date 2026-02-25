@@ -11,36 +11,34 @@
                  - Modern, clean color scheme (aligned with Youth theme)
 */
 
-/* ==================== SENIOR COLOR SCHEMES - WARM & INVITING ==================== */
+/* ==================== SENIOR COLOR SCHEMES ==================== */
 :root {
-    /* Warm, friendly colors that are still accessible */
-    --senior-primary: #E25838;
-    /* Sunset Red-Orange - warm & inviting */
-    --senior-primary-hover: #c94a2e;
-    /* Deeper red-orange - hover state */
-    --senior-secondary: #7A164B;
-    /* Deep Plum - secondary accent */
+    --senior-primary: #7A164B;
+    /* Deep Plum - matches youth primary */
+    --senior-primary-hover: #160424;
+    /* Midnight Purple - matches youth hover */
+    --senior-secondary: #E25838;
+    /* Sunset Red-Orange - matches youth secondary */
     --senior-accent: #FDE594;
-    /* Warm Sun - cheerful */
+    /* Warm Sun */
     --senior-bg: #F5F9D6;
     /* Pale Ivory background */
     --senior-text: #160424;
-    /* Midnight Purple text - rich & readable */
+    /* Midnight Purple text */
     --senior-border: #FDE594;
-    /* Warm Sun border - soft & friendly */
+    /* Warm Sun border */
     --senior-card-bg: #FFFFFF;
     /* White cards */
 
-    /* Fun gradient for headers */
-    --senior-header-gradient: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
-    --senior-card-shadow: 0 4px 20px rgba(226, 88, 56, 0.15);
+    --senior-header-gradient: linear-gradient(135deg, #7A164B 0%, #E25838 50%, #FDE594 100%);
+    --senior-card-shadow: 0 4px 20px rgba(122, 22, 75, 0.2);
 }
 
 /* ==================== THEME VARIATIONS ==================== */
 /* Light Theme (default) */
 body[data-role="senior"][data-theme="light"] {
-    --senior-primary: #E25838;
-    --senior-secondary: #7A164B;
+    --senior-primary: #7A164B;
+    --senior-secondary: #E25838;
     --senior-accent: #FDE594;
     --senior-bg: #F5F9D6;
     --senior-text: #160424;
@@ -68,13 +66,13 @@ body[data-role="senior"] {
 body[data-role="senior"] .btn-primary {
     background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
     border: none;
-    box-shadow: 0 4px 12px rgba(226, 88, 56, 0.3);
+    box-shadow: 0 4px 12px rgba(122, 22, 75, 0.3);
     transition: all 0.3s ease;
 }
 
 body[data-role="senior"] .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(226, 88, 56, 0.4);
+    box-shadow: 0 6px 20px rgba(122, 22, 75, 0.4);
 }
 
 body[data-role="senior"] .btn-outline-primary {
@@ -94,14 +92,14 @@ body[data-role="senior"] .btn-success {
 }
 
 /* ==================== DASHBOARD ==================== */
-/* Dashboard Header - Warm Sunshine */
+/* Dashboard Header */
 body[data-role="senior"] .dashboard-header {
-    background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 50%, #E25838 100%);
-    color: var(--senior-text);
+    background: linear-gradient(135deg, #7A164B 0%, #E25838 50%, #FDE594 100%);
+    color: white;
     padding: 2.5rem 2rem;
     border-radius: 1.5rem;
     margin-bottom: 2rem;
-    box-shadow: 0 8px 32px rgba(226, 88, 56, 0.3);
+    box-shadow: 0 8px 32px rgba(122, 22, 75, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -145,7 +143,7 @@ body[data-role="senior"] .dashboard-header::after {
 body[data-role="senior"] .dashboard-card {
     background: linear-gradient(135deg, #F5F9D6 0%, #FDE594 100%);
     border-left: 5px solid var(--senior-primary);
-    box-shadow: 0 4px 16px rgba(226, 88, 56, 0.15);
+    box-shadow: 0 4px 16px rgba(122, 22, 75, 0.15);
     border-radius: 1.25rem;
 }
 
@@ -155,7 +153,7 @@ body[data-role="senior"] .stat-card {
     padding: 2rem;
     border-radius: 1.25rem;
     text-align: center;
-    box-shadow: 0 4px 16px rgba(226, 88, 56, 0.12);
+    box-shadow: 0 4px 16px rgba(122, 22, 75, 0.12);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-bottom: 4px solid var(--senior-primary);
     position: relative;
@@ -174,7 +172,7 @@ body[data-role="senior"] .stat-card::before {
 
 body[data-role="senior"] .stat-card:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 12px 32px rgba(226, 88, 56, 0.25);
+    box-shadow: 0 12px 32px rgba(122, 22, 75, 0.25);
 }
 
 body[data-role="senior"] .stat-card .icon {
@@ -214,7 +212,7 @@ body[data-role="senior"] .story-card {
 }
 
 body[data-role="senior"] .story-card:hover {
-    box-shadow: 0 8px 24px rgba(226, 88, 56, 0.2);
+    box-shadow: 0 8px 24px rgba(122, 22, 75, 0.2);
     transform: translateY(-4px);
 }
 
@@ -240,7 +238,7 @@ body[data-role="senior"] .message-sent {
     max-width: 70%;
     margin-left: auto;
     font-size: 1.125rem;
-    box-shadow: 0 2px 8px rgba(226, 88, 56, 0.3);
+    box-shadow: 0 2px 8px rgba(122, 22, 75, 0.3);
 }
 
 body[data-role="senior"] .message-received {
@@ -298,7 +296,7 @@ body[data-role="senior"] .event-card {
 
 body[data-role="senior"] .event-card:hover {
     transform: translateX(8px);
-    box-shadow: 0 8px 24px rgba(226, 88, 56, 0.2);
+    box-shadow: 0 8px 24px rgba(122, 22, 75, 0.2);
 }
 
 body[data-role="senior"] .event-card .event-date {
@@ -441,7 +439,7 @@ body[data-role="senior"][data-font-size="xlarge"] .nav-link {
 
 /* ==================== SENIOR-SPECIFIC: HIGH CONTRAST ==================== */
 body[data-role="senior"][data-high-contrast="true"] {
-    background-color: #FFF8F0 !important;
+    background-color: #F9F5FF !important;
     color: #1A0800 !important;
 }
 
@@ -457,7 +455,7 @@ body[data-role="senior"][data-high-contrast="true"] .game-card {
     background-color: #FFFFFF !important;
     color: #1A0800 !important;
     border: 3px solid var(--senior-primary) !important;
-    box-shadow: 0 2px 8px rgba(226, 88, 56, 0.25) !important;
+    box-shadow: 0 2px 8px rgba(122, 22, 75, 0.25) !important;
 }
 
 /* Stronger text colors */
@@ -478,17 +476,17 @@ body[data-role="senior"][data-high-contrast="true"] .card-text {
     font-weight: 700 !important;
 }
 
-/* Muted text gets more contrast but stays warm */
+/* Muted text gets more contrast */
 body[data-role="senior"][data-high-contrast="true"] .text-muted,
 body[data-role="senior"][data-high-contrast="true"] small,
 body[data-role="senior"][data-high-contrast="true"] .small {
-    color: #5C2D00 !important;
+    color: #3B0764 !important;
     font-weight: 600 !important;
 }
 
 /* Links */
 body[data-role="senior"][data-high-contrast="true"] a {
-    color: #C2410C !important;
+    color: #7A164B !important;
     text-decoration: underline !important;
 }
 
@@ -553,7 +551,7 @@ body[data-role="senior"][data-high-contrast="true"] .dropdown-item {
 }
 
 body[data-role="senior"][data-high-contrast="true"] .dropdown-item:hover {
-    background-color: #FFF3E0 !important;
+    background-color: #F9F5FF !important;
 }
 
 /* Modals */
@@ -565,7 +563,7 @@ body[data-role="senior"][data-high-contrast="true"] .modal-content {
 
 /* Footer */
 body[data-role="senior"][data-high-contrast="true"] footer {
-    background-color: #FFF8F0 !important;
+    background-color: #F9F5FF !important;
     color: #1A0800 !important;
     border-top: 3px solid var(--senior-primary) !important;
 }
@@ -684,7 +682,7 @@ body[data-role="senior"] .game-card {
 
 body[data-role="senior"] .game-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(226, 88, 56, 0.3);
+    box-shadow: 0 8px 20px rgba(122, 22, 75, 0.3);
 }
 
 body[data-role="senior"] .game-card .game-icon {
@@ -719,14 +717,14 @@ body[data-role="senior"] .mood-option {
 
 body[data-role="senior"] .mood-option:hover {
     border-color: var(--senior-primary);
-    box-shadow: 0 4px 12px rgba(226, 88, 56, 0.2);
+    box-shadow: 0 4px 12px rgba(122, 22, 75, 0.2);
     transform: translateY(-4px);
 }
 
 body[data-role="senior"] .mood-option.selected {
     border-color: var(--senior-primary);
     background-color: #F5F9D6;
-    box-shadow: 0 4px 16px rgba(226, 88, 56, 0.3);
+    box-shadow: 0 4px 16px rgba(122, 22, 75, 0.3);
 }
 
 body[data-role="senior"] .mood-option .emoji {

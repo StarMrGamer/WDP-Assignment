@@ -807,6 +807,15 @@ def delete_story(story_id):
     return redirect(request.referrer or url_for('admin.stories'))
 
 
+@admin_bp.route('/stories/<int:story_id>')
+@admin_required
+def story_detail(story_id):
+    """Admin view a story (bypasses senior/youth role restriction)."""
+    story = Story.query.get_or_404(story_id)
+    template = 'senior/story_detail.html' if story.user.role == 'senior' else 'youth/story_detail.html'
+    return render_template(template, story=story)
+
+
 @admin_bp.route('/communities/<int:community_id>/members/<int:user_id>/remove', methods=['POST'])
 @admin_required
 def remove_community_member(community_id, user_id):

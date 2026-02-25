@@ -5,7 +5,7 @@
     Date: December 2025
     Description: This stylesheet is loaded only for youth users and includes:
                  - Vibrant, modern color schemes
-                 - Theme customization (Light, Dark, Blue Ocean, Purple Dream)
+                 - Theme customization (Light, Dark, Blue Ocean, Sunset Overdrive)
                  - Instagram-style feed layout
                  - Gamification elements (badges, streaks, points)
                  - Smooth animations and transitions
@@ -80,7 +80,7 @@ body[data-role="youth"][data-theme="blue"] .navbar {
     border-bottom: 1px solid rgba(125, 211, 252, 0.4) !important;
 }
 
-/* Purple Dream Theme - Fairy Garden */
+/* Sunset Overdrive Theme - Fairy Garden */
 body[data-role="youth"][data-theme="purple"] {
     --youth-primary: #7A164B;
     /* Deep Plum */

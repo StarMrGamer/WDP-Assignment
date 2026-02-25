@@ -12,7 +12,7 @@
 
 {% macro avatar(user, size=40, extra_class='', extra_style='') %}
 {% set pic = user.profile_picture if user.profile_picture else 'default-avatar.png' %}
-{% if 'default-avatar' in pic %}<div class="avatar-placeholder {{ extra_class }}" style="width: {{ size }}px; height: {{ size }}px; min-width: {{ size }}px; font-size: {{ (size * 0.4)|int }}px; flex-shrink: 0; {{ extra_style }}">{{ user.full_name[0] | upper }}</div>{% else %}<img src="{{ url_for('static', filename=pic|fix_pfp) }}" alt="{{ user.full_name }}" class="rounded-circle {{ extra_class }}" style="width: {{ size }}px; height: {{ size }}px; object-fit: cover; flex-shrink: 0; {{ extra_style }}">{% endif %}
+{% if 'default-avatar' in pic %}<div class="avatar-placeholder {{ extra_class }}" style="width: {{ size }}px; height: {{ size }}px; min-width: {{ size }}px; font-size: {{ (size * 0.4)|int }}px; flex-shrink: 0; {{ extra_style }}">{{ user.full_name[0] | upper }}</div>{% else %}<img src="{{ url_for('static', filename=pic|fix_pfp) }}" alt="{{ user.full_name }}" class="rounded-circle {{ extra_class }}" style="width: {{ size }}px; height: {{ size }}px; min-width: {{ size }}px; object-fit: cover; border-radius: 50%; flex-shrink: 0; {{ extra_style }}">{% endif %}
 {% endmacro %}
 
 {% macro avatar_cover(user) %}
