@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Suggest Community - GenCon SG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .community-form-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+    }
+
+    .form-card h5 {
+        color: #1c032b;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #E9ECEF;
+    }
+
+    .comm-type-selector {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .comm-type-option {
+        flex: 1;
+        padding: 1.5rem;
+        border: 2px solid #E9ECEF;
+        border-radius: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .comm-type-option:hover {
+        border-color: #e29454;
+        background-color: #F8F9FA;
+    }
+
+    .comm-type-option.selected {
+        border-color: #e29454;
+        background-color: #FFF3E8;
+    }
+
+    .comm-type-option i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .comm-type-option.story i { color: #c54836; }
+    .comm-type-option.hobby i { color: #ac2432; }
+    .comm-type-option.learning i { color: #e29454; }
+
+    .comm-type-option input {
+        display: none;
+    }
+
+    .preview-card {
+        background: linear-gradient(135deg, #e29454 0%, #1c032b 100%);
+        color: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .preview-card .preview-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .preview-card .preview-meta {
+        opacity: 0.9;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 container">
+        <div>
+            <h1><i class="fas fa-lightbulb me-2 text-primary"></i>Suggest Community</h1>
+            <p class="mb-0">Have an idea for a new community group? Suggest it to the admins!</p>
+        </div>
+        <a href="{{ url_for('senior.communities') }}" class="btn btn-light">
+            <i class="fas fa-arrow-left me-2"></i>Back to Communities
+        </a>
+    </div>
+
+    <div class="community-form-container">
+        <!-- Live Preview -->
+        <div class="preview-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="preview-title" id="previewTitle">Community Name</div>
+                    <div class="preview-meta" id="previewDescription">Your community description...</div>
+                </div>
+                <span class="badge bg-light text-dark" id="previewType">Type</span>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('senior.suggest_community') }}" id="suggestCommunityForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <!-- Basic Information -->
+            <div class="form-card">
+                <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+
+                <div class="mb-3">
+                    <label for="name" class="form-label fw-bold">Community Name *</label>
+                    <input type="text" class="form-control" id="name" name="name"
+                        placeholder="Enter community name" required oninput="updatePreview()">
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label fw-bold">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="4"
+                        placeholder="Describe what this community is about..." required
+                        oninput="updatePreview()"></textarea>
+                </div>
+            </div>
+
+            <!-- Community Type -->
+            <div class="form-card">
+                <h5><i class="fas fa-tags me-2"></i>Community Type *</h5>
+
+                <div class="comm-type-selector">
+                    <label class="comm-type-option story" for="type_story">
+                        <input type="radio" name="comm_type" id="type_story" value="Story" required
+                            onchange="updatePreview()">
+                        <i class="fas fa-book"></i>
+                        <div class="fw-bold">Story</div>
+                        <small class="text-muted">Share life stories and memories</small>
+                    </label>
+                    <label class="comm-type-option hobby" for="type_hobby">
+                        <input type="radio" name="comm_type" id="type_hobby" value="Hobby"
+                            onchange="updatePreview()">
+                        <i class="fas fa-palette"></i>
+                        <div class="fw-bold">Hobby</div>
+                        <small class="text-muted">Connect over shared hobbies</small>
+                    </label>
+                    <label class="comm-type-option learning" for="type_learning">
+                        <input type="radio" name="comm_type" id="type_learning" value="Learning"
+                            onchange="updatePreview()">
+                        <i class="fas fa-graduation-cap"></i>
+                        <div class="fw-bold">Learning</div>
+                        <small class="text-muted">Learn and grow together</small>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Justification -->
+            <div class="form-card">
+                <h5><i class="fas fa-comment-alt me-2"></i>Justification</h5>
+                <div class="mb-3">
+                    <label for="reason" class="form-label fw-bold">Why should we create this community? *</label>
+                    <textarea class="form-control" id="reason" name="reason" rows="3"
+                        placeholder="Explain how this community benefits members..." required></textarea>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Suggestion
+                </button>
+                <a href="{{ url_for('senior.communities') }}" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.comm-type-option input').forEach(input => {
+        input.addEventListener('change', function () {
+            document.querySelectorAll('.comm-type-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.closest('.comm-type-option').classList.add('selected');
+        });
+    });
+
+    function updatePreview() {
+        const name = document.getElementById('name').value;
+        document.getElementById('previewTitle').textContent = name || 'Community Name';
+
+        const desc = document.getElementById('description').value;
+        document.getElementById('previewDescription').textContent = desc || 'Your community description...';
+
+        const typeInput = document.querySelector('input[name="comm_type"]:checked');
+        if (typeInput) {
+            document.getElementById('previewType').textContent = typeInput.value;
+        }
+    }
+</script>
+{% endblock %}

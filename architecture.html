@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1280"/>
+<title>GenCon SG — Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #F5F4F0;
+    --surface:   #FFFFFF;
+    --border:    #E2E0D8;
+
+    --client-bg:  #EEF4FF;
+    --client-bd:  #B8D0FA;
+    --client-hl:  #3B82F6;
+
+    --flask-bg:   #F0FDF4;
+    --flask-bd:   #86EFAC;
+    --flask-hl:   #16A34A;
+
+    --bp-bg:      #FDF4FF;
+    --bp-bd:      #E9B8FA;
+    --bp-hl:      #9333EA;
+
+    --svc-bg:     #FFFBEB;
+    --svc-bd:     #FCD34D;
+    --svc-hl:     #D97706;
+
+    --model-bg:   #FFF7F0;
+    --model-bd:   #FDBA74;
+    --model-hl:   #EA580C;
+
+    --db-bg:      #F8FAFC;
+    --db-bd:      #CBD5E1;
+    --db-hl:      #475569;
+
+    --ext-bg:     #FFF0F5;
+    --ext-bd:     #F9A8D4;
+    --ext-hl:     #DB2777;
+
+    --text-primary:   #1A1917;
+    --text-secondary: #6B7280;
+    --text-muted:     #9CA3AF;
+
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body:    'DM Sans', sans-serif;
+    --font-mono:    'DM Mono', monospace;
+
+    --arrow:  #94A3B8;
+    --shadow: 0 1px 4px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.04);
+    --r:      8px;
+  }
+
+  html, body {
+    width: 1280px;
+    height: 720px;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: var(--font-body);
+    color: var(--text-primary);
+  }
+
+  /* ── Layout ── */
+  .canvas {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    display: grid;
+    grid-template-rows: 58px 1fr;
+    padding: 0 28px 16px;
+    gap: 0;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0 6px;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #3B82F6 0%, #9333EA 100%);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .app-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+  .tagline {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    font-weight: 400;
+    letter-spacing: .02em;
+  }
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--flask-hl);
+    background: var(--flask-bg);
+    border: 1px solid var(--flask-bd);
+    border-radius: 20px;
+    padding: 3px 10px;
+    letter-spacing: .04em;
+  }
+
+  /* ── Main grid ── */
+  .main {
+    display: grid;
+    grid-template-columns: 168px 8px 188px 8px 210px 8px 188px 8px 164px 8px 160px;
+    /* col:  client  gap  flask   gap  blueprints gap services gap models  gap  db+ext */
+    align-items: start;
+    padding-top: 14px;
+    gap: 0;
+  }
+
+  /* ── Column header ── */
+  .col-header {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .col-header .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Card ── */
+  .card {
+    border-radius: var(--r);
+    border: 1px solid;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .card-title {
+    font-size: 11.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1.2;
+  }
+  .card-icon { font-size: 13px; flex-shrink: 0; }
+  .card-body {
+    font-size: 9.5px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+  .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 8.5px;
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin: 1px 1px 0 0;
+    font-weight: 500;
+  }
+
+  /* Client */
+  .c-client { background: var(--client-bg); border-color: var(--client-bd); }
+  .c-client .card-title { color: var(--client-hl); }
+  .c-client .tag { background: #DBEAFE; color: var(--client-hl); }
+  .dot-client { background: var(--client-hl); }
+
+  /* Flask */
+  .c-flask { background: var(--flask-bg); border-color: var(--flask-bd); }
+  .c-flask .card-title { color: var(--flask-hl); }
+  .c-flask .tag { background: #DCFCE7; color: var(--flask-hl); }
+  .dot-flask { background: var(--flask-hl); }
+
+  /* Blueprints */
+  .c-bp { background: var(--bp-bg); border-color: var(--bp-bd); }
+  .c-bp .card-title { color: var(--bp-hl); }
+  .c-bp .tag { background: #F3E8FF; color: var(--bp-hl); }
+  .dot-bp { background: var(--bp-hl); }
+
+  /* Services */
+  .c-svc { background: var(--svc-bg); border-color: var(--svc-bd); }
+  .c-svc .card-title { color: var(--svc-hl); }
+  .c-svc .tag { background: #FEF3C7; color: var(--svc-hl); }
+  .dot-svc { background: var(--svc-hl); }
+
+  /* Models */
+  .c-model { background: var(--model-bg); border-color: var(--model-bd); }
+  .c-model .card-title { color: var(--model-hl); }
+  .c-model .tag { background: #FFEDD5; color: var(--model-hl); }
+  .dot-model { background: var(--model-hl); }
+
+  /* DB */
+  .c-db { background: var(--db-bg); border-color: var(--db-bd); }
+  .c-db .card-title { color: var(--db-hl); }
+  .c-db .tag { background: #F1F5F9; color: var(--db-hl); }
+  .dot-db { background: var(--db-hl); }
+
+  /* Ext */
+  .c-ext { background: var(--ext-bg); border-color: var(--ext-bd); }
+  .c-ext .card-title { color: var(--ext-hl); }
+  .c-ext .tag { background: #FCE7F3; color: var(--ext-hl); }
+  .dot-ext { background: var(--ext-hl); }
+
+  /* ── Arrow column ── */
+  .arrow-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-top: 28px;
+  }
+  .arrow-line {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .arrow-line::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 1.5px;
+    background: linear-gradient(90deg, var(--arrow) 60%, transparent);
+  }
+  .arr {
+    font-size: 14px;
+    color: var(--arrow);
+    position: relative;
+    z-index: 1;
+    padding: 0 1px;
+  }
+
+  /* DB + Ext stacked column */
+  .stack-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* ── Divider line between DB and Ext ── */
+  .col-sep {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 2px 0 8px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    position: absolute;
+    bottom: 8px;
+    left: 28px; right: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+  .legend { display: flex; gap: 14px; align-items: center; }
+  .leg-item { display: flex; align-items: center; gap: 4px; }
+  .leg-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* Thin horizontal connector between all cards at same level */
+  .connector-row {
+    grid-column: 1 / -1;
+    height: 1px;
+    background: transparent;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ── HEADER ── -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">🌉</div>
+      <div>
+        <div class="app-name">GenCon SG</div>
+        <div class="tagline">Bridging Seniors &amp; Youth in Singapore</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span class="badge">Flask · SQLAlchemy · Socket.IO · Eventlet</span>
+      <span style="font-size:9.5px;color:var(--text-muted);font-family:var(--font-mono);">Architecture v1 · 2025</span>
+    </div>
+  </header>
+
+  <!-- ── MAIN DIAGRAM ── -->
+  <div class="main">
+
+    <!-- COL 1: CLIENT -->
+    <div>
+      <div class="col-header" style="color:var(--client-hl);">
+        <span class="dot dot-client"></span> Client
+      </div>
+
+      <div class="card c-client">
+        <div class="card-title"><span class="card-icon">🌐</span> Browser</div>
+        <div class="card-body">
+          <span class="tag">Jinja2</span>
+          <span class="tag">CSS</span>
+          <span class="tag">JS</span>
+        </div>
+      </div>
+
+      <div class="card c-client">
+        <div class="card-title"><span class="card-icon">🎙️</span> Voice Input</div>
+        <div class="card-body">voice-input.js<br/>Web Speech API</div>
+      </div>
+
+      <div class="card c-client">
+        <div class="card-title"><span class="card-icon">⚡</span> Real-time</div>
+        <div class="card-body">
+          <span class="tag">Socket.IO</span>
+          <span class="tag">WebSocket</span>
+          <br/>Live chat · Notifications
+        </div>
+      </div>
+    </div>
+
+    <!-- ARROW 1 -->
+    <div class="arrow-col">
+      <div class="arrow-line"><span class="arr">→</span></div>
+    </div>
+
+    <!-- COL 2: FLASK CORE -->
+    <div>
+      <div class="col-header" style="color:var(--flask-hl);">
+        <span class="dot dot-flask"></span> Flask Core
+      </div>
+
+      <div class="card c-flask">
+        <div class="card-title"><span class="card-icon">🏭</span> App Factory</div>
+        <div class="card-body">
+          <span class="tag">create_app()</span><br/>
+          WSGI via Eventlet<br/>
+          Monkey-patched async
+        </div>
+      </div>
+
+      <div class="card c-flask">
+        <div class="card-title"><span class="card-icon">🔌</span> Extensions</div>
+        <div class="card-body">
+          <span class="tag">SQLAlchemy</span>
+          <span class="tag">SocketIO</span>
+          <span class="tag">Flask-Mail</span>
+          <span class="tag">WTF CSRF</span>
+        </div>
+      </div>
+
+      <div class="card c-flask">
+        <div class="card-title"><span class="card-icon">⚙️</span> Config</div>
+        <div class="card-body">
+          dev · testing · production<br/>
+          env-var overrides
+        </div>
+      </div>
+
+      <div class="card c-flask">
+        <div class="card-title"><span class="card-icon">🕐</span> APScheduler</div>
+        <div class="card-body">Background daemon<br/>Every 15 min</div>
+      </div>
+    </div>
+
+    <!-- ARROW 2 -->
+    <div class="arrow-col">
+      <div class="arrow-line"><span class="arr">→</span></div>
+    </div>
+
+    <!-- COL 3: BLUEPRINTS -->
+    <div>
+      <div class="col-header" style="color:var(--bp-hl);">
+        <span class="dot dot-bp"></span> Blueprints / Routes
+      </div>
+
+      <div class="card c-bp" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10.5px;"><span class="card-icon">🏠</span> main_bp</div>
+        <div class="card-body"><span class="tag">/ · /support · /api/*</span></div>
+      </div>
+
+      <div class="card c-bp" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10.5px;"><span class="card-icon">🔑</span> auth_bp <span style="font-size:8.5px;font-weight:400;color:var(--text-muted)">/auth</span></div>
+        <div class="card-body">Login · Register · <span class="tag">Google OAuth</span></div>
+      </div>
+
+      <div class="card c-bp" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10.5px;"><span class="card-icon">👴</span> senior_bp <span style="font-size:8.5px;font-weight:400;color:var(--text-muted)">/senior</span></div>
+        <div class="card-body">Dashboard · Stories · Messages<br/>Events · Communities · Games · Checkin</div>
+      </div>
+
+      <div class="card c-bp" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10.5px;"><span class="card-icon">🧑‍🎓</span> youth_bp <span style="font-size:8.5px;font-weight:400;color:var(--text-muted)">/youth</span></div>
+        <div class="card-body">Dashboard · Stories · Messages<br/>Events · Communities · Games</div>
+      </div>
+
+      <div class="card c-bp" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10.5px;"><span class="card-icon">🛡️</span> admin_bp <span style="font-size:8.5px;font-weight:400;color:var(--text-muted)">/admin</span></div>
+        <div class="card-body">Users · Events · Analytics<br/>Reports · Support Tickets</div>
+      </div>
+
+      <div class="card c-bp" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10.5px;"><span class="card-icon">📁</span> profolio_bp <span style="font-size:8.5px;font-weight:400;color:var(--text-muted)">/profolio</span></div>
+        <div class="card-body">Static Portfolio Site</div>
+      </div>
+    </div>
+
+    <!-- ARROW 3 -->
+    <div class="arrow-col">
+      <div class="arrow-line"><span class="arr">→</span></div>
+    </div>
+
+    <!-- COL 4: SERVICES -->
+    <div>
+      <div class="col-header" style="color:var(--svc-hl);">
+        <span class="dot dot-svc"></span> Services
+      </div>
+
+      <div class="card c-svc">
+        <div class="card-title"><span class="card-icon">📧</span> reminders.py</div>
+        <div class="card-body">Email event reminders<br/>APScheduler · 15 min</div>
+      </div>
+
+      <div class="card c-svc">
+        <div class="card-title"><span class="card-icon">🔥</span> streak.py</div>
+        <div class="card-body">Streak tracking<br/>Badge awards</div>
+      </div>
+
+      <div class="card c-svc">
+        <div class="card-title"><span class="card-icon">♟️</span> elo.py</div>
+        <div class="card-body">ELO rating system<br/>Game outcomes</div>
+      </div>
+
+      <div class="card c-svc">
+        <div class="card-title"><span class="card-icon">🔗</span> socket_handlers.py</div>
+        <div class="card-body">Live chat · Game sync<br/>Notifications</div>
+      </div>
+
+      <div class="card c-svc">
+        <div class="card-title"><span class="card-icon">🤖</span> ai_utils.py</div>
+        <div class="card-body">AI Chatbot<br/>Report analysis</div>
+      </div>
+    </div>
+
+    <!-- ARROW 4 -->
+    <div class="arrow-col">
+      <div class="arrow-line"><span class="arr">→</span></div>
+    </div>
+
+    <!-- COL 5: MODELS -->
+    <div>
+      <div class="col-header" style="color:var(--model-hl);">
+        <span class="dot dot-model"></span> Data Models (ORM)
+      </div>
+
+      <div class="card c-model" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10px;"><span class="card-icon">👤</span> User</div>
+        <div class="card-body"><span class="tag">senior</span><span class="tag">youth</span><span class="tag">admin</span></div>
+      </div>
+
+      <div class="card c-model" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10px;"><span class="card-icon">📖</span> Stories</div>
+        <div class="card-body">Story · StoryReaction · StoryComment</div>
+      </div>
+
+      <div class="card c-model" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10px;"><span class="card-icon">💬</span> Messaging</div>
+        <div class="card-body">Message · ChatReport</div>
+      </div>
+
+      <div class="card c-model" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10px;"><span class="card-icon">🤝</span> Pair</div>
+        <div class="card-body">Senior–Youth buddy pairs</div>
+      </div>
+
+      <div class="card c-model" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10px;"><span class="card-icon">📅</span> Events</div>
+        <div class="card-body">Event · EventParticipant</div>
+      </div>
+
+      <div class="card c-model" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10px;"><span class="card-icon">👥</span> Community</div>
+        <div class="card-body">Community · Member · Post</div>
+      </div>
+
+      <div class="card c-model" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10px;"><span class="card-icon">🎮</span> Games</div>
+        <div class="card-body">Game · Session · History · TicTacToe</div>
+      </div>
+
+      <div class="card c-model" style="padding:6px 9px;">
+        <div class="card-title" style="font-size:10px;"><span class="card-icon">🏅</span> Engagement</div>
+        <div class="card-body">Streak · Badge · Checkin</div>
+      </div>
+    </div>
+
+    <!-- ARROW 5 -->
+    <div class="arrow-col">
+      <div class="arrow-line"><span class="arr">→</span></div>
+    </div>
+
+    <!-- COL 6: DB + EXTERNAL -->
+    <div class="stack-col">
+      <!-- DB -->
+      <div>
+        <div class="col-header" style="color:var(--db-hl);">
+          <span class="dot dot-db"></span> Database
+        </div>
+        <div class="card c-db">
+          <div class="card-title"><span class="card-icon">🗄️</span> SQLite</div>
+          <div class="card-body">
+            <span class="tag">database.db</span><br/>
+            15 tables<br/>
+            Auto-migrate on start
+          </div>
+        </div>
+      </div>
+
+      <hr class="col-sep"/>
+
+      <!-- External -->
+      <div>
+        <div class="col-header" style="color:var(--ext-hl);">
+          <span class="dot dot-ext"></span> External
+        </div>
+        <div class="card c-ext" style="padding:6px 9px;">
+          <div class="card-title" style="font-size:10.5px;"><span class="card-icon">✉️</span> Brevo SMTP</div>
+          <div class="card-body">Transactional email</div>
+        </div>
+        <div class="card c-ext" style="padding:6px 9px;">
+          <div class="card-title" style="font-size:10.5px;"><span class="card-icon">🔵</span> Google OAuth</div>
+          <div class="card-body">Social authentication</div>
+        </div>
+        <div class="card c-ext" style="padding:6px 9px;">
+          <div class="card-title" style="font-size:10.5px;"><span class="card-icon">🧠</span> Claude AI API</div>
+          <div class="card-body">Chatbot · Moderation</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--client-hl)"></div> Client</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--flask-hl)"></div> Flask Core</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--bp-hl)"></div> Blueprints</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--svc-hl)"></div> Services</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--model-hl)"></div> Models</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--db-hl)"></div> Database</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--ext-hl)"></div> External</div>
+    </div>
+    <span>GenCon SG · Web Dev Project · 2025</span>
+  </div>
+
+</div>
+</body>
+</html>

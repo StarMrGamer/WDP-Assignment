@@ -173,35 +173,35 @@
 }
 
 .circle-send-btn {
-    background: linear-gradient(135deg, #E25838 0%, #FDE594 100%);
-    color: white;
+    background: linear-gradient(135deg, #E25838 0%, #FDE594 100%) !important;
+    color: white !important;
     width: 48px !important;
     height: 48px !important;
-    min-width: 48px;
-    max-width: 48px;
+    min-width: 48px !important;
+    max-width: 48px !important;
     border-radius: 50% !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     padding: 0 !important;
-    border: none;
-    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.35);
-    font-size: 1.5rem;
-    flex-shrink: 0;
-    line-height: 1;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.35) !important;
+    font-size: 1.1rem !important;
+    flex-shrink: 0 !important;
+    line-height: 1 !important;
 }
 
 .circle-send-btn:hover {
-    background: linear-gradient(135deg, #7A164B 0%, #E25838 100%);
-    transform: scale(1.12);
-    color: white;
-    box-shadow: 0 6px 20px rgba(155, 89, 182, 0.5);
+    background: linear-gradient(135deg, #7A164B 0%, #E25838 100%) !important;
+    transform: scale(1.12) !important;
+    color: white !important;
+    box-shadow: 0 6px 20px rgba(155, 89, 182, 0.5) !important;
 }
 
 .circle-send-btn:active {
-    transform: scale(0.95);
-    box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
+    transform: scale(0.95) !important;
+    box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3) !important;
 }
 
 /* Empty State */

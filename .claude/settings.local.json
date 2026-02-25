@@ -5,7 +5,9 @@
       "Bash(python:*)",
       "Bash(grep:*)",
       "Bash(pip install:*)",
-      "Bash(venv/Scripts/pip install:*)"
+      "Bash(venv/Scripts/pip install:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)"
     ]
   }
 }

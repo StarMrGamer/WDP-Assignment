@@ -6,6 +6,9 @@
 <div class="container py-2">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Communities</h2>
+        <a href="{{ url_for('youth.suggest_community') }}" class="btn btn-outline-primary">
+            <i class="fas fa-lightbulb me-2"></i>Suggest Community
+        </a>
     </div>
     
     <!-- Search Bar -->
@@ -96,9 +99,13 @@
 <script>
 async function toggleJoin(communityId) {
     try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const response = await fetch(`/youth/communities/${communityId}/join`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'}
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
         });
         const data = await response.json();
         if (data.success) location.reload();

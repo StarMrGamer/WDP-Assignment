@@ -93,7 +93,7 @@
 
                 <!-- Floating Input Bar -->
                 <div class="input-area-modern mt-4">
-                    <form id="messageForm" method="POST" action="{{ url_for('senior.messages') }}">
+                    <form id="messageForm" method="POST" action="{{ url_for('senior.messages') }}" onsubmit="return false;">
                         {{ form.hidden_tag() }}
                         <div class="pill-input-wrapper shadow-sm">
                             <button class="btn emoji-trigger" type="button" data-bs-toggle="dropdown">

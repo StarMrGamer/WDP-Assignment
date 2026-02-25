@@ -132,33 +132,82 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /**
+     * Safely escape HTML to prevent XSS in optimistic messages
+     */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Append a sent message to the chat immediately (optimistic UI)
+     */
+    function appendMyMessage(content) {
+        if (!chatMessages) return;
+
+        // Remove empty-state placeholder if present
+        const emptyState = chatMessages.querySelector('.empty-chat-state');
+        if (emptyState) emptyState.remove();
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message-wrapper me';
+        wrapper.innerHTML = `
+            <div class="message-bubble">
+                <div class="content-text">${escapeHtml(content)}</div>
+                <div class="d-flex justify-content-end align-items-center mt-1">
+                    <button class="btn btn-link btn-sm text-muted p-0 me-2 tts-btn"
+                            onclick="toggleSpeak(this, this.closest('.message-bubble').querySelector('.content-text').innerText, localStorage.getItem('translationLanguage') || 'en')"
+                            title="Read aloud">
+                        <i class="fas fa-volume-up" style="font-size: 0.8rem;"></i>
+                    </button>
+                    <div class="time-stamp mb-0">${timeStr}</div>
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(wrapper);
+        scrollToBottom();
+
+        // Keep lastMessageCount in sync so the next poll doesn't re-render
+        lastMessageCount++;
+    }
+
     // Handle Form Submission
     if (messageForm) {
         messageForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const content = messageInput.value.trim();
             if (!content) return;
 
+            // Capture form data BEFORE clearing input (includes CSRF token)
             const formData = new FormData(messageForm);
-            
-            // Send message via fetch
+
+            // Clear input immediately for a responsive feel
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            if (typeof autoExpand === 'function') autoExpand(messageInput);
+
+            // Show message instantly without waiting for server
+            appendMyMessage(content);
+
+            // Send to server in background
             fetch(postEndpoint, {
                 method: 'POST',
                 body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(response => {
-                if (response.ok) {
-                    messageInput.value = '';
-                    if (typeof autoExpand === 'function') {
-                        autoExpand(messageInput);
-                    }
-                    fetchMessages(); // Refresh immediately
-                } else {
-                    console.error('Failed to send message');
+                if (response.ok) return response.json();
+                throw new Error('Failed to send message');
+            })
+            .then(data => {
+                if (!data.success) {
+                    console.error('Server rejected message');
                 }
             })
             .catch(error => console.error('Error sending message:', error));

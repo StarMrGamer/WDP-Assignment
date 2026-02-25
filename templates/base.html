@@ -106,16 +106,40 @@
                                 </li>
 
                                 {% if session.role == 'admin' %}
-                                    <!-- Admin Navigation — ordered: content first, tools last (mirrors senior/youth) -->
-                                    <li class="nav-item animated-nav-item" id="nav-users">
-                                        <a class="nav-link" href="{{ url_for('admin.users') }}">
+                                    <!-- Admin Navigation -->
+                                    <li class="nav-item animated-nav-item dropdown" id="nav-users">
+                                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fas fa-users"></i> Users
                                         </a>
-                                    </li>
-                                    <li class="nav-item animated-nav-item" id="nav-pairs">
-                                        <a class="nav-link" href="{{ url_for('admin.pairs') }}">
-                                            <i class="fas fa-user-friends"></i> Pairs
-                                        </a>
+                                        <ul class="dropdown-menu admin-nav-dropdown">
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('admin.users') }}">
+                                                    <i class="fas fa-users me-2"></i>Users
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('admin.pairs') }}">
+                                                    <i class="fas fa-user-friends me-2"></i>Pairs
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('admin.reports') }}">
+                                                    <i class="fas fa-flag me-2"></i>Reports
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('admin.support_tickets') }}">
+                                                    <i class="fas fa-headset me-2"></i>Support
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('admin.codes') }}">
+                                                    <i class="fas fa-key me-2"></i>Codes
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
                                     <li class="nav-item animated-nav-item" id="nav-events">
                                         <a class="nav-link" href="{{ url_for('admin.events') }}">
@@ -130,21 +154,6 @@
                                     <li class="nav-item animated-nav-item" id="nav-stories">
                                         <a class="nav-link" href="{{ url_for('admin.stories') }}">
                                             <i class="fas fa-book-open"></i> Stories
-                                        </a>
-                                    </li>
-                                    <li class="nav-item animated-nav-item" id="nav-reports">
-                                        <a class="nav-link" href="{{ url_for('admin.reports') }}">
-                                            <i class="fas fa-flag"></i> Reports
-                                        </a>
-                                    </li>
-                                    <li class="nav-item animated-nav-item" id="nav-support">
-                                        <a class="nav-link" href="{{ url_for('admin.support_tickets') }}">
-                                            <i class="fas fa-headset"></i> Support
-                                        </a>
-                                    </li>
-                                    <li class="nav-item animated-nav-item" id="nav-codes">
-                                        <a class="nav-link" href="{{ url_for('admin.codes') }}">
-                                            <i class="fas fa-key"></i> Codes
                                         </a>
                                     </li>
                                     <li class="nav-item animated-nav-item" id="nav-analytics">

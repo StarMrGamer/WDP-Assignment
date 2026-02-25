@@ -142,6 +142,63 @@
         </div>
     </div>
 
+    <!-- Pending Suggestions -->
+    {% if pending_communities %}
+    <div class="data-table-container mb-4">
+        <div class="table-header d-flex justify-content-between align-items-center">
+            <h3><i class="fas fa-clock me-2 text-warning"></i>Pending Suggestions
+                <span class="badge bg-warning text-dark ms-2">{{ pending_communities|length }}</span>
+            </h3>
+        </div>
+        <div class="p-3">
+            <div class="row">
+                {% for community in pending_communities %}
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="community-card" style="border-left-color: #f59e0b;">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-clock me-1"></i>Pending
+                            </span>
+                            <span class="badge {% if community.type == 'Story' %}bg-danger{% elif community.type == 'Hobby' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                                {{ community.type }}
+                            </span>
+                        </div>
+                        <h5 class="fw-bold mb-1">{{ community.name.replace('[Suggestion] ', '') }}</h5>
+                        <p class="text-muted small mb-2">
+                            {{ community.description[:80] if community.description else 'No description' }}{% if community.description and community.description|length > 80 %}...{% endif %}
+                        </p>
+                        {% if community.justification %}
+                        <div class="alert alert-light py-2 px-3 mb-2 small">
+                            <strong>Justification:</strong> {{ community.justification[:100] }}{% if community.justification|length > 100 %}...{% endif %}
+                        </div>
+                        {% endif %}
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-user me-1"></i>
+                            Suggested by {{ community.creator.full_name if community.creator else 'Unknown' }}
+                        </p>
+                        <div class="d-flex gap-2">
+                            <form action="{{ url_for('admin.approve_community', community_id=community.id) }}" method="POST" class="flex-grow-1">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-success w-100">
+                                    <i class="fas fa-check me-1"></i>Approve
+                                </button>
+                            </form>
+                            <form action="{{ url_for('admin.reject_community', community_id=community.id) }}" method="POST"
+                                onsubmit="return confirm('Reject this community suggestion?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-times me-1"></i>Reject
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Communities Grid -->
     {% if communities %}
     <div class="row">

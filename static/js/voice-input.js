@@ -116,6 +116,15 @@ function initVoiceInput(buttonEl, targetTextarea, langSelectEl) {
             } else {
                 alert('Microphone access denied. Please allow microphone permissions.');
             }
+        } else if (event.error === 'service-not-allowed') {
+            // Speech recognition service not supported on this OS/browser (e.g. Firefox on Linux)
+            buttonEl.disabled = true;
+            buttonEl.classList.add('disabled');
+            buttonEl.title = 'Voice input not supported on this device';
+            if (langSelectEl) { langSelectEl.disabled = true; }
+            if (typeof showToast === 'function') {
+                showToast('Voice input is not supported on this device.', 'warning');
+            }
         } else if (event.error !== 'aborted') {
             if (typeof showToast === 'function') {
                 showToast('Voice recognition error: ' + event.error, 'warning');

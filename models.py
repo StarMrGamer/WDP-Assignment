@@ -514,6 +514,9 @@ class Community(db.Model):
     tags = db.Column(db.String(255))  # Comma separated tags
     photo_url = db.Column(db.String(255))
     
+    status = db.Column(db.String(20), default='active')  # active, pending
+    justification = db.Column(db.Text)
+
     member_count = db.Column(db.Integer, default=0)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

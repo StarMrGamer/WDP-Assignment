@@ -17,5 +17,5 @@
 
 {% macro avatar_cover(user) %}
 {% set pic = user.profile_picture if user.profile_picture else 'default-avatar.png' %}
-{% if 'default-avatar' in pic %}<div class="gamer-card__cover d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: bold; font-size: 4rem;">{{ user.full_name[0] | upper }}</div>{% else %}<img class="gamer-card__cover" src="{{ url_for('static', filename=pic|fix_pfp) }}" alt="{{ user.full_name }}">{% endif %}
+{% if 'default-avatar' in pic %}<div class="gamer-card__cover gamer-card__cover--initial d-flex align-items-center justify-content-center"><span class="cover-initial">{{ user.full_name[0] | upper }}</span></div>{% else %}<img class="gamer-card__cover" src="{{ url_for('static', filename=pic|fix_pfp) }}" alt="{{ user.full_name }}">{% endif %}
 {% endmacro %}

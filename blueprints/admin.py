@@ -519,9 +519,10 @@ def reject_event(event_id):
 @admin_required
 def communities():
     """Display all communities."""
-    all_communities = Community.query.order_by(Community.created_at.desc()).all()
+    active_communities = Community.query.filter(Community.status == 'active').order_by(Community.created_at.desc()).all()
+    pending_communities = Community.query.filter(Community.status == 'pending').order_by(Community.created_at.desc()).all()
 
-    return render_template('admin/communities.html', communities=all_communities)
+    return render_template('admin/communities.html', communities=active_communities, pending_communities=pending_communities)
 
 
 @admin_bp.route('/communities/create', methods=['GET', 'POST'])
@@ -600,6 +601,56 @@ def delete_community(community_id):
         db.session.rollback()
         flash('Error deleting community. It may have active members or posts.', 'danger')
         
+    return redirect(url_for('admin.communities'))
+
+
+@admin_bp.route('/communities/<int:community_id>/approve', methods=['POST'])
+@admin_required
+def approve_community(community_id):
+    """Approve a suggested community."""
+    community = Community.query.get_or_404(community_id)
+    community.status = 'active'
+
+    if community.name.startswith('[Suggestion] '):
+        community.name = community.name[13:]
+
+    db.session.commit()
+
+    from models import Notification
+    notif = Notification(
+        user_id=community.created_by,
+        title='Community Approved!',
+        message=f"Your community suggestion '{community.name}' has been approved and is now live.",
+        type='info',
+        link=url_for(f"{community.creator.role}.communities")
+    )
+    db.session.add(notif)
+    db.session.commit()
+
+    flash('Community approved and published.', 'success')
+    return redirect(url_for('admin.communities'))
+
+
+@admin_bp.route('/communities/<int:community_id>/reject', methods=['POST'])
+@admin_required
+def reject_community(community_id):
+    """Reject a suggested community."""
+    community = Community.query.get_or_404(community_id)
+
+    from models import Notification
+    display_name = community.name.replace('[Suggestion] ', '')
+    notif = Notification(
+        user_id=community.created_by,
+        title='Community Suggestion Update',
+        message=f"Your community suggestion '{display_name}' was not approved at this time.",
+        type='info'
+    )
+    db.session.add(notif)
+
+    db.session.delete(community)
+    db.session.commit()
+
+    flash('Community suggestion rejected.', 'info')
     return redirect(url_for('admin.communities'))
 
 

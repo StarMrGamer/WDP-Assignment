@@ -8,7 +8,7 @@ Description: Handles all routes for senior users including story creation,
              messaging with youth buddies, event registration, and accessibility features
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app, jsonify
 from models import db, User, Story, Message, Event, Community, Pair, EventParticipant, CommunityMember, Game, GameSession, CommunityPost, ChatReport, Badge, StoryReaction, StoryComment
 from forms import StoryForm, MessageForm
 from datetime import datetime, timedelta
@@ -258,10 +258,13 @@ def messages():
         pair.last_interaction = datetime.utcnow()
         
         db.session.commit()
-        
+
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': True, 'flagged': is_flagged})
+
         if is_flagged:
             flash('Your message was sent but flagged for review due to potentially unkind language.', 'warning')
-        
+
         return redirect(url_for('senior.messages'))
 
     # Get recent messages between senior and youth (limit to last 100 for performance)
@@ -678,9 +681,9 @@ def communities():
     search_query = request.args.get('q', '')
     user_id = session['user_id']
     
-    query = Community.query
+    query = Community.query.filter(Community.status == 'active')
     if search_query:
-        query = query.filter(Community.name.ilike(f'%{search_query}%') | 
+        query = query.filter(Community.name.ilike(f'%{search_query}%') |
                              Community.description.ilike(f'%{search_query}%'))
     
     all_communities = query.all()
@@ -802,6 +805,55 @@ def join_community(community_id):
         'status': status,
         'member_count': community.member_count
     }
+
+
+@senior_bp.route('/communities/suggest', methods=['GET', 'POST'])
+@login_required
+def suggest_community():
+    """Suggest a new community."""
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        description = request.form.get('description', '').strip()
+        comm_type = request.form.get('comm_type')
+        reason = request.form.get('reason', '').strip()
+
+        if not name or not comm_type or not reason:
+            flash('Please fill in all required fields.', 'danger')
+            return redirect(url_for('senior.suggest_community'))
+
+        suggested_name = f"[Suggestion] {name}"
+        if Community.query.filter_by(name=suggested_name).first():
+            flash('A suggestion with this name already exists.', 'warning')
+            return redirect(url_for('senior.suggest_community'))
+
+        new_community = Community(
+            name=suggested_name,
+            description=description,
+            type=comm_type,
+            status='pending',
+            justification=reason,
+            created_by=session['user_id']
+        )
+        db.session.add(new_community)
+        db.session.commit()
+
+        from models import Notification
+        admins = User.query.filter_by(role='admin').all()
+        for admin in admins:
+            notif = Notification(
+                user_id=admin.id,
+                title='New Community Suggestion',
+                message=f"Suggestion from {session.get('full_name')}: {name}",
+                type='info',
+                link=url_for('admin.communities')
+            )
+            db.session.add(notif)
+        db.session.commit()
+
+        flash('Community suggestion submitted successfully!', 'success')
+        return redirect(url_for('senior.communities'))
+
+    return render_template('senior/suggest_community.html')
 
 
 # ==================== GAMES ====================

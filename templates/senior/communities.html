@@ -4,8 +4,13 @@
 
 {% block content %}
 <div class="container py-2">
-    <h1 class="mb-4" style="color: var(--senior-text);">Communities</h1>
-    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="color: var(--senior-text);">Communities</h1>
+        <a href="{{ url_for('senior.suggest_community') }}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-lightbulb me-2"></i>Suggest Community
+        </a>
+    </div>
+
     <!-- Search Bar -->
     <div class="mb-5">
         <form action="{{ url_for('senior.communities') }}" method="GET" class="d-flex gap-2">
@@ -92,9 +97,13 @@
 <script>
 async function toggleJoin(communityId) {
     try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const response = await fetch(`/senior/communities/${communityId}/join`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'}
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
         });
         const data = await response.json();
         if (data.success) {

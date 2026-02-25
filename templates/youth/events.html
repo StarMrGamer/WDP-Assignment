@@ -57,7 +57,11 @@
 {% block extra_js %}
 <script>
 function toggleEvent(eventId) {
-    fetch(`/youth/events/${eventId}/register`, {method: 'POST'})
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    fetch(`/youth/events/${eventId}/register`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
         .then(r => r.json())
         .then(data => {
             if(data.success) location.reload();

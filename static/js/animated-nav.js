@@ -39,13 +39,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         navItems.forEach((item) => {
             item.classList.remove('active');
-            const link = item.querySelector('a');
+
+            // Check direct link
+            const link = item.querySelector(':scope > a');
             if (link && link.getAttribute('href') === currentPath) {
                 item.classList.add('active');
                 showPill();
                 updatePillPosition(item);
                 activeFound = true;
+                return;
             }
+
+            // Check dropdown items
+            const dropdownLinks = item.querySelectorAll('.dropdown-menu a');
+            dropdownLinks.forEach((dropLink) => {
+                dropLink.classList.remove('active');
+                if (dropLink.getAttribute('href') === currentPath) {
+                    dropLink.classList.add('active');
+                    item.classList.add('active');
+                    showPill();
+                    updatePillPosition(item);
+                    activeFound = true;
+                }
+            });
         });
 
         if (!activeFound) {

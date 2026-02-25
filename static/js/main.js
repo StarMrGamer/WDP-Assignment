@@ -914,4 +914,24 @@ window.submitReport = async function() {
         alert('An error occurred while submitting the report');
     }
 };
-`n/**`n * Toggle password visibility`n * @param {string} inputId - ID of the password input field`n * @param {string} iconId - ID of the eye icon element`n */`nfunction togglePassword(inputId, iconId) {`n    const passwordField = document.getElementById(inputId);`n    const toggleIcon = document.getElementById(iconId);`n`n    if (passwordField.type === 'password') {`n        passwordField.type = 'text';`n        toggleIcon.classList.remove('fa-eye');`n        toggleIcon.classList.add('fa-eye-slash');`n    } else {`n        passwordField.type = 'password';`n        toggleIcon.classList.remove('fa-eye-slash');`n        toggleIcon.classList.add('fa-eye');`n    }`n}`nwindow.togglePassword = togglePassword;
+
+/**
+ * Toggle password visibility
+ * @param {string} inputId - ID of the password input field
+ * @param {string} iconId - ID of the eye icon element
+ */
+function togglePassword(inputId, iconId) {
+    const passwordField = document.getElementById(inputId);
+    const toggleIcon = document.getElementById(iconId);
+
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+window.togglePassword = togglePassword;
