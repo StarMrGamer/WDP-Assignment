@@ -43,6 +43,53 @@ def update_user_streak(user):
     streak.last_login = today
 
 
+def check_achievement_badges(user):
+    """Check and award achievement badges based on real user activity."""
+    from models import Badge, EventParticipant, StoryComment, StoryReaction, CommunityMember, Message, User as UserModel, Streak
+    from flask import flash
+    from extensions import db
+
+    user_id = user.id
+    streak = Streak.query.filter_by(user_id=user_id).first()
+
+    events_attended    = EventParticipant.query.filter_by(user_id=user_id).count()
+    stories_commented  = StoryComment.query.filter_by(user_id=user_id).count()
+    communities_joined = CommunityMember.query.filter_by(user_id=user_id).count()
+    story_reactions    = StoryReaction.query.filter_by(user_id=user_id).count()
+    games_played       = streak.games_played if streak else 0
+    messages_sent      = Message.query.filter_by(sender_id=user_id).count()
+
+    seniors_messaged = db.session.query(Message.recipient_id).join(
+        UserModel, Message.recipient_id == UserModel.id
+    ).filter(
+        Message.sender_id == user_id,
+        UserModel.role == 'senior'
+    ).distinct().count()
+
+    criteria = [
+        ('First Steps',        events_attended    >= 1),
+        ('Story Keeper',       stories_commented  >= 5),
+        ('Tech Wizard',        seniors_messaged   >= 10),
+        ('Game Master',        games_played       >= 15),
+        ('Community Builder',  communities_joined >= 5),
+        ('Event Organizer',    events_attended    >= 3),
+        ('Heritage Champion',  story_reactions    >= 5),
+        ('Conversation Partner', messages_sent    >= 20),
+    ]
+
+    awarded = False
+    for badge_name, qualified in criteria:
+        if qualified:
+            exists = Badge.query.filter_by(user_id=user_id, badge_type=badge_name).first()
+            if not exists:
+                db.session.add(Badge(user_id=user_id, badge_type=badge_name))
+                flash(f'Congratulations! You earned the {badge_name} badge!', 'success')
+                awarded = True
+
+    if awarded:
+        db.session.commit()
+
+
 def check_streak_badges(user, streak_days):
     """Award badges for streak milestones."""
     from models import Badge

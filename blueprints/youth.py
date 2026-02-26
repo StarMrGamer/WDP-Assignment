@@ -872,80 +872,151 @@ def suggest_community():
 @login_required
 def badges():
     """Display earned badges and achievements."""
+    from models import Streak
+    from services.streak import check_achievement_badges
+
     user_id = session['user_id']
     user = User.query.get(user_id)
 
-    # Get earned badges
-    earned_badges = Badge.query.filter_by(user_id=user_id).all()
-    earned_types = [b.badge_type for b in earned_badges]
+    # Auto-award any newly earned achievement badges
+    check_achievement_badges(user)
 
-    # Define all possible badges
+    # Re-fetch after potential awards
+    earned_badges = Badge.query.filter_by(user_id=user_id).all()
+    earned_types = {b.badge_type for b in earned_badges}
+
+    # --- Real metrics from DB ---
+    streak            = Streak.query.filter_by(user_id=user_id).first()
+    events_attended   = EventParticipant.query.filter_by(user_id=user_id).count()
+    stories_commented = StoryComment.query.filter_by(user_id=user_id).count()
+    communities_joined = CommunityMember.query.filter_by(user_id=user_id).count()
+    story_reactions   = StoryReaction.query.filter_by(user_id=user_id).count()
+    games_played      = streak.games_played if streak else 0
+    messages_sent     = Message.query.filter_by(sender_id=user_id).count()
+    seniors_messaged  = db.session.query(Message.recipient_id).join(
+        User, Message.recipient_id == User.id
+    ).filter(
+        Message.sender_id == user_id,
+        User.role == 'senior'
+    ).distinct().count()
+
+    def _progress(actual, target, badge_name):
+        """Return capped progress; show full bar if badge already earned."""
+        if badge_name in earned_types:
+            return target
+        return min(actual, target)
+
     MASTER_BADGES = [
-        {'title': 'First Steps', 'desc': 'Complete your first volunteer session', 'icon': 'fas fa-star', 'color': '#FDE594', 'target': 1, 'current': 1 if 'First Steps' in earned_types else 0},
-        {'title': 'Story Keeper', 'desc': 'Document 5 senior life stories', 'icon': 'fas fa-book-open', 'color': '#7A164B', 'target': 5, 'current': 5 if 'Story Keeper' in earned_types else 2},
-        {'title': 'Tech Wizard', 'desc': 'Help 10 seniors with technology', 'icon': 'fas fa-laptop-code', 'color': '#E25838', 'target': 10, 'current': 10 if 'Tech Wizard' in earned_types else 4},
-        {'title': 'Game Master', 'desc': 'Facilitate 15 game sessions', 'icon': 'fas fa-gamepad', 'color': '#160424', 'target': 15, 'current': 9 if 'Game Master' not in earned_types else 15},
-        {'title': 'Community Builder', 'desc': 'Join 5 volunteer communities', 'icon': 'fas fa-people-roof', 'color': '#7A164B', 'target': 5, 'current': 3 if 'Community Builder' not in earned_types else 5},
-        {'title': 'Event Organizer', 'desc': 'Organize 3 volunteer events', 'icon': 'fas fa-calendar-check', 'color': '#E25838', 'target': 3, 'current': 0 if 'Event Organizer' not in earned_types else 3},
-        {'title': 'Heritage Champion', 'desc': 'Participate in 5 heritage activities', 'icon': 'fas fa-landmark', 'color': '#160424', 'target': 5, 'current': 5 if 'Heritage Champion' in earned_types else 1},
-        {'title': 'Conversation Partner', 'desc': 'Have 20 meaningful conversations', 'icon': 'fas fa-comments', 'color': '#FDE594', 'target': 20, 'current': 15 if 'Conversation Partner' not in earned_types else 20}
+        {
+            'title': 'First Steps',
+            'desc': 'Register for your first volunteer event',
+            'icon': 'fas fa-star', 'color': '#FDE594',
+            'target': 1,
+            'current': _progress(events_attended, 1, 'First Steps'),
+        },
+        {
+            'title': 'Story Keeper',
+            'desc': 'Comment on 5 senior life stories',
+            'icon': 'fas fa-book-open', 'color': '#7A164B',
+            'target': 5,
+            'current': _progress(stories_commented, 5, 'Story Keeper'),
+        },
+        {
+            'title': 'Tech Wizard',
+            'desc': 'Message 10 different seniors for support',
+            'icon': 'fas fa-laptop-code', 'color': '#E25838',
+            'target': 10,
+            'current': _progress(seniors_messaged, 10, 'Tech Wizard'),
+        },
+        {
+            'title': 'Game Master',
+            'desc': 'Facilitate 15 game sessions',
+            'icon': 'fas fa-gamepad', 'color': '#160424',
+            'target': 15,
+            'current': _progress(games_played, 15, 'Game Master'),
+        },
+        {
+            'title': 'Community Builder',
+            'desc': 'Join 5 volunteer communities',
+            'icon': 'fas fa-people-roof', 'color': '#7A164B',
+            'target': 5,
+            'current': _progress(communities_joined, 5, 'Community Builder'),
+        },
+        {
+            'title': 'Event Organizer',
+            'desc': 'Register for 3 volunteer events',
+            'icon': 'fas fa-calendar-check', 'color': '#E25838',
+            'target': 3,
+            'current': _progress(events_attended, 3, 'Event Organizer'),
+        },
+        {
+            'title': 'Heritage Champion',
+            'desc': 'React to 5 senior stories',
+            'icon': 'fas fa-landmark', 'color': '#160424',
+            'target': 5,
+            'current': _progress(story_reactions, 5, 'Heritage Champion'),
+        },
+        {
+            'title': 'Conversation Partner',
+            'desc': 'Send 20 messages to your connections',
+            'icon': 'fas fa-comments', 'color': '#FDE594',
+            'target': 20,
+            'current': _progress(messages_sent, 20, 'Conversation Partner'),
+        },
     ]
 
-    # Process badges for template
     processed_badges = []
     for mb in MASTER_BADGES:
-        mb['is_earned'] = mb['current'] >= mb['target']
+        mb['is_earned']    = mb['title'] in earned_types
         mb['progress_pct'] = min(100, int((mb['current'] / mb['target']) * 100))
         processed_badges.append(mb)
 
-    # Get streak and points
-    from models import Streak
-    streak = Streak.query.filter_by(user_id=user_id).first()
+    # Stats — all real
     points = streak.points if streak else 0
-    
-    # Calculate stats
     stats = {
-        'hours': int(points / 10), # Derived from points
-        'badges_count': len(earned_badges),
-        'events_attended': EventParticipant.query.filter_by(user_id=user_id).count() or 24, # Mock if 0
-        'seniors_helped': int(points / 30) or 15 # Derived
+        'hours':          int(points / 10),
+        'badges_count':   len(earned_badges),
+        'events_attended': events_attended,
+        'seniors_helped': seniors_messaged,
     }
 
-    # Milestones (fixed definitions, dynamic status)
+    # Milestones — fixed definitions, dynamic unlock
     MILESTONES = [
-        {'title': 'Bronze Volunteer', 'hours': 10, 'desc': "You've taken your first steps in volunteering! Keep up the great work."},
-        {'title': 'Silver Volunteer', 'hours': 25, 'desc': "You're making a real difference in the community. Seniors appreciate your dedication!"},
-        {'title': 'Gold Volunteer', 'hours': 50, 'desc': "Outstanding commitment! You're on track to reach this milestone soon."},
+        {'title': 'Bronze Volunteer',   'hours': 10,  'desc': "You've taken your first steps in volunteering! Keep up the great work."},
+        {'title': 'Silver Volunteer',   'hours': 25,  'desc': "You're making a real difference in the community. Seniors appreciate your dedication!"},
+        {'title': 'Gold Volunteer',     'hours': 50,  'desc': "Outstanding commitment! You're on track to reach this milestone soon."},
         {'title': 'Platinum Volunteer', 'hours': 100, 'desc': "Elite volunteer status. Your impact on the community is incredible!"},
-        {'title': 'Diamond Volunteer', 'hours': 200, 'desc': "The highest honor. You're a true champion for intergenerational connections!"}
+        {'title': 'Diamond Volunteer',  'hours': 200, 'desc': "The highest honor. You're a true champion for intergenerational connections!"},
     ]
     for m in MILESTONES:
         m['is_locked'] = stats['hours'] < m['hours']
 
-    # Leaderboard (Top 5 youth by points)
-    from models import Streak
-    leaderboard = []
-    
-    # Get all youth users with mock data like other parts of the app
+    # Leaderboard — real data, ranked by badge count then points
     all_youth = User.query.filter_by(role='youth').all()
-    
-    for i, u in enumerate(all_youth[:5]):
-        leaderboard.append({
-            'rank': i + 1,
-            'name': u.full_name,
-            'is_me': u.id == user_id,
-            'avatar': u.profile_picture,
-            'events': 24 - i if u.id == user_id else (20 + i),
-            'badges': len(earned_badges) if u.id == user_id else (3 + i),
-            'hours': stats['hours'] if u.id == user_id else (45 - i * 5)
+    lb_data = []
+    for u in all_youth:
+        u_streak = Streak.query.filter_by(user_id=u.id).first()
+        u_points = u_streak.points if u_streak else 0
+        u_badges = Badge.query.filter_by(user_id=u.id).count()
+        u_events = EventParticipant.query.filter_by(user_id=u.id).count()
+        lb_data.append({
+            'name':    u.full_name,
+            'is_me':   u.id == user_id,
+            'avatar':  u.profile_picture,
+            'badges':  u_badges,
+            'events':  u_events,
+            'hours':   int(u_points / 10),
+            '_score':  u_badges * 1000 + u_points,
         })
+    lb_data.sort(key=lambda x: x['_score'], reverse=True)
+    leaderboard = [dict(rank=i + 1, **item) for i, item in enumerate(lb_data[:5])]
 
     return render_template('youth/badges.html',
-                         user=user,
-                         badges=processed_badges,
-                         stats=stats,
-                         milestones=MILESTONES,
-                         leaderboard=leaderboard)
+                           user=user,
+                           badges=processed_badges,
+                           stats=stats,
+                           milestones=MILESTONES,
+                           leaderboard=leaderboard)
 
 
 @youth_bp.route('/download_portfolio')
