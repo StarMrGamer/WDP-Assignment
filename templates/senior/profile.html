@@ -13,17 +13,51 @@
 {% block extra_css %}
 <style>
     .profile-header {
-        background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-primary-hover) 100%);
+        background: linear-gradient(135deg, var(--senior-primary) 0%, var(--senior-secondary) 100%);
         color: white;
         padding: 3rem 0;
         margin-bottom: 2rem;
         border-radius: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.18);
+        pointer-events: none;
+    }
+
+    .profile-header::after {
+        content: '';
+        position: absolute;
+        bottom: -80px;
+        left: -40px;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12);
+        pointer-events: none;
     }
 
     .profile-header-content {
         display: flex;
         align-items: center;
         gap: 2.5rem;
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 1rem;
+        padding: 2rem 2.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .profile-avatar-section {

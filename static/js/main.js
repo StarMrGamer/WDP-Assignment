@@ -790,8 +790,10 @@ window.initNotificationSocket = function(socket) {
             listElement.insertBefore(li, listElement.firstChild);
         }
 
-        // Show toast
-        showToast(data.title + ': ' + data.message, 'info', data.link);
+        // Show toast — skip game notifications since game_challenge already shows one
+        if (data.type !== 'game') {
+            showToast(data.title + ': ' + data.message, 'info', data.link);
+        }
     });
 };
 

@@ -274,6 +274,11 @@
             form.method = 'POST';
             const urlTemplate = "{{ url_for('admin.delete_event', event_id=0) }}";
             form.action = urlTemplate.replace('0', eventId);
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            form.appendChild(csrfInput);
             document.body.appendChild(form);
             form.submit();
         }

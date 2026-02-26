@@ -386,6 +386,8 @@ chatForm.addEventListener('submit', async function(e) {
     if (file) {
         const formData = new FormData();
         formData.append('photo', file);
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (csrfToken) formData.append('csrf_token', csrfToken);
         try {
             const resp = await fetch(`/youth/communities/${communityId}/upload_photo`, { method: 'POST', body: formData });
             const d = await resp.json();

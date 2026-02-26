@@ -61,8 +61,18 @@
                 <div class="message-feed" id="chatMessages">
                     {% if messages %}
                     {% for message in messages %}
-                    <div
-                        class="message-wrapper {% if message.sender_id == session.user_id %}me{% else %}other{% endif %}">
+                    <div class="message-wrapper {% if message.sender_id == session.user_id %}me{% else %}other{% endif %}" data-msg-id="{{ message.id }}">
+                        <!-- Action buttons (reply / edit) shown on hover -->
+                        <div class="message-actions">
+                            <button class="msg-action-btn" title="Reply" onclick="window.startReply({{ message.id }})">
+                                <i class="fas fa-reply"></i>
+                            </button>
+                            {% if message.sender_id == session.user_id %}
+                            <button class="msg-action-btn" title="Edit" onclick="window.startEdit({{ message.id }})">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            {% endif %}
+                        </div>
                         <div class="message-bubble">
                             {% if message.is_flagged %}
                             <div class="flagged-warning">
@@ -71,15 +81,25 @@
                             </div>
                             {% endif %}
 
+                            {% if message.reply_to %}
+                            <div class="reply-quote">
+                                <span class="reply-quote-author">{{ message.reply_to.sender.full_name }}</span>
+                                <span class="reply-quote-content">{{ (message.reply_to.content or '')|truncate(80, True, '...') }}</span>
+                            </div>
+                            {% endif %}
+
                             <div class="content-text">{{ message.content }}</div>
 
                             <div class="d-flex justify-content-end align-items-center mt-1">
-                                <button class="btn btn-link btn-sm text-muted p-0 me-2 tts-btn" 
+                                <button class="btn btn-link btn-sm text-muted p-0 me-2 tts-btn"
                                         onclick="toggleSpeak(this, this.closest('.message-bubble').querySelector('.content-text').innerText, localStorage.getItem('translationLanguage') || 'en')"
                                         title="Read aloud">
                                     <i class="fas fa-volume-up" style="font-size: 0.8rem;"></i>
                                 </button>
                                 <div class="time-stamp mb-0">{{ message.created_at|format_date('%I:%M %p') }}</div>
+                                {% if message.edited_at %}
+                                <span class="edited-label">(edited)</span>
+                                {% endif %}
                                 {% if message.sender_id != session.user_id %}
                                 <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn"
                                     onclick="openReportModal({{ message.id }})" title="Report Message">
@@ -101,8 +121,21 @@
 
                 <!-- Floating Input Bar -->
                 <div class="input-area-modern mt-4">
+                    <!-- Reply / Edit context bars -->
+                    <div id="reply-bar" class="chat-context-bar">
+                        <i class="fas fa-reply text-muted"></i>
+                        <span class="context-label" id="reply-bar-author"></span>
+                        <span class="context-text" id="reply-bar-preview"></span>
+                        <button class="cancel-btn" onclick="window.cancelReply()" title="Cancel reply">&times;</button>
+                    </div>
+                    <div id="edit-bar" class="chat-context-bar">
+                        <i class="fas fa-pencil-alt text-muted"></i>
+                        <span class="context-label">Editing message</span>
+                        <button class="cancel-btn" onclick="window.cancelEdit()" title="Cancel edit">&times;</button>
+                    </div>
                     <form id="messageForm" method="POST" action="{{ url_for('youth.messages') }}" onsubmit="return false;">
                         {{ form.hidden_tag() }}
+                        <input type="hidden" id="replyToId" name="reply_to_id" value="">
                         <div class="pill-input-wrapper shadow-sm">
                             <button class="btn emoji-trigger" type="button" data-bs-toggle="dropdown">
                                 <i class="far fa-smile"></i>
@@ -188,6 +221,9 @@
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 <script src="{{ url_for('static', filename='js/voice-input.js') }}"></script>
 <script>
+    window._buddyName = {{ buddy.full_name|tojson if buddy else 'null' }};
+    window._myName = {{ session.get('full_name', 'You')|tojson }};
+
     function insertSticker(emoji) {
         const input = document.getElementById('messageInput');
         if (!input) return;

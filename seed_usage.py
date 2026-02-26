@@ -134,14 +134,26 @@ def seed_usage():
         programs = ['Intergenerational Tech Bridge', 'Heritage Stories Project', 'Active Ageing Together']
 
         extra_pair_combos = list(zip(new_seniors, new_youth))
-        for s_user, y_user in extra_pair_combos:
+        for i, (s_user, y_user) in enumerate(extra_pair_combos):
             if s_user and y_user and (s_user.id, y_user.id) not in existing_pairs:
+                # Cycle through health states: healthy → needs attention → critical
+                bucket = i % 3
+                if bucket == 0:
+                    # Healthy: last interaction within 3 days
+                    last_int = datetime.utcnow() - timedelta(hours=random.randint(1, 70))
+                elif bucket == 1:
+                    # Needs attention: 3–7 days ago
+                    last_int = datetime.utcnow() - timedelta(hours=random.randint(73, 167))
+                else:
+                    # Critical: more than 7 days ago
+                    last_int = datetime.utcnow() - timedelta(days=random.randint(8, 30))
+
                 p = Pair(
                     senior_id=s_user.id, youth_id=y_user.id,
                     program=random.choice(programs),
                     status='active',
                     paired_date=datetime.utcnow() - timedelta(days=random.randint(14, 60)),
-                    last_interaction=datetime.utcnow() - timedelta(hours=random.randint(1, 72))
+                    last_interaction=last_int
                 )
                 db.session.add(p)
         db.session.flush()
@@ -430,6 +442,48 @@ def seed_usage():
         db.session.flush()
 
         # ============================================================
+        # 6b. REPLY & EDITED MESSAGES — demo new features
+        # ============================================================
+        print("Adding reply and edited message demos...")
+
+        # Find a message from Madam Tan to reply to
+        tan_msg_ref = Message.query.filter_by(
+            sender_id=senior.id, recipient_id=youth.id
+        ).order_by(Message.created_at.asc()).first()
+
+        if tan_msg_ref and not Message.query.filter_by(reply_to_id=tan_msg_ref.id).first():
+            db.session.add(Message(
+                sender_id=youth.id, recipient_id=senior.id,
+                content="Haha yes, exactly! Fresh ingredients always make the biggest difference 😄",
+                reply_to_id=tan_msg_ref.id,
+                original_language='en',
+                created_at=tan_msg_ref.created_at + timedelta(minutes=4)
+            ))
+
+        # Find a slightly later message from Ryan for Madam Tan to reply to
+        ryan_msg_ref = Message.query.filter_by(
+            sender_id=youth.id, recipient_id=senior.id
+        ).order_by(Message.created_at.asc()).offset(2).first()
+
+        if ryan_msg_ref and not Message.query.filter_by(reply_to_id=ryan_msg_ref.id).first():
+            db.session.add(Message(
+                sender_id=senior.id, recipient_id=youth.id,
+                content="Aiyah, your mum is a smart woman lah! You should listen more often! 😄",
+                reply_to_id=ryan_msg_ref.id,
+                original_language='en',
+                created_at=ryan_msg_ref.created_at + timedelta(minutes=12)
+            ))
+
+        # Mark a couple of Madam Tan's messages as edited (demonstrates the (edited) label)
+        msgs_to_edit = Message.query.filter_by(
+            sender_id=senior.id, recipient_id=youth.id, edited_at=None
+        ).order_by(Message.created_at.asc()).limit(2).all()
+        for msg in msgs_to_edit:
+            msg.edited_at = msg.created_at + timedelta(minutes=random.randint(2, 15))
+
+        db.session.flush()
+
+        # ============================================================
         # 7. COMMUNITY MEMBERSHIPS & POSTS
         # ============================================================
         print("Populating communities...")
@@ -582,6 +636,34 @@ def seed_usage():
         # Update member counts
         for community in all_communities:
             community.member_count = CommunityMember.query.filter_by(community_id=community.id).count()
+        db.session.flush()
+
+        # Add reply posts in communities (demo reply feature)
+        first_tan_post = CommunityPost.query.filter_by(user_id=senior.id).order_by(CommunityPost.created_at.asc()).first()
+        if first_tan_post and not CommunityPost.query.filter_by(reply_to_id=first_tan_post.id, user_id=youth.id).first():
+            db.session.add(CommunityPost(
+                community_id=first_tan_post.community_id,
+                user_id=youth.id,
+                content="Madam Tan, this is such a great tip! I had no idea — will definitely try it next time I cook.",
+                reply_to_id=first_tan_post.id,
+                created_at=first_tan_post.created_at + timedelta(hours=random.randint(1, 5))
+            ))
+
+        first_ryan_post = CommunityPost.query.filter_by(user_id=youth.id).order_by(CommunityPost.created_at.asc()).first()
+        if first_ryan_post and not CommunityPost.query.filter_by(reply_to_id=first_ryan_post.id, user_id=senior.id).first():
+            db.session.add(CommunityPost(
+                community_id=first_ryan_post.community_id,
+                user_id=senior.id,
+                content="Wah Ryan, so thoughtful! My grandchildren should learn from you. Very well said lah!",
+                reply_to_id=first_ryan_post.id,
+                created_at=first_ryan_post.created_at + timedelta(hours=random.randint(2, 8))
+            ))
+
+        # Mark one community post as edited (demonstrates the (edited) label)
+        post_to_edit = CommunityPost.query.filter_by(user_id=senior.id, edited_at=None).order_by(CommunityPost.created_at.asc()).first()
+        if post_to_edit:
+            post_to_edit.edited_at = post_to_edit.created_at + timedelta(minutes=random.randint(3, 20))
+
         db.session.flush()
 
         # ============================================================
@@ -851,7 +933,7 @@ def seed_usage():
         # ============================================================
         db.session.commit()
 
-        print("\n✅ Usage data seeded successfully!")
+        print("\n[OK] Usage data seeded successfully!")
         print(f"   Stories:         {Story.query.count()}")
         print(f"   Messages:        {Message.query.count()}")
         print(f"   Community Posts: {CommunityPost.query.count()}")
@@ -860,9 +942,9 @@ def seed_usage():
         print(f"   Game History:    {GameHistory.query.count()}")
         print(f"   Support Tickets: {SupportTicket.query.count()}")
         print(f"\n   Login credentials:")
-        print(f"   - senior / password123  →  {senior.full_name} (Madam Tan)")
-        print(f"   - youth  / password123  →  {youth.full_name} (Ryan Lee)")
-        print(f"   - admin  / password123  →  Admin dashboard")
+        print(f"   - senior / password123  ->  {senior.full_name} (Madam Tan)")
+        print(f"   - youth  / password123  ->  {youth.full_name} (Ryan Lee)")
+        print(f"   - admin  / password123  ->  Admin dashboard")
 
 
 if __name__ == '__main__':

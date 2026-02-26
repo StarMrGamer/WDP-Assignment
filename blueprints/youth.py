@@ -246,19 +246,23 @@ def messages():
         is_flagged = check_unkind_words(original_content, current_app.config.get('UNKIND_WORDS', []))
         content = sanitize_for_display(original_content)
 
+        # Read optional reply reference
+        reply_to_id = request.form.get('reply_to_id', type=int) or None
+
         # Create new message object
         new_message = Message(
             sender_id=user_id,
             recipient_id=buddy.id,
             content=content,
-            is_flagged=is_flagged
+            is_flagged=is_flagged,
+            reply_to_id=reply_to_id
         )
-        
+
         db.session.add(new_message)
-        
+
         # Update pair last interaction timestamp
         pair.last_interaction = datetime.utcnow()
-        
+
         db.session.commit()
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -342,6 +346,14 @@ def get_messages_json():
                     print(f"[TRANSLATE] ERROR translating msg {msg.id} to en: {type(e).__name__}: {e}")
                     translated = None
 
+        # Build reply preview
+        reply_preview = None
+        if msg.reply_to_id and msg.reply_to:
+            reply_preview = {
+                'author': msg.reply_to.sender.full_name,
+                'content': (msg.reply_to.content or '')[:80]
+            }
+
         messages_data.append({
             'id': msg.id,
             'content': msg.content,
@@ -349,10 +361,37 @@ def get_messages_json():
             'is_me': msg.sender_id == user_id,
             'created_at': (msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'),
             'is_flagged': msg.is_flagged,
-            'translated_content': translated
+            'translated_content': translated,
+            'reply_preview': reply_preview,
+            'edited_at': (msg.edited_at + timedelta(hours=8)).strftime('%I:%M %p') if msg.edited_at else None
         })
 
     return {'messages': messages_data}
+
+
+@youth_bp.route('/api/messages/<int:message_id>/edit', methods=['POST'])
+@csrf.exempt
+@login_required
+def edit_message(message_id):
+    """Edit an existing message. Only the original sender may edit."""
+    user_id = session['user_id']
+    msg = Message.query.get_or_404(message_id)
+
+    if msg.sender_id != user_id:
+        return jsonify({'success': False, 'error': 'Not authorized'}), 403
+
+    data = request.get_json() or {}
+    content = (data.get('content') or '').strip()
+    if not content:
+        return jsonify({'success': False, 'error': 'Content required'}), 400
+
+    is_flagged = check_unkind_words(content, current_app.config.get('UNKIND_WORDS', []))
+    msg.content = sanitize_for_display(content)
+    msg.edited_at = datetime.utcnow()
+    msg.is_flagged = is_flagged
+    db.session.commit()
+
+    return jsonify({'success': True, 'flagged': is_flagged})
 
 
 @youth_bp.route('/api/stories/feed')
@@ -1171,6 +1210,7 @@ def profile():
     user = User.query.get(session['user_id'])
     from forms import ProfileForm
     form = ProfileForm(obj=user)
+    form._role = user.role
 
     if form.validate_on_submit():
         # 1. Update basic information

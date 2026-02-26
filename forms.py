@@ -62,11 +62,16 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Invalid or already used registration code.')
 
     def validate_dob(self, dob):
+        today = datetime.utcnow().date()
+        if dob.data >= today:
+            raise ValidationError('Date of birth cannot be today or in the future.')
         age = calculate_age(dob.data)
+        if age > 130:
+            raise ValidationError('Please enter a valid date of birth.')
         if self.role.data == 'senior' and age < 60:
-            raise ValidationError('Seniors must be 60 years or older (based on Date of Birth).')
+            raise ValidationError('Seniors must be 60 years or older.')
         if self.role.data == 'youth' and age < 13:
-            raise ValidationError('Youth volunteers must be 13 years or older.')
+            raise ValidationError('Youth volunteers must be at least 13 years old.')
         if self.role.data == 'youth' and age >= 60:
             raise ValidationError('If you are 60 or older, please register as a Senior.')
 
@@ -96,6 +101,16 @@ class GoogleCompleteForm(FlaskForm):
         if not code:
             raise ValidationError('Invalid or already used registration code.')
 
+    def validate_dob(self, dob):
+        today = datetime.utcnow().date()
+        if dob.data >= today:
+            raise ValidationError('Date of birth cannot be today or in the future.')
+        age = calculate_age(dob.data)
+        if age > 130:
+            raise ValidationError('Please enter a valid date of birth.')
+        if age < 13:
+            raise ValidationError('You must be at least 13 years old to register.')
+
     def validate_phone(self, phone):
         import re
         if not re.match(r'^[689]\d{7}$', phone.data):
@@ -121,6 +136,21 @@ class ProfileForm(FlaskForm):
     dob = DateField('Date of Birth', validators=[DataRequired()], format='%Y-%m-%d')
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')])
     submit = SubmitField('Update Profile')
+
+    def validate_dob(self, dob):
+        today = datetime.utcnow().date()
+        if dob.data >= today:
+            raise ValidationError('Date of birth cannot be today or in the future.')
+        age = calculate_age(dob.data)
+        if age > 130:
+            raise ValidationError('Please enter a valid date of birth.')
+        role = getattr(self, '_role', None)
+        if role == 'senior' and age < 60:
+            raise ValidationError('Seniors must be 60 years or older.')
+        if role == 'youth' and age < 13:
+            raise ValidationError('You must be at least 13 years old.')
+        if role == 'youth' and age >= 60:
+            raise ValidationError('Date of birth indicates a Senior age — please contact support to update your role.')
 
     def validate_phone(self, phone):
         import re

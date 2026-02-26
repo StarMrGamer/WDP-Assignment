@@ -159,6 +159,13 @@
     min-height: 45px;
 }
 
+.auto-expand:active {
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    outline: none !important;
+}
+
 .emoji-trigger {
     font-size: 1.4rem;
     color: #888;

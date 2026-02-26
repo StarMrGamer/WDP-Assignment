@@ -349,11 +349,14 @@ class Message(db.Model):
 
     is_flagged = db.Column(db.Boolean, default=False)  # Flagged by safety system
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    edited_at = db.Column(db.DateTime, nullable=True)
+    reply_to_id = db.Column(db.Integer, db.ForeignKey('messages.id'), nullable=True)
 
     # Relationships
     sender = db.relationship('User', foreign_keys=[sender_id], back_populates='sent_messages')
     recipient = db.relationship('User', foreign_keys=[recipient_id], back_populates='received_messages')
     reports = db.relationship('ChatReport', back_populates='message', lazy='dynamic')
+    reply_to = db.relationship('Message', foreign_keys=[reply_to_id], remote_side='Message.id')
 
     def __repr__(self):
         return f'<Message {self.id} from User {self.sender_id} to {self.recipient_id}>'

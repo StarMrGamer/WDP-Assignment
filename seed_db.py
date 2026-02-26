@@ -251,11 +251,39 @@ def seed_data():
             created_by=admin.id
         )
 
+        # Pending event — suggested by a youth volunteer, awaiting admin approval
+        event6 = Event(
+            title='Seniors Calligraphy Exhibition',
+            description='Showcase calligraphy artworks created by seniors at the community centre. A great way to celebrate traditional arts and connect generations.',
+            event_type='in-person',
+            location='Bishan Community Centre',
+            date=datetime.utcnow() + timedelta(days=20),
+            capacity=40,
+            status='pending',
+            justification='Would love to organise this to let seniors showcase their beautiful work and inspire the youth!',
+            created_by=youth.id
+        )
+
+        # Another pending event from admin
+        event7 = Event(
+            title='Intergenerational Board Games Day',
+            description='A fun afternoon of Scrabble, Chinese Chess, and card games between seniors and youth volunteers. Light refreshments provided.',
+            event_type='in-person',
+            location='Toa Payoh Hub',
+            date=datetime.utcnow() + timedelta(days=35),
+            capacity=50,
+            status='pending',
+            justification='Fun activity to strengthen buddy bonds through friendly competition.',
+            created_by=admin.id
+        )
+
         db.session.add(event1)
         db.session.add(event2)
         db.session.add(event3)
         db.session.add(event4)
         db.session.add(event5)
+        db.session.add(event6)
+        db.session.add(event7)
         db.session.commit()
 
         # Register senior + youth for the upcoming 24h event and the past event
