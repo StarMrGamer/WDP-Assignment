@@ -43,8 +43,8 @@ def seed_data():
 
         # Seniors ─────────────────────────────────────────────────────────────
         s1 = User(
-            username='madam_tan', email='tan.beehoon@gencon.sg',
-            full_name='Tan Bee Hoon', dob=dob_from_age(72), phone='+65 9111 2233',
+            username='senior', email='tan.beehoon@gencon.sg',
+            full_name='Madam Tan', dob=dob_from_age(72), phone='+65 9111 2233',
             role='senior', is_approved=True,
             bio='Retired schoolteacher who loves cooking Peranakan dishes and tending to my little garden. Happy to share stories from a simpler Singapore.',
             interests_json=json.dumps(['Cooking', 'Gardening', 'Stories', 'Teaching']),
@@ -105,7 +105,7 @@ def seed_data():
 
         # Youth ───────────────────────────────────────────────────────────────
         y1 = User(
-            username='ryan_lee', email='ryan.lee@gencon.sg',
+            username='youth', email='ryan.lee@gencon.sg',
             full_name='Ryan Lee', dob=dob_from_age(19), phone='+65 8111 2233',
             role='youth', is_approved=True,
             bio='Year 1 IT student at NYP. Passionate about using technology to bridge generational gaps.',
