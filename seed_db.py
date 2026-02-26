@@ -179,21 +179,21 @@ def seed_data():
                 created_by=(created_by or admin.id), member_count=0,
             )
 
-        c_arts    = make_comm('Traditional Arts',      'Story',    'fas fa-palette',    'arts',        'Painting, Calligraphy, Heritage',          'Explore traditional Singaporean art forms including calligraphy, batik painting, and Chinese brush painting.')
-        c_cook    = make_comm('Heritage Cooking',       'Hobby',    'fas fa-utensils',   'cooking',     'Recipes, Food Heritage, Cooking Tips',     'Share traditional recipes and cooking techniques passed down through generations.')
-        c_circle  = make_comm('Story Sharing Circle',   'Story',    'fas fa-book-open',  'culture',     'Life Stories, History, Wisdom',            "A safe space to share life experiences and wisdom from Singapore's rich history.")
-        c_garden  = make_comm('Gardening Enthusiasts',  'Hobby',    'fas fa-seedling',   'gardening',   'Plants, Gardening, Nature',                'Connect with fellow gardening lovers to share tips on growing tropical plants and herbs.')
-        c_music   = make_comm('Music & Songs',          'Hobby',    'fas fa-music',      'music',       'Music, Songs, Memories',                   'Share your love for music, from traditional songs to modern tunes.')
-        c_active  = make_comm('Active Seniors',         'Hobby',    'fas fa-walking',    'sports',      'Fitness, Wellness, Activities',            'Stay active and healthy together! Share fitness tips and walking routes.')
-        c_story   = make_comm('Story Collectors',       'Story',    'fas fa-book-open',  'storytelling','Storytelling, Heritage, Documentation',    "Document and preserve seniors' life stories. Help create a digital archive of history.")
-        c_tech    = make_comm('Tech Helpers',           'Learning', 'fas fa-laptop',     'tech',        'Technology, Teaching, Digital Skills',     'Bridge the digital divide by teaching seniors how to use smartphones and computers.')
-        c_games   = make_comm('Game Facilitators',      'Hobby',    'fas fa-gamepad',    'games',       'Games, Recreation, Active Aging',          'Organize and facilitate traditional and modern games with seniors.')
-        c_crafts  = make_comm('Arts & Crafts Buddies',  'Hobby',    'fas fa-palette',    'arts',        'Arts, Crafts, Creative',                   'Explore creativity through arts and crafts with seniors.')
-        c_lang    = make_comm('Language Exchange',      'Learning', 'fas fa-language',   'language',    'Language, Dialects, Culture',              'Practice and preserve mother tongues through conversations with seniors.')
-        c_well    = make_comm('Wellness Champions',     'Hobby',    'fas fa-heartbeat',  'wellness',    'Wellness, Exercise, Health',               'Promote health and wellness through exercise and mindfulness activities.')
+        c_arts    = make_comm('Traditional Arts',      'Story',    'bi bi-palette',     'arts',        'Painting, Calligraphy, Heritage',          'Explore traditional Singaporean art forms including calligraphy, batik painting, and Chinese brush painting.')
+        c_cook    = make_comm('Heritage Cooking',       'Hobby',    'bi bi-egg-fried',   'cooking',     'Recipes, Food Heritage, Cooking Tips',     'Share traditional recipes and cooking techniques passed down through generations.')
+        c_circle  = make_comm('Story Sharing Circle',   'Story',    'bi bi-book',        'culture',     'Life Stories, History, Wisdom',            "A safe space to share life experiences and wisdom from Singapore's rich history.")
+        c_garden  = make_comm('Gardening Enthusiasts',  'Hobby',    'bi bi-flower1',     'gardening',   'Plants, Gardening, Nature',                'Connect with fellow gardening lovers to share tips on growing tropical plants and herbs.')
+        c_music   = make_comm('Music & Songs',          'Hobby',    'bi bi-music-note-beamed', 'music', 'Music, Songs, Memories',                   'Share your love for music, from traditional songs to modern tunes.')
+        c_active  = make_comm('Active Seniors',         'Hobby',    'bi bi-person-walking','sports',    'Fitness, Wellness, Activities',            'Stay active and healthy together! Share fitness tips and walking routes.')
+        c_story   = make_comm('Story Collectors',       'Story',    'bi bi-journal-text','storytelling','Storytelling, Heritage, Documentation',    "Document and preserve seniors' life stories. Help create a digital archive of history.")
+        c_tech    = make_comm('Tech Helpers',           'Learning', 'bi bi-laptop',      'tech',        'Technology, Teaching, Digital Skills',     'Bridge the digital divide by teaching seniors how to use smartphones and computers.')
+        c_games   = make_comm('Game Facilitators',      'Hobby',    'bi bi-controller',  'games',       'Games, Recreation, Active Aging',          'Organize and facilitate traditional and modern games with seniors.')
+        c_crafts  = make_comm('Arts & Crafts Buddies',  'Hobby',    'bi bi-brush',       'arts',        'Arts, Crafts, Creative',                   'Explore creativity through arts and crafts with seniors.')
+        c_lang    = make_comm('Language Exchange',      'Learning', 'bi bi-translate',   'language',    'Language, Dialects, Culture',              'Practice and preserve mother tongues through conversations with seniors.')
+        c_well    = make_comm('Wellness Champions',     'Hobby',    'bi bi-heart-pulse', 'wellness',    'Wellness, Exercise, Health',               'Promote health and wellness through exercise and mindfulness activities.')
 
         # Pending community suggested by a youth user
-        c_pending = make_comm('Photography Heritage',  'Story',    'fas fa-camera',     'arts',        'Photography, Heritage, Memory',            'Use photography to document and celebrate seniors and their living history.', created_by=y4.id)
+        c_pending = make_comm('Photography Heritage',  'Story',    'bi bi-camera',      'arts',        'Photography, Heritage, Memory',            'Use photography to document and celebrate seniors and their living history.', created_by=y4.id)
         c_pending.status      = 'pending'
         c_pending.justification = 'Photography is a powerful way to preserve memories. Would love to create this with our seniors!'
 

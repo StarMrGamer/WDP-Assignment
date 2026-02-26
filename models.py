@@ -512,7 +512,7 @@ class Community(db.Model):
     rules = db.Column(db.Text)
     
     # Visual customization
-    icon = db.Column(db.String(50), default='fas fa-users')
+    icon = db.Column(db.String(50), default='bi bi-people-fill')
     banner_class = db.Column(db.String(50), default='default')
     tags = db.Column(db.String(255))  # Comma separated tags
     photo_url = db.Column(db.String(255))

@@ -34,7 +34,7 @@
                     <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" style="width: 100%; height: 160px; object-fit: cover;">
                     {% else %}
                     <div class="d-flex align-items-center justify-content-center" style="width: 100%; height: 160px; background: linear-gradient(135deg, var(--youth-primary), var(--youth-accent)); font-size: 3.5rem; color: white; font-weight: 700;">
-                        {{ community.name[0] | upper }}
+                        <i class="{{ community.icon }}"></i>
                     </div>
                     {% endif %}
                     {% if community.unread_count > 0 %}
@@ -74,7 +74,7 @@
                     <img src="{{ url_for('static', filename=community.photo_url) }}" alt="{{ community.name }}" style="width: 100%; height: 160px; object-fit: cover;">
                     {% else %}
                     <div class="d-flex align-items-center justify-content-center" style="width: 100%; height: 160px; background: linear-gradient(135deg, var(--youth-accent), var(--youth-primary)); font-size: 3.5rem; color: white; font-weight: 700;">
-                        {{ community.name[0] | upper }}
+                        <i class="{{ community.icon }}"></i>
                     </div>
                     {% endif %}
                 </div>
