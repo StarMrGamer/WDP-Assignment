@@ -3,8 +3,8 @@ seed_db.py — Comprehensive demo seed for GenCon SG.
 
 Login credentials (all passwords: password123)
   Admin  : admin
-  Seniors: madam_tan | uncle_rajan | auntie_siti | mr_lim | mrs_wong | uncle_ali
-  Youth  : ryan_lee  | sarah_chen  | david_tan   | emily_wong | marcus_lim | priya_k
+  Seniors: senior | uncle_rajan | auntie_siti | mr_lim | mrs_wong | uncle_ali
+  Youth  : youth  | sarah_chen  | david_tan   | emily_wong | marcus_lim | priya_k
 """
 
 import json
@@ -822,8 +822,8 @@ def seed_data():
         print("\n✓ Database seeded successfully!")
         print("─" * 45)
         print("  Admin   : admin / password123")
-        print("  Seniors : madam_tan, uncle_rajan, auntie_siti, mr_lim, mrs_wong, uncle_ali")
-        print("  Youth   : ryan_lee, sarah_chen, david_tan, emily_wong, marcus_lim, priya_k")
+        print("  Seniors : senior, uncle_rajan, auntie_siti, mr_lim, mrs_wong, uncle_ali")
+        print("  Youth   : youth, sarah_chen, david_tan, emily_wong, marcus_lim, priya_k")
         print("  (all passwords: password123)")
         print("─" * 45)
 
