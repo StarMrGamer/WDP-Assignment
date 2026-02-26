@@ -223,6 +223,8 @@
 <script>
     window._buddyName = {{ buddy.full_name|tojson if buddy else 'null' }};
     window._myName = {{ session.get('full_name', 'You')|tojson }};
+    window._myId = {{ session.user_id }};
+    window._buddyId = {{ buddy.id if buddy else 'null' }};
 
     function insertSticker(emoji) {
         const input = document.getElementById('messageInput');

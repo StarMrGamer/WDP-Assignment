@@ -4,8 +4,8 @@
  * Author: to be assigned
  * Date: January 2026
  * Description:
- *   - Polls the server for new messages every 3 seconds
- *   - Updates the chat UI dynamically without page reload
+ *   - Receives new messages instantly via Socket.IO push
+ *   - Loads initial message history via HTTP fetch on page open
  *   - Auto-scrolls to the newest message
  *   - Supports reply and edit of messages
  */
@@ -20,8 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // If we are in /youth/messages, use /youth/api/messages
     const role = window.location.pathname.split('/')[1]; // 'senior' or 'youth'
     const apiEndpoint = `/${role}/api/messages`;
-    const postEndpoint = `/${role}/messages`;
     const editEndpointBase = `/${role}/api/messages`;
+
+    // Socket.IO connection — server already joins user_{id} room on connect
+    const socket = io();
 
     let lastMessageCount = 0;
     let lastLang = localStorage.getItem('translationLanguage') || 'none';
@@ -84,7 +86,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     /**
-     * Fetch messages from the server and update the UI
+     * Fetch messages from the server and update the UI.
+     * Used for: initial history load, edit re-renders, language re-renders.
      */
     function fetchMessages() {
         const lang = localStorage.getItem('translationLanguage') || 'none';
@@ -101,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 const messages = data.messages;
 
-                if (messages.length !== lastMessageCount || forceRender) {
+                if (messages.length > lastMessageCount || forceRender) {
                     renderMessages(messages);
                     lastMessageCount = messages.length;
                     scrollToBottom();
@@ -209,6 +212,80 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
+     * Append a socket-pushed message bubble to the chat.
+     * Uses msg.sender_id vs window._myId to determine side.
+     */
+    function appendSocketMessage(msg) {
+        if (!chatMessages) return;
+
+        // Remove empty-state placeholder if present
+        const emptyState = chatMessages.querySelector('.empty-chat-state');
+        if (emptyState) emptyState.remove();
+
+        const isMe = msg.sender_id === window._myId;
+        const sideClass = isMe ? 'me' : 'other';
+
+        const flaggedAlert = msg.is_flagged ? `
+            <div class="flagged-warning">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                <small>Unkind language detected</small>
+            </div>
+        ` : '';
+
+        const replyQuoteHtml = msg.reply_preview ? `
+            <div class="reply-quote">
+                <span class="reply-quote-author">${escapeHtml(msg.reply_preview.author)}</span>
+                <span class="reply-quote-content">${escapeHtml(msg.reply_preview.content)}</span>
+            </div>
+        ` : '';
+
+        const reportBtn = !isMe ? `
+            <button class="btn btn-link btn-sm text-muted p-0 ms-2 report-btn" onclick="openReportModal(${msg.id})" title="Report Message">
+                <i class="far fa-flag" style="font-size: 0.8rem;"></i>
+            </button>
+        ` : '';
+
+        const ttsBtn = `
+            <button class="btn btn-link btn-sm text-muted p-0 me-2 tts-btn"
+                    onclick="toggleSpeak(this, this.closest('.message-bubble').querySelector('.translation-text')?.innerText || this.closest('.message-bubble').querySelector('.content-text').innerText, localStorage.getItem('translationLanguage') || 'en')"
+                    title="Read aloud">
+                <i class="fas fa-volume-up" style="font-size: 0.8rem;"></i>
+            </button>
+        `;
+
+        const editBtn = isMe
+            ? `<button class="msg-action-btn" title="Edit" onclick="window.startEdit(${msg.id})"><i class="fas fa-pencil-alt"></i></button>`
+            : '';
+
+        const actionsHtml = `
+            <div class="message-actions">
+                <button class="msg-action-btn" title="Reply" onclick="window.startReply(${msg.id})">
+                    <i class="fas fa-reply"></i>
+                </button>
+                ${editBtn}
+            </div>
+        `;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = `message-wrapper ${sideClass}`;
+        wrapper.setAttribute('data-msg-id', msg.id);
+        wrapper.innerHTML = `
+            ${actionsHtml}
+            <div class="message-bubble">
+                ${flaggedAlert}
+                ${replyQuoteHtml}
+                <div class="content-text">${msg.content}</div>
+                <div class="d-flex justify-content-end align-items-center mt-1">
+                    ${ttsBtn}
+                    <div class="time-stamp mb-0">${msg.created_at}</div>
+                    ${reportBtn}
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(wrapper);
+    }
+
+    /**
      * Scroll the chat container to the bottom to show latest messages
      */
     function scrollToBottom() {
@@ -218,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Safely escape HTML to prevent XSS in optimistic messages
+     * Safely escape HTML to prevent XSS in user-supplied strings
      */
     function escapeHtml(text) {
         const div = document.createElement('div');
@@ -226,48 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return div.innerHTML;
     }
 
-    /**
-     * Append a sent message to the chat immediately (optimistic UI)
-     */
-    function appendMyMessage(content, replyPreview) {
-        if (!chatMessages) return;
-
-        // Remove empty-state placeholder if present
-        const emptyState = chatMessages.querySelector('.empty-chat-state');
-        if (emptyState) emptyState.remove();
-
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-        const replyHtml = replyPreview ? `
-            <div class="reply-quote">
-                <span class="reply-quote-author">${escapeHtml(replyPreview.author)}</span>
-                <span class="reply-quote-content">${escapeHtml(replyPreview.preview)}</span>
-            </div>
-        ` : '';
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message-wrapper me';
-        wrapper.innerHTML = `
-            <div class="message-bubble">
-                ${replyHtml}
-                <div class="content-text">${escapeHtml(content)}</div>
-                <div class="d-flex justify-content-end align-items-center mt-1">
-                    <button class="btn btn-link btn-sm text-muted p-0 me-2 tts-btn"
-                            onclick="toggleSpeak(this, this.closest('.message-bubble').querySelector('.content-text').innerText, localStorage.getItem('translationLanguage') || 'en')"
-                            title="Read aloud">
-                        <i class="fas fa-volume-up" style="font-size: 0.8rem;"></i>
-                    </button>
-                    <div class="time-stamp mb-0">${timeStr}</div>
-                </div>
-            </div>
-        `;
-        chatMessages.appendChild(wrapper);
-        scrollToBottom();
-
-        // Keep lastMessageCount in sync so the next poll doesn't re-render
+    // ── Socket listener for new buddy messages ────────────────────────────
+    socket.on('new_buddy_message', function(msg) {
+        appendSocketMessage(msg);
         lastMessageCount++;
-    }
+        scrollToBottom();
+    });
 
     // Handle Form Submission
     if (messageForm) {
@@ -311,64 +352,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // ── Send mode ────────────────────────────────────────────────
-            // Prevent double-submit
-            if (sendBtn) sendBtn.disabled = true;
+            // Emit via Socket.IO — server saves and echoes back via new_buddy_message
+            socket.emit('buddy_message', {
+                content: content,
+                recipient_id: window._buddyId,
+                reply_to_id: replyingTo ? replyingTo.id : null
+            });
 
-            // Set reply_to_id hidden input before capturing FormData
-            const replyInput = document.getElementById('replyToId');
-            if (replyInput) replyInput.value = replyingTo ? replyingTo.id : '';
-
-            // Capture form data BEFORE clearing input (includes CSRF token)
-            const formData = new FormData(messageForm);
-
-            // Snapshot reply context for optimistic bubble, then clear
-            const currentReply = replyingTo ? { ...replyingTo } : null;
-
-            // Clear input immediately for a responsive feel
+            // Clear input and cancel reply immediately
             messageInput.value = '';
             messageInput.style.height = 'auto';
             if (typeof autoExpand === 'function') autoExpand(messageInput);
-
-            // Show message instantly without waiting for server
-            appendMyMessage(content, currentReply);
             window.cancelReply();
-
-            // Send to server in background
-            fetch(postEndpoint, {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(response => {
-                if (response.ok) return response.json();
-                throw new Error('Failed to send message');
-            })
-            .then(data => {
-                if (!data.success) {
-                    console.error('Server rejected message');
-                }
-                // If flagged, force a re-render so the flagged warning appears
-                if (data.flagged) {
-                    if (typeof showToast === 'function') {
-                        showToast('Your message was flagged for potentially unkind language.', 'warning');
-                    }
-                    forceRender = true;
-                    lastMessageCount--;
-                    fetchMessages();
-                }
-            })
-            .catch(error => {
-                console.error('Error sending message:', error);
-                // Roll back the optimistic counter so the next poll re-renders
-                // and removes the ghost bubble
-                lastMessageCount--;
-                if (typeof showToast === 'function') {
-                    showToast('Failed to send message. Please try again.', 'danger');
-                }
-            })
-            .finally(() => {
-                if (sendBtn) sendBtn.disabled = false;
-            });
         });
     }
 
@@ -378,10 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return fetchMessages();
     };
 
-    // Initial fetch
+    // Initial fetch to load history
     fetchMessages();
-
-    // Poll every 3 seconds for new messages
-    setInterval(fetchMessages, 3000);
 
 });

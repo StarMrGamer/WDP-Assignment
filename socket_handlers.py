@@ -198,6 +198,66 @@ def on_game_chat(data):
     }, room=room)
 
 
+@socketio.on('buddy_message')
+def on_buddy_message(data):
+    from models import Message, Pair
+    from datetime import datetime
+
+    sender_id = session.get('user_id')
+    if not sender_id:
+        return
+
+    content = (data.get('content') or '').strip()
+    reply_to_id = data.get('reply_to_id') or None
+    recipient_id = data.get('recipient_id')
+
+    if not content or not recipient_id:
+        return
+
+    is_flagged = check_unkind_words(content, current_app.config.get('UNKIND_WORDS', []))
+    safe_content = sanitize_for_display(content)
+
+    new_msg = Message(
+        sender_id=sender_id,
+        recipient_id=recipient_id,
+        content=safe_content,
+        is_flagged=is_flagged,
+        reply_to_id=reply_to_id
+    )
+    db.session.add(new_msg)
+
+    # Update pair last_interaction timestamp
+    pair = Pair.query.filter(
+        ((Pair.senior_id == sender_id) & (Pair.youth_id == recipient_id)) |
+        ((Pair.senior_id == recipient_id) & (Pair.youth_id == sender_id))
+    ).first()
+    if pair:
+        pair.last_interaction = datetime.utcnow()
+
+    db.session.commit()
+
+    # Build reply preview
+    reply_preview = None
+    if reply_to_id and new_msg.reply_to:
+        reply_preview = {
+            'author': new_msg.reply_to.sender.full_name,
+            'content': (new_msg.reply_to.content or '')[:80]
+        }
+
+    msg_data = {
+        'id': new_msg.id,
+        'sender_id': sender_id,
+        'content': safe_content,
+        'is_flagged': is_flagged,
+        'created_at': (new_msg.created_at + timedelta(hours=8)).strftime('%I:%M %p'),
+        'reply_preview': reply_preview
+    }
+
+    # Push to both users' personal rooms
+    socketio.emit('new_buddy_message', msg_data, room=f"user_{sender_id}")
+    socketio.emit('new_buddy_message', msg_data, room=f"user_{recipient_id}")
+
+
 # ==================== COMMUNITY EVENTS ====================
 
 @socketio.on('join_community')
