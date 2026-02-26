@@ -749,7 +749,8 @@ def communities():
             last_viewed = member.last_viewed_at or member.joined_at
             unread = CommunityPost.query.filter(
                 CommunityPost.community_id == comm.id,
-                CommunityPost.created_at > last_viewed
+                CommunityPost.created_at > last_viewed,
+                CommunityPost.user_id != user_id
             ).count()
             comm.unread_count = unread
             my_communities.append(comm)
